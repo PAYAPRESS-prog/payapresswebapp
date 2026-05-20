@@ -739,23 +739,26 @@ export function CopperCalculator() {
                   ) : <div className="pt-5" />;
                 })()}
 
-                {/* Per metre */}
+                {/* Results for entered length */}
                 <div className="pb-4">
-                  <div className="copper-divider mb-4">Per Metre</div>
+                  <div className="copper-divider mb-4">{Number(lengthStr) || 1000} mm</div>
                   <div className="grid grid-cols-3 gap-2.5">
                     <ResultCard
-                      label="Weight / m"
-                      rawValue={result.weightPerMeter}
-                      formatFn={v => fmt(v, 3)}
-                      unit="kg / m"
+                      label="Weight"
+                      rawValue={result.weightPerMeter * qty}
+                      formatFn={v => fmt(v, 2)}
+                      secondary={`${fmt(result.weightPerMeter, 3)} kg/m`}
+                      unit="kg"
                       delay={0}
                     />
                     <ResultCard
-                      label="Cost / m"
-                      rawValue={result.costPerMeter * fxRate}
+                      label="Cost"
+                      rawValue={result.costPerMeter * qty * fxRate}
                       formatFn={v => fmtCurrency(v, currMeta)}
-                      secondary={currCode !== 'USD' ? fmtUSD(result.costPerMeter) : undefined}
-                      unit={`${currCode} / m`}
+                      secondary={currCode !== 'USD'
+                        ? fmtUSD(result.costPerMeter * qty)
+                        : `${fmtCurrency(result.costPerMeter * fxRate, currMeta)}/m`}
+                      unit={currCode}
                       delay={0.06}
                     />
                     <ResultCard
@@ -764,36 +767,6 @@ export function CopperCalculator() {
                       formatFn={v => fmtCurrency(v, currMeta, 0)}
                       secondary={currCode !== 'USD' ? fmtUSD(result.costPerM2, 0) : undefined}
                       unit={`${currCode} / m²`}
-                      highlight
-                      delay={0.12}
-                    />
-                  </div>
-                </div>
-
-                {/* Total */}
-                <div className="border-t border-[var(--color-surface-3)] pt-5 pb-4">
-                  <div className="copper-divider mb-4">Total — {Number(lengthStr) || 1000} mm</div>
-                  <div className="grid grid-cols-3 gap-2.5">
-                    <ResultCard
-                      label="Weight"
-                      rawValue={result.weightPerMeter * qty}
-                      formatFn={v => fmt(v, 2)}
-                      unit="kg"
-                      delay={0}
-                    />
-                    <ResultCard
-                      label="Cost"
-                      rawValue={result.costPerMeter * qty * fxRate}
-                      formatFn={v => fmtCurrency(v, currMeta)}
-                      secondary={currCode !== 'USD' ? fmtUSD(result.costPerMeter * qty) : undefined}
-                      unit={currCode}
-                      delay={0.06}
-                    />
-                    <ResultCard
-                      label="USD Total"
-                      rawValue={result.costPerMeter * qty}
-                      formatFn={v => fmtUSD(v)}
-                      unit="USD"
                       highlight
                       delay={0.12}
                     />
