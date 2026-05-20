@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "comment": "Set 'Root Directory' to 'frontend' in Vercel dashboard when importing this repo.",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_WP_API_BASE": "@wp_api_base",
+    "NEXT_PUBLIC_WP_HOSTNAME":  "@wp_hostname"
+  }
+}
