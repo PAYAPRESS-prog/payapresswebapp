@@ -122,10 +122,29 @@ npm test           # run unit tests
 
 ## API Endpoints
 
+### Internal (Next.js app)
+
 | Route | Description | Cache |
 |---|---|---|
 | `GET /api/copper-price` | COMEX Cu price in USD (lb, kg, MT) | 5 min |
-| `GET /api/fx-rate` | EUR/GBP/CAD/AED per USD | 1 hour |
+| `GET /api/fx-rate` | FX rates (22 currencies) per USD | 6 hr |
+
+### Public REST API (v1)
+
+Full documentation: **[docs/API.md](docs/API.md)**
+
+| Route | Description |
+|---|---|
+| `GET /api/v1/calculate` | Copper busbar cost given width, thickness, length, grade, currency |
+| `GET /api/v1/copper-price` | Live COMEX copper price (proxies internal endpoint) |
+| `GET /api/v1/fx-rates` | USD-based FX rates for all supported currencies |
+
+All v1 endpoints include `Access-Control-Allow-Origin: *` CORS headers.
+
+**Quick example:**
+```http
+GET https://guileless-torrone-f24c5e.netlify.app/api/v1/calculate?width=60&thickness=8&length=6000&grade=cu-etp&currency=AED
+```
 
 ---
 
