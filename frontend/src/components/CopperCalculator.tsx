@@ -1,24 +1,14 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import dynamic from 'next/dynamic';
 import {
   motion, AnimatePresence,
   useMotionValue, useTransform, useSpring,
 } from 'framer-motion';
 import { BUSBAR_SIZES, MATERIAL_GRADES, DEFAULT_SIZE, DEFAULT_GRADE } from '@/lib/copperData';
 import { calculateCost, fmt, fmtUSD } from '@/lib/copperPrice';
+import { BusbarRender } from './BusbarRender';
 import type { BusbarSize, MaterialGrade, CopperPriceData } from '@/types/calculator';
-
-// Load Three.js scene only on client
-const BusbarScene = dynamic(() => import('./BusbarScene'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full flex items-center justify-center">
-      <div className="w-8 h-8 rounded-full border-2 border-copper-600/40 border-t-copper-500 animate-spin" />
-    </div>
-  ),
-});
 
 interface FxRates { EUR: number; GBP: number; CAD: number; AED: number; isFallback: boolean }
 
@@ -177,18 +167,12 @@ export function CopperCalculator() {
     <TiltCard className="card-copper scanlines">
       <div className="relative z-10 p-5 md:p-7">
 
-        {/* ── 3D Busbar Viewer ─────────────────────── */}
-        <div
-          className="w-full rounded-xl overflow-hidden mb-5 border border-[var(--color-surface-4)] bg-[var(--color-surface-1)]"
-          style={{ height: 200 }}
-        >
-          <BusbarScene width={size.width} thickness={size.thickness} />
-          {/* Dimension overlay */}
-          <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-2 pointer-events-none" style={{ marginTop: -36 }}>
-            <span className="font-mono text-[0.65rem] text-copper-700/80 bg-[var(--color-surface-0)]/70 px-2 py-0.5 rounded">
-              {size.label} · {size.width * size.thickness} mm²
-            </span>
-          </div>
+        {/* ── Busbar Render ────────────────────────── */}
+        <div className="w-full rounded-xl overflow-hidden mb-5 border border-[var(--color-surface-4)] bg-[var(--color-surface-1)] px-3 pt-3 pb-1">
+          <BusbarRender width={size.width} thickness={size.thickness} />
+          <p className="text-center font-mono text-[0.62rem] text-copper-800/70 pb-1.5">
+            {size.label} · {size.width * size.thickness} mm² · {grade.label}
+          </p>
         </div>
 
         {/* ── Size + Grade ─────────────────────────── */}
