@@ -1,37 +1,197 @@
-/* PAYAPRESS-WEBAPP — global styles */
-/* TODO: Replace with your design system / Tailwind / CSS-in-JS */
+@import "tailwindcss";
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@theme {
+  --color-copper-50:  #fdf6ed;
+  --color-copper-100: #f9e8cc;
+  --color-copper-200: #f1ce90;
+  --color-copper-300: #e8a855;
+  --color-copper-400: #e08830;
+  --color-copper-500: #cd7f32;
+  --color-copper-600: #b87333;
+  --color-copper-700: #9a5e28;
+  --color-copper-800: #7d4c22;
+  --color-copper-900: #663e1d;
+  --color-copper-950: #3d2210;
+
+  --color-surface-0:  #080808;
+  --color-surface-1:  #0f0f0f;
+  --color-surface-2:  #161616;
+  --color-surface-3:  #1f1f1f;
+  --color-surface-4:  #2a2a2a;
+
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 }
 
-:root {
-  --color-primary: #0070f3;
-  --color-background: #ffffff;
-  --color-foreground: #111111;
-  --font-sans: system-ui, -apple-system, sans-serif;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html {
-  font-family: var(--font-sans);
-  color: var(--color-foreground);
-  background: var(--color-background);
-}
+html { scroll-behavior: smooth; }
 
 body {
+  background-color: var(--color-surface-0);
+  color: #f0f0f0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
   min-height: 100vh;
-  line-height: 1.6;
 }
 
-a {
-  color: var(--color-primary);
-  text-decoration: none;
+/* ─── Copper glow card ──────────────────────────────── */
+.card-copper {
+  background: var(--color-surface-2);
+  border: 1px solid rgba(184, 115, 51, 0.25);
+  border-radius: 1rem;
+  box-shadow:
+    0 0 0 1px rgba(184, 115, 51, 0.08),
+    0 4px 40px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(184, 115, 51, 0.06);
+  position: relative;
+  overflow: hidden;
 }
 
-a:hover {
-  text-decoration: underline;
+.card-copper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(205, 127, 50, 0.07) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+/* ─── Copper gradient text ──────────────────────────── */
+.text-copper-gradient {
+  background: linear-gradient(135deg, #e8a030 0%, #cd7f32 45%, #b87333 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Live pulse dot ────────────────────────────────── */
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+  animation: live-pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+}
+
+@keyframes live-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
+  70%  { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+.fallback-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f59e0b;
+  flex-shrink: 0;
+}
+
+/* ─── Grid background pattern ───────────────────────── */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(205, 127, 50, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(205, 127, 50, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ─── Result number glow ────────────────────────────── */
+.result-glow {
+  text-shadow: 0 0 24px rgba(205, 127, 50, 0.45);
+}
+
+/* ─── Copper divider ────────────────────────────────── */
+.copper-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(205, 127, 50, 0.6);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.copper-divider::before,
+.copper-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(205, 127, 50, 0.3), transparent);
+}
+
+/* ─── Select / Input base ───────────────────────────── */
+.field-select,
+.field-input {
+  width: 100%;
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-surface-4);
+  border-radius: 0.5rem;
+  color: #f0f0f0;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.field-select:focus,
+.field-input:focus {
+  border-color: rgba(205, 127, 50, 0.6);
+  box-shadow: 0 0 0 3px rgba(205, 127, 50, 0.12);
+}
+.field-select option { background: #1f1f1f; }
+
+/* ─── Result card highlight ─────────────────────────── */
+.result-card-highlight {
+  background: linear-gradient(135deg, rgba(205,127,50,0.12), rgba(184,115,51,0.06));
+  border-color: rgba(205, 127, 50, 0.4) !important;
+}
+
+/* ─── Button styles ─────────────────────────────────── */
+.btn-copper {
+  background: linear-gradient(135deg, #cd7f32, #b87333);
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.btn-copper:hover  { opacity: 0.9; transform: translateY(-1px); }
+.btn-copper:active { transform: translateY(0); }
+
+.btn-ghost {
+  background: transparent;
+  color: rgba(205, 127, 50, 0.8);
+  border: 1px solid rgba(205, 127, 50, 0.3);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.btn-ghost:hover {
+  background: rgba(205, 127, 50, 0.1);
+  color: #cd7f32;
+}
+
+/* ─── Coming soon card ──────────────────────────────── */
+.soon-card {
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-surface-3);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  transition: border-color 0.25s, transform 0.2s;
+}
+.soon-card:hover {
+  border-color: rgba(205, 127, 50, 0.3);
+  transform: translateY(-2px);
 }

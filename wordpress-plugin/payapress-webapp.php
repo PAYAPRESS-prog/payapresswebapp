@@ -20,6 +20,7 @@ define( 'PAYAPRESS_WEBAPP_URL', plugin_dir_url( __FILE__ ) );
 require_once PAYAPRESS_WEBAPP_DIR . 'includes/class-payapress-rest-api.php';
 require_once PAYAPRESS_WEBAPP_DIR . 'includes/class-payapress-cors.php';
 require_once PAYAPRESS_WEBAPP_DIR . 'includes/class-payapress-settings.php';
+require_once PAYAPRESS_WEBAPP_DIR . 'includes/class-payapress-shortcode.php';
 
 function payapress_webapp_init() {
     $rest = new Payapress_REST_API();
@@ -30,6 +31,9 @@ function payapress_webapp_init() {
 
     $settings = new Payapress_Settings();
     $settings->init();
+
+    $shortcode = new Payapress_Shortcode();
+    $shortcode->init();
 }
 add_action( 'plugins_loaded', 'payapress_webapp_init' );
 
