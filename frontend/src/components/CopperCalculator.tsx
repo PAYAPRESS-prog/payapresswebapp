@@ -273,6 +273,12 @@ function useAnimatedNumber(target: number, duration = 420) {
   return current;
 }
 
+// ── Animated number (inline helper) ───────────────────────────────
+function AnimNumber({ val, fn }: { val: number; fn: (n: number) => string }) {
+  const animated = useAnimatedNumber(val);
+  return <>{fn(animated)}</>;
+}
+
 // ── 3D tilt card wrapper ───────────────────────────────────────────
 function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
   const mx = useMotionValue(0);
@@ -480,103 +486,115 @@ export function CopperCalculator() {
     setTimeout(() => setCopy(false), 2500);
   };
 
+  const totalCostLocal = result ? result.costPerMeter * qty * fxRate : 0;
+  const totalCostUSD   = result ? result.costPerMeter * qty : 0;
+
   return (
     <motion.div
       ref={cardRef}
-      className="relative"
+      className="relative space-y-3"
       initial={{ opacity: 0, y: 44 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
     >
+
+    {/* ╔══════════════════════════════════════════╗
+        ║  CARD 1 — CONFIGURATOR                   ║
+        ╚══════════════════════════════════════════╝ */}
     <TiltCard className="card-copper scanlines">
-      {/* Confetti burst on first result */}
       <AnimatePresence>{showConfetti && <ConfettiBurst key="confetti" />}</AnimatePresence>
       <div className="relative z-10">
 
-        {/* ── Busbar Viewer (drag to resize) ────────── */}
+        {/* ── Busbar Visual — drag to resize ──────── */}
         <div
-          className={`viewer-bg rounded-t-[1.25rem] overflow-hidden px-4 pt-3 pb-2 border-b border-[var(--color-surface-3)] select-none ${isDragging ? 'cursor-ew-resize' : 'cursor-grab'}`}
+          className={`viewer-bg rounded-t-[1.25rem] overflow-hidden px-5 pt-5 pb-3 select-none
+                      ${isDragging ? 'cursor-ew-resize' : 'cursor-grab'}`}
           onPointerDown={onViewerPointerDown}
           onPointerMove={onViewerPointerMove}
           onPointerUp={onViewerPointerUp}
           onPointerCancel={onViewerPointerUp}
         >
           <BusbarRender width={size.width} thickness={size.thickness} />
-          <div className="flex items-center justify-center gap-2 pb-1 flex-wrap">
-            <span className="font-mono text-xs text-copper-600 font-bold tracking-wide">{size.label}</span>
-            <span className="text-zinc-700">·</span>
+          <div className="flex items-center justify-center gap-2 mt-2 flex-wrap">
+            <span className="font-mono text-sm font-bold text-copper-500 tracking-wide">{size.label}</span>
+            <span className="text-zinc-700 text-xs">·</span>
             <span className="font-mono text-xs text-zinc-500">{size.width * size.thickness} mm²</span>
-            <span className="text-zinc-700">·</span>
+            <span className="text-zinc-700 text-xs">·</span>
             <span className="font-mono text-xs text-zinc-500">{grade.label}</span>
             {BUSBAR_SIZES.some(s => s.width === size.width && s.thickness === size.thickness) && (
               <span className="text-[0.55rem] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full"
-                    style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.25)' }}>
+                    style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.22)' }}>
                 IEC STD
               </span>
             )}
           </div>
-          {!isDragging && (
-            <p className="text-center text-[0.55rem] text-zinc-700 pb-0.5 tracking-wide">
-              ← drag to resize →
-            </p>
-          )}
+          <p className={`text-center text-[0.52rem] tracking-widest mt-1.5 pb-0.5 transition-opacity ${isDragging ? 'opacity-0' : 'opacity-40'} text-zinc-500`}>
+            ← DRAG TO RESIZE →
+          </p>
         </div>
 
-        {/* ── Form body ─────────────────────────────── */}
-        <div className="px-5 md:px-7 pt-5 pb-6 space-y-0">
+        {/* ── Inputs ──────────────────────────────── */}
+        <div className="px-5 md:px-6 pt-6 pb-6 space-y-6">
 
-          {/* ── SECTION: Dimensions ─────────────────── */}
-          <div className="pb-5 border-b border-[var(--color-surface-3)]">
-            <p className="calc-section-label">Dimensions</p>
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div>
-                <label className="block text-xs text-zinc-400 mb-1.5 font-medium">Width</label>
+          {/* ① Dimensions ─────────────────────────── */}
+          <div>
+            <p className="calc-section-label">① Dimensions</p>
+
+            {/* W × T on one line */}
+            <div className="flex items-end gap-2">
+              <div className="flex-1 min-w-0">
+                <label className="block text-[0.68rem] text-zinc-500 mb-1.5 font-semibold tracking-wide">Width</label>
                 <div className="relative">
-                  <input
-                    type="number" min="5" max="400" step="1"
-                    inputMode="numeric"
-                    className="field-input font-mono text-center pr-12 py-3 text-base"
-                    placeholder="60"
-                    value={widthStr}
-                    onChange={e => setWidthStr(e.target.value)}
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs pointer-events-none font-mono">mm</span>
+                  <input type="number" min="5" max="400" step="1" inputMode="numeric"
+                    className="field-input font-mono text-center pr-9 py-3.5 text-xl font-bold"
+                    placeholder="60" value={widthStr}
+                    onChange={e => setWidthStr(e.target.value)} />
+                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
                 </div>
               </div>
-              <div>
-                <label className="block text-xs text-zinc-400 mb-1.5 font-medium">Thickness</label>
+              <div className="pb-4 text-zinc-600 font-bold text-lg select-none flex-shrink-0">×</div>
+              <div className="flex-1 min-w-0">
+                <label className="block text-[0.68rem] text-zinc-500 mb-1.5 font-semibold tracking-wide">Thickness</label>
                 <div className="relative">
-                  <input
-                    type="number" min="1" max="50" step="1"
-                    inputMode="numeric"
-                    className="field-input font-mono text-center pr-12 py-3 text-base"
-                    placeholder="8"
-                    value={thickStr}
-                    onChange={e => setThickStr(e.target.value)}
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs pointer-events-none font-mono">mm</span>
+                  <input type="number" min="1" max="50" step="1" inputMode="numeric"
+                    className="field-input font-mono text-center pr-9 py-3.5 text-xl font-bold"
+                    placeholder="8" value={thickStr}
+                    onChange={e => setThickStr(e.target.value)} />
+                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
                 </div>
               </div>
             </div>
-            <p className="text-[0.68rem] text-zinc-600 font-mono">
-              {size.width} × {size.thickness} mm &nbsp;·&nbsp; {size.width * size.thickness} mm² cross-section
+
+            {/* Length */}
+            <div className="mt-3">
+              <label className="block text-[0.68rem] text-zinc-500 mb-1.5 font-semibold tracking-wide">Length</label>
+              <div className="relative">
+                <input type="number" min="1" max="100000" step="100" inputMode="numeric"
+                  className="field-input font-mono pr-12 py-3.5 text-base"
+                  placeholder="1000" value={lengthStr}
+                  onChange={e => setLengthStr(e.target.value)} />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono font-semibold pointer-events-none">mm</span>
+              </div>
+            </div>
+
+            {/* Spec + presets */}
+            <p className="text-[0.65rem] text-zinc-600 font-mono mt-2.5 leading-relaxed">
+              {size.width}×{size.thickness} mm &nbsp;·&nbsp; {size.width*size.thickness} mm² &nbsp;·&nbsp;
+              {qty >= 10 ? qty.toFixed(1) : qty >= 1 ? qty.toFixed(2) : qty.toFixed(3)} m &nbsp;·&nbsp;
+              {(size.width * size.thickness * qty).toFixed(0)} cm³
             </p>
-            {/* Quick preset chips */}
-            <div className="flex gap-1.5 flex-wrap mt-3">
+            <div className="flex gap-1.5 flex-wrap mt-2.5">
               {QUICK_PRESETS.map(p => {
                 const active = widthStr === p.w && thickStr === p.t;
                 return (
-                  <motion.button
-                    key={`${p.w}x${p.t}`}
-                    whileTap={{ scale: 0.88 }}
+                  <motion.button key={`${p.w}x${p.t}`} whileTap={{ scale: 0.85 }}
                     onClick={() => { setWidthStr(p.w); setThickStr(p.t); }}
-                    className="text-[0.6rem] font-mono font-semibold px-2 py-1 rounded-full border transition-all"
+                    className="text-[0.6rem] font-mono font-semibold px-2.5 py-1 rounded-full border transition-all"
                     style={{
-                      background: active ? 'rgba(205,127,50,0.18)' : 'rgba(255,255,255,0.03)',
-                      borderColor: active ? 'rgba(205,127,50,0.55)' : 'rgba(255,255,255,0.08)',
-                      color: active ? '#cd7f32' : '#71717a',
-                    }}
-                  >
+                      background:   active ? 'rgba(205,127,50,0.16)' : 'rgba(255,255,255,0.03)',
+                      borderColor:  active ? 'rgba(205,127,50,0.5)'  : 'rgba(255,255,255,0.07)',
+                      color:        active ? '#cd7f32' : '#52525b',
+                    }}>
                     {p.w}×{p.t}
                   </motion.button>
                 );
@@ -584,266 +602,228 @@ export function CopperCalculator() {
             </div>
           </div>
 
-          {/* ── SECTION: Material Grade ──────────────── */}
-          <div className="py-5 border-b border-[var(--color-surface-3)]">
-            <p className="calc-section-label">Material Grade</p>
-            <div className="relative">
-              <select
-                className="field-select pr-8 py-3 text-sm"
-                value={grade.id}
-                onChange={e => setGrade(MATERIAL_GRADES.find(g => g.id === e.target.value) ?? DEFAULT_GRADE)}
-              >
-                {MATERIAL_GRADES.map(g => (
-                  <option key={g.id} value={g.id}>{g.label} — {(g.purity*100).toFixed(2)}%</option>
-                ))}
-              </select>
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs">▾</span>
-            </div>
-            <p className="text-[0.68rem] text-zinc-600 mt-2">{grade.standard} &nbsp;·&nbsp; ρ {grade.density} g/cm³</p>
-          </div>
-
-          {/* ── SECTION: Copper Price ────────────────── */}
-          <div className="py-5 border-b border-[var(--color-surface-3)]">
-            <div className="flex items-center justify-between mb-2.5">
-              <div className="flex items-center gap-2">
-                <p className="calc-section-label mb-0">Copper Price <span className="text-zinc-600 normal-case tracking-normal font-normal">(USD / kg)</span></p>
-                {live && (() => {
-                  const mood = getPriceMood(live.pricePerKg);
-                  return (
-                    <span className="text-[0.55rem] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full flex items-center gap-1"
-                          style={{ background: `${mood.fg}18`, color: mood.fg, border: `1px solid ${mood.fg}38` }}>
-                      <span className="w-1 h-1 rounded-full inline-block" style={{ background: mood.fg }} />
-                      {mood.label}
-                    </span>
-                  );
-                })()}
+          {/* ② Grade + Currency — 2-column ──────────── */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="calc-section-label">② Grade</p>
+              <div className="relative">
+                <select className="field-select pr-7 py-3 text-sm" value={grade.id}
+                  onChange={e => setGrade(MATERIAL_GRADES.find(g => g.id === e.target.value) ?? DEFAULT_GRADE)}>
+                  {MATERIAL_GRADES.map(g => (
+                    <option key={g.id} value={g.id}>{g.label}</option>
+                  ))}
+                </select>
+                <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs">▾</span>
               </div>
-              <button
-                onClick={() => { setUM(v => !v); setMan(''); }}
-                className="btn-ghost text-xs px-3 py-1.5"
-              >
-                {useMan ? (
-                  <span className="flex items-center gap-1.5">
-                    <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 112.7 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M2 2v3h3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    Switch to Live
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1.5">
-                    <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M11 2.5l2.5 2.5-8 8H3v-2.5l8-8z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>
-                    Enter Manual
-                  </span>
-                )}
-              </button>
+              <p className="text-[0.62rem] text-zinc-600 mt-1.5 font-mono leading-snug">
+                {(grade.purity*100).toFixed(2)}%<br/>ρ {grade.density} g/cm³
+              </p>
             </div>
-
-            <AnimatePresence mode="wait">
-              {useMan ? (
-                <motion.div key="manual"
-                  initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}
-                  className="flex items-center bg-[var(--color-surface-3)] border border-[var(--color-surface-4)]
-                             focus-within:border-copper-600/55 focus-within:shadow-[0_0_0_3px_rgba(205,127,50,0.1)]
-                             rounded-xl transition-all overflow-hidden"
-                >
-                  <span className="pl-4 text-zinc-400 font-mono text-base font-semibold">$</span>
-                  <input
-                    type="number" min="0" step="0.001"
-                    inputMode="decimal"
-                    className="flex-1 bg-transparent text-white font-mono px-2 py-3.5 outline-none placeholder:text-zinc-700 text-base"
-                    placeholder="13.975"
-                    value={manual}
-                    onChange={e => setMan(e.target.value)}
-                  />
-                  <span className="pr-4 text-zinc-500 text-xs font-mono">USD / kg</span>
-                </motion.div>
-              ) : (
-                <motion.div key="live"
-                  initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}
-                  className="flex items-center gap-3 bg-[var(--color-surface-3)] border border-[var(--color-surface-4)] rounded-xl px-4 py-3.5"
-                >
-                  {loading ? (
-                    <span className="text-zinc-500 text-sm animate-pulse">Fetching live price…</span>
-                  ) : live ? (
-                    <>
-                      <span className={live.isFallback ? 'fallback-dot' : 'live-dot'} />
-                      <span className="font-mono text-xl font-bold text-copper-400">${fmt(live.pricePerKg, 3)}</span>
-                      <span className="text-zinc-500 text-sm">/kg</span>
-                      <span className="text-zinc-600 text-xs font-mono ml-auto">
-                        ${fmt(live.pricePerKg / 2.20462, 3)}/lb
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-amber-500 text-sm">Unavailable — switch to manual</span>
-                  )}
-                </motion.div>
+            <div>
+              <p className="calc-section-label">③ Currency</p>
+              <CurrencySelector value={currCode} onChange={setCurrCode} />
+              {currCode !== 'USD' && fx && (
+                <p className="text-[0.62rem] text-zinc-600 mt-1.5 font-mono leading-snug">
+                  1 USD<br/>= {fxRate.toFixed(4)} {currCode}
+                </p>
               )}
-            </AnimatePresence>
-          </div>
-
-          {/* ── SECTION: Length ─────────────────────── */}
-          <div className="py-5 border-b border-[var(--color-surface-3)]">
-            <p className="calc-section-label">Length</p>
-            <div className="relative">
-              <input
-                type="number" min="1" max="100000" step="100"
-                inputMode="numeric"
-                className="field-input font-mono pr-16 py-3 text-base"
-                placeholder="1000"
-                value={lengthStr}
-                onChange={e => setLengthStr(e.target.value)}
-              />
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 text-sm pointer-events-none font-mono font-semibold">
-                mm
-              </span>
             </div>
-            <p className="text-[0.68rem] text-zinc-600 mt-2 font-mono">
-              = {qty.toFixed(qty < 1 ? 3 : qty < 10 ? 2 : 1)} m &nbsp;·&nbsp; {(size.width * size.thickness * qty).toFixed(1)} cm³ volume
-            </p>
           </div>
 
-          {/* ── SECTION: Currency ───────────────────── */}
-          <div className="py-5 border-b border-[var(--color-surface-3)]">
-            <p className="calc-section-label">Display Currency</p>
-            <CurrencySelector value={currCode} onChange={setCurrCode} />
-            {currCode !== 'USD' && fx && (
-              <p className="text-[0.68rem] text-zinc-600 mt-2 font-mono">
-                1 USD = {fxRate.toFixed(4)} {currCode} &nbsp;·&nbsp; {fx.source}
+          {/* ④ Copper Price — compact strip ─────────── */}
+          <div>
+            <p className="calc-section-label">④ Copper Price</p>
+            <div className="rounded-xl border overflow-hidden"
+                 style={{ background: 'var(--color-surface-3)', borderColor: 'var(--color-surface-4)' }}>
+              {/* Price row */}
+              <div className="flex items-center gap-3 px-4 py-3">
+                {loading ? (
+                  <span className="text-zinc-500 text-sm animate-pulse flex-1">Fetching…</span>
+                ) : live && !useMan ? (
+                  <>
+                    <span className={live.isFallback ? 'fallback-dot' : 'live-dot'} />
+                    <span className="font-mono text-2xl font-extrabold text-copper-400 result-glow tracking-tight">
+                      ${fmt(live.pricePerKg, 3)}
+                    </span>
+                    <span className="text-zinc-500 text-xs">/kg</span>
+                    {(() => {
+                      const mood = getPriceMood(live.pricePerKg);
+                      return (
+                        <span className="text-[0.55rem] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full"
+                              style={{ background: `${mood.fg}15`, color: mood.fg, border: `1px solid ${mood.fg}35` }}>
+                          {mood.label}
+                        </span>
+                      );
+                    })()}
+                    <span className="text-zinc-600 text-xs font-mono ml-auto">${fmt(live.pricePerKg / 2.20462, 3)}/lb</span>
+                  </>
+                ) : useMan && priceUSD ? (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-zinc-500 flex-shrink-0" />
+                    <span className="font-mono text-2xl font-extrabold text-white tracking-tight">${fmt(priceUSD, 3)}</span>
+                    <span className="text-zinc-500 text-xs">/kg manual</span>
+                  </>
+                ) : (
+                  <span className="text-amber-500 text-sm flex-1">Price unavailable</span>
+                )}
+                <button onClick={() => { setUM(v => !v); setMan(''); }}
+                  className="btn-ghost text-xs px-2.5 py-1.5 flex items-center gap-1.5 flex-shrink-0 ml-auto">
+                  {useMan
+                    ? <><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 112.7 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M2 2v3h3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg> Live</>
+                    : <><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M11 2.5l2.5 2.5-8 8H3v-2.5l8-8z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg> Manual</>
+                  }
+                </button>
+              </div>
+              {/* Manual input (animated expand) */}
+              <AnimatePresence>
+                {useMan && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }}
+                    className="overflow-hidden border-t"
+                    style={{ borderColor: 'var(--color-surface-4)' }}>
+                    <div className="flex items-center px-4 py-3">
+                      <span className="text-zinc-400 font-mono font-semibold mr-1">$</span>
+                      <input type="number" min="0" step="0.001" inputMode="decimal"
+                        className="flex-1 bg-transparent text-white font-mono py-1 outline-none placeholder:text-zinc-700 text-base"
+                        placeholder="13.975" value={manual}
+                        onChange={e => setMan(e.target.value)} />
+                      <span className="text-zinc-500 text-xs font-mono">USD / kg</span>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+        </div>{/* /inputs */}
+      </div>
+    </TiltCard>
+
+    {/* ╔══════════════════════════════════════════╗
+        ║  CARD 2 — RESULTS                        ║
+        ╚══════════════════════════════════════════╝ */}
+    <AnimatePresence mode="wait">
+      {result ? (
+        <motion.div key="results-card"
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ type: 'spring', stiffness: 220, damping: 22, delay: 0.04 }}
+          className="card-copper rounded-[1.25rem] overflow-hidden"
+        >
+          {/* Achievement badges */}
+          {(() => {
+            const badges = getAchievements(result, size, grade, parseFloat(lengthStr) || 1000);
+            return badges.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5 px-5 pt-4 pb-0">
+                {badges.map((b, i) => (
+                  <motion.span key={b.id}
+                    initial={{ opacity: 0, scale: 0.55 }} animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.12 + i * 0.06, type: 'spring', stiffness: 340, damping: 20 }}
+                    className="text-[0.57rem] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full"
+                    style={{ background: `${b.color}15`, color: b.color, border: `1px solid ${b.color}30` }}>
+                    {b.icon} {b.label}
+                  </motion.span>
+                ))}
+              </div>
+            ) : null;
+          })()}
+
+          {/* Hero — Total Cost */}
+          <div className="px-5 pt-5 pb-5 text-center border-b"
+               style={{ borderColor: 'var(--color-surface-3)' }}>
+            <p className="calc-section-label text-center mb-2">
+              Total Cost &nbsp;·&nbsp; {Number(lengthStr) || 1000} mm
+            </p>
+            <p className="font-mono font-extrabold leading-none text-copper-400 result-glow"
+               style={{ fontSize: 'clamp(2.4rem, 11vw, 3.2rem)' }}>
+              <AnimNumber val={totalCostLocal} fn={v => fmtCurrency(v, currMeta)} />
+            </p>
+            {currCode !== 'USD' && (
+              <p className="text-zinc-500 text-sm font-mono mt-2">
+                <AnimNumber val={totalCostUSD} fn={v => fmtUSD(v)} />
               </p>
             )}
           </div>
 
-          {/* ── RESULTS ──────────────────────────────── */}
-          <AnimatePresence mode="wait">
-            {result ? (
-              <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          {/* Supporting metrics — 2-col divided */}
+          <div className="grid grid-cols-2 divide-x divide-[var(--color-surface-3)]">
+            <div className="px-5 py-4 text-center">
+              <p className="text-[0.58rem] text-zinc-500 uppercase tracking-widest font-semibold mb-1.5">Weight</p>
+              <p className="font-mono font-bold text-2xl text-white leading-none">
+                <AnimNumber val={result.weightPerMeter * qty} fn={v => fmt(v, 2)} />
+              </p>
+              <p className="text-[0.62rem] text-zinc-600 mt-1 font-mono">
+                {fmt(result.weightPerMeter, 3)} kg/m
+              </p>
+              <p className="text-[0.58rem] text-zinc-600 mt-0.5">kg total</p>
+            </div>
+            <div className="px-5 py-4 text-center"
+                 style={{ background: 'linear-gradient(135deg, rgba(205,127,50,0.07), rgba(184,115,51,0.03))' }}>
+              <p className="text-[0.58rem] text-zinc-500 uppercase tracking-widest font-semibold mb-1.5">Rate / m²</p>
+              <p className="font-mono font-bold text-2xl text-copper-400 leading-none">
+                <AnimNumber val={result.costPerM2 * fxRate} fn={v => fmtCurrency(v, currMeta, 0)} />
+              </p>
+              {currCode !== 'USD' && (
+                <p className="text-[0.62rem] text-zinc-600 mt-1 font-mono">{fmtUSD(result.costPerM2, 0)}</p>
+              )}
+              <p className="text-[0.58rem] text-zinc-600 mt-0.5">{currCode} / m²</p>
+            </div>
+          </div>
 
-                {/* Achievement badges */}
-                {(() => {
-                  const badges = getAchievements(result, size, grade, parseFloat(lengthStr) || 1000);
-                  return badges.length > 0 ? (
-                    <motion.div
-                      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.25 }}
-                      className="flex flex-wrap gap-1.5 pt-5 pb-2"
-                    >
-                      {badges.map((b, i) => (
-                        <motion.span key={b.id}
-                          initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.3 + i * 0.07, type: 'spring', stiffness: 340, damping: 20 }}
-                          className="text-[0.57rem] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full"
-                          style={{ background: `${b.color}18`, color: b.color, border: `1px solid ${b.color}35` }}
-                        >
-                          {b.icon} {b.label}
-                        </motion.span>
-                      ))}
-                    </motion.div>
-                  ) : <div className="pt-5" />;
-                })()}
-
-                {/* Results for entered length */}
-                <div className="pb-4">
-                  <div className="copper-divider mb-4">{Number(lengthStr) || 1000} mm</div>
-                  <div className="grid grid-cols-3 gap-2.5">
-                    <ResultCard
-                      label="Weight"
-                      rawValue={result.weightPerMeter * qty}
-                      formatFn={v => fmt(v, 2)}
-                      secondary={`${fmt(result.weightPerMeter, 3)} kg/m`}
-                      unit="kg"
-                      delay={0}
-                    />
-                    <ResultCard
-                      label="Cost"
-                      rawValue={result.costPerMeter * qty * fxRate}
-                      formatFn={v => fmtCurrency(v, currMeta)}
-                      secondary={currCode !== 'USD'
-                        ? fmtUSD(result.costPerMeter * qty)
-                        : `${fmtCurrency(result.costPerMeter * fxRate, currMeta)}/m`}
-                      unit={currCode}
-                      delay={0.06}
-                    />
-                    <ResultCard
-                      label="Cost / m²"
-                      rawValue={result.costPerM2 * fxRate}
-                      formatFn={v => fmtCurrency(v, currMeta, 0)}
-                      secondary={currCode !== 'USD' ? fmtUSD(result.costPerM2, 0) : undefined}
-                      unit={`${currCode} / m²`}
-                      highlight
-                      delay={0.12}
-                    />
-                  </div>
-                </div>
-
-                {/* Copy button + calc counter */}
-                <div className="border-t border-[var(--color-surface-3)] pt-4">
-                  {calcCount > 0 && (
-                    <p className="text-center text-[0.58rem] text-zinc-700 font-mono mb-2">
-                      calculation #{calcCount.toLocaleString()}
-                    </p>
-                  )}
-                  <motion.button
-                    onClick={handleCopy}
-                    whileHover={{ scale: 1.012 }}
-                    whileTap={{ scale: 0.975 }}
-                    className="btn-ghost w-full py-3 flex items-center justify-center gap-2 text-sm"
-                  >
-                    <AnimatePresence mode="wait">
-                      <motion.span key={copied ? 'ok' : 'copy'}
-                        initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
-                        className="flex items-center gap-2"
-                      >
-                        {copied ? (
-                          <>
-                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-green-500">
-                              <path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                            Copied to clipboard
-                          </>
-                        ) : (
-                          <>
-                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="opacity-60">
-                              <rect x="5" y="1" width="9" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
-                              <path d="M2 5v9a1.5 1.5 0 001.5 1.5H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                            </svg>
-                            Copy Results
-                          </>
-                        )}
-                      </motion.span>
-                    </AnimatePresence>
-                  </motion.button>
-                </div>
-
-              </motion.div>
-            ) : (
-              <motion.div key="empty" className="text-center py-10 text-zinc-600 text-sm">
-                {loading ? (
-                  <span className="animate-pulse">Loading live copper price…</span>
-                ) : (
-                  'Enter copper price to calculate costs'
-                )}
-              </motion.div>
+          {/* Copy + counter */}
+          <div className="border-t px-5 py-3.5" style={{ borderColor: 'var(--color-surface-3)' }}>
+            {calcCount > 0 && (
+              <p className="text-center text-[0.58rem] text-zinc-700 font-mono mb-2.5">
+                calculation #{calcCount.toLocaleString()}
+              </p>
             )}
-          </AnimatePresence>
+            <motion.button onClick={handleCopy}
+              whileHover={{ scale: 1.012 }} whileTap={{ scale: 0.975 }}
+              className="btn-ghost w-full py-3 flex items-center justify-center gap-2 text-sm">
+              <AnimatePresence mode="wait">
+                <motion.span key={copied ? 'ok' : 'cp'}
+                  initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
+                  className="flex items-center gap-2">
+                  {copied ? (
+                    <><svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-green-500"><path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> Copied to clipboard</>
+                  ) : (
+                    <><svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="opacity-60"><rect x="5" y="1" width="9" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.5"/><path d="M2 5v9a1.5 1.5 0 001.5 1.5H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg> Copy Results</>
+                  )}
+                </motion.span>
+              </AnimatePresence>
+            </motion.button>
+          </div>
+        </motion.div>
 
-        </div>{/* /form body */}
-      </div>
-    </TiltCard>
+      ) : (
+        <motion.div key="results-empty"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          className="rounded-[1.25rem] border border-dashed px-5 py-10 text-center"
+          style={{ borderColor: 'var(--color-surface-4)' }}>
+          <p className="text-zinc-600 text-sm">
+            {loading
+              ? <span className="animate-pulse">Loading live copper price…</span>
+              : 'Enter a manual copper price to calculate'}
+          </p>
+        </motion.div>
+      )}
+    </AnimatePresence>
 
     {/* Milestone toast */}
     <AnimatePresence>
       {milestone && (
         <motion.div
-          initial={{ opacity: 0, y: 24, scale: 0.85 }}
+          initial={{ opacity: 0, y: 20, scale: 0.88 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -16, scale: 0.9 }}
+          exit={{ opacity: 0, y: -12, scale: 0.9 }}
           transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-          className="absolute -bottom-16 left-1/2 -translate-x-1/2 z-50 whitespace-nowrap
+          className="absolute -bottom-14 left-1/2 -translate-x-1/2 z-50 whitespace-nowrap
                      flex items-center gap-2.5 px-5 py-2.5 rounded-2xl
                      bg-[var(--color-surface-2)] border border-copper-600/40
-                     shadow-[0_16px_50px_rgba(0,0,0,0.8)]"
-        >
-          <span className="text-base">🎉</span>
+                     shadow-[0_16px_50px_rgba(0,0,0,0.8)]">
+          <span>🎉</span>
           <div>
-            <p className="text-white text-xs font-bold leading-none">Milestone reached!</p>
+            <p className="text-white text-xs font-bold leading-none">Milestone!</p>
             <p className="text-copper-500 text-[0.65rem] mt-0.5 font-mono">{milestone}</p>
           </div>
         </motion.div>
