@@ -8,10 +8,14 @@ export function BusbarRender({ width, thickness }: Props) {
   const g = useMemo(() => {
     const VW = 340, VH = 192;
 
-    const W  = Math.min(235, Math.max(88, width * 1.75));
-    const H  = Math.max(11,  Math.min(48, thickness * 3.8));
-    const DX = 70;
-    const DY = 44;
+    // Proportional scaling: same px/mm scale for both dimensions
+    // so the W:H pixel ratio exactly matches the real width:thickness ratio.
+    const MAX_W = 218, MAX_H = 46;
+    const scale = Math.min(MAX_W / width, MAX_H / thickness);
+    const W  = Math.round(width     * scale);
+    const H  = Math.max(8, Math.round(thickness * scale)); // min 8px for visibility
+    const DX = 68;
+    const DY = 42;
 
     const x0 = (VW - W - DX) / 2 + 8;
     const y0 = Math.round(VH * 0.64);

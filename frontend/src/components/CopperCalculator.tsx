@@ -18,31 +18,40 @@ interface FxRates {
   isFallback: boolean; source: string; updatedAt: string;
 }
 
+// flag = ISO 3166-1 alpha-2 country code for flagcdn.com
+// suffix = true means display as "3.25 AED" not "$3.25"
 const ALL_CURRENCIES = [
-  { code: 'USD', symbol: '$',    name: 'US Dollar'          },
-  { code: 'EUR', symbol: '€',    name: 'Euro'               },
-  { code: 'GBP', symbol: '£',    name: 'British Pound'      },
-  { code: 'CHF', symbol: 'Fr',   name: 'Swiss Franc'        },
-  { code: 'JPY', symbol: '¥',    name: 'Japanese Yen'       },
-  { code: 'CAD', symbol: 'C$',   name: 'Canadian Dollar'    },
-  { code: 'AUD', symbol: 'A$',   name: 'Australian Dollar'  },
-  { code: 'AED', symbol: 'AED',  name: 'UAE Dirham'         },
-  { code: 'SAR', symbol: 'SAR',  name: 'Saudi Riyal'        },
-  { code: 'KWD', symbol: 'KWD',  name: 'Kuwaiti Dinar'      },
-  { code: 'QAR', symbol: 'QAR',  name: 'Qatari Riyal'       },
-  { code: 'BHD', symbol: 'BHD',  name: 'Bahraini Dinar'     },
-  { code: 'CNY', symbol: '¥',    name: 'Chinese Yuan'       },
-  { code: 'INR', symbol: '₹',    name: 'Indian Rupee'       },
-  { code: 'SGD', symbol: 'S$',   name: 'Singapore Dollar'   },
-  { code: 'KRW', symbol: '₩',    name: 'South Korean Won'   },
-  { code: 'TRY', symbol: '₺',    name: 'Turkish Lira'       },
-  { code: 'BRL', symbol: 'R$',   name: 'Brazilian Real'     },
-  { code: 'MXN', symbol: '$',    name: 'Mexican Peso'       },
-  { code: 'NOK', symbol: 'kr',   name: 'Norwegian Krone'    },
-  { code: 'SEK', symbol: 'kr',   name: 'Swedish Krona'      },
-  { code: 'ZAR', symbol: 'R',    name: 'South African Rand' },
+  { code: 'USD', symbol: '$',  name: 'US Dollar',           flag: 'us', decimals: 2, suffix: false },
+  { code: 'EUR', symbol: '€',  name: 'Euro',                flag: 'eu', decimals: 2, suffix: false },
+  { code: 'GBP', symbol: '£',  name: 'British Pound',       flag: 'gb', decimals: 2, suffix: false },
+  { code: 'CHF', symbol: 'Fr', name: 'Swiss Franc',         flag: 'ch', decimals: 2, suffix: false },
+  { code: 'JPY', symbol: '¥',  name: 'Japanese Yen',        flag: 'jp', decimals: 0, suffix: false },
+  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar',     flag: 'ca', decimals: 2, suffix: false },
+  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar',   flag: 'au', decimals: 2, suffix: false },
+  { code: 'AED', symbol: '',   name: 'UAE Dirham',          flag: 'ae', decimals: 2, suffix: true  },
+  { code: 'SAR', symbol: '',   name: 'Saudi Riyal',         flag: 'sa', decimals: 2, suffix: true  },
+  { code: 'KWD', symbol: '',   name: 'Kuwaiti Dinar',       flag: 'kw', decimals: 3, suffix: true  },
+  { code: 'QAR', symbol: '',   name: 'Qatari Riyal',        flag: 'qa', decimals: 2, suffix: true  },
+  { code: 'BHD', symbol: '',   name: 'Bahraini Dinar',      flag: 'bh', decimals: 3, suffix: true  },
+  { code: 'CNY', symbol: '¥',  name: 'Chinese Yuan',        flag: 'cn', decimals: 2, suffix: false },
+  { code: 'INR', symbol: '₹',  name: 'Indian Rupee',        flag: 'in', decimals: 2, suffix: false },
+  { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar',    flag: 'sg', decimals: 2, suffix: false },
+  { code: 'KRW', symbol: '₩',  name: 'South Korean Won',    flag: 'kr', decimals: 0, suffix: false },
+  { code: 'TRY', symbol: '₺',  name: 'Turkish Lira',        flag: 'tr', decimals: 2, suffix: false },
+  { code: 'BRL', symbol: 'R$', name: 'Brazilian Real',      flag: 'br', decimals: 2, suffix: false },
+  { code: 'MXN', symbol: '$',  name: 'Mexican Peso',        flag: 'mx', decimals: 2, suffix: false },
+  { code: 'NOK', symbol: '',   name: 'Norwegian Krone',     flag: 'no', decimals: 2, suffix: true  },
+  { code: 'SEK', symbol: '',   name: 'Swedish Krona',       flag: 'se', decimals: 2, suffix: true  },
+  { code: 'ZAR', symbol: 'R',  name: 'South African Rand',  flag: 'za', decimals: 2, suffix: false },
 ] as const;
 type CurrencyCode = typeof ALL_CURRENCIES[number]['code'];
+type CurrencyMeta = typeof ALL_CURRENCIES[number];
+
+function fmtCurrency(localVal: number, meta: CurrencyMeta, decimalsOverride?: number): string {
+  const d = decimalsOverride !== undefined ? decimalsOverride : meta.decimals;
+  const n = fmt(localVal, d);
+  return meta.suffix ? `${n} ${meta.code}` : `${meta.symbol}${n}`;
+}
 
 const LOCALE_CURRENCY: Partial<Record<string, CurrencyCode>> = {
   'en-US': 'USD', 'en-CA': 'CAD', 'en-GB': 'GBP', 'en-AU': 'AUD', 'en-SG': 'SGD',
@@ -63,6 +72,112 @@ function detectCurrency(): CurrencyCode {
 }
 
 const QTY_PRESETS = [1, 5, 10, 50, 100] as const;
+
+const FLAG_CDN = 'https://flagcdn.com/w20';
+
+// ── Currency selector with flag + search ───────────────────────────
+function CurrencySelector({ value, onChange }: { value: CurrencyCode; onChange: (c: CurrencyCode) => void }) {
+  const [open,  setOpen]  = useState(false);
+  const [query, setQuery] = useState('');
+  const wrapRef   = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  const selected = ALL_CURRENCIES.find(c => c.code === value) ?? ALL_CURRENCIES[0];
+  const filtered = ALL_CURRENCIES.filter(c =>
+    c.code.toLowerCase().includes(query.toLowerCase()) ||
+    c.name.toLowerCase().includes(query.toLowerCase())
+  );
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false); setQuery('');
+      }
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [open]);
+
+  useEffect(() => {
+    if (open) setTimeout(() => searchRef.current?.focus(), 50);
+  }, [open]);
+
+  return (
+    <div ref={wrapRef} className="relative">
+      {/* Trigger */}
+      <button
+        onClick={() => { setOpen(v => !v); setQuery(''); }}
+        aria-expanded={open}
+        className="w-full flex items-center gap-2.5 field-select py-2 text-left cursor-pointer"
+      >
+        <img
+          src={`${FLAG_CDN}/${selected.flag}.png`}
+          width={20} height={14} alt=""
+          className="rounded-[2px] flex-shrink-0"
+        />
+        <span className="font-mono font-semibold text-sm text-white">{selected.code}</span>
+        <span className="text-zinc-500 text-xs flex-1 truncate">{selected.name}</span>
+        <span className="text-zinc-600 text-[0.6rem] ml-1 flex-shrink-0">{open ? '▴' : '▾'}</span>
+      </button>
+
+      {/* Dropdown */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -5, scaleY: 0.92 }}
+            animate={{ opacity: 1, y: 0, scaleY: 1 }}
+            exit={{ opacity: 0, y: -5, scaleY: 0.92 }}
+            style={{ transformOrigin: 'top', zIndex: 200 }}
+            className="absolute top-full mt-1 left-0 right-0
+                       bg-[var(--color-surface-2)] border border-[var(--color-surface-4)]
+                       rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden"
+          >
+            {/* Search input */}
+            <div className="p-2 border-b border-[var(--color-surface-4)]">
+              <input
+                ref={searchRef}
+                type="text"
+                placeholder="Search currency…"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Escape') { setOpen(false); setQuery(''); } }}
+                className="w-full bg-[var(--color-surface-3)] rounded-lg px-3 py-1.5 text-sm
+                           outline-none text-white placeholder:text-zinc-600
+                           border border-transparent focus:border-copper-600/40"
+              />
+            </div>
+            {/* Currency list */}
+            <div className="max-h-52 overflow-y-auto">
+              {filtered.map(c => (
+                <button
+                  key={c.code}
+                  onClick={() => { onChange(c.code); setOpen(false); setQuery(''); }}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors ${
+                    c.code === value
+                      ? 'bg-copper-600/15 text-copper-400'
+                      : 'text-zinc-300 hover:bg-[var(--color-surface-3)]'
+                  }`}
+                >
+                  <img
+                    src={`${FLAG_CDN}/${c.flag}.png`}
+                    width={20} height={14} alt=""
+                    className="rounded-[2px] flex-shrink-0"
+                  />
+                  <span className="font-mono font-semibold text-xs w-10 flex-shrink-0">{c.code}</span>
+                  <span className="text-zinc-500 text-xs flex-1 truncate">{c.name}</span>
+                </button>
+              ))}
+              {filtered.length === 0 && (
+                <p className="text-center text-zinc-600 text-xs py-4">No results</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 // ── Smooth animated number ─────────────────────────────────────────
 function useAnimatedNumber(target: number, duration = 420) {
@@ -206,17 +321,10 @@ export function CopperCalculator() {
     return typeof r === 'number' && r > 0 ? r : 1;
   }, [fx, currCode]);
 
-  // Format a USD value in the selected currency
-  const fmtLocal = useCallback((usd: number, decimals = 2) => {
-    const val = usd * fxRate;
-    // JPY and KRW: 0 decimal places (large-value currencies)
-    const d = (currCode === 'JPY' || currCode === 'KRW') ? 0 : decimals;
-    // Currencies where symbol === code: show "3.25 AED"
-    if (currMeta.symbol === currMeta.code) {
-      return `${fmt(val, d)} ${currCode}`;
-    }
-    return `${currMeta.symbol}${fmt(val, d)}`;
-  }, [fxRate, currCode, currMeta]);
+  const fmtLocal = useCallback(
+    (usd: number, decimalsOverride?: number) => fmtCurrency(usd * fxRate, currMeta, decimalsOverride),
+    [fxRate, currMeta],
+  );
 
   const result = useMemo(
     () => (priceUSD ? calculateCost(size, grade, priceUSD) : null),
@@ -394,22 +502,10 @@ export function CopperCalculator() {
             <motion.div key="results"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             >
-              {/* Currency dropdown — right-aligned above results grid */}
-              <div className="flex justify-end mb-3">
-                <div className="relative">
-                  <select
-                    className="field-select pr-7"
-                    value={currCode}
-                    onChange={e => setCurrCode(e.target.value as CurrencyCode)}
-                  >
-                    {ALL_CURRENCIES.map(c => (
-                      <option key={c.code} value={c.code}>
-                        {c.code} — {c.name}
-                      </option>
-                    ))}
-                  </select>
-                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs">▾</span>
-                </div>
+              {/* Currency selector with flag + search */}
+              <div className="mb-4">
+                <label className="block text-xs text-zinc-500 mb-1.5 font-medium">Display Currency</label>
+                <CurrencySelector value={currCode} onChange={setCurrCode} />
               </div>
 
               <div className="grid grid-cols-3 gap-2.5 mb-4">
@@ -423,7 +519,7 @@ export function CopperCalculator() {
                 <ResultCard
                   label="Cost / m"
                   rawValue={result.costPerMeter * fxRate}
-                  formatFn={v => currMeta.symbol === currMeta.code ? `${fmt(v, (currCode === 'JPY' || currCode === 'KRW') ? 0 : 2)} ${currCode}` : `${currMeta.symbol}${fmt(v, (currCode === 'JPY' || currCode === 'KRW') ? 0 : 2)}`}
+                  formatFn={v => fmtCurrency(v, currMeta)}
                   secondary={currCode !== 'USD' ? fmtUSD(result.costPerMeter) : undefined}
                   unit={`${currCode} / m`}
                   delay={0.06}
@@ -431,7 +527,7 @@ export function CopperCalculator() {
                 <ResultCard
                   label="Cost / m²"
                   rawValue={result.costPerM2 * fxRate}
-                  formatFn={v => currMeta.symbol === currMeta.code ? `${fmt(v, 0)} ${currCode}` : `${currMeta.symbol}${fmt(v, 0)}`}
+                  formatFn={v => fmtCurrency(v, currMeta, 0)}
                   secondary={currCode !== 'USD' ? fmtUSD(result.costPerM2, 0) : undefined}
                   unit={`${currCode} / m²`}
                   highlight
@@ -461,7 +557,7 @@ export function CopperCalculator() {
                       <ResultCard
                         label="Total Cost"
                         rawValue={result.costPerMeter * qty * fxRate}
-                        formatFn={v => currMeta.symbol === currMeta.code ? `${fmt(v, (currCode === 'JPY' || currCode === 'KRW') ? 0 : 2)} ${currCode}` : `${currMeta.symbol}${fmt(v, (currCode === 'JPY' || currCode === 'KRW') ? 0 : 2)}`}
+                        formatFn={v => fmtCurrency(v, currMeta)}
                         secondary={currCode !== 'USD' ? fmtUSD(result.costPerMeter * qty) : undefined}
                         unit={currCode}
                         delay={0.06}
