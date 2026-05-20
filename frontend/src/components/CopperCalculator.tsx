@@ -13,12 +13,13 @@ import type { BusbarSize, MaterialGrade, CopperPriceData } from '@/types/calcula
 interface FxRates { EUR: number; GBP: number; CAD: number; AED: number; isFallback: boolean }
 
 const QTY_PRESETS = [1, 5, 10, 50, 100] as const;
-const CURRENCIES = ['USD', 'EUR', 'GBP'] as const;
+const CURRENCIES  = ['USD', 'EUR', 'GBP', 'AED'] as const;
 type Currency = typeof CURRENCIES[number];
-const CURR_SYM: Record<Currency, string> = { USD: '$', EUR: '€', GBP: '£' };
+const CURR_SYM: Record<Currency, string> = { USD: '$', EUR: '€', GBP: '£', AED: '' };
+const CURR_LABEL: Record<Currency, string> = { USD: 'USD', EUR: 'EUR', GBP: 'GBP', AED: 'AED' };
 
 // ── Smooth animated number ─────────────────────────────────────────
-function useAnimatedNumber(target: number, duration = 380) {
+function useAnimatedNumber(target: number, duration = 420) {
   const [current, setCurrent] = useState(target);
   const prev = useRef(target);
   const rafRef = useRef(0);
@@ -26,13 +27,14 @@ function useAnimatedNumber(target: number, duration = 380) {
   useEffect(() => {
     cancelAnimationFrame(rafRef.current);
     const from = prev.current;
-    if (Math.abs(target - from) < 0.00001) return;
+    if (Math.abs(target - from) < 0.00001) { setCurrent(target); return; }
     const start = performance.now();
 
     const tick = (now: number) => {
       const t = Math.min((now - start) / duration, 1);
       const e = 1 - Math.pow(1 - t, 3); // easeOutCubic
-      setCurrent(from + (target - from) * e);
+      const val = from + (target - from) * e;
+      setCurrent(val);
       if (t < 1) rafRef.current = requestAnimationFrame(tick);
       else prev.current = target;
     };
@@ -47,12 +49,12 @@ function useAnimatedNumber(target: number, duration = 380) {
 function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
-  const rotX = useSpring(useTransform(my, [-160, 160], [6, -6]), { stiffness: 350, damping: 35 });
-  const rotY = useSpring(useTransform(mx, [-160, 160], [-6, 6]), { stiffness: 350, damping: 35 });
+  const rotX = useSpring(useTransform(my, [-160, 160], [5, -5]), { stiffness: 300, damping: 32 });
+  const rotY = useSpring(useTransform(mx, [-160, 160], [-5, 5]), { stiffness: 300, damping: 32 });
 
   const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
-    mx.set(e.clientX - (r.left + r.width / 2));
+    mx.set(e.clientX - (r.left + r.width  / 2));
     my.set(e.clientY - (r.top  + r.height / 2));
   }, [mx, my]);
 
@@ -72,46 +74,53 @@ function TiltCard({ children, className }: { children: React.ReactNode; classNam
 
 // ── Animated result card ───────────────────────────────────────────
 function ResultCard({
-  label, rawValue, formatted, secondary, unit, highlight = false, delay = 0,
+  label, rawValue, formatFn, secondary, unit, highlight = false, delay = 0,
 }: {
-  label: string; rawValue: number; formatted: string;
+  label: string; rawValue: number; formatFn: (v: number) => string;
   secondary?: string; unit: string; highlight?: boolean; delay?: number;
 }) {
-  useAnimatedNumber(rawValue); // drives rerender via state
+  const animated = useAnimatedNumber(rawValue);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.94 }}
+      initial={{ opacity: 0, y: 22, scale: 0.93 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: 'spring', stiffness: 260, damping: 22, delay }}
-      className={`rounded-xl border p-3 text-center transition-colors ${
+      whileHover={{ y: -2, transition: { duration: 0.15 } }}
+      className={`rounded-xl border p-3 text-center transition-colors cursor-default ${
         highlight
           ? 'result-card-highlight border-copper-700/40'
           : 'bg-[var(--color-surface-3)] border-[var(--color-surface-4)]'
       }`}
     >
-      <p className="text-[0.6rem] text-zinc-500 uppercase tracking-wider mb-1.5 font-semibold">{label}</p>
-      <p className={`font-mono font-bold text-lg sm:text-xl ${highlight ? 'text-copper-400 result-glow' : 'text-white'}`}>
-        {formatted}
+      <p className="text-[0.59rem] text-zinc-500 uppercase tracking-wider mb-1.5 font-semibold leading-none">
+        {label}
       </p>
-      {secondary && <p className="text-[0.67rem] text-zinc-600 mt-0.5 font-mono">{secondary}</p>}
-      <p className="text-[0.6rem] text-zinc-600 mt-1">{unit}</p>
+      <p className={`font-mono font-bold text-lg sm:text-xl leading-tight ${
+        highlight ? 'text-copper-400 result-glow' : 'text-white'
+      }`}>
+        {formatFn(animated)}
+      </p>
+      {secondary && (
+        <p className="text-[0.65rem] text-zinc-600 mt-0.5 font-mono">{secondary}</p>
+      )}
+      <p className="text-[0.58rem] text-zinc-600 mt-1 leading-none">{unit}</p>
     </motion.div>
   );
 }
 
 // ── Main component ─────────────────────────────────────────────────
 export function CopperCalculator() {
-  const [size,  setSize]   = useState<BusbarSize>(DEFAULT_SIZE);
-  const [grade, setGrade]  = useState<MaterialGrade>(DEFAULT_GRADE);
-  const [live,  setLive]   = useState<CopperPriceData | null>(null);
-  const [fx,    setFx]     = useState<FxRates | null>(null);
+  const [size,  setSize]  = useState<BusbarSize>(DEFAULT_SIZE);
+  const [grade, setGrade] = useState<MaterialGrade>(DEFAULT_GRADE);
+  const [live,  setLive]  = useState<CopperPriceData | null>(null);
+  const [fx,    setFx]    = useState<FxRates | null>(null);
   const [loading, setLoad] = useState(true);
-  const [manual, setMan]   = useState('');
-  const [useMan, setUM]    = useState(false);
-  const [qty, setQty]      = useState(1);
-  const [curr, setCurr]    = useState<Currency>('USD');
-  const [copied, setCopy]  = useState(false);
+  const [manual, setMan]  = useState('');
+  const [useMan, setUM]   = useState(false);
+  const [qty, setQty]     = useState(1);
+  const [curr, setCurr]   = useState<Currency>('USD');
+  const [copied, setCopy] = useState(false);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -133,9 +142,17 @@ export function CopperCalculator() {
     return live?.pricePerKg ?? null;
   }, [useMan, manual, live]);
 
-  const fxRate = useMemo(() => (fx && curr !== 'USD' ? fx[curr] ?? 1 : 1), [fx, curr]);
+  const fxRate = useMemo(() => {
+    if (!fx || curr === 'USD') return 1;
+    const rates = fx as unknown as Record<string, number>;
+    return rates[curr] ?? 1;
+  }, [fx, curr]);
+
   const sym = CURR_SYM[curr];
-  const fmtLocal = (usd: number, d = 2) => `${sym}${fmt(usd * fxRate, d)}`;
+  const fmtLocal = useCallback((usd: number, d = 2) => {
+    const val = usd * fxRate;
+    return curr === 'AED' ? `${fmt(val, d)} AED` : `${sym}${fmt(val, d)}`;
+  }, [fxRate, curr, sym]);
 
   const result = useMemo(
     () => (priceUSD ? calculateCost(size, grade, priceUSD) : null),
@@ -168,15 +185,21 @@ export function CopperCalculator() {
       <div className="relative z-10 p-5 md:p-7">
 
         {/* ── Busbar Render ────────────────────────── */}
-        <div className="w-full rounded-xl overflow-hidden mb-5 border border-[var(--color-surface-4)] bg-[var(--color-surface-1)] px-3 pt-3 pb-1">
+        <div className="w-full rounded-xl overflow-hidden mb-5 border border-[var(--color-surface-3)] viewer-bg px-3 pt-2 pb-1.5">
           <BusbarRender width={size.width} thickness={size.thickness} />
-          <p className="text-center font-mono text-[0.62rem] text-copper-800/70 pb-1.5">
-            {size.label} · {size.width * size.thickness} mm² · {grade.label}
-          </p>
+          <div className="flex items-center justify-center gap-2 pb-0.5">
+            <span className="font-mono text-[0.63rem] text-copper-700 font-semibold">{size.label}</span>
+            <span className="text-[var(--color-surface-4)] text-xs">·</span>
+            <span className="font-mono text-[0.63rem] text-zinc-600">{size.width * size.thickness} mm²</span>
+            <span className="text-[var(--color-surface-4)] text-xs">·</span>
+            <span className="font-mono text-[0.63rem] text-zinc-600">{grade.label}</span>
+          </div>
         </div>
 
         {/* ── Size + Grade ─────────────────────────── */}
-        <p className="text-[0.6rem] font-bold tracking-[0.22em] text-zinc-600 uppercase mb-3">Busbar Specifications</p>
+        <p className="text-[0.6rem] font-bold tracking-[0.22em] text-zinc-600 uppercase mb-3">
+          Busbar Specifications
+        </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
           <div>
@@ -245,14 +268,16 @@ export function CopperCalculator() {
                 className="flex items-center gap-2.5 bg-[var(--color-surface-3)] border border-[var(--color-surface-4)] rounded-lg px-3.5 py-2"
               >
                 {loading ? (
-                  <span className="text-zinc-500 text-sm animate-pulse">Fetching…</span>
+                  <span className="text-zinc-500 text-sm animate-pulse">Fetching live price…</span>
                 ) : live ? (
                   <>
                     <span className={live.isFallback ? 'fallback-dot' : 'live-dot'} />
                     <span className="font-mono text-lg font-bold text-copper-400">${fmt(live.pricePerKg,3)}</span>
                     <span className="text-zinc-500 text-xs">/kg</span>
-                    <span className="ml-auto text-zinc-600 text-[0.63rem]">
-                      {live.isFallback ? 'estimated' : live.source} · {live.pricePerMT.toLocaleString()} USD/MT
+                    <span className="text-zinc-700 text-xs font-mono">=</span>
+                    <span className="text-zinc-500 text-xs font-mono">${fmt(live.pricePerKg / 2.20462, 3)}/lb</span>
+                    <span className="ml-auto text-zinc-600 text-[0.63rem] hidden sm:block">
+                      {live.isFallback ? 'estimated' : live.source}
                     </span>
                   </>
                 ) : (
@@ -268,16 +293,18 @@ export function CopperCalculator() {
           <label className="block text-xs text-zinc-400 mb-1.5 font-medium">Quantity (meters)</label>
           <div className="flex items-center gap-2 flex-wrap">
             {QTY_PRESETS.map(p => (
-              <motion.button key={p} whileTap={{ scale: 0.92 }}
+              <motion.button key={p} whileTap={{ scale: 0.9 }}
                 onClick={() => setQty(p)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold border transition-all ${
                   qty === p
                     ? 'bg-copper-600/20 border-copper-600/50 text-copper-400'
-                    : 'bg-[var(--color-surface-3)] border-[var(--color-surface-4)] text-zinc-400 hover:border-zinc-500'
+                    : 'bg-[var(--color-surface-3)] border-[var(--color-surface-4)] text-zinc-400 hover:border-zinc-500 hover:text-zinc-300'
                 }`}
-              >{p}m</motion.button>
+              >
+                {p}m
+              </motion.button>
             ))}
-            <div className="flex items-center gap-1.5 ml-1">
+            <div className="flex items-center gap-1.5 ml-auto">
               <input
                 type="number" min="0.1" step="0.5"
                 className="field-input w-20 text-sm py-1.5 font-mono"
@@ -299,23 +326,46 @@ export function CopperCalculator() {
             >
               {/* Currency toggle */}
               <div className="flex justify-end mb-3">
-                <div className="flex gap-1">
+                <div className="flex gap-1 p-0.5 rounded-lg bg-[var(--color-surface-3)] border border-[var(--color-surface-4)]">
                   {CURRENCIES.map(c => (
                     <button key={c} onClick={() => setCurr(c)}
-                      className={`px-2.5 py-1 rounded text-[0.68rem] font-semibold border transition-all ${
+                      className={`px-2.5 py-1 rounded-md text-[0.68rem] font-semibold transition-all ${
                         curr === c
-                          ? 'bg-copper-600/20 border-copper-600/40 text-copper-400'
-                          : 'bg-[var(--color-surface-3)] border-[var(--color-surface-4)] text-zinc-500 hover:text-zinc-300'
+                          ? 'bg-copper-600/25 text-copper-400 shadow-sm'
+                          : 'text-zinc-500 hover:text-zinc-300'
                       }`}
-                    >{c}</button>
+                    >
+                      {CURR_LABEL[c]}
+                    </button>
                   ))}
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-2.5 mb-4">
-                <ResultCard label="Weight / m"  rawValue={result.weightPerMeter} formatted={`${fmt(result.weightPerMeter,3)}`} unit="kg / m" delay={0} />
-                <ResultCard label="Cost / m"    rawValue={result.costPerMeter}   formatted={fmtLocal(result.costPerMeter)}   secondary={curr !== 'USD' ? fmtUSD(result.costPerMeter) : undefined} unit={`${curr} / m`} delay={0.06} />
-                <ResultCard label="Cost / m²"   rawValue={result.costPerM2}      formatted={fmtLocal(result.costPerM2,0)}    secondary={curr !== 'USD' ? fmtUSD(result.costPerM2,0) : undefined} unit={`${curr} / m²`} highlight delay={0.12} />
+                <ResultCard
+                  label="Weight / m"
+                  rawValue={result.weightPerMeter}
+                  formatFn={v => fmt(v, 3)}
+                  unit="kg / m"
+                  delay={0}
+                />
+                <ResultCard
+                  label="Cost / m"
+                  rawValue={result.costPerMeter * fxRate}
+                  formatFn={v => curr === 'AED' ? `${fmt(v,2)} AED` : `${sym}${fmt(v,2)}`}
+                  secondary={curr !== 'USD' ? fmtUSD(result.costPerMeter) : undefined}
+                  unit={`${curr} / m`}
+                  delay={0.06}
+                />
+                <ResultCard
+                  label="Cost / m²"
+                  rawValue={result.costPerM2 * fxRate}
+                  formatFn={v => curr === 'AED' ? `${fmt(v,0)} AED` : `${sym}${fmt(v,0)}`}
+                  secondary={curr !== 'USD' ? fmtUSD(result.costPerM2, 0) : undefined}
+                  unit={`${curr} / m²`}
+                  highlight
+                  delay={0.12}
+                />
               </div>
 
               <AnimatePresence>
@@ -330,9 +380,29 @@ export function CopperCalculator() {
                       Total — {fmt(qty, qty%1===0?0:1)} m
                     </div>
                     <div className="grid grid-cols-3 gap-2.5 mb-4">
-                      <ResultCard label="Total Weight" rawValue={result.weightPerMeter*qty} formatted={`${fmt(result.weightPerMeter*qty,2)}`} unit="kg" delay={0} />
-                      <ResultCard label="Total Cost"   rawValue={result.costPerMeter*qty}   formatted={fmtLocal(result.costPerMeter*qty)}   secondary={curr!=='USD'?fmtUSD(result.costPerMeter*qty):undefined} unit={curr} delay={0.06} />
-                      <ResultCard label="USD Total"    rawValue={result.costPerMeter*qty}   formatted={fmtUSD(result.costPerMeter*qty)}    unit="USD" highlight delay={0.12} />
+                      <ResultCard
+                        label="Total Weight"
+                        rawValue={result.weightPerMeter * qty}
+                        formatFn={v => fmt(v, 2)}
+                        unit="kg"
+                        delay={0}
+                      />
+                      <ResultCard
+                        label="Total Cost"
+                        rawValue={result.costPerMeter * qty * fxRate}
+                        formatFn={v => curr === 'AED' ? `${fmt(v,2)} AED` : `${sym}${fmt(v,2)}`}
+                        secondary={curr !== 'USD' ? fmtUSD(result.costPerMeter * qty) : undefined}
+                        unit={curr}
+                        delay={0.06}
+                      />
+                      <ResultCard
+                        label="USD Total"
+                        rawValue={result.costPerMeter * qty}
+                        formatFn={v => fmtUSD(v)}
+                        unit="USD"
+                        highlight
+                        delay={0.12}
+                      />
                     </div>
                   </motion.div>
                 )}
@@ -340,28 +410,38 @@ export function CopperCalculator() {
 
               <motion.button
                 onClick={handleCopy}
-                whileHover={{ scale: 1.015 }}
-                whileTap={{ scale: 0.97 }}
-                className="btn-ghost w-full text-sm py-2"
+                whileHover={{ scale: 1.012 }}
+                whileTap={{ scale: 0.975 }}
+                className="btn-ghost w-full text-sm py-2.5 flex items-center justify-center gap-2"
               >
                 <AnimatePresence mode="wait">
                   <motion.span key={copied ? 'ok' : 'copy'}
                     initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
+                    className="flex items-center gap-2"
                   >
-                    {copied ? '✓ Copied to clipboard' : '📋 Copy Results'}
+                    {copied ? (
+                      <><span className="text-green-500">✓</span> Copied to clipboard</>
+                    ) : (
+                      <><span>📋</span> Copy Results</>
+                    )}
                   </motion.span>
                 </AnimatePresence>
               </motion.button>
 
               {curr !== 'USD' && fx && (
                 <p className="text-center text-[0.62rem] text-zinc-700 mt-2">
-                  FX: 1 USD = {fx[curr]?.toFixed(4)} {curr}{fx.isFallback ? ' (estimated)' : ''}
+                  1 USD = {(fx as unknown as Record<string, number>)[curr]?.toFixed(4)} {curr}
+                  {fx.isFallback ? ' (estimated)' : ''}
                 </p>
               )}
             </motion.div>
           ) : (
             <motion.div key="empty" className="text-center py-8 text-zinc-600 text-sm">
-              {loading ? 'Loading live copper price…' : 'Enter copper price to calculate costs'}
+              {loading ? (
+                <span className="animate-pulse">Loading live copper price…</span>
+              ) : (
+                'Enter copper price to calculate costs'
+              )}
             </motion.div>
           )}
         </AnimatePresence>

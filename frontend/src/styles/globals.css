@@ -144,9 +144,14 @@ body {
 .field-select option { background: #1c1c23; }
 
 /* ── Result card highlight ────────────────────────── */
+@keyframes copper-glow-pulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(205,127,50,0.10), inset 0 1px 0 rgba(255,200,100,0.06); }
+  50%       { box-shadow: 0 0 26px rgba(205,127,50,0.24), inset 0 1px 0 rgba(255,200,100,0.14); }
+}
 .result-card-highlight {
   background: linear-gradient(135deg, rgba(205,127,50,0.14), rgba(184,115,51,0.07));
   border-color: rgba(205,127,50,0.4) !important;
+  animation: copper-glow-pulse 3s ease-in-out infinite;
 }
 
 /* ── Buttons ──────────────────────────────────────── */
@@ -200,6 +205,20 @@ body {
   );
   border-radius: inherit;
 }
+
+/* ── Busbar viewer studio background ─────────────── */
+.viewer-bg {
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 108%, rgba(175,95,25,0.16) 0%, transparent 70%),
+    radial-gradient(ellipse 100% 30% at 50% 0%, rgba(255,255,255,0.022) 0%, transparent 50%),
+    var(--color-surface-1);
+}
+
+/* ── Custom scrollbar ─────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--color-surface-0); }
+::-webkit-scrollbar-thumb { background: rgba(184,115,51,0.28); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(184,115,51,0.52); }
 
 /* ── Floating animation ───────────────────────────── */
 @keyframes float-y {
