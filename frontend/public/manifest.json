@@ -1,0 +1,20 @@
+{
+  "name": "PAYAPRESS — Copper Busbar Calculator",
+  "short_name": "PAYAPRESS",
+  "description": "Professional real-time copper busbar cost calculator. Live COMEX pricing, 22 currencies, IEC/DIN standards.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060608",
+  "theme_color": "#cd7f32",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "utilities", "productivity"],
+  "lang": "en"
+}
