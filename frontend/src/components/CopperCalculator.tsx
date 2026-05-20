@@ -71,8 +71,6 @@ function detectCurrency(): CurrencyCode {
     ?? 'USD';
 }
 
-const QTY_PRESETS = [1, 5, 10, 50, 100] as const;
-
 const FLAG_CDN = 'https://flagcdn.com/w20';
 
 // ── Currency selector with flag + search ───────────────────────────
@@ -288,7 +286,13 @@ export function CopperCalculator() {
   const [loading, setLoad] = useState(true);
   const [manual, setMan]  = useState('');
   const [useMan, setUM]   = useState(false);
-  const [qty, setQty]     = useState(1);
+  const [lengthStr, setLengthStr] = useState('1000');
+
+  // qty in meters for calculations, user enters in mm
+  const qty = useMemo(() => {
+    const mm = parseFloat(lengthStr) || 1000;
+    return Math.max(1, Math.min(100000, mm)) / 1000;
+  }, [lengthStr]);
   const [currCode, setCurrCode] = useState<CurrencyCode>('USD');
   const [copied, setCopy] = useState(false);
 
@@ -328,11 +332,6 @@ export function CopperCalculator() {
     return typeof r === 'number' && r > 0 ? r : 1;
   }, [fx, currCode]);
 
-  const fmtLocal = useCallback(
-    (usd: number, decimalsOverride?: number) => fmtCurrency(usd * fxRate, currMeta, decimalsOverride),
-    [fxRate, currMeta],
-  );
-
   const result = useMemo(
     () => (priceUSD ? calculateCost(size, grade, priceUSD) : null),
     [size, grade, priceUSD],
@@ -346,7 +345,7 @@ export function CopperCalculator() {
       `Size:          ${size.label}`,
       `Grade:         ${grade.label} (${(grade.purity*100).toFixed(2)}%)`,
       `Copper price:  ${fmtUSD(result.pricePerKg)}/kg`,
-      `Quantity:      ${qty} m`,
+      `Length:        ${lengthStr} mm  (${qty.toFixed(qty < 1 ? 3 : 1)} m)`,
       '─'.repeat(44),
       `Weight/m:      ${fmt(result.weightPerMeter,3)} kg/m`,
       `Cost/m:        ${fmtUSD(result.costPerMeter)}/m`,
@@ -452,7 +451,17 @@ export function CopperCalculator() {
               onClick={() => { setUM(v => !v); setMan(''); }}
               className="btn-ghost text-[0.7rem] px-2 py-0.5"
             >
-              {useMan ? '↺ Live' : '✎ Manual'}
+              {useMan ? (
+                <span className="flex items-center gap-1">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 112.7 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M2 2v3h3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  Live
+                </span>
+              ) : (
+                <span className="flex items-center gap-1">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M11 2.5l2.5 2.5-8 8H3v-2.5l8-8z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>
+                  Manual
+                </span>
+              )}
             </button>
           </div>
 
@@ -498,48 +507,42 @@ export function CopperCalculator() {
           </AnimatePresence>
         </div>
 
-        {/* ── Quantity ─────────────────────────────── */}
+        {/* ── Length ───────────────────────────────── */}
         <div className="mb-5">
-          <label className="block text-xs text-zinc-400 mb-1.5 font-medium">Quantity (meters)</label>
-          <div className="flex items-center gap-2 flex-wrap">
-            {QTY_PRESETS.map(p => (
-              <motion.button key={p} whileTap={{ scale: 0.9 }}
-                onClick={() => setQty(p)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold border transition-all ${
-                  qty === p
-                    ? 'bg-copper-600/20 border-copper-600/50 text-copper-400'
-                    : 'bg-[var(--color-surface-3)] border-[var(--color-surface-4)] text-zinc-400 hover:border-zinc-500 hover:text-zinc-300'
-                }`}
-              >
-                {p}m
-              </motion.button>
-            ))}
-            <div className="flex items-center gap-1.5 ml-auto">
-              <input
-                type="number" min="0.1" step="0.5"
-                className="field-input w-20 text-sm py-1.5 font-mono"
-                value={qty}
-                onChange={e => { const v = parseFloat(e.target.value); if (!isNaN(v) && v > 0) setQty(v); }}
-              />
-              <span className="text-zinc-500 text-xs">m</span>
-            </div>
+          <label className="block text-xs text-zinc-400 mb-1.5 font-medium">Length (mm)</label>
+          <div className="relative">
+            <input
+              type="number" min="1" max="100000" step="100"
+              className="field-input font-mono pr-16"
+              placeholder="1000"
+              value={lengthStr}
+              onChange={e => setLengthStr(e.target.value)}
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs pointer-events-none font-mono">
+              mm
+            </span>
           </div>
+          <p className="text-[0.63rem] text-zinc-600 mt-1 font-mono">
+            = {qty.toFixed(qty < 1 ? 3 : qty < 10 ? 2 : 1)} m · {(size.width * size.thickness * qty).toFixed(1)} cm³
+          </p>
         </div>
 
+        {/* Display Currency */}
+        {result && (
+          <div className="mb-4">
+            <label className="block text-xs text-zinc-500 mb-1.5 font-medium">Display Currency</label>
+            <CurrencySelector value={currCode} onChange={setCurrCode} />
+          </div>
+        )}
+
         {/* ── Results ──────────────────────────────── */}
-        <div className="copper-divider mb-4">Per Meter</div>
+        <div className="copper-divider mb-4">Results</div>
 
         <AnimatePresence mode="wait">
           {result ? (
             <motion.div key="results"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             >
-              {/* Currency selector with flag + search */}
-              <div className="mb-4">
-                <label className="block text-xs text-zinc-500 mb-1.5 font-medium">Display Currency</label>
-                <CurrencySelector value={currCode} onChange={setCurrCode} />
-              </div>
-
               <div className="grid grid-cols-3 gap-2.5 mb-4">
                 <ResultCard
                   label="Weight / m"
@@ -567,45 +570,39 @@ export function CopperCalculator() {
                 />
               </div>
 
-              <AnimatePresence>
-                {qty !== 1 && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    style={{ overflow: 'hidden' }}
-                  >
-                    <div className="copper-divider mb-4">
-                      Total — {fmt(qty, qty%1===0?0:1)} m
-                    </div>
-                    <div className="grid grid-cols-3 gap-2.5 mb-4">
-                      <ResultCard
-                        label="Total Weight"
-                        rawValue={result.weightPerMeter * qty}
-                        formatFn={v => fmt(v, 2)}
-                        unit="kg"
-                        delay={0}
-                      />
-                      <ResultCard
-                        label="Total Cost"
-                        rawValue={result.costPerMeter * qty * fxRate}
-                        formatFn={v => fmtCurrency(v, currMeta)}
-                        secondary={currCode !== 'USD' ? fmtUSD(result.costPerMeter * qty) : undefined}
-                        unit={currCode}
-                        delay={0.06}
-                      />
-                      <ResultCard
-                        label="USD Total"
-                        rawValue={result.costPerMeter * qty}
-                        formatFn={v => fmtUSD(v)}
-                        unit="USD"
-                        highlight
-                        delay={0.12}
-                      />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <div className="copper-divider mb-4">
+                  Total — {Number(lengthStr) || 1000} mm
+                </div>
+                <div className="grid grid-cols-3 gap-2.5 mb-4">
+                  <ResultCard
+                    label="Total Weight"
+                    rawValue={result.weightPerMeter * qty}
+                    formatFn={v => fmt(v, 2)}
+                    unit="kg"
+                    delay={0}
+                  />
+                  <ResultCard
+                    label="Total Cost"
+                    rawValue={result.costPerMeter * qty * fxRate}
+                    formatFn={v => fmtCurrency(v, currMeta)}
+                    secondary={currCode !== 'USD' ? fmtUSD(result.costPerMeter * qty) : undefined}
+                    unit={currCode}
+                    delay={0.06}
+                  />
+                  <ResultCard
+                    label="USD Total"
+                    rawValue={result.costPerMeter * qty}
+                    formatFn={v => fmtUSD(v)}
+                    unit="USD"
+                    highlight
+                    delay={0.12}
+                  />
+                </div>
+              </motion.div>
 
               <motion.button
                 onClick={handleCopy}
@@ -619,9 +616,20 @@ export function CopperCalculator() {
                     className="flex items-center gap-2"
                   >
                     {copied ? (
-                      <><span className="text-green-500">✓</span> Copied to clipboard</>
+                      <>
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-green-500">
+                          <path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Copied to clipboard
+                      </>
                     ) : (
-                      <><span>📋</span> Copy Results</>
+                      <>
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="opacity-60">
+                          <rect x="5" y="1" width="9" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+                          <path d="M2 5v9a1.5 1.5 0 001.5 1.5H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
+                        Copy Results
+                      </>
                     )}
                   </motion.span>
                 </AnimatePresence>
