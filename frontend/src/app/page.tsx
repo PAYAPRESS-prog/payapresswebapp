@@ -13,28 +13,32 @@ export default function HomePage() {
       {/* Header outside any overflow container — fixes sticky on iOS Safari */}
       <Header />
 
-      <main className="relative z-10 overflow-x-hidden">
-        <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 pt-10 pb-16">
+      <main className="relative z-10">
+        <div className="w-full max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto
+                        px-4 sm:px-6 lg:px-8
+                        pt-8 sm:pt-10 lg:pt-14
+                        pb-16 sm:pb-20">
+
           <HeroSection />
           <CopperCalculator />
           <ComingSoonSection />
 
-          <footer className="text-center text-zinc-800 text-xs mt-8 space-y-1">
+          <footer className="text-center text-zinc-700 text-[0.7rem] mt-10 space-y-1.5 pb-safe">
             <p>
-              PAYAPRESS PRO · Open Source ·{' '}
+              PAYAPRESS PRO &nbsp;·&nbsp; Open Source &nbsp;·&nbsp;{' '}
               <a href="https://github.com/PAYAPRESS-prog/payapresswebapp"
-                 className="hover:text-copper-700 transition-colors"
+                 className="hover:text-copper-600 transition-colors underline underline-offset-2"
                  target="_blank" rel="noopener noreferrer">GitHub</a>
-              {' '}·{' '}
+              &nbsp;·&nbsp;{' '}
               <a href="https://www.payapress.com"
-                 className="hover:text-copper-700 transition-colors"
+                 className="hover:text-copper-600 transition-colors underline underline-offset-2"
                  target="_blank" rel="noopener noreferrer">payapress.com</a>
             </p>
-            <p className="text-zinc-900">
-              Prices from COMEX HG=F via Yahoo Finance · For reference only.
+            <p className="text-zinc-800">
+              Prices from COMEX HG=F via Yahoo Finance &nbsp;·&nbsp; For reference only.
             </p>
-            <p className="text-zinc-900">
-              © 2025 PAYAP MACHINERY · Trading as PAYAPRESS
+            <p className="text-zinc-800">
+              © 2025 PAYAP MACHINERY &nbsp;·&nbsp; Trading as PAYAPRESS
             </p>
           </footer>
         </div>

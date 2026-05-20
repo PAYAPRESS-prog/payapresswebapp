@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Changed
+- **Full responsive redesign** — all standard screen sizes from 320 px mobile to 1920 px+ desktop
+- **Desktop 2-column layout** — configurator card (left) + results sticky card (right) on `lg+` screens
+- **Coming Soon section** — reduced to 3 cards (removed Multi-Currency, Project Estimator, Custom Profiles)
+- **Header** — matches main container breakpoints; shows tagline on `md+` screens
+- **Field inputs** — 16 px font-size prevents iOS Safari auto-zoom on focus; 44 px min-height (WCAG 2.5.5)
+- **Touch hover** — `@media (hover: none)` disables sticky hover lift on touch devices
+- **iOS safe-area** — `env(safe-area-inset-bottom)` applied to footer and html base
+- **Reduced motion** — `prefers-reduced-motion: reduce` disables all animations
+- **Number spinner controls** — removed native spinners globally on number inputs
+- **Results layout** — removed static "Per Metre" row; single result block keyed to entered length
+
+### Added
+- **Gamification** — drag-to-resize busbar viewer, quick IEC preset chips, achievement badges,
+  confetti burst, calc counter (#N), milestone toasts, copper price mood indicator
+
+---
+
 ## [1.0.0] — 2025-05-20
 
 ### Added

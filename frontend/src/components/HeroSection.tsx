@@ -10,14 +10,14 @@ const PILLS = [
 
 export function HeroSection() {
   return (
-    <div className="text-center mb-10 sm:mb-12">
+    <div className="text-center mb-10 sm:mb-12 lg:mb-16">
 
-      <h1 className="font-black tracking-tight mb-5 leading-[1.06]">
+      <h1 className="font-black tracking-tight mb-5 sm:mb-6 leading-[1.06]">
         <motion.span
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-          className="block text-lg sm:text-xl text-zinc-500 font-semibold tracking-[0.03em] mb-1"
+          className="block text-base sm:text-xl lg:text-2xl text-zinc-500 font-semibold tracking-[0.04em] mb-1"
         >
           Copper Busbar
         </motion.span>
@@ -26,18 +26,18 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 26 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-          className="block text-4xl sm:text-5xl lg:text-6xl text-shimmer"
+          className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl text-shimmer"
         >
           Cost Calculator
         </motion.span>
       </h1>
 
       <motion.div
-        className="flex items-center justify-center gap-2 flex-wrap"
+        className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap"
         initial="hidden"
         animate="show"
         variants={{
-          show: { transition: { staggerChildren: 0.09, delayChildren: 0.42 } },
+          show:   { transition: { staggerChildren: 0.09, delayChildren: 0.42 } },
           hidden: {},
         }}
       >
@@ -51,9 +51,9 @@ export function HeroSection() {
                 transition: { type: 'spring' as const, stiffness: 340, damping: 22 },
               },
             }}
-            className="flex items-center gap-1.5 text-[0.66rem] font-medium text-zinc-500
+            className="flex items-center gap-1.5 text-[0.66rem] sm:text-xs font-medium text-zinc-500
                        bg-[var(--color-surface-2)] border border-[var(--color-surface-3)]
-                       rounded-full px-3 py-1 select-none"
+                       rounded-full px-3 py-1 sm:px-3.5 sm:py-1.5 select-none"
           >
             {pill.dot && (
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-500

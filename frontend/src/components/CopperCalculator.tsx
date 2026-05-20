@@ -492,11 +492,13 @@ export function CopperCalculator() {
   return (
     <motion.div
       ref={cardRef}
-      className="relative space-y-3"
+      className="relative"
       initial={{ opacity: 0, y: 44 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
     >
+    {/* Mobile: stacked · Desktop lg+: side-by-side */}
+    <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-6 lg:items-start">
 
     {/* ╔══════════════════════════════════════════╗
         ║  CARD 1 — CONFIGURATOR                   ║
@@ -702,6 +704,8 @@ export function CopperCalculator() {
     {/* ╔══════════════════════════════════════════╗
         ║  CARD 2 — RESULTS                        ║
         ╚══════════════════════════════════════════╝ */}
+    {/* lg+: sticky so results stay visible while scrolling the form */}
+    <div className="lg:sticky lg:top-[4.5rem] lg:self-start">
     <AnimatePresence mode="wait">
       {result ? (
         <motion.div key="results-card"
@@ -808,6 +812,8 @@ export function CopperCalculator() {
         </motion.div>
       )}
     </AnimatePresence>
+    </div>{/* /sticky wrapper */}
+    </div>{/* /responsive grid */}
 
     {/* Milestone toast */}
     <AnimatePresence>
