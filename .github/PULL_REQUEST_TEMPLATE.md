@@ -1,24 +1,26 @@
 ## Summary
 
-<!-- Describe what this PR does and why -->
+<!-- What does this PR do and why? -->
 
 ## Type of Change
 
 - [ ] Bug fix
 - [ ] New feature
-- [ ] Refactor
+- [ ] Refactor / cleanup
 - [ ] Documentation
-- [ ] CI/CD
+- [ ] CI / tooling
 
 ## Testing
 
-- [ ] Frontend builds without errors (`npm run build`)
-- [ ] TypeScript passes (`npm run type-check`)
-- [ ] Linting passes (`npm run lint`)
-- [ ] Tested manually against a local WordPress instance
+- [ ] `npm run build` passes (no TypeScript / compile errors)
+- [ ] `npm run type-check` passes
+- [ ] `npm run lint` passes
+- [ ] `npm test` passes
+- [ ] Tested manually in browser (Chrome + Safari)
 
 ## Checklist
 
-- [ ] My code follows the project's coding standards
-- [ ] I've updated documentation if needed
-- [ ] I've added a CHANGELOG entry
+- [ ] Code follows project conventions (no unused imports, no `any`, no emoji in production code)
+- [ ] Documentation updated if public API / component interface changed
+- [ ] `CHANGELOG.md` updated under `[Unreleased]`
+- [ ] No `.env` files or secrets committed
