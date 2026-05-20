@@ -366,70 +366,67 @@ export function CopperCalculator() {
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
     >
     <TiltCard className="card-copper scanlines">
-      <div className="relative z-10 p-5 md:p-7">
+      <div className="relative z-10">
 
-        {/* ── Busbar Render ────────────────────────── */}
-        <div className="w-full rounded-xl overflow-hidden mb-5 border border-[var(--color-surface-3)] viewer-bg px-3 pt-2 pb-1.5">
+        {/* ── Busbar Viewer ─────────────────────────── */}
+        <div className="viewer-bg rounded-t-[1.25rem] overflow-hidden px-4 pt-3 pb-2 border-b border-[var(--color-surface-3)]">
           <BusbarRender width={size.width} thickness={size.thickness} />
-          <div className="flex items-center justify-center gap-2 pb-0.5">
-            <span className="font-mono text-[0.63rem] text-copper-700 font-semibold">{size.label}</span>
-            <span className="text-[var(--color-surface-4)] text-xs">·</span>
-            <span className="font-mono text-[0.63rem] text-zinc-600">{size.width * size.thickness} mm²</span>
-            <span className="text-[var(--color-surface-4)] text-xs">·</span>
-            <span className="font-mono text-[0.63rem] text-zinc-600">{grade.label}</span>
+          <div className="flex items-center justify-center gap-2.5 pb-1">
+            <span className="font-mono text-xs text-copper-600 font-bold tracking-wide">{size.label}</span>
+            <span className="text-zinc-700">·</span>
+            <span className="font-mono text-xs text-zinc-500">{size.width * size.thickness} mm²</span>
+            <span className="text-zinc-700">·</span>
+            <span className="font-mono text-xs text-zinc-500">{grade.label}</span>
           </div>
         </div>
 
-        {/* ── Dimensions + Grade ───────────────────── */}
-        <p className="text-[0.6rem] font-bold tracking-[0.22em] text-zinc-600 uppercase mb-3">
-          Busbar Specifications
-        </p>
+        {/* ── Form body ─────────────────────────────── */}
+        <div className="px-5 md:px-7 pt-5 pb-6 space-y-0">
 
-        <div className="mb-4 space-y-3">
-          {/* Width × Thickness inputs */}
-          <div>
-            <label className="block text-xs text-zinc-400 mb-1.5 font-medium">
-              Dimensions — Width × Thickness (mm)
-            </label>
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <input
-                  type="number" min="5" max="400" step="1"
-                  className="field-input font-mono text-center pr-12"
-                  placeholder="60"
-                  value={widthStr}
-                  onChange={e => setWidthStr(e.target.value)}
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-[0.68rem] pointer-events-none font-mono">
-                  W
-                </span>
+          {/* ── SECTION: Dimensions ─────────────────── */}
+          <div className="pb-5 border-b border-[var(--color-surface-3)]">
+            <p className="calc-section-label">Dimensions</p>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div>
+                <label className="block text-xs text-zinc-400 mb-1.5 font-medium">Width</label>
+                <div className="relative">
+                  <input
+                    type="number" min="5" max="400" step="1"
+                    inputMode="numeric"
+                    className="field-input font-mono text-center pr-12 py-3 text-base"
+                    placeholder="60"
+                    value={widthStr}
+                    onChange={e => setWidthStr(e.target.value)}
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs pointer-events-none font-mono">mm</span>
+                </div>
               </div>
-              <span className="text-zinc-600 font-mono text-base flex-shrink-0 select-none">×</span>
-              <div className="relative flex-1">
-                <input
-                  type="number" min="1" max="50" step="1"
-                  className="field-input font-mono text-center pr-12"
-                  placeholder="8"
-                  value={thickStr}
-                  onChange={e => setThickStr(e.target.value)}
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-[0.68rem] pointer-events-none font-mono">
-                  T
-                </span>
+              <div>
+                <label className="block text-xs text-zinc-400 mb-1.5 font-medium">Thickness</label>
+                <div className="relative">
+                  <input
+                    type="number" min="1" max="50" step="1"
+                    inputMode="numeric"
+                    className="field-input font-mono text-center pr-12 py-3 text-base"
+                    placeholder="8"
+                    value={thickStr}
+                    onChange={e => setThickStr(e.target.value)}
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs pointer-events-none font-mono">mm</span>
+                </div>
               </div>
-              <span className="text-zinc-600 text-[0.7rem] flex-shrink-0 font-mono">mm</span>
             </div>
-            <p className="text-[0.63rem] text-zinc-600 mt-1 font-mono">
-              {size.width} × {size.thickness} mm · {size.width * size.thickness} mm²
+            <p className="text-[0.68rem] text-zinc-600 font-mono">
+              {size.width} × {size.thickness} mm &nbsp;·&nbsp; {size.width * size.thickness} mm² cross-section
             </p>
           </div>
 
-          {/* Material Grade */}
-          <div>
-            <label className="block text-xs text-zinc-400 mb-1 font-medium">Material Grade</label>
+          {/* ── SECTION: Material Grade ──────────────── */}
+          <div className="py-5 border-b border-[var(--color-surface-3)]">
+            <p className="calc-section-label">Material Grade</p>
             <div className="relative">
               <select
-                className="field-select pr-7"
+                className="field-select pr-8 py-3 text-sm"
                 value={grade.id}
                 onChange={e => setGrade(MATERIAL_GRADES.find(g => g.id === e.target.value) ?? DEFAULT_GRADE)}
               >
@@ -437,221 +434,221 @@ export function CopperCalculator() {
                   <option key={g.id} value={g.id}>{g.label} — {(g.purity*100).toFixed(2)}%</option>
                 ))}
               </select>
-              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs">▾</span>
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs">▾</span>
             </div>
-            <p className="text-[0.67rem] text-zinc-600 mt-1">{grade.standard} · ρ {grade.density} g/cm³</p>
-          </div>
-        </div>
-
-        {/* ── Copper Price ─────────────────────────── */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-1">
-            <label className="text-xs text-zinc-400 font-medium">Copper Price (USD / kg)</label>
-            <button
-              onClick={() => { setUM(v => !v); setMan(''); }}
-              className="btn-ghost text-[0.7rem] px-2 py-0.5"
-            >
-              {useMan ? (
-                <span className="flex items-center gap-1">
-                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 112.7 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M2 2v3h3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  Live
-                </span>
-              ) : (
-                <span className="flex items-center gap-1">
-                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M11 2.5l2.5 2.5-8 8H3v-2.5l8-8z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>
-                  Manual
-                </span>
-              )}
-            </button>
+            <p className="text-[0.68rem] text-zinc-600 mt-2">{grade.standard} &nbsp;·&nbsp; ρ {grade.density} g/cm³</p>
           </div>
 
-          <AnimatePresence mode="wait">
-            {useMan ? (
-              <motion.div key="manual"
-                initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}
-                className="flex items-center bg-[var(--color-surface-3)] border border-[var(--color-surface-4)] focus-within:border-copper-600/55 focus-within:shadow-[0_0_0_3px_rgba(205,127,50,0.1)] rounded-lg transition-all"
+          {/* ── SECTION: Copper Price ────────────────── */}
+          <div className="py-5 border-b border-[var(--color-surface-3)]">
+            <div className="flex items-center justify-between mb-2.5">
+              <p className="calc-section-label mb-0">Copper Price <span className="text-zinc-600 normal-case tracking-normal font-normal">(USD / kg)</span></p>
+              <button
+                onClick={() => { setUM(v => !v); setMan(''); }}
+                className="btn-ghost text-xs px-3 py-1.5"
               >
-                <span className="pl-3 text-zinc-500 font-mono text-sm">$</span>
-                <input
-                  type="number" min="0" step="0.001"
-                  className="flex-1 bg-transparent text-white font-mono px-2 py-2 outline-none placeholder:text-zinc-700 text-sm"
-                  placeholder="9.850"
-                  value={manual}
-                  onChange={e => setMan(e.target.value)}
-                />
-                <span className="pr-3 text-zinc-500 text-xs">USD/kg</span>
+                {useMan ? (
+                  <span className="flex items-center gap-1.5">
+                    <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 112.7 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M2 2v3h3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    Switch to Live
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="M11 2.5l2.5 2.5-8 8H3v-2.5l8-8z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>
+                    Enter Manual
+                  </span>
+                )}
+              </button>
+            </div>
+
+            <AnimatePresence mode="wait">
+              {useMan ? (
+                <motion.div key="manual"
+                  initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}
+                  className="flex items-center bg-[var(--color-surface-3)] border border-[var(--color-surface-4)]
+                             focus-within:border-copper-600/55 focus-within:shadow-[0_0_0_3px_rgba(205,127,50,0.1)]
+                             rounded-xl transition-all overflow-hidden"
+                >
+                  <span className="pl-4 text-zinc-400 font-mono text-base font-semibold">$</span>
+                  <input
+                    type="number" min="0" step="0.001"
+                    inputMode="decimal"
+                    className="flex-1 bg-transparent text-white font-mono px-2 py-3.5 outline-none placeholder:text-zinc-700 text-base"
+                    placeholder="13.975"
+                    value={manual}
+                    onChange={e => setMan(e.target.value)}
+                  />
+                  <span className="pr-4 text-zinc-500 text-xs font-mono">USD / kg</span>
+                </motion.div>
+              ) : (
+                <motion.div key="live"
+                  initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}
+                  className="flex items-center gap-3 bg-[var(--color-surface-3)] border border-[var(--color-surface-4)] rounded-xl px-4 py-3.5"
+                >
+                  {loading ? (
+                    <span className="text-zinc-500 text-sm animate-pulse">Fetching live price…</span>
+                  ) : live ? (
+                    <>
+                      <span className={live.isFallback ? 'fallback-dot' : 'live-dot'} />
+                      <span className="font-mono text-xl font-bold text-copper-400">${fmt(live.pricePerKg, 3)}</span>
+                      <span className="text-zinc-500 text-sm">/kg</span>
+                      <span className="text-zinc-600 text-xs font-mono ml-auto">
+                        ${fmt(live.pricePerKg / 2.20462, 3)}/lb
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-amber-500 text-sm">Unavailable — switch to manual</span>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* ── SECTION: Length ─────────────────────── */}
+          <div className="py-5 border-b border-[var(--color-surface-3)]">
+            <p className="calc-section-label">Length</p>
+            <div className="relative">
+              <input
+                type="number" min="1" max="100000" step="100"
+                inputMode="numeric"
+                className="field-input font-mono pr-16 py-3 text-base"
+                placeholder="1000"
+                value={lengthStr}
+                onChange={e => setLengthStr(e.target.value)}
+              />
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 text-sm pointer-events-none font-mono font-semibold">
+                mm
+              </span>
+            </div>
+            <p className="text-[0.68rem] text-zinc-600 mt-2 font-mono">
+              = {qty.toFixed(qty < 1 ? 3 : qty < 10 ? 2 : 1)} m &nbsp;·&nbsp; {(size.width * size.thickness * qty).toFixed(1)} cm³ volume
+            </p>
+          </div>
+
+          {/* ── SECTION: Currency ───────────────────── */}
+          <div className="py-5 border-b border-[var(--color-surface-3)]">
+            <p className="calc-section-label">Display Currency</p>
+            <CurrencySelector value={currCode} onChange={setCurrCode} />
+            {currCode !== 'USD' && fx && (
+              <p className="text-[0.68rem] text-zinc-600 mt-2 font-mono">
+                1 USD = {fxRate.toFixed(4)} {currCode} &nbsp;·&nbsp; {fx.source}
+              </p>
+            )}
+          </div>
+
+          {/* ── RESULTS ──────────────────────────────── */}
+          <AnimatePresence mode="wait">
+            {result ? (
+              <motion.div key="results" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+
+                {/* Per metre */}
+                <div className="pt-5 pb-4">
+                  <div className="copper-divider mb-4">Per Metre</div>
+                  <div className="grid grid-cols-3 gap-2.5">
+                    <ResultCard
+                      label="Weight / m"
+                      rawValue={result.weightPerMeter}
+                      formatFn={v => fmt(v, 3)}
+                      unit="kg / m"
+                      delay={0}
+                    />
+                    <ResultCard
+                      label="Cost / m"
+                      rawValue={result.costPerMeter * fxRate}
+                      formatFn={v => fmtCurrency(v, currMeta)}
+                      secondary={currCode !== 'USD' ? fmtUSD(result.costPerMeter) : undefined}
+                      unit={`${currCode} / m`}
+                      delay={0.06}
+                    />
+                    <ResultCard
+                      label="Cost / m²"
+                      rawValue={result.costPerM2 * fxRate}
+                      formatFn={v => fmtCurrency(v, currMeta, 0)}
+                      secondary={currCode !== 'USD' ? fmtUSD(result.costPerM2, 0) : undefined}
+                      unit={`${currCode} / m²`}
+                      highlight
+                      delay={0.12}
+                    />
+                  </div>
+                </div>
+
+                {/* Total */}
+                <div className="border-t border-[var(--color-surface-3)] pt-5 pb-4">
+                  <div className="copper-divider mb-4">Total — {Number(lengthStr) || 1000} mm</div>
+                  <div className="grid grid-cols-3 gap-2.5">
+                    <ResultCard
+                      label="Weight"
+                      rawValue={result.weightPerMeter * qty}
+                      formatFn={v => fmt(v, 2)}
+                      unit="kg"
+                      delay={0}
+                    />
+                    <ResultCard
+                      label="Cost"
+                      rawValue={result.costPerMeter * qty * fxRate}
+                      formatFn={v => fmtCurrency(v, currMeta)}
+                      secondary={currCode !== 'USD' ? fmtUSD(result.costPerMeter * qty) : undefined}
+                      unit={currCode}
+                      delay={0.06}
+                    />
+                    <ResultCard
+                      label="USD Total"
+                      rawValue={result.costPerMeter * qty}
+                      formatFn={v => fmtUSD(v)}
+                      unit="USD"
+                      highlight
+                      delay={0.12}
+                    />
+                  </div>
+                </div>
+
+                {/* Copy button */}
+                <div className="border-t border-[var(--color-surface-3)] pt-4">
+                  <motion.button
+                    onClick={handleCopy}
+                    whileHover={{ scale: 1.012 }}
+                    whileTap={{ scale: 0.975 }}
+                    className="btn-ghost w-full py-3 flex items-center justify-center gap-2 text-sm"
+                  >
+                    <AnimatePresence mode="wait">
+                      <motion.span key={copied ? 'ok' : 'copy'}
+                        initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
+                        className="flex items-center gap-2"
+                      >
+                        {copied ? (
+                          <>
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-green-500">
+                              <path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            Copied to clipboard
+                          </>
+                        ) : (
+                          <>
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="opacity-60">
+                              <rect x="5" y="1" width="9" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
+                              <path d="M2 5v9a1.5 1.5 0 001.5 1.5H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                            </svg>
+                            Copy Results
+                          </>
+                        )}
+                      </motion.span>
+                    </AnimatePresence>
+                  </motion.button>
+                </div>
+
               </motion.div>
             ) : (
-              <motion.div key="live"
-                initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}
-                className="flex items-center gap-2.5 bg-[var(--color-surface-3)] border border-[var(--color-surface-4)] rounded-lg px-3.5 py-2"
-              >
+              <motion.div key="empty" className="text-center py-10 text-zinc-600 text-sm">
                 {loading ? (
-                  <span className="text-zinc-500 text-sm animate-pulse">Fetching live price…</span>
-                ) : live ? (
-                  <>
-                    <span className={live.isFallback ? 'fallback-dot' : 'live-dot'} />
-                    <span className="font-mono text-lg font-bold text-copper-400">${fmt(live.pricePerKg,3)}</span>
-                    <span className="text-zinc-500 text-xs">/kg</span>
-                    <span className="text-zinc-700 text-xs font-mono">=</span>
-                    <span className="text-zinc-500 text-xs font-mono">${fmt(live.pricePerKg / 2.20462, 3)}/lb</span>
-                    <span className="ml-auto text-zinc-600 text-[0.63rem] hidden sm:block">
-                      {live.isFallback ? 'estimated' : live.source}
-                    </span>
-                  </>
+                  <span className="animate-pulse">Loading live copper price…</span>
                 ) : (
-                  <span className="text-amber-500 text-sm">Unavailable — switch to manual</span>
+                  'Enter copper price to calculate costs'
                 )}
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
 
-        {/* ── Length ───────────────────────────────── */}
-        <div className="mb-5">
-          <label className="block text-xs text-zinc-400 mb-1.5 font-medium">Length (mm)</label>
-          <div className="relative">
-            <input
-              type="number" min="1" max="100000" step="100"
-              className="field-input font-mono pr-16"
-              placeholder="1000"
-              value={lengthStr}
-              onChange={e => setLengthStr(e.target.value)}
-            />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs pointer-events-none font-mono">
-              mm
-            </span>
-          </div>
-          <p className="text-[0.63rem] text-zinc-600 mt-1 font-mono">
-            = {qty.toFixed(qty < 1 ? 3 : qty < 10 ? 2 : 1)} m · {(size.width * size.thickness * qty).toFixed(1)} cm³
-          </p>
-        </div>
-
-        {/* Display Currency */}
-        {result && (
-          <div className="mb-4">
-            <label className="block text-xs text-zinc-500 mb-1.5 font-medium">Display Currency</label>
-            <CurrencySelector value={currCode} onChange={setCurrCode} />
-          </div>
-        )}
-
-        {/* ── Results ──────────────────────────────── */}
-        <div className="copper-divider mb-4">Results</div>
-
-        <AnimatePresence mode="wait">
-          {result ? (
-            <motion.div key="results"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            >
-              <div className="grid grid-cols-3 gap-2.5 mb-4">
-                <ResultCard
-                  label="Weight / m"
-                  rawValue={result.weightPerMeter}
-                  formatFn={v => fmt(v, 3)}
-                  unit="kg / m"
-                  delay={0}
-                />
-                <ResultCard
-                  label="Cost / m"
-                  rawValue={result.costPerMeter * fxRate}
-                  formatFn={v => fmtCurrency(v, currMeta)}
-                  secondary={currCode !== 'USD' ? fmtUSD(result.costPerMeter) : undefined}
-                  unit={`${currCode} / m`}
-                  delay={0.06}
-                />
-                <ResultCard
-                  label="Cost / m²"
-                  rawValue={result.costPerM2 * fxRate}
-                  formatFn={v => fmtCurrency(v, currMeta, 0)}
-                  secondary={currCode !== 'USD' ? fmtUSD(result.costPerM2, 0) : undefined}
-                  unit={`${currCode} / m²`}
-                  highlight
-                  delay={0.12}
-                />
-              </div>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                <div className="copper-divider mb-4">
-                  Total — {Number(lengthStr) || 1000} mm
-                </div>
-                <div className="grid grid-cols-3 gap-2.5 mb-4">
-                  <ResultCard
-                    label="Total Weight"
-                    rawValue={result.weightPerMeter * qty}
-                    formatFn={v => fmt(v, 2)}
-                    unit="kg"
-                    delay={0}
-                  />
-                  <ResultCard
-                    label="Total Cost"
-                    rawValue={result.costPerMeter * qty * fxRate}
-                    formatFn={v => fmtCurrency(v, currMeta)}
-                    secondary={currCode !== 'USD' ? fmtUSD(result.costPerMeter * qty) : undefined}
-                    unit={currCode}
-                    delay={0.06}
-                  />
-                  <ResultCard
-                    label="USD Total"
-                    rawValue={result.costPerMeter * qty}
-                    formatFn={v => fmtUSD(v)}
-                    unit="USD"
-                    highlight
-                    delay={0.12}
-                  />
-                </div>
-              </motion.div>
-
-              <motion.button
-                onClick={handleCopy}
-                whileHover={{ scale: 1.012 }}
-                whileTap={{ scale: 0.975 }}
-                className="btn-ghost w-full text-sm py-2.5 flex items-center justify-center gap-2"
-              >
-                <AnimatePresence mode="wait">
-                  <motion.span key={copied ? 'ok' : 'copy'}
-                    initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
-                    className="flex items-center gap-2"
-                  >
-                    {copied ? (
-                      <>
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-green-500">
-                          <path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                        Copied to clipboard
-                      </>
-                    ) : (
-                      <>
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="opacity-60">
-                          <rect x="5" y="1" width="9" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.5"/>
-                          <path d="M2 5v9a1.5 1.5 0 001.5 1.5H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                        </svg>
-                        Copy Results
-                      </>
-                    )}
-                  </motion.span>
-                </AnimatePresence>
-              </motion.button>
-
-              {/* FX rate info line */}
-              {currCode !== 'USD' && fx && (
-                <p className="text-center text-[0.62rem] text-zinc-700 mt-2">
-                  1 USD = {fxRate.toFixed(4)} {currCode} · {fx.source}
-                </p>
-              )}
-            </motion.div>
-          ) : (
-            <motion.div key="empty" className="text-center py-8 text-zinc-600 text-sm">
-              {loading ? (
-                <span className="animate-pulse">Loading live copper price…</span>
-              ) : (
-                'Enter copper price to calculate costs'
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        </div>{/* /form body */}
       </div>
     </TiltCard>
     </motion.div>

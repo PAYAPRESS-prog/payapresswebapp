@@ -125,6 +125,16 @@ body {
   background: linear-gradient(90deg, transparent, rgba(205,127,50,0.25), transparent);
 }
 
+/* ── Section label (mobile-first form sections) ──── */
+.calc-section-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(205, 127, 50, 0.5);
+  margin-bottom: 0.75rem;
+}
+
 /* ── Form controls ────────────────────────────────── */
 .field-select, .field-input {
   width: 100%;
