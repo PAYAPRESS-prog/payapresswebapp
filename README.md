@@ -1,6 +1,6 @@
 # PAYAPRESS WebApp
 
-> Professional copper busbar cost calculator for electrical panel fabricators — live COMEX pricing, IEC/DIN standard sizes, embeddable in WordPress.
+> Professional copper busbar cost calculator for electrical panel fabricators — live COMEX pricing, manual dimension inputs, 22 supported currencies, embeddable in WordPress, with a public REST API.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
@@ -11,13 +11,24 @@
 ## Features
 
 - **Live copper price** — COMEX HG=F via Yahoo Finance, auto-refreshed every 5 minutes, no API key needed
-- **22 standard busbar sizes** — IEC 60317 / DIN 46433 (15×2 mm up to 160×10 mm)
+- **Manual dimension inputs** — enter any width × thickness in mm (5–400 mm × 1–50 mm)
 - **3 material grades** — Cu-ETP (99.9%), Cu-OF (99.95%), Cu-OFE (99.99%)
-- **Multi-currency** — USD, EUR, GBP with live FX rates
-- **Quantity calculator** — enter meters needed, get total weight and cost
-- **Cross-section SVG diagram** — visual representation of selected size
+- **22 currencies** — USD, EUR, GBP, AED, SAR, KWD and more with live FX rates
+- **Length calculator** — enter length in mm, get total weight and cost
+- **Cross-section SVG diagram** — visual representation of selected dimensions
+- **Public REST API** — `/api/v1/calculate` for programmatic cost calculation (see [docs/API.md](docs/API.md))
 - **WordPress shortcode** — embed via `[payapress_app]` in any page
 - **Standalone iframe** — `/embed` route for headless embedding
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 15 (App Router) · React 19
+- **Styling:** Tailwind CSS v4
+- **Animations:** Framer Motion
+- **Language:** TypeScript
+- **Deployment:** Netlify / Vercel
 
 ---
 
@@ -25,12 +36,17 @@
 
 ```
 payapresswebapp/
-├── frontend/                    # Next.js 15 + TypeScript
+├── docs/
+│   └── API.md                       # Public API reference documentation
+├── frontend/                        # Next.js 15 + TypeScript
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── api/copper-price/  # COMEX price endpoint (cached 5 min)
-│   │   │   ├── api/fx-rate/       # EUR/GBP/CAD rates (cached 1 hr)
-│   │   │   ├── embed/             # Minimal page for iframe embedding
+│   │   │   ├── api/copper-price/    # COMEX price endpoint (cached 5 min)
+│   │   │   ├── api/fx-rate/         # FX rates (cached 6 hr)
+│   │   │   ├── api/v1/calculate/    # Public REST API — busbar cost
+│   │   │   ├── api/v1/copper-price/ # Public REST API — copper price proxy
+│   │   │   ├── api/v1/fx-rates/     # Public REST API — FX rates proxy
+│   │   │   ├── embed/               # Minimal page for iframe embedding
 │   │   │   ├── layout.tsx
 │   │   │   └── page.tsx
 │   │   ├── components/
@@ -38,7 +54,7 @@ payapresswebapp/
 │   │   │   ├── Header.tsx            # Live price ticker header
 │   │   │   └── ComingSoonSection.tsx
 │   │   ├── lib/
-│   │   │   ├── copperData.ts   # Busbar sizes + material grades constants
+│   │   │   ├── copperData.ts   # Material grades constants
 │   │   │   └── copperPrice.ts  # calculateCost(), fmt(), fmtUSD()
 │   │   └── types/calculator.ts
 │   ├── jest.config.js
