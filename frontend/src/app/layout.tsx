@@ -22,15 +22,11 @@ export const metadata: Metadata = {
   creator:   'PAYAP MACHINERY',
   publisher: 'PAYAPRESS',
 
+  // Indexing disabled until launch — update to index:true when ready
   robots: {
-    index:    true,
-    follow:   true,
-    googleBot: {
-      index:               true,
-      follow:              true,
-      'max-image-preview': 'large',
-      'max-snippet':       -1,
-    },
+    index:    false,
+    follow:   false,
+    googleBot: { index: false, follow: false },
   },
 
   openGraph: {

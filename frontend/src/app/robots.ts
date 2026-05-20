@@ -1,15 +1,8 @@
 import type { MetadataRoute } from 'next';
 
+// SEO indexing is currently disabled — enable when ready to launch.
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [
-      {
-        userAgent: '*',
-        allow: '/',
-        disallow: ['/api/', '/embed'],
-      },
-    ],
-    sitemap: 'https://guileless-torrone-f24c5e.netlify.app/sitemap.xml',
-    host:    'https://guileless-torrone-f24c5e.netlify.app',
+    rules: [{ userAgent: '*', disallow: '/' }],
   };
 }
