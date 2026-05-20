@@ -5,7 +5,7 @@ import {
   motion, AnimatePresence,
   useMotionValue, useTransform, useSpring, useInView,
 } from 'framer-motion';
-import { BUSBAR_SIZES, MATERIAL_GRADES, DEFAULT_SIZE, DEFAULT_GRADE } from '@/lib/copperData';
+import { MATERIAL_GRADES, DEFAULT_GRADE } from '@/lib/copperData';
 import { calculateCost, fmt, fmtUSD } from '@/lib/copperPrice';
 import { BusbarRender } from './BusbarRender';
 import type { BusbarSize, MaterialGrade, CopperPriceData } from '@/types/calculator';
@@ -274,8 +274,15 @@ function ResultCard({
 export function CopperCalculator() {
   const cardRef = useRef<HTMLDivElement>(null);
   const inView  = useInView(cardRef, { once: true, margin: '-60px' });
-  const [size,  setSize]  = useState<BusbarSize>(DEFAULT_SIZE);
+  const [widthStr, setWidthStr] = useState('60');
+  const [thickStr, setThickStr] = useState('8');
   const [grade, setGrade] = useState<MaterialGrade>(DEFAULT_GRADE);
+
+  const size = useMemo<BusbarSize>(() => {
+    const w = Math.max(5,  Math.min(400, parseFloat(widthStr) || 60));
+    const h = Math.max(1,  Math.min(50,  parseFloat(thickStr) || 8));
+    return { id: 'custom', width: w, thickness: h, label: `${w} × ${h} mm` };
+  }, [widthStr, thickStr]);
   const [live,  setLive]  = useState<CopperPriceData | null>(null);
   const [fx,    setFx]    = useState<FxRates | null>(null);
   const [loading, setLoad] = useState(true);
@@ -374,26 +381,51 @@ export function CopperCalculator() {
           </div>
         </div>
 
-        {/* ── Size + Grade ─────────────────────────── */}
+        {/* ── Dimensions + Grade ───────────────────── */}
         <p className="text-[0.6rem] font-bold tracking-[0.22em] text-zinc-600 uppercase mb-3">
           Busbar Specifications
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        <div className="mb-4 space-y-3">
+          {/* Width × Thickness inputs */}
           <div>
-            <label className="block text-xs text-zinc-400 mb-1 font-medium">Standard Size</label>
-            <div className="relative">
-              <select
-                className="field-select pr-7"
-                value={size.id}
-                onChange={e => setSize(BUSBAR_SIZES.find(s => s.id === e.target.value) ?? DEFAULT_SIZE)}
-              >
-                {BUSBAR_SIZES.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}
-              </select>
-              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs">▾</span>
+            <label className="block text-xs text-zinc-400 mb-1.5 font-medium">
+              Dimensions — Width × Thickness (mm)
+            </label>
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <input
+                  type="number" min="5" max="400" step="1"
+                  className="field-input font-mono text-center pr-12"
+                  placeholder="60"
+                  value={widthStr}
+                  onChange={e => setWidthStr(e.target.value)}
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-[0.68rem] pointer-events-none font-mono">
+                  W
+                </span>
+              </div>
+              <span className="text-zinc-600 font-mono text-base flex-shrink-0 select-none">×</span>
+              <div className="relative flex-1">
+                <input
+                  type="number" min="1" max="50" step="1"
+                  className="field-input font-mono text-center pr-12"
+                  placeholder="8"
+                  value={thickStr}
+                  onChange={e => setThickStr(e.target.value)}
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 text-[0.68rem] pointer-events-none font-mono">
+                  T
+                </span>
+              </div>
+              <span className="text-zinc-600 text-[0.7rem] flex-shrink-0 font-mono">mm</span>
             </div>
+            <p className="text-[0.63rem] text-zinc-600 mt-1 font-mono">
+              {size.width} × {size.thickness} mm · {size.width * size.thickness} mm²
+            </p>
           </div>
 
+          {/* Material Grade */}
           <div>
             <label className="block text-xs text-zinc-400 mb-1 font-medium">Material Grade</label>
             <div className="relative">
