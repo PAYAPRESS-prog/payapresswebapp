@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   motion, AnimatePresence,
-  useMotionValue, useTransform, useSpring,
+  useMotionValue, useTransform, useSpring, useInView,
 } from 'framer-motion';
 import { BUSBAR_SIZES, MATERIAL_GRADES, DEFAULT_SIZE, DEFAULT_GRADE } from '@/lib/copperData';
 import { calculateCost, fmt, fmtUSD } from '@/lib/copperPrice';
@@ -111,6 +111,8 @@ function ResultCard({
 
 // ── Main component ─────────────────────────────────────────────────
 export function CopperCalculator() {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const inView  = useInView(cardRef, { once: true, margin: '-60px' });
   const [size,  setSize]  = useState<BusbarSize>(DEFAULT_SIZE);
   const [grade, setGrade] = useState<MaterialGrade>(DEFAULT_GRADE);
   const [live,  setLive]  = useState<CopperPriceData | null>(null);
@@ -181,6 +183,12 @@ export function CopperCalculator() {
   };
 
   return (
+    <motion.div
+      ref={cardRef}
+      initial={{ opacity: 0, y: 44 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+    >
     <TiltCard className="card-copper scanlines">
       <div className="relative z-10 p-5 md:p-7">
 
@@ -447,5 +455,6 @@ export function CopperCalculator() {
         </AnimatePresence>
       </div>
     </TiltCard>
+    </motion.div>
   );
 }

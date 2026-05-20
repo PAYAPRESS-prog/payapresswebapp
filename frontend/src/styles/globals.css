@@ -30,8 +30,9 @@ body {
   color: #f0f0f0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
-  overflow-x: hidden;
+  /* overflow-x NOT set here — breaks position:sticky on iOS Safari */
 }
 
 /* ── Copper shimmer text ──────────────────────────── */

@@ -6,14 +6,15 @@ import { HeroSection } from '@/components/HeroSection';
 
 export default function HomePage() {
   return (
-    <div className="grid-bg min-h-screen relative overflow-x-hidden">
+    <div className="grid-bg min-h-screen">
       <div className="bg-radial-pulse" />
       <ParticleBackground />
 
-      <div className="relative z-10">
-        <Header />
+      {/* Header outside any overflow container — fixes sticky on iOS Safari */}
+      <Header />
 
-        <main className="w-full max-w-2xl mx-auto px-4 sm:px-6 pt-10 pb-16">
+      <main className="relative z-10 overflow-x-hidden">
+        <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 pt-10 pb-16">
           <HeroSection />
           <CopperCalculator />
           <ComingSoonSection />
@@ -33,8 +34,8 @@ export default function HomePage() {
               Prices from COMEX HG=F via Yahoo Finance · For reference only.
             </p>
           </footer>
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
