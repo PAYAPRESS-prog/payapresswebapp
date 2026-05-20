@@ -65,12 +65,12 @@ GET /api/v1/calculate?width=60&thickness=8&length=6000&grade=cu-etp&currency=AED
     "cross_section_mm2": 480,
     "weight_per_meter_kg": 4.2672,
     "weight_total_kg": 25.6032,
-    "cost_per_meter_usd": 59.5832,
-    "cost_per_m2_usd": 993.0533,
-    "cost_total_usd": 357.4992,
-    "cost_per_meter_local": 218.7432,
-    "cost_per_m2_local": 3645.9858,
-    "cost_total_local": 1312.4592,
+    "cost_per_meter_usd": 59.6341,
+    "cost_per_m2_usd": 993.9016,
+    "cost_total_usd": 357.8047,
+    "cost_per_meter_local": 219.0063,
+    "cost_per_m2_local": 3650.1051,
+    "cost_total_local": 1314.0378,
     "exchange_rate": {
       "from": "USD",
       "to": "AED",
@@ -143,12 +143,22 @@ Returns USD-based exchange rates for all supported currencies, sourced from the 
 Weight and cost are derived using the standard IEC/EN formula:
 
 ```
-Cross-section  A  = width × thickness  [mm²]
-Volume/meter   V  = A × 1000           [mm³/m]
-Weight/meter   W  = V × ρ / 1,000,000  [kg/m]    where ρ = density in g/cm³
-Cost/meter     C  = W × copper_price   [USD/m]
-Cost/m²        P  = C / (width / 1000) [USD/m²]
-Total cost     T  = C × (length / 1000)[USD]
+A (mm²)  = width × thickness
+W (kg/m) = A × ρ / 1000                  ← mm²·m × g/cm³ simplifies to kg/m
+C ($/m)  = W × copper_price_per_kg
+P ($/m²) = C / (width / 1000)
+T ($)    = C × (length_mm / 1000)
+```
+
+Where ρ (density g/cm³): Cu-ETP = 8.89 · Cu-OF = 8.92 · Cu-OFE = 8.94
+
+**Example** — 60 × 8 mm, Cu-ETP, $13.975/kg:
+```
+A = 60 × 8 = 480 mm²
+W = 480 × 8.89 / 1000 = 4.2672 kg/m
+C = 4.2672 × 13.975 = $59.6341/m
+P = 59.6341 / 0.06   = $993.90/m²
+T = 59.6341 × 6      = $357.80  (for 6000 mm)
 ```
 
 ---
