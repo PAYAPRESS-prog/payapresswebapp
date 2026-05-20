@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import '@/styles/globals.css';
 
 const BASE_URL = 'https://guileless-torrone-f24c5e.netlify.app';
@@ -57,7 +58,19 @@ export const metadata: Metadata = {
   icons: {
     icon:    [{ url: '/favicon.svg', type: 'image/svg+xml' }],
     shortcut: '/favicon.svg',
-    apple:    '/favicon.svg',
+    apple:   [{ url: '/apple-icon', sizes: '180x180', type: 'image/png' }],
+    other:   [
+      { rel: 'mask-icon', url: '/favicon.svg', color: '#cd7f32' },
+    ],
+  },
+
+  // App Store / PWA
+  appLinks: {},
+  appleWebApp: {
+    capable: true,
+    title: 'PAYAPRESS',
+    statusBarStyle: 'black-translucent',
+    startupImage: [],
   },
 
   manifest: '/manifest.json',
@@ -76,7 +89,17 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* Register service worker for PWA / offline support */}
+        <Script id="sw-register" strategy="afterInteractive">{`
+          if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+              navigator.serviceWorker.register('/sw.js').catch(function(){});
+            });
+          }
+        `}</Script>
+      </body>
     </html>
   );
 }

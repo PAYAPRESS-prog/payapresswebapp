@@ -3,6 +3,7 @@ import { CopperCalculator } from '@/components/CopperCalculator';
 import { ComingSoonSection } from '@/components/ComingSoonSection';
 import { ParticleBackground } from '@/components/ParticleBackground';
 import { HeroSection } from '@/components/HeroSection';
+import { InstallPrompt } from '@/components/InstallPrompt';
 
 export default function HomePage() {
   return (
@@ -23,6 +24,8 @@ export default function HomePage() {
           <CopperCalculator />
           <ComingSoonSection />
 
+          <InstallPrompt />
+
           <footer className="text-center text-zinc-700 text-[0.7rem] mt-10 space-y-1.5 pb-safe">
             <p>
               PAYAPRESS PRO &nbsp;·&nbsp; Open Source &nbsp;·&nbsp;{' '}
@@ -33,6 +36,11 @@ export default function HomePage() {
               <a href="https://www.payapress.com"
                  className="hover:text-copper-600 transition-colors underline underline-offset-2"
                  target="_blank" rel="noopener noreferrer">payapress.com</a>
+              &nbsp;·&nbsp;{' '}
+              <a href="/privacy"
+                 className="hover:text-copper-600 transition-colors underline underline-offset-2">
+                Privacy Policy
+              </a>
             </p>
             <p className="text-zinc-800">
               Prices from COMEX HG=F via Yahoo Finance &nbsp;·&nbsp; For reference only.

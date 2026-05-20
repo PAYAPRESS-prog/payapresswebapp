@@ -12,6 +12,7 @@ const CSP = [
   "img-src 'self' data: https://flagcdn.com",
   "font-src 'self'",
   "connect-src 'self'",
+  "worker-src 'self'",
   "frame-src 'none'",
   "frame-ancestors 'none'",
   "object-src 'none'",
@@ -84,6 +85,21 @@ const nextConfig = {
           { key: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
           { key: 'Cache-Control',                value: 'public, s-maxage=300, stale-while-revalidate=60' },
+        ],
+      },
+      {
+        // ── Service worker: must not be cached by browser ──────────
+        source: '/sw.js',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=0, must-revalidate' },
+          { key: 'Service-Worker-Allowed', value: '/' },
+        ],
+      },
+      {
+        // ── Manifest: short-lived cache ────────────────────────────
+        source: '/manifest.json',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=86400' },
         ],
       },
     ];
