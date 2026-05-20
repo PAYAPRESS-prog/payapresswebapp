@@ -13,17 +13,16 @@
   --color-copper-900: #663e1d;
   --color-copper-950: #3d2210;
 
-  --color-surface-0:  #080808;
-  --color-surface-1:  #0f0f0f;
-  --color-surface-2:  #161616;
-  --color-surface-3:  #1f1f1f;
-  --color-surface-4:  #2a2a2a;
+  --color-surface-0:  #060608;
+  --color-surface-1:  #0c0c0f;
+  --color-surface-2:  #131318;
+  --color-surface-3:  #1c1c23;
+  --color-surface-4:  #27272f;
 
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html { scroll-behavior: smooth; }
 
 body {
@@ -32,166 +31,190 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* ─── Copper glow card ──────────────────────────────── */
+/* ── Copper shimmer text ──────────────────────────── */
+.text-shimmer {
+  background: linear-gradient(
+    90deg,
+    #7d4c22 0%,
+    #cd7f32 20%,
+    #f5d78e 45%,
+    #cd7f32 70%,
+    #7d4c22 100%
+  );
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: copper-shimmer 4s linear infinite;
+}
+
+@keyframes copper-shimmer {
+  0%   { background-position: -250% center; }
+  100% { background-position: 250% center; }
+}
+
+/* ── Card styles ──────────────────────────────────── */
 .card-copper {
   background: var(--color-surface-2);
-  border: 1px solid rgba(184, 115, 51, 0.25);
-  border-radius: 1rem;
-  box-shadow:
-    0 0 0 1px rgba(184, 115, 51, 0.08),
-    0 4px 40px rgba(0, 0, 0, 0.6),
-    0 0 60px rgba(184, 115, 51, 0.06);
+  border: 1px solid rgba(184, 115, 51, 0.22);
+  border-radius: 1.25rem;
   position: relative;
   overflow: hidden;
+  transform-style: preserve-3d;
+  box-shadow:
+    0 0 0 1px rgba(184, 115, 51, 0.06),
+    0 8px 50px rgba(0, 0, 0, 0.7),
+    0 0 80px rgba(184, 115, 51, 0.05);
+  animation: card-breathe 5s ease-in-out infinite;
+}
+
+@keyframes card-breathe {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(184,115,51,0.06), 0 8px 50px rgba(0,0,0,0.7), 0 0 60px rgba(184,115,51,0.05); }
+  50%       { box-shadow: 0 0 0 1px rgba(184,115,51,0.14), 0 8px 50px rgba(0,0,0,0.7), 0 0 100px rgba(184,115,51,0.12); }
 }
 
 .card-copper::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    ellipse at 50% 0%,
-    rgba(205, 127, 50, 0.07) 0%,
-    transparent 60%
-  );
+  background: radial-gradient(ellipse at 50% 0%, rgba(205,127,50,0.06) 0%, transparent 65%);
   pointer-events: none;
+  z-index: 0;
 }
 
-/* ─── Copper gradient text ──────────────────────────── */
-.text-copper-gradient {
-  background: linear-gradient(135deg, #e8a030 0%, #cd7f32 45%, #b87333 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ─── Live pulse dot ────────────────────────────────── */
+/* ── Live dot ─────────────────────────────────────── */
 .live-dot {
-  width: 8px;
-  height: 8px;
+  width: 8px; height: 8px;
   border-radius: 50%;
   background: #22c55e;
   flex-shrink: 0;
   animation: live-pulse 2s ease-in-out infinite;
-  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
 }
 
 @keyframes live-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
-  70%  { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(34,197,94,0.55); }
+  70%  { box-shadow: 0 0 0 7px rgba(34,197,94,0); }
+  100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
 }
 
-.fallback-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #f59e0b;
-  flex-shrink: 0;
-}
+.fallback-dot { width:8px; height:8px; border-radius:50%; background:#f59e0b; flex-shrink:0; }
 
-/* ─── Grid background pattern ───────────────────────── */
+/* ── Grid background ──────────────────────────────── */
 .grid-bg {
   background-image:
-    linear-gradient(rgba(205, 127, 50, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(205, 127, 50, 0.04) 1px, transparent 1px);
-  background-size: 48px 48px;
+    linear-gradient(rgba(205,127,50,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(205,127,50,0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
 }
 
-/* ─── Result number glow ────────────────────────────── */
-.result-glow {
-  text-shadow: 0 0 24px rgba(205, 127, 50, 0.45);
-}
+/* ── Result number glow ───────────────────────────── */
+.result-glow { text-shadow: 0 0 28px rgba(205,127,50,0.55), 0 0 60px rgba(205,127,50,0.2); }
 
-/* ─── Copper divider ────────────────────────────────── */
+/* ── Copper divider ───────────────────────────────── */
 .copper-divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: rgba(205, 127, 50, 0.6);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  display: flex; align-items: center; gap: 12px;
+  color: rgba(205,127,50,0.55);
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
 }
-.copper-divider::before,
-.copper-divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(205, 127, 50, 0.3), transparent);
+.copper-divider::before, .copper-divider::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(205,127,50,0.25), transparent);
 }
 
-/* ─── Select / Input base ───────────────────────────── */
-.field-select,
-.field-input {
+/* ── Form controls ────────────────────────────────── */
+.field-select, .field-input {
   width: 100%;
   background: var(--color-surface-3);
   border: 1px solid var(--color-surface-4);
   border-radius: 0.5rem;
   color: #f0f0f0;
-  padding: 0.625rem 0.875rem;
-  font-size: 0.95rem;
+  padding: 0.6rem 0.875rem;
+  font-size: 0.92rem;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
   appearance: none;
-  -webkit-appearance: none;
 }
-.field-select:focus,
-.field-input:focus {
-  border-color: rgba(205, 127, 50, 0.6);
-  box-shadow: 0 0 0 3px rgba(205, 127, 50, 0.12);
+.field-select:focus, .field-input:focus {
+  border-color: rgba(205,127,50,0.55);
+  box-shadow: 0 0 0 3px rgba(205,127,50,0.1);
 }
-.field-select option { background: #1f1f1f; }
+.field-select option { background: #1c1c23; }
 
-/* ─── Result card highlight ─────────────────────────── */
+/* ── Result card highlight ────────────────────────── */
 .result-card-highlight {
-  background: linear-gradient(135deg, rgba(205,127,50,0.12), rgba(184,115,51,0.06));
-  border-color: rgba(205, 127, 50, 0.4) !important;
+  background: linear-gradient(135deg, rgba(205,127,50,0.14), rgba(184,115,51,0.07));
+  border-color: rgba(205,127,50,0.4) !important;
 }
 
-/* ─── Button styles ─────────────────────────────────── */
+/* ── Buttons ──────────────────────────────────────── */
 .btn-copper {
   background: linear-gradient(135deg, #cd7f32, #b87333);
-  color: #fff;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.625rem 1.5rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  transition: opacity 0.2s, transform 0.1s;
+  color: #fff; border: none; border-radius: 0.5rem;
+  padding: 0.625rem 1.5rem; font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; transition: opacity 0.2s, transform 0.1s;
 }
-.btn-copper:hover  { opacity: 0.9; transform: translateY(-1px); }
+.btn-copper:hover  { opacity: 0.88; transform: translateY(-1px); }
 .btn-copper:active { transform: translateY(0); }
 
 .btn-ghost {
   background: transparent;
-  color: rgba(205, 127, 50, 0.8);
-  border: 1px solid rgba(205, 127, 50, 0.3);
+  color: rgba(205,127,50,0.75);
+  border: 1px solid rgba(205,127,50,0.25);
   border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  padding: 0.45rem 0.9rem; font-size: 0.82rem;
+  cursor: pointer; transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 .btn-ghost:hover {
-  background: rgba(205, 127, 50, 0.1);
-  color: #cd7f32;
+  background: rgba(205,127,50,0.1);
+  color: #cd7f32; border-color: rgba(205,127,50,0.5);
 }
 
-/* ─── Coming soon card ──────────────────────────────── */
+/* ── Coming soon card ─────────────────────────────── */
 .soon-card {
   background: var(--color-surface-1);
   border: 1px solid var(--color-surface-3);
-  border-radius: 0.75rem;
+  border-radius: 0.875rem;
   padding: 1.25rem;
-  transition: border-color 0.25s, transform 0.2s;
+  transition: border-color 0.25s, transform 0.2s, box-shadow 0.25s;
+  cursor: default;
 }
 .soon-card:hover {
-  border-color: rgba(205, 127, 50, 0.3);
-  transform: translateY(-2px);
+  border-color: rgba(205,127,50,0.3);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 20px rgba(205,127,50,0.07);
+}
+
+/* ── Scanlines overlay (subtle) ───────────────────── */
+.scanlines::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,0,0.025) 3px,
+    rgba(0,0,0,0.025) 4px
+  );
+  border-radius: inherit;
+}
+
+/* ── Floating animation ───────────────────────────── */
+@keyframes float-y {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+.float-anim { animation: float-y 4s ease-in-out infinite; }
+
+/* ── Background radial pulse ──────────────────────── */
+.bg-radial-pulse {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(ellipse 70% 50% at 50% 50%, rgba(205,127,50,0.04) 0%, transparent 70%);
+  animation: radial-breathe 8s ease-in-out infinite;
+}
+@keyframes radial-breathe {
+  0%,100% { opacity: 0.6; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.08); }
 }
