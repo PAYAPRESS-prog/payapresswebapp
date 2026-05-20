@@ -19,19 +19,22 @@ export default function HomePage() {
           <CopperCalculator />
           <ComingSoonSection />
 
-          <footer className="text-center text-zinc-800 text-xs mt-8">
+          <footer className="text-center text-zinc-800 text-xs mt-8 space-y-1">
             <p>
               PAYAPRESS PRO · Open Source ·{' '}
-              <a
-                href="https://github.com/PAYAPRESS-prog/payapresswebapp"
-                className="hover:text-copper-700 transition-colors"
-                target="_blank" rel="noopener noreferrer"
-              >
-                GitHub
-              </a>
+              <a href="https://github.com/PAYAPRESS-prog/payapresswebapp"
+                 className="hover:text-copper-700 transition-colors"
+                 target="_blank" rel="noopener noreferrer">GitHub</a>
+              {' '}·{' '}
+              <a href="https://www.payapress.com"
+                 className="hover:text-copper-700 transition-colors"
+                 target="_blank" rel="noopener noreferrer">payapress.com</a>
             </p>
-            <p className="mt-1 text-zinc-900">
+            <p className="text-zinc-900">
               Prices from COMEX HG=F via Yahoo Finance · For reference only.
+            </p>
+            <p className="text-zinc-900">
+              © 2025 PAYAP MACHINERY · Trading as PAYAPRESS
             </p>
           </footer>
         </div>

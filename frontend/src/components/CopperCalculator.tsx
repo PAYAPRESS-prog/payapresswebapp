@@ -10,13 +10,59 @@ import { calculateCost, fmt, fmtUSD } from '@/lib/copperPrice';
 import { BusbarRender } from './BusbarRender';
 import type { BusbarSize, MaterialGrade, CopperPriceData } from '@/types/calculator';
 
-interface FxRates { EUR: number; GBP: number; CAD: number; AED: number; isFallback: boolean }
+interface FxRates {
+  EUR: number; GBP: number; CHF: number; JPY: number; CAD: number; AUD: number;
+  CNY: number; INR: number; SGD: number; KRW: number; TRY: number; BRL: number;
+  MXN: number; NOK: number; SEK: number; ZAR: number;
+  AED: number; SAR: number; QAR: number; KWD: number; BHD: number;
+  isFallback: boolean; source: string; updatedAt: string;
+}
+
+const ALL_CURRENCIES = [
+  { code: 'USD', symbol: '$',    name: 'US Dollar'          },
+  { code: 'EUR', symbol: '€',    name: 'Euro'               },
+  { code: 'GBP', symbol: '£',    name: 'British Pound'      },
+  { code: 'CHF', symbol: 'Fr',   name: 'Swiss Franc'        },
+  { code: 'JPY', symbol: '¥',    name: 'Japanese Yen'       },
+  { code: 'CAD', symbol: 'C$',   name: 'Canadian Dollar'    },
+  { code: 'AUD', symbol: 'A$',   name: 'Australian Dollar'  },
+  { code: 'AED', symbol: 'AED',  name: 'UAE Dirham'         },
+  { code: 'SAR', symbol: 'SAR',  name: 'Saudi Riyal'        },
+  { code: 'KWD', symbol: 'KWD',  name: 'Kuwaiti Dinar'      },
+  { code: 'QAR', symbol: 'QAR',  name: 'Qatari Riyal'       },
+  { code: 'BHD', symbol: 'BHD',  name: 'Bahraini Dinar'     },
+  { code: 'CNY', symbol: '¥',    name: 'Chinese Yuan'       },
+  { code: 'INR', symbol: '₹',    name: 'Indian Rupee'       },
+  { code: 'SGD', symbol: 'S$',   name: 'Singapore Dollar'   },
+  { code: 'KRW', symbol: '₩',    name: 'South Korean Won'   },
+  { code: 'TRY', symbol: '₺',    name: 'Turkish Lira'       },
+  { code: 'BRL', symbol: 'R$',   name: 'Brazilian Real'     },
+  { code: 'MXN', symbol: '$',    name: 'Mexican Peso'       },
+  { code: 'NOK', symbol: 'kr',   name: 'Norwegian Krone'    },
+  { code: 'SEK', symbol: 'kr',   name: 'Swedish Krona'      },
+  { code: 'ZAR', symbol: 'R',    name: 'South African Rand' },
+] as const;
+type CurrencyCode = typeof ALL_CURRENCIES[number]['code'];
+
+const LOCALE_CURRENCY: Partial<Record<string, CurrencyCode>> = {
+  'en-US': 'USD', 'en-CA': 'CAD', 'en-GB': 'GBP', 'en-AU': 'AUD', 'en-SG': 'SGD',
+  'en-AE': 'AED', 'en-SA': 'SAR', 'en-KW': 'KWD', 'en-QA': 'QAR', 'en-BH': 'BHD',
+  'de': 'EUR', 'fr': 'EUR', 'it': 'EUR', 'es': 'EUR', 'nl': 'EUR', 'pt-PT': 'EUR',
+  'ar': 'AED', 'ar-AE': 'AED', 'ar-SA': 'SAR', 'ar-KW': 'KWD', 'ar-QA': 'QAR',
+  'zh': 'CNY', 'zh-CN': 'CNY', 'ja': 'JPY', 'ko': 'KRW', 'hi': 'INR',
+  'tr': 'TRY', 'pt-BR': 'BRL', 'es-MX': 'MXN', 'sv': 'SEK', 'no': 'NOK', 'nb': 'NOK',
+  'af': 'ZAR', 'ch': 'CHF', 'de-CH': 'CHF', 'fr-CH': 'CHF',
+};
+
+function detectCurrency(): CurrencyCode {
+  if (typeof navigator === 'undefined') return 'USD';
+  const lang = navigator.language || 'en-US';
+  return LOCALE_CURRENCY[lang]
+    ?? LOCALE_CURRENCY[lang.split('-')[0]]
+    ?? 'USD';
+}
 
 const QTY_PRESETS = [1, 5, 10, 50, 100] as const;
-const CURRENCIES  = ['USD', 'EUR', 'GBP', 'AED'] as const;
-type Currency = typeof CURRENCIES[number];
-const CURR_SYM: Record<Currency, string> = { USD: '$', EUR: '€', GBP: '£', AED: '' };
-const CURR_LABEL: Record<Currency, string> = { USD: 'USD', EUR: 'EUR', GBP: 'GBP', AED: 'AED' };
 
 // ── Smooth animated number ─────────────────────────────────────────
 function useAnimatedNumber(target: number, duration = 420) {
@@ -121,8 +167,13 @@ export function CopperCalculator() {
   const [manual, setMan]  = useState('');
   const [useMan, setUM]   = useState(false);
   const [qty, setQty]     = useState(1);
-  const [curr, setCurr]   = useState<Currency>('USD');
+  const [currCode, setCurrCode] = useState<CurrencyCode>('USD');
   const [copied, setCopy] = useState(false);
+
+  // Auto-detect currency from browser locale on mount
+  useEffect(() => {
+    setCurrCode(detectCurrency());
+  }, []);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -139,22 +190,33 @@ export function CopperCalculator() {
     return () => clearInterval(iv);
   }, []);
 
+  const currMeta = useMemo(
+    () => ALL_CURRENCIES.find(c => c.code === currCode) ?? ALL_CURRENCIES[0],
+    [currCode],
+  );
+
   const priceUSD = useMemo<number | null>(() => {
     if (useMan) { const v = parseFloat(manual); return isNaN(v) || v <= 0 ? null : v; }
     return live?.pricePerKg ?? null;
   }, [useMan, manual, live]);
 
   const fxRate = useMemo(() => {
-    if (!fx || curr === 'USD') return 1;
-    const rates = fx as unknown as Record<string, number>;
-    return rates[curr] ?? 1;
-  }, [fx, curr]);
+    if (!fx || currCode === 'USD') return 1;
+    const r = (fx as unknown as Record<string, number>)[currCode];
+    return typeof r === 'number' && r > 0 ? r : 1;
+  }, [fx, currCode]);
 
-  const sym = CURR_SYM[curr];
-  const fmtLocal = useCallback((usd: number, d = 2) => {
+  // Format a USD value in the selected currency
+  const fmtLocal = useCallback((usd: number, decimals = 2) => {
     const val = usd * fxRate;
-    return curr === 'AED' ? `${fmt(val, d)} AED` : `${sym}${fmt(val, d)}`;
-  }, [fxRate, curr, sym]);
+    // JPY and KRW: 0 decimal places (large-value currencies)
+    const d = (currCode === 'JPY' || currCode === 'KRW') ? 0 : decimals;
+    // Currencies where symbol === code: show "3.25 AED"
+    if (currMeta.symbol === currMeta.code) {
+      return `${fmt(val, d)} ${currCode}`;
+    }
+    return `${currMeta.symbol}${fmt(val, d)}`;
+  }, [fxRate, currCode, currMeta]);
 
   const result = useMemo(
     () => (priceUSD ? calculateCost(size, grade, priceUSD) : null),
@@ -332,20 +394,21 @@ export function CopperCalculator() {
             <motion.div key="results"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             >
-              {/* Currency toggle */}
+              {/* Currency dropdown — right-aligned above results grid */}
               <div className="flex justify-end mb-3">
-                <div className="flex gap-1 p-0.5 rounded-lg bg-[var(--color-surface-3)] border border-[var(--color-surface-4)]">
-                  {CURRENCIES.map(c => (
-                    <button key={c} onClick={() => setCurr(c)}
-                      className={`px-2.5 py-1 rounded-md text-[0.68rem] font-semibold transition-all ${
-                        curr === c
-                          ? 'bg-copper-600/25 text-copper-400 shadow-sm'
-                          : 'text-zinc-500 hover:text-zinc-300'
-                      }`}
-                    >
-                      {CURR_LABEL[c]}
-                    </button>
-                  ))}
+                <div className="relative">
+                  <select
+                    className="field-select pr-7"
+                    value={currCode}
+                    onChange={e => setCurrCode(e.target.value as CurrencyCode)}
+                  >
+                    {ALL_CURRENCIES.map(c => (
+                      <option key={c.code} value={c.code}>
+                        {c.code} — {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs">▾</span>
                 </div>
               </div>
 
@@ -360,17 +423,17 @@ export function CopperCalculator() {
                 <ResultCard
                   label="Cost / m"
                   rawValue={result.costPerMeter * fxRate}
-                  formatFn={v => curr === 'AED' ? `${fmt(v,2)} AED` : `${sym}${fmt(v,2)}`}
-                  secondary={curr !== 'USD' ? fmtUSD(result.costPerMeter) : undefined}
-                  unit={`${curr} / m`}
+                  formatFn={v => currMeta.symbol === currMeta.code ? `${fmt(v, (currCode === 'JPY' || currCode === 'KRW') ? 0 : 2)} ${currCode}` : `${currMeta.symbol}${fmt(v, (currCode === 'JPY' || currCode === 'KRW') ? 0 : 2)}`}
+                  secondary={currCode !== 'USD' ? fmtUSD(result.costPerMeter) : undefined}
+                  unit={`${currCode} / m`}
                   delay={0.06}
                 />
                 <ResultCard
                   label="Cost / m²"
                   rawValue={result.costPerM2 * fxRate}
-                  formatFn={v => curr === 'AED' ? `${fmt(v,0)} AED` : `${sym}${fmt(v,0)}`}
-                  secondary={curr !== 'USD' ? fmtUSD(result.costPerM2, 0) : undefined}
-                  unit={`${curr} / m²`}
+                  formatFn={v => currMeta.symbol === currMeta.code ? `${fmt(v, 0)} ${currCode}` : `${currMeta.symbol}${fmt(v, 0)}`}
+                  secondary={currCode !== 'USD' ? fmtUSD(result.costPerM2, 0) : undefined}
+                  unit={`${currCode} / m²`}
                   highlight
                   delay={0.12}
                 />
@@ -398,9 +461,9 @@ export function CopperCalculator() {
                       <ResultCard
                         label="Total Cost"
                         rawValue={result.costPerMeter * qty * fxRate}
-                        formatFn={v => curr === 'AED' ? `${fmt(v,2)} AED` : `${sym}${fmt(v,2)}`}
-                        secondary={curr !== 'USD' ? fmtUSD(result.costPerMeter * qty) : undefined}
-                        unit={curr}
+                        formatFn={v => currMeta.symbol === currMeta.code ? `${fmt(v, (currCode === 'JPY' || currCode === 'KRW') ? 0 : 2)} ${currCode}` : `${currMeta.symbol}${fmt(v, (currCode === 'JPY' || currCode === 'KRW') ? 0 : 2)}`}
+                        secondary={currCode !== 'USD' ? fmtUSD(result.costPerMeter * qty) : undefined}
+                        unit={currCode}
                         delay={0.06}
                       />
                       <ResultCard
@@ -436,10 +499,10 @@ export function CopperCalculator() {
                 </AnimatePresence>
               </motion.button>
 
-              {curr !== 'USD' && fx && (
+              {/* FX rate info line */}
+              {currCode !== 'USD' && fx && (
                 <p className="text-center text-[0.62rem] text-zinc-700 mt-2">
-                  1 USD = {(fx as unknown as Record<string, number>)[curr]?.toFixed(4)} {curr}
-                  {fx.isFallback ? ' (estimated)' : ''}
+                  1 USD = {fxRate.toFixed(4)} {currCode} · {fx.source}
                 </p>
               )}
             </motion.div>

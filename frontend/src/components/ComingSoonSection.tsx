@@ -37,10 +37,17 @@ export function ComingSoonSection() {
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
       >
         {UPCOMING.map(u => (
-          <motion.div key={u.title} variants={item} className="soon-card">
-            <div className="text-2xl mb-3">{u.icon}</div>
-            <h3 className="font-semibold text-sm text-zinc-200 mb-1">{u.title}</h3>
-            <p className="text-xs text-zinc-500 leading-relaxed">{u.desc}</p>
+          <motion.div key={u.title} variants={item}>
+            <a
+              href="https://www.payapress.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="soon-card cursor-pointer hover:border-copper-700/40 hover:bg-[var(--color-surface-3)] transition-colors block"
+            >
+              <div className="text-2xl mb-3">{u.icon}</div>
+              <h3 className="font-semibold text-sm text-zinc-200 mb-1">{u.title}</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed">{u.desc}</p>
+            </a>
           </motion.div>
         ))}
       </motion.div>

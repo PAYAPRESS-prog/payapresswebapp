@@ -2,6 +2,9 @@
   "name": "@payapress/frontend",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
+  "author": "PAYAP MACHINERY <info@payapress.com>",
+  "homepage": "https://www.payapress.com",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
