@@ -45,18 +45,14 @@ export async function GET() {
     // Always override with pegged rates (ECB doesn't carry Gulf currencies)
     Object.assign(rates, PEGGED);
 
-    return NextResponse.json({
-      ...rates,
-      isFallback: false,
-      source: 'ECB via Frankfurter',
-      updatedAt: new Date().toISOString(),
-    });
+    return NextResponse.json(
+      { ...rates, isFallback: false, source: 'ECB via Frankfurter', updatedAt: new Date().toISOString() },
+      { headers: { 'Cache-Control': 'public, s-maxage=21600, stale-while-revalidate=3600' } },
+    );
   } catch {
-    return NextResponse.json({
-      ...FALLBACK,
-      isFallback: true,
-      source: 'static fallback',
-      updatedAt: new Date().toISOString(),
-    });
+    return NextResponse.json(
+      { ...FALLBACK, isFallback: true, source: 'static fallback', updatedAt: new Date().toISOString() },
+      { headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600' } },
+    );
   }
 }

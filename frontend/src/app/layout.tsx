@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import '@/styles/globals.css';
 
-const BASE_URL = 'https://guileless-torrone-f24c5e.netlify.app';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://payapress.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
