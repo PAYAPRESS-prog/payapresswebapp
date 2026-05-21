@@ -8,17 +8,19 @@ export function BusbarRender({ width, thickness }: Props) {
   const g = useMemo(() => {
     const VW = 340, VH = 192;
 
-    // Proportional scaling: same px/mm scale for both dimensions
-    // so the W:H pixel ratio exactly matches the real width:thickness ratio.
-    const MAX_W = 218, MAX_H = 46;
+    // Scale W and H proportionally so pixel W:H = real width:thickness
+    const MAX_W = 230, MAX_H = 80;
     const scale = Math.min(MAX_W / width, MAX_H / thickness);
     const W  = Math.round(width     * scale);
-    const H  = Math.max(8, Math.round(thickness * scale)); // min 8px for visibility
-    const DX = 68;
-    const DY = 42;
+    const H  = Math.max(8, Math.round(thickness * scale));
+
+    // Depth proportional to H so visual aspect ratio stays close to real ratio.
+    // Fixed large depth made thin busbars (e.g. 60×8) look 3× too thick.
+    const DX = Math.max(14, Math.round(H * 0.55));
+    const DY = Math.max(9,  Math.round(H * 0.34));
 
     const x0 = (VW - W - DX) / 2 + 8;
-    const y0 = Math.round(VH * 0.64);
+    const y0 = Math.round(VH * 0.73);
 
     const A = { x: x0,          y: y0 };
     const B = { x: x0 + W,      y: y0 };
