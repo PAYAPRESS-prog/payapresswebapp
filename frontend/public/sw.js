@@ -7,6 +7,8 @@ const DYNAMIC_CACHE = `payapress-dynamic-${CACHE_VERSION}`;
 const PRECACHE_URLS = [
   '/',
   '/offline',
+  '/whitepaper',
+  '/roadmap',
   '/manifest.json',
   '/favicon.svg',
 ];

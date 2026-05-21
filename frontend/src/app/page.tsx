@@ -4,6 +4,7 @@ import { ComingSoonSection } from '@/components/ComingSoonSection';
 import { ParticleBackground } from '@/components/ParticleBackground';
 import { HeroSection } from '@/components/HeroSection';
 import { InstallPrompt } from '@/components/InstallPrompt';
+import { Footer } from '@/components/Footer';
 
 export default function HomePage() {
   return (
@@ -18,39 +19,16 @@ export default function HomePage() {
         <div className="w-full max-w-2xl lg:max-w-4xl xl:max-w-5xl mx-auto
                         px-4 sm:px-6 lg:px-8
                         pt-8 sm:pt-10 lg:pt-14
-                        pb-16 sm:pb-20">
+                        pb-8 sm:pb-12">
 
           <HeroSection />
           <CopperCalculator />
           <ComingSoonSection />
-
-          <InstallPrompt />
-
-          <footer className="text-center text-zinc-700 text-[0.7rem] mt-10 space-y-1.5 pb-safe">
-            <p>
-              PAYAPRESS PRO &nbsp;·&nbsp; Open Source &nbsp;·&nbsp;{' '}
-              <a href="https://github.com/PAYAPRESS-prog/payapresswebapp"
-                 className="hover:text-copper-600 transition-colors underline underline-offset-2"
-                 target="_blank" rel="noopener noreferrer">GitHub</a>
-              &nbsp;·&nbsp;{' '}
-              <a href="https://www.payapress.com"
-                 className="hover:text-copper-600 transition-colors underline underline-offset-2"
-                 target="_blank" rel="noopener noreferrer">payapress.com</a>
-              &nbsp;·&nbsp;{' '}
-              <a href="/privacy"
-                 className="hover:text-copper-600 transition-colors underline underline-offset-2">
-                Privacy Policy
-              </a>
-            </p>
-            <p className="text-zinc-800">
-              Prices from COMEX HG=F via Yahoo Finance &nbsp;·&nbsp; For reference only.
-            </p>
-            <p className="text-zinc-800">
-              © 2025 PAYAP MACHINERY &nbsp;·&nbsp; Trading as PAYAPRESS
-            </p>
-          </footer>
         </div>
       </main>
+
+      <InstallPrompt />
+      <Footer />
     </div>
   );
 }
