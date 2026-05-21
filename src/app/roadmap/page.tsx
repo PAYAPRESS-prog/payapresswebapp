@@ -7,75 +7,92 @@ import { Header } from '@/components/Header';
 const PHASES = [
   {
     num: '01',
-    status: 'LIVE',
+    status: 'LAUNCHING JUNE 2026',
     statusColor: '#22c55e',
     statusBg: 'rgba(34,197,94,0.1)',
-    timeline: 'Q2 2025',
+    timeline: 'June 2026',
     title: 'Copper Busbar Calculator',
-    desc: 'The foundation of the platform — a professional-grade cost calculator built specifically for electrical panel fabricators.',
+    desc: 'The foundation of the PAYAPRESS platform — a professional-grade cost calculator built specifically for electrical panel fabricators across Iran and the MENA region.',
     features: [
-      'Live COMEX HG=F copper price (Yahoo Finance, 5-min cache)',
+      'Live COMEX HG=F copper price (Yahoo Finance, 5-minute server cache)',
       '22 currencies with Gulf central-bank peg rates (AED, SAR, KWD, QAR, BHD)',
-      'IEC/DIN material grades — Cu-ETP · Cu-OF · Cu-OFE',
-      'Proportional SVG busbar viewer, drag-to-resize',
-      'IEC preset chips for fastest entry',
-      'Achievement badges · calculation counter · milestone toasts',
-      'PWA — installs to home screen, works offline',
-      'Public REST API v1',
+      'IEC/DIN material grades — Cu-ETP · Cu-OF · Cu-OFE with exact density values',
+      'Proportional SVG busbar cross-section viewer with drag-to-resize interaction',
+      'IEC standard preset chips for fastest dimension entry',
+      'Achievement badges, calculation milestones, and real-time cost breakdown',
+      'PWA — installs to home screen on iOS & Android, works fully offline',
+      'Public REST API v1 for developer integrations',
     ],
     active: true,
   },
   {
     num: '02',
-    status: 'IN PROGRESS',
+    status: 'PLANNED',
     statusColor: '#f59e0b',
     statusBg: 'rgba(245,158,11,0.1)',
-    timeline: 'Q3 – Q4 2025',
-    title: 'Live Metal Prices & Industry News',
-    desc: 'Expand beyond copper to a full metals dashboard, and bring the latest industry intelligence directly to panel fabricators.',
+    timeline: 'Q3 2026',
+    title: 'Live Metal Prices & Exchange Rates',
+    desc: 'Expand beyond copper to a full industrial metals dashboard with live pricing for all major metals used in electrical panel manufacturing.',
     features: [
-      'Live prices: Aluminum · Steel · Zinc · Tin · Lead',
-      'Price history charts with 30/90-day trend lines',
-      'Industry news feed from global electrical and metals sources',
-      'Configurable price alert notifications',
-      'Market mood indicators across all metals',
-      'Comparison table — spot vs 30-day average',
+      'Live prices: Aluminum · Steel · Zinc · Tin · Lead · Nickel',
+      'Real-time exchange rates with support for Iranian Rial (IRR/IRT)',
+      'Price history charts with 30 and 90-day trend indicators',
+      'Market mood indicators and volatility signals',
+      'Comparison tables — spot price vs 30-day and 90-day averages',
+      'Configurable price alert notifications via browser push',
     ],
     active: false,
   },
   {
     num: '03',
     status: 'PLANNED',
-    statusColor: '#60a5fa',
-    statusBg: 'rgba(96,165,250,0.1)',
-    timeline: '2026 H1',
-    title: 'Equipment & Component Costs',
-    desc: 'A comprehensive component pricing database covering everything that goes inside an electrical panel.',
+    statusColor: '#f59e0b',
+    statusBg: 'rgba(245,158,11,0.1)',
+    timeline: 'Q3–Q4 2026',
+    title: 'Equipment & Component Cost Database',
+    desc: 'A comprehensive component pricing reference covering everything that goes inside an electrical panel, with real-time cost estimation.',
     features: [
-      'Cables & conductors — all cross-sections, materials',
-      'Terminal blocks, contactors, relays, circuit breakers',
-      'Enclosures & DIN rails',
-      'Bill of Materials (BOM) calculator — full panel cost estimate',
-      'Supplier integration — live prices from major distributors',
-      'Cost comparison: local vs import suppliers',
+      'Cables & conductors — all cross-sections, insulation types, and materials',
+      'Terminal blocks, contactors, relays, and miniature circuit breakers',
+      'Enclosures, DIN rails, cable trays, and mounting hardware',
+      'Full Bill of Materials (BOM) calculator — complete panel cost estimation',
+      'Supplier price comparison — local vs. import cost analysis',
+      'Export BOM to Excel and PDF formats',
     ],
     active: false,
   },
   {
     num: '04',
+    status: 'PLANNED',
+    statusColor: '#f59e0b',
+    statusBg: 'rgba(245,158,11,0.1)',
+    timeline: 'Q4 2026',
+    title: 'Industry News & Market Intelligence',
+    desc: 'Curated industry intelligence bringing the latest news on metals markets, IEC standards updates, and regional electrical sector developments.',
+    features: [
+      'Aggregated news feed from global metals and electrical industry sources',
+      'IEC/EN standard updates and revision tracking',
+      'Regional market analysis for Iran and MENA markets',
+      'Weekly price summary and market outlook reports',
+      'Bookmarking and offline reading support via PWA',
+    ],
+    active: false,
+  },
+  {
+    num: '05',
     status: 'FUTURE',
     statusColor: '#a78bfa',
     statusBg: 'rgba(167,139,250,0.1)',
-    timeline: '2026+',
-    title: 'Community Platform & Public API',
-    desc: 'Transform the platform from a tool into a professional community hub for the industrial electrical sector.',
+    timeline: 'Q4 2026 – Q1 2027',
+    title: 'Specialized Technical Encyclopedias',
+    desc: 'Deep-dive knowledge bases covering IEC standards, material science, and practical engineering references — designed for professionals in the field.',
     features: [
-      'Public REST API with commercial tier for enterprise integrations',
-      'Professional community forum for panel fabricators',
-      'Native mobile apps — iOS & Android (App Store / Google Play)',
-      'Multi-language interface — Persian (فارسی) · Arabic (العربية) · English',
-      'Enterprise dashboard for workshop chains',
-      'Educational content — IEC standards library, calculation guides',
+      'IEC 60317 copper conductor standards — full reference library',
+      'Material science encyclopedia: conductivity, thermal ratings, corrosion',
+      'Panel fabrication guides and best-practice documentation',
+      'Persian (فارسی) and Arabic (العربية) language versions',
+      'Offline-first — fully accessible without internet connection',
+      'Community contribution system for industry practitioners',
     ],
     active: false,
   },
@@ -88,8 +105,8 @@ function PhaseCard({ phase, index }: { phase: typeof PHASES[number]; index: numb
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, x: -32 }}
-      animate={inView ? { opacity: 1, x: 0 } : {}}
+      initial={{ x: -16 }}
+      animate={inView ? { x: 0 } : {}}
       transition={{ type: 'spring', stiffness: 180, damping: 24, delay: index * 0.08 }}
       className="relative pl-8 sm:pl-12"
     >
@@ -115,10 +132,7 @@ function PhaseCard({ phase, index }: { phase: typeof PHASES[number]; index: numb
       >
         {/* Header row */}
         <div className="flex flex-wrap items-start gap-3 mb-3">
-          <span
-            className="font-mono text-[0.6rem] font-black tracking-widest"
-            style={{ color: '#3f3f46' }}
-          >
+          <span className="font-mono text-[0.6rem] font-black tracking-widest" style={{ color: '#3f3f46' }}>
             PHASE {phase.num}
           </span>
           <span
@@ -127,10 +141,7 @@ function PhaseCard({ phase, index }: { phase: typeof PHASES[number]; index: numb
           >
             {phase.status}
           </span>
-          <span
-            className="ml-auto text-[0.65rem] font-mono"
-            style={{ color: '#52525b' }}
-          >
+          <span className="ml-auto text-[0.65rem] font-mono" style={{ color: '#52525b' }}>
             {phase.timeline}
           </span>
         </div>
@@ -146,7 +157,6 @@ function PhaseCard({ phase, index }: { phase: typeof PHASES[number]; index: numb
           {phase.desc}
         </p>
 
-        {/* Feature list */}
         <ul className="space-y-1.5">
           {phase.features.map(f => (
             <li
@@ -173,8 +183,8 @@ export default function RoadmapPage() {
 
           {/* Page header */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ y: 20 }}
+            animate={{ y: 0 }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             style={{ marginBottom: '3rem', textAlign: 'center' }}
           >
@@ -201,10 +211,26 @@ export default function RoadmapPage() {
               Roadmap
             </h1>
             <p style={{ fontSize: '0.9rem', color: '#71717a', lineHeight: 1.6 }}>
-              Where we&rsquo;ve been and where we&rsquo;re going —<br />
-              the PAYAPRESS Industrial Tools Platform evolution.
+              PAYAPRESS Industrial Tools Platform — development timeline.<br />
+              Launching June&nbsp;2026 · Built by the PAYAPRESS Digital Marketing Team.
             </p>
           </motion.div>
+
+          {/* Development notice */}
+          <div
+            style={{
+              marginBottom: '2.5rem',
+              padding: '1rem 1.25rem',
+              borderRadius: '0.75rem',
+              background: 'rgba(245,158,11,0.07)',
+              border: '1px solid rgba(245,158,11,0.2)',
+            }}
+          >
+            <p style={{ fontSize: '0.82rem', color: '#f59e0b', lineHeight: 1.6, margin: 0 }}>
+              <strong>Currently in active development.</strong> Phase&nbsp;01 — the Copper Busbar Calculator — launches in June&nbsp;2026.
+              Phases&nbsp;02–05 will roll out over the following six months.
+            </p>
+          </div>
 
           {/* Timeline */}
           <div
@@ -222,8 +248,8 @@ export default function RoadmapPage() {
 
           {/* CTA row */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ y: 16 }}
+            animate={{ y: 0 }}
             transition={{ delay: 0.5, duration: 0.5 }}
             style={{
               marginTop: '2rem',
