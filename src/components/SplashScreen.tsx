@@ -76,12 +76,6 @@ export default function SplashScreen() {
         BUSBAR CALCULATOR
       </p>
 
-      <style>{`
-        @keyframes pp_splash_in {
-          from { opacity: 0; transform: scale(0.8) translateY(8px); }
-          to   { opacity: 1; transform: scale(1)   translateY(0);   }
-        }
-      `}</style>
     </div>
   );
 }
