@@ -6,7 +6,7 @@ import {
   useMotionValue, useTransform, useSpring, useInView,
 } from 'framer-motion';
 import { MATERIAL_GRADES, DEFAULT_GRADE, BUSBAR_SIZES } from '@/lib/copperData';
-import { calculateCost, fmt, fmtUSD } from '@/lib/copperPrice';
+import { calculateCost, fmt, fmtUSD, fmtCompact } from '@/lib/copperPrice';
 import { BusbarRender } from './BusbarRender';
 import type { BusbarSize, MaterialGrade, CopperPriceData } from '@/types/calculator';
 
@@ -48,6 +48,10 @@ type CurrencyCode = typeof ALL_CURRENCIES[number]['code'];
 type CurrencyMeta = typeof ALL_CURRENCIES[number];
 
 function fmtCurrency(localVal: number, meta: CurrencyMeta, decimalsOverride?: number): string {
+  if (Math.abs(localVal) >= 10_000) {
+    const n = fmtCompact(localVal);
+    return meta.suffix ? `${n} ${meta.code}` : `${meta.symbol}${n}`;
+  }
   const d = decimalsOverride !== undefined ? decimalsOverride : meta.decimals;
   const n = fmt(localVal, d);
   return meta.suffix ? `${n} ${meta.code}` : `${meta.symbol}${n}`;
@@ -362,8 +366,8 @@ export function CopperCalculator() {
   const hadResult = useRef(false);
 
   const size = useMemo<BusbarSize>(() => {
-    const w = Math.max(5,  Math.min(400, parseFloat(widthStr) || 60));
-    const h = Math.max(1,  Math.min(100, parseFloat(thickStr) || 8));
+    const w = Math.max(5,      Math.min(100000, parseFloat(widthStr) || 60));
+    const h = Math.max(1,      Math.min(100000, parseFloat(thickStr) || 8));
     return { id: 'custom', width: w, thickness: h, label: `${w} × ${h} mm` };
   }, [widthStr, thickStr]);
   const [live,  setLive]  = useState<CopperPriceData | null>(null);
@@ -560,9 +564,9 @@ export function CopperCalculator() {
                     onChange={e => {
                       const raw = e.target.value.replace(/[^0-9]/g, '');
                       const v = parseFloat(raw);
-                      setWidthStr(!isNaN(v) && v > 400 ? '400' : raw);
+                      setWidthStr(!isNaN(v) && v > 100000 ? '100000' : raw);
                     }}
-                    onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setWidthStr(String(Math.max(5, Math.min(400, v)))); else setWidthStr('60'); }} />
+                    onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setWidthStr(String(Math.max(5, Math.min(100000, v)))); else setWidthStr('60'); }} />
                   <span className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
                 </div>
               </div>
@@ -576,9 +580,9 @@ export function CopperCalculator() {
                     onChange={e => {
                       const raw = e.target.value.replace(/[^0-9]/g, '');
                       const v = parseFloat(raw);
-                      setThickStr(!isNaN(v) && v > 100 ? '100' : raw);
+                      setThickStr(!isNaN(v) && v > 100000 ? '100000' : raw);
                     }}
-                    onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setThickStr(String(Math.max(1, Math.min(100, v)))); else setThickStr('8'); }} />
+                    onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setThickStr(String(Math.max(1, Math.min(100000, v)))); else setThickStr('8'); }} />
                   <span className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
                 </div>
               </div>
@@ -792,10 +796,10 @@ export function CopperCalculator() {
             <div className="px-5 py-5 text-center">
               <p className="text-[0.58rem] text-zinc-500 uppercase tracking-widest font-semibold mb-1.5">Weight</p>
               <p className="font-mono font-bold text-2xl text-white leading-none">
-                <AnimNumber val={result.weightPerMeter * qty} fn={v => fmt(v, 2)} />
+                <AnimNumber val={result.weightPerMeter * qty} fn={v => v >= 10_000 ? fmtCompact(v) : fmt(v, 2)} />
               </p>
               <p className="text-[0.62rem] text-zinc-600 mt-1 font-mono">
-                {fmt(result.weightPerMeter, 3)} kg/m
+                {result.weightPerMeter >= 10_000 ? fmtCompact(result.weightPerMeter) : fmt(result.weightPerMeter, 3)} kg/m
               </p>
               <p className="text-[0.58rem] text-zinc-600 mt-0.5">kg total</p>
             </div>
@@ -806,7 +810,9 @@ export function CopperCalculator() {
                 <AnimNumber val={result.costPerM2 * fxRate} fn={v => fmtCurrency(v, currMeta, 0)} />
               </p>
               {currCode !== 'USD' && (
-                <p className="text-[0.62rem] text-zinc-600 mt-1 font-mono">{fmtUSD(result.costPerM2, 0)}</p>
+                <p className="text-[0.62rem] text-zinc-600 mt-1 font-mono">
+                  {result.costPerM2 >= 10_000 ? `$${fmtCompact(result.costPerM2)}` : fmtUSD(result.costPerM2, 0)}
+                </p>
               )}
               <p className="text-[0.58rem] text-zinc-600 mt-0.5">{currCode} / m²</p>
             </div>

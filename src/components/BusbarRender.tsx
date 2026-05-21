@@ -11,7 +11,7 @@ export function BusbarRender({ width, thickness }: Props) {
     // Scale W and H proportionally so pixel W:H = real width:thickness
     const MAX_W = 230, MAX_H = 80;
     const scale = Math.min(MAX_W / width, MAX_H / thickness);
-    const W  = Math.round(width     * scale);
+    const W  = Math.max(1, Math.round(width     * scale));
     const H  = Math.max(8, Math.round(thickness * scale));
 
     // Depth proportional to H so visual aspect ratio stays close to real ratio.

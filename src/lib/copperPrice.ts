@@ -24,3 +24,12 @@ export function fmt(value: number, decimals = 2): string {
 export function fmtUSD(value: number, decimals = 2): string {
   return `$${fmt(value, decimals)}`;
 }
+
+// Compact notation for large numbers — avoids display overflow
+export function fmtCompact(value: number): string {
+  const abs = Math.abs(value);
+  if (abs >= 1_000_000_000) return (value / 1_000_000_000).toFixed(2) + 'B';
+  if (abs >= 1_000_000)     return (value / 1_000_000).toFixed(2) + 'M';
+  if (abs >= 10_000)        return (value / 1_000).toFixed(1) + 'K';
+  return fmt(value, 2);
+}
