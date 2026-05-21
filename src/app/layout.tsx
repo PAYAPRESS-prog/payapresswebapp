@@ -91,8 +91,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" style={{ background: '#060608' }} suppressHydrationWarning>
+      <body style={{ background: '#060608' }}>
         <SplashScreen />
         {children}
         {/* Global error capture — shows error on screen if React can't mount */}
