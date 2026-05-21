@@ -1,6 +1,20 @@
 'use client';
 
-export default function GlobalError({ reset }: { reset: () => void }) {
+import { useEffect, useState } from 'react';
+
+export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  const [details, setDetails] = useState('');
+
+  useEffect(() => {
+    // Collect any pre-React errors captured by the inline script
+    try {
+      const errs: string[] = (window as unknown as { __pp_errs?: string[] }).__pp_errs ?? [];
+      const all = [error?.message, ...errs].filter(Boolean).join('\n');
+      setDetails(all);
+    } catch { /* ignore */ }
+    console.error('[PAYAPRESS GlobalError]', error);
+  }, [error]);
+
   return (
     <html lang="en">
       <body style={{
@@ -15,6 +29,16 @@ export default function GlobalError({ reset }: { reset: () => void }) {
         <p style={{ color: '#f0f0f0', fontWeight: 700, fontSize: '1.1rem' }}>
           Something went wrong
         </p>
+        {details && (
+          <pre style={{
+            color: '#ef4444', fontSize: '0.65rem', background: '#0c0c0f',
+            border: '1px solid #1c1c23', borderRadius: '0.5rem',
+            padding: '0.75rem 1rem', maxWidth: '90vw', overflowX: 'auto',
+            textAlign: 'left', whiteSpace: 'pre-wrap', wordBreak: 'break-all',
+          }}>
+            {details}
+          </pre>
+        )}
         <button
           onClick={reset}
           style={{

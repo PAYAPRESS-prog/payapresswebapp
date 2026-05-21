@@ -7,9 +7,12 @@ export default function SplashScreen() {
   const [phase, setPhase] = useState<Phase>('hidden');
 
   useEffect(() => {
-    if (sessionStorage.getItem('payapress_splash')) return;
-    sessionStorage.setItem('payapress_splash', '1');
-
+    try {
+      if (sessionStorage.getItem('payapress_splash')) return;
+      sessionStorage.setItem('payapress_splash', '1');
+    } catch {
+      return; // Private Browsing / storage quota — skip splash
+    }
     setPhase('showing');
     const t1 = setTimeout(() => setPhase('fading'),  1600);
     const t2 = setTimeout(() => setPhase('hidden'),  2200);

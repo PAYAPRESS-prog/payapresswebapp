@@ -384,7 +384,7 @@ export function CopperCalculator() {
   // Auto-detect currency from browser locale on mount
   useEffect(() => {
     setCurrCode(detectCurrency());
-    setCalcCount(parseInt(localStorage.getItem('pp_calcs') || '0'));
+    try { setCalcCount(parseInt(localStorage.getItem('pp_calcs') || '0')); } catch { /* ignore */ }
   }, []);
 
   useEffect(() => {
@@ -427,8 +427,11 @@ export function CopperCalculator() {
   useEffect(() => {
     if (result && !hadResult.current) {
       hadResult.current = true;
-      const next = parseInt(localStorage.getItem('pp_calcs') || '0') + 1;
-      localStorage.setItem('pp_calcs', String(next));
+      let next = 1;
+      try {
+        next = parseInt(localStorage.getItem('pp_calcs') || '0') + 1;
+        localStorage.setItem('pp_calcs', String(next));
+      } catch { /* Private Browsing / storage unavailable — keep count in memory */ }
       setCalcCount(next);
       setConfetti(true);
       setTimeout(() => setConfetti(false), 1300);

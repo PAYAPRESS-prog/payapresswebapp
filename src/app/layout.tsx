@@ -93,6 +93,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <SplashScreen />
         {children}
+        {/* Global error capture — shows error on screen if React can't mount */}
+        <Script id="err-capture" strategy="beforeInteractive">{`
+          window.__pp_errs = [];
+          window.addEventListener('error', function(e) {
+            window.__pp_errs.push(e.message + ' @ ' + e.filename + ':' + e.lineno);
+          });
+          window.addEventListener('unhandledrejection', function(e) {
+            window.__pp_errs.push('Unhandled: ' + String(e.reason));
+          });
+        `}</Script>
         {/* Register service worker for PWA / offline support */}
         <Script id="sw-register" strategy="afterInteractive">{`
           if ('serviceWorker' in navigator) {

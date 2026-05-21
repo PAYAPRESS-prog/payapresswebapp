@@ -15,7 +15,8 @@ export function InstallPrompt() {
 
   useEffect(() => {
     // Don't show if already installed or previously dismissed
-    const wasDismissed = localStorage.getItem('pp_install_dismissed');
+    let wasDismissed = false;
+    try { wasDismissed = !!localStorage.getItem('pp_install_dismissed'); } catch { /* ignore */ }
     if (wasDismissed) return;
 
     // Already running as installed PWA
@@ -45,7 +46,7 @@ export function InstallPrompt() {
   const handleDismiss = () => {
     setVisible(false);
     setDismissed(true);
-    localStorage.setItem('pp_install_dismissed', '1');
+    try { localStorage.setItem('pp_install_dismissed', '1'); } catch { /* ignore */ }
   };
 
   if (dismissed || !deferredPrompt) return null;
