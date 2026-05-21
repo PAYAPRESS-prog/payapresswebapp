@@ -12,7 +12,7 @@ export default function WhitepaperPage() {
   return (
     <div style={{ background: 'var(--color-surface-0)', minHeight: '100svh' }}>
       <Header />
-      <main style={{ padding: '3rem 1.5rem 6rem' }}>
+      <main className="px-4 sm:px-6 pt-8 sm:pt-10 pb-20">
         <article style={{ maxWidth: '48rem', margin: '0 auto' }}>
 
           {/* Back link */}

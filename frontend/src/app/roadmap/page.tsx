@@ -168,7 +168,7 @@ export default function RoadmapPage() {
   return (
     <div style={{ background: 'var(--color-surface-0)', minHeight: '100svh' }}>
       <Header />
-      <main style={{ padding: '2.5rem 1.5rem 6rem' }}>
+      <main className="px-4 sm:px-6 pt-8 sm:pt-10 pb-20">
         <div style={{ maxWidth: '44rem', margin: '0 auto' }}>
 
           {/* Page header */}

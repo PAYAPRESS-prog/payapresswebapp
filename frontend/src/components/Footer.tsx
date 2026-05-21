@@ -82,13 +82,14 @@ export function Footer() {
       >
         {/* ── Main grid ──────────────────────────────────────────────────── */}
         {/*
-          Mobile  : brand full-width on top, then 2-col link grid
-          Desktop : 5-col grid (brand 2 cols, 3 link columns)
+          Mobile   (<640px) : brand full-width, then 3-col link row
+          Tablet  (640-767px): same 3-col but wider gaps
+          Desktop (768px+)  : 5-col grid, brand 2 cols + 3 link cols
         */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-10 md:gap-8">
+        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-5 gap-x-4 gap-y-8 md:gap-8">
 
-          {/* Brand column */}
-          <div className="col-span-2 md:col-span-2 space-y-3">
+          {/* Brand column — spans full width on mobile, 2 cols on md+ */}
+          <div className="col-span-3 md:col-span-2 space-y-3">
             <motion.a
               href="/"
               className="flex items-center gap-2 w-fit"
@@ -113,7 +114,7 @@ export function Footer() {
             </p>
           </div>
 
-          {/* PRODUCT column */}
+          {/* PRODUCT column — each link col is 1 of 3 on mobile, 1 of 5 on md */}
           <div className="col-span-1">
             <ColHeading>Product</ColHeading>
             <nav className="space-y-2.5" aria-label="Product">
@@ -185,7 +186,7 @@ export function Footer() {
         </div>
 
         <p
-          className="text-center text-[0.63rem] mt-3 pb-4 pb-safe"
+          className="text-center text-[0.63rem] mt-3 pb-safe"
           style={{ color: '#27272f' }}
         >
           Built with ♥ by PAYAPRESS Digital Marketing Team

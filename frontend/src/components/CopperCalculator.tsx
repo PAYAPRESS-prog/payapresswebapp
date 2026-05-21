@@ -509,7 +509,7 @@ export function CopperCalculator() {
 
         {/* ── Busbar Visual — drag to resize ──────── */}
         <div
-          className={`viewer-bg rounded-t-[1.25rem] overflow-hidden px-5 pt-5 pb-3 select-none
+          className={`viewer-bg rounded-t-[1.25rem] overflow-hidden px-4 sm:px-5 pt-4 sm:pt-5 pb-3 select-none
                       ${isDragging ? 'cursor-ew-resize' : 'cursor-grab'}`}
           onPointerDown={onViewerPointerDown}
           onPointerMove={onViewerPointerMove}
@@ -540,33 +540,33 @@ export function CopperCalculator() {
         </div>
 
         {/* ── Inputs ──────────────────────────────── */}
-        <div className="px-5 md:px-6 pt-6 pb-6 space-y-6">
+        <div className="px-4 sm:px-5 md:px-6 pt-5 pb-6 space-y-5">
 
           {/* ① Dimensions ─────────────────────────── */}
           <div>
             <p className="calc-section-label">① Dimensions</p>
 
             {/* W × T on one line */}
-            <div className="flex items-end gap-2">
+            <div className="flex items-end gap-1.5 sm:gap-2">
               <div className="flex-1 min-w-0">
                 <label className="block text-[0.68rem] text-zinc-500 mb-1.5 font-semibold tracking-wide">Width</label>
                 <div className="relative">
                   <input type="number" min="5" max="400" step="1" inputMode="numeric"
-                    className="field-input font-mono text-center pr-9 py-3.5 text-xl font-bold"
+                    className="field-input font-mono text-center pr-7 sm:pr-9 py-3 sm:py-3.5 text-xl font-bold"
                     placeholder="60" value={widthStr}
                     onChange={e => setWidthStr(e.target.value)} />
-                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
+                  <span className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
                 </div>
               </div>
-              <div className="pb-4 text-zinc-600 font-bold text-lg select-none flex-shrink-0">×</div>
+              <div className="pb-[0.875rem] text-zinc-600 font-bold text-lg select-none flex-shrink-0">×</div>
               <div className="flex-1 min-w-0">
                 <label className="block text-[0.68rem] text-zinc-500 mb-1.5 font-semibold tracking-wide">Thickness</label>
                 <div className="relative">
                   <input type="number" min="1" max="50" step="1" inputMode="numeric"
-                    className="field-input font-mono text-center pr-9 py-3.5 text-xl font-bold"
+                    className="field-input font-mono text-center pr-7 sm:pr-9 py-3 sm:py-3.5 text-xl font-bold"
                     placeholder="8" value={thickStr}
                     onChange={e => setThickStr(e.target.value)} />
-                  <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
+                  <span className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
                 </div>
               </div>
             </div>
@@ -590,8 +590,8 @@ export function CopperCalculator() {
             </div>
 
             {/* IEC quick-select presets — horizontal scroll, no wrap */}
-            <div className="mt-3 -mx-1 px-1 overflow-x-auto no-scrollbar">
-              <div className="flex gap-2 pb-0.5" style={{ width: 'max-content' }}>
+            <div className="mt-3 overflow-x-auto no-scrollbar">
+              <div className="flex gap-1.5 pb-0.5" style={{ width: 'max-content' }}>
                 {QUICK_PRESETS.map(p => {
                   const active = widthStr === p.w && thickStr === p.t;
                   return (
@@ -612,7 +612,7 @@ export function CopperCalculator() {
           </div>
 
           {/* ② Grade + Currency — 2-column ──────────── */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div>
               <p className="calc-section-label">② Grade</p>
               <div className="relative">
