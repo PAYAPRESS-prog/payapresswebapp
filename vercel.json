@@ -1,14 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "rootDirectory": "frontend",
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "regions": ["iad1"],
-  "env": {
-    "NEXT_PUBLIC_WP_API_BASE": "@wp_api_base",
-    "NEXT_PUBLIC_WP_HOSTNAME":  "@wp_hostname"
-  }
+  "regions": ["iad1"]
 }
