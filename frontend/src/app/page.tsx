@@ -24,8 +24,7 @@ export default function HomePage() {
 
       <main className="relative z-10">
         {/* Mobile: full bleed · Desktop: centred with generous max-width */}
-        <div className="w-full
-                        max-w-2xl lg:max-w-5xl xl:max-w-6xl
+        <div className="w-full max-w-2xl lg:max-w-[92vw] 2xl:max-w-[1440px]
                         mx-auto
                         px-4 sm:px-6 lg:px-8
                         pt-8 sm:pt-10 lg:pt-14
