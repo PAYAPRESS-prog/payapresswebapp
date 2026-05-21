@@ -498,7 +498,7 @@ export function CopperCalculator() {
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
     >
     {/* Mobile: stacked · Desktop lg+: side-by-side (configurator 60 / results 40) */}
-    <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-[3fr_2fr] lg:gap-6 lg:items-start">
+    <div className="space-y-6 lg:space-y-0 lg:grid lg:grid-cols-[3fr_2fr] lg:gap-6 lg:items-start">
 
     {/* ╔══════════════════════════════════════════╗
         ║  CARD 1 — CONFIGURATOR                   ║
@@ -509,7 +509,7 @@ export function CopperCalculator() {
 
         {/* ── Busbar Visual — drag to resize ──────── */}
         <div
-          className={`viewer-bg rounded-t-[1.25rem] overflow-hidden px-4 sm:px-5 pt-4 sm:pt-5 pb-3 select-none
+          className={`viewer-bg rounded-t-[1.25rem] overflow-hidden px-4 sm:px-5 pt-5 sm:pt-6 pb-5 select-none
                       ${isDragging ? 'cursor-ew-resize' : 'cursor-grab'}`}
           onPointerDown={onViewerPointerDown}
           onPointerMove={onViewerPointerMove}
@@ -517,7 +517,7 @@ export function CopperCalculator() {
           onPointerCancel={onViewerPointerUp}
         >
           <BusbarRender width={size.width} thickness={size.thickness} />
-          <div className="mt-2 text-center space-y-1">
+          <div className="mt-3 text-center space-y-1.5">
             <div className="flex items-center justify-center gap-1.5 flex-wrap">
               <span className="font-mono text-sm font-bold text-copper-500 tracking-wide">
                 {size.width} × {size.thickness} mm
@@ -540,7 +540,7 @@ export function CopperCalculator() {
         </div>
 
         {/* ── Inputs ──────────────────────────────── */}
-        <div className="px-4 sm:px-5 md:px-6 pt-6 pb-7">
+        <div className="px-4 sm:px-5 md:px-6 pt-7 pb-8">
 
           {/* ① Dimensions ─────────────────────────── */}
           <div>
@@ -549,7 +549,7 @@ export function CopperCalculator() {
             {/* W × T on one line */}
             <div className="flex items-end gap-1.5 sm:gap-2">
               <div className="flex-1 min-w-0">
-                <label className="block text-[0.68rem] text-zinc-500 mb-1.5 font-semibold tracking-wide">Width</label>
+                <label className="block text-[0.68rem] text-zinc-500 mb-2 font-semibold tracking-wide">Width</label>
                 <div className="relative">
                   <input type="number" min="5" max="400" step="1" inputMode="numeric"
                     className="field-input font-mono text-center pr-7 sm:pr-9 py-3 sm:py-3.5 text-xl font-bold"
@@ -560,7 +560,7 @@ export function CopperCalculator() {
               </div>
               <div className="pb-[0.875rem] text-zinc-600 font-bold text-lg select-none flex-shrink-0">×</div>
               <div className="flex-1 min-w-0">
-                <label className="block text-[0.68rem] text-zinc-500 mb-1.5 font-semibold tracking-wide">Thickness</label>
+                <label className="block text-[0.68rem] text-zinc-500 mb-2 font-semibold tracking-wide">Thickness</label>
                 <div className="relative">
                   <input type="number" min="1" max="100" step="1" inputMode="numeric"
                     className="field-input font-mono text-center pr-7 sm:pr-9 py-3 sm:py-3.5 text-xl font-bold"
@@ -573,7 +573,7 @@ export function CopperCalculator() {
 
             {/* Length */}
             <div className="mt-4">
-              <label className="block text-[0.68rem] text-zinc-500 mb-1.5 font-semibold tracking-wide">Length</label>
+              <label className="block text-[0.68rem] text-zinc-500 mb-2 font-semibold tracking-wide">Length</label>
               <div className="relative">
                 <input type="number" min="1" max="100000" step="100" inputMode="numeric"
                   className="field-input font-mono pr-20 py-3.5 text-base"
@@ -645,7 +645,7 @@ export function CopperCalculator() {
             <div className="rounded-xl border overflow-hidden"
                  style={{ background: 'var(--color-surface-3)', borderColor: 'var(--color-surface-4)' }}>
               {/* Price row: left = price block, right = manual toggle */}
-              <div className="flex items-center gap-3 px-4 py-3">
+              <div className="flex items-center gap-3 px-4 py-4">
                 {loading ? (
                   <span className="text-zinc-500 text-sm animate-pulse flex-1">Fetching…</span>
                 ) : live && !useMan ? (
@@ -744,7 +744,7 @@ export function CopperCalculator() {
           })()}
 
           {/* Hero — Total Cost */}
-          <div className="px-5 pt-5 pb-5 text-center border-b"
+          <div className="px-5 pt-6 pb-6 text-center border-b"
                style={{ borderColor: 'var(--color-surface-3)' }}>
             <p className="calc-section-label text-center mb-2">
               Total Cost &nbsp;·&nbsp; {Number(lengthStr) || 1000} mm
@@ -762,7 +762,7 @@ export function CopperCalculator() {
 
           {/* Supporting metrics — 2-col divided */}
           <div className="grid grid-cols-2 divide-x divide-[var(--color-surface-3)]">
-            <div className="px-5 py-4 text-center">
+            <div className="px-5 py-5 text-center">
               <p className="text-[0.58rem] text-zinc-500 uppercase tracking-widest font-semibold mb-1.5">Weight</p>
               <p className="font-mono font-bold text-2xl text-white leading-none">
                 <AnimNumber val={result.weightPerMeter * qty} fn={v => fmt(v, 2)} />
@@ -772,7 +772,7 @@ export function CopperCalculator() {
               </p>
               <p className="text-[0.58rem] text-zinc-600 mt-0.5">kg total</p>
             </div>
-            <div className="px-5 py-4 text-center"
+            <div className="px-5 py-5 text-center"
                  style={{ background: 'linear-gradient(135deg, rgba(205,127,50,0.07), rgba(184,115,51,0.03))' }}>
               <p className="text-[0.58rem] text-zinc-500 uppercase tracking-widest font-semibold mb-1.5">Rate / m²</p>
               <p className="font-mono font-bold text-2xl text-copper-400 leading-none">
