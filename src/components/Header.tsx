@@ -14,8 +14,8 @@ export function Header() {
 
   return (
     <motion.header
-      initial={{ y: -44, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
+      initial={{ y: -8 }}
+      animate={{ y: 0 }}
       transition={{ type: 'spring', stiffness: 220, damping: 28, delay: 0.05 }}
       className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled

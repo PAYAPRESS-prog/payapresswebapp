@@ -500,8 +500,8 @@ export function CopperCalculator() {
     <motion.div
       ref={cardRef}
       className="relative"
-      initial={{ opacity: 0, y: 44 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
+      initial={{ y: 12 }}
+      animate={inView ? { y: 0 } : {}}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
     >
     {/* Mobile: stacked · Desktop lg+: side-by-side (configurator 60 / results 40) */}
@@ -634,8 +634,8 @@ export function CopperCalculator() {
           </div>
 
           {/* ② Grade + Currency — 2-column ──────────── */}
-          <div style={{ marginTop: '3rem' }}>
-          <div style={{ borderTop: '1px solid var(--color-surface-3)', marginBottom: '1.75rem' }} />
+          <div style={{ marginTop: '2rem' }}>
+          <div style={{ borderTop: '1px solid var(--color-surface-3)', marginBottom: '1.25rem' }} />
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div>
               <p className="calc-section-label">② Grade</p>
@@ -666,8 +666,8 @@ export function CopperCalculator() {
           </div>{/* /② wrapper */}
 
           {/* ④ Copper Price — compact strip ─────────── */}
-          <div style={{ marginTop: '3rem' }}>
-          <div style={{ borderTop: '1px solid var(--color-surface-3)', marginBottom: '1.75rem' }} />
+          <div style={{ marginTop: '2rem' }}>
+          <div style={{ borderTop: '1px solid var(--color-surface-3)', marginBottom: '1.25rem' }} />
             <p className="calc-section-label">④ Copper Price</p>
             <div className="rounded-xl border overflow-hidden"
                  style={{ background: 'var(--color-surface-3)', borderColor: 'var(--color-surface-4)' }}>

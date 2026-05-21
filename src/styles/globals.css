@@ -55,7 +55,7 @@ body {
    *="opacity:0;" catches "opacity:0;transform:..." (opacity not last)
    $="opacity:0"  catches "...;opacity:0" (opacity last, no trailing semicolon) */
 @keyframes pp-js-fallback { to { opacity: 1; } }
-[style*="opacity:0;"], [style$="opacity:0"] { animation: pp-js-fallback 0.4s 3s forwards; }
+[style*="opacity:0;"], [style$="opacity:0"] { animation: pp-js-fallback 0.4s 3s forwards !important; }
 
 /* Respect reduced-motion preference */
 @media (prefers-reduced-motion: reduce) {
