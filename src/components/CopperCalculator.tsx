@@ -554,7 +554,8 @@ export function CopperCalculator() {
                   <input type="number" min="5" max="400" step="1" inputMode="numeric"
                     className="field-input font-mono text-center pr-7 sm:pr-9 py-3 sm:py-3.5 text-xl font-bold"
                     placeholder="60" value={widthStr}
-                    onChange={e => setWidthStr(e.target.value)} />
+                    onChange={e => setWidthStr(e.target.value)}
+                    onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setWidthStr(String(Math.max(5, Math.min(400, v)))); }} />
                   <span className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
                 </div>
               </div>
@@ -565,7 +566,8 @@ export function CopperCalculator() {
                   <input type="number" min="1" max="100" step="1" inputMode="numeric"
                     className="field-input font-mono text-center pr-7 sm:pr-9 py-3 sm:py-3.5 text-xl font-bold"
                     placeholder="8" value={thickStr}
-                    onChange={e => setThickStr(e.target.value)} />
+                    onChange={e => setThickStr(e.target.value)}
+                    onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setThickStr(String(Math.max(1, Math.min(100, v)))); }} />
                   <span className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
                 </div>
               </div>
@@ -578,7 +580,8 @@ export function CopperCalculator() {
                 <input type="number" min="1" max="100000" step="100" inputMode="numeric"
                   className="field-input font-mono pr-20 py-3.5 text-base"
                   placeholder="1000" value={lengthStr}
-                  onChange={e => setLengthStr(e.target.value)} />
+                  onChange={e => setLengthStr(e.target.value)}
+                  onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setLengthStr(String(Math.max(1, Math.min(100000, v)))); }} />
                 {/* show meters conversion inline */}
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none text-right leading-tight">
                   <span className="block">mm</span>
@@ -612,7 +615,9 @@ export function CopperCalculator() {
           </div>
 
           {/* ② Grade + Currency — 2-column ──────────── */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-8 sm:mt-9">
+          <div style={{ marginTop: '2.25rem' }}>
+          <div style={{ borderTop: '1px solid var(--color-surface-3)', marginBottom: '1.5rem' }} />
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div>
               <p className="calc-section-label">② Grade</p>
               <div className="relative">
@@ -639,8 +644,11 @@ export function CopperCalculator() {
             </div>
           </div>
 
+          </div>{/* /② wrapper */}
+
           {/* ④ Copper Price — compact strip ─────────── */}
-          <div className="mt-8 sm:mt-9">
+          <div style={{ marginTop: '2.25rem' }}>
+          <div style={{ borderTop: '1px solid var(--color-surface-3)', marginBottom: '1.5rem' }} />
             <p className="calc-section-label">④ Copper Price</p>
             <div className="rounded-xl border overflow-hidden"
                  style={{ background: 'var(--color-surface-3)', borderColor: 'var(--color-surface-4)' }}>
