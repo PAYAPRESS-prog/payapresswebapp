@@ -39,7 +39,7 @@ export default function WhitepaperPage() {
             <p style={body}>
               PAYAPRESS Industrial Tools Platform is a web-first Progressive Web Application
               (PWA) delivering practical, data-driven tools to electrical panel fabricators,
-              procurement engineers, and industrial electricians across Iran and the broader
+              procurement engineers, and industrial electricians across the UAE and the broader
               MENA region. The platform is developed and maintained by the digital marketing
               team of <strong style={{ color: '#f0f0f0' }}>PAYAP MACHINERY</strong> (trading
               as PAYAPRESS), a manufacturer and distributor of electrical machinery and press
@@ -64,7 +64,7 @@ export default function WhitepaperPage() {
           <section style={section}>
             <h2 style={h2}>2. Problem Statement</h2>
             <p style={body}>
-              Electrical panel fabricators — particularly small-to-medium workshops in Iran
+              Electrical panel fabricators — particularly small-to-medium workshops in the UAE
               and the MENA region — rely on manual, spreadsheet-based cost estimation for
               copper busbars. Key pain points include:
             </p>
@@ -91,7 +91,7 @@ export default function WhitepaperPage() {
             <p style={body}>
               The platform is designed to grow modularly — each phase adds a self-contained
               feature set without disrupting existing tools. All features target the specific
-              needs of electrical panel fabricators in Iran and the MENA region, with full
+              needs of electrical panel fabricators in the UAE and the MENA region, with full
               support for Persian (فارسی) and Arabic (العربية) content planned for later phases.
             </p>
           </section>
@@ -289,7 +289,7 @@ export default function WhitepaperPage() {
               at <strong style={{ color: '#f0f0f0' }}>PAYAP MACHINERY</strong>. PAYAP
               MACHINERY (trading as PAYAPRESS) is a manufacturer and distributor of
               electrical machinery and press equipment serving the industrial sector across
-              Iran and the MENA region.
+              the UAE and the MENA region.
             </p>
             <p style={body}>
               The platform is a direct response to the day-to-day needs observed in the

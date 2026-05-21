@@ -845,7 +845,8 @@ export function CopperCalculator() {
 
       ) : (
         <motion.div key="results-empty"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          initial={{ y: 8 }} animate={{ y: 0 }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="rounded-[1.25rem] border overflow-hidden"
           style={{ borderColor: 'var(--color-surface-3)', background: 'var(--color-surface-1)' }}
         >

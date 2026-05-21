@@ -20,7 +20,7 @@ const PHASES = [
     icon: '⚡',
     title: 'Copper Busbar Calculator',
     subtitle: 'Platform launch · Public REST API v1 included',
-    desc: 'The foundation of the platform — a professional-grade cost calculator for electrical panel fabricators across Iran and the MENA region. The Public REST API v1 launches at the same time, free of charge for developer integrations.',
+    desc: 'The foundation of the platform — a professional-grade cost calculator for electrical panel fabricators across the UAE and the MENA region. The Public REST API v1 launches at the same time, free of charge for developer integrations.',
     features: [
       'Live COMEX HG=F copper price — Yahoo Finance, 5-minute server cache',
       '22 currencies with Gulf central-bank peg rates (AED, SAR, KWD, QAR, BHD)',
@@ -49,7 +49,7 @@ const PHASES = [
     desc: 'Expand beyond copper to a full industrial metals dashboard with live pricing for every major metal used in electrical panel manufacturing.',
     features: [
       'Live spot prices — Aluminum, Steel, Zinc, Tin, Lead, Nickel',
-      'Real-time FX rates with Iranian Rial (IRR/IRT) support',
+      'Real-time FX rates with GCC & MENA currency support',
       'Price history charts — 30 and 90-day trend indicators',
       'Market mood indicators and volatility alerts',
       'Spot vs 30/90-day average comparison tables',
@@ -97,7 +97,7 @@ const PHASES = [
     features: [
       'Aggregated news from global metals and electrical industry sources',
       'IEC/EN standard updates and revision tracking',
-      'Regional market analysis for Iran and MENA',
+      'Regional market analysis for the UAE and MENA',
       'Weekly price summaries and market outlook',
       'Bookmark and offline reading via PWA',
     ],
@@ -467,8 +467,8 @@ export default function RoadmapPage() {
               style={{ fontSize: '0.95rem', color: '#71717a' }}
             >
               PAYAPRESS Industrial Tools Platform — from copper busbar calculator
-              to a full industrial intelligence suite for electrical professionals.
-              Built by the PAYAPRESS Digital Marketing Team.
+              to a full industrial intelligence suite for electrical professionals
+              across the UAE and MENA region. Built by the PAYAPRESS Digital Marketing Team.
             </p>
 
             {/* Stats strip */}
@@ -477,7 +477,7 @@ export default function RoadmapPage() {
                 { label: 'Total Phases', value: '5' },
                 { label: 'Launch',       value: 'June 2026' },
                 { label: 'Roadmap',      value: '6 Months' },
-                { label: 'Region',       value: 'Iran · MENA' },
+                { label: 'Region',       value: 'UAE · MENA' },
               ].map(s => (
                 <div key={s.label}>
                   <p
