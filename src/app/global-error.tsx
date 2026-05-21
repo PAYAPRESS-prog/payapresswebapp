@@ -3,17 +3,17 @@
 import { useEffect, useState } from 'react';
 
 export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  const [details, setDetails] = useState('');
+  const [extraDetails, setExtraDetails] = useState('');
 
   useEffect(() => {
-    // Collect any pre-React errors captured by the inline script
     try {
       const errs: string[] = (window as unknown as { __pp_errs?: string[] }).__pp_errs ?? [];
-      const all = [error?.message, ...errs].filter(Boolean).join('\n');
-      setDetails(all);
+      if (errs.length) setExtraDetails(errs.join('\n'));
     } catch { /* ignore */ }
     console.error('[PAYAPRESS GlobalError]', error);
   }, [error]);
+
+  const details = [error?.message, error?.stack, extraDetails].filter(Boolean).join('\n\n');
 
   return (
     <html lang="en">
@@ -29,7 +29,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
         <p style={{ color: '#f0f0f0', fontWeight: 700, fontSize: '1.1rem' }}>
           Something went wrong
         </p>
-        {details && (
+        {!!details && (
           <pre style={{
             color: '#ef4444', fontSize: '0.65rem', background: '#0c0c0f',
             border: '1px solid #1c1c23', borderRadius: '0.5rem',

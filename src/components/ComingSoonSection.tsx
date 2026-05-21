@@ -15,8 +15,8 @@ const container = {
 };
 
 const item = {
-  hidden: { opacity: 0, y: 24, scale: 0.96 },
-  show:   { opacity: 1, y: 0,  scale: 1, transition: { type: 'spring' as const, stiffness: 220, damping: 22 } },
+  hidden: { y: 24, scale: 0.96 },
+  show:   { y: 0,  scale: 1, transition: { type: 'spring' as const, stiffness: 220, damping: 22 } },
 };
 
 export function ComingSoonSection() {

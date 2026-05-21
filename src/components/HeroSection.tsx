@@ -14,8 +14,8 @@ export function HeroSection() {
 
       <h1 className="font-black tracking-tight mb-5 sm:mb-6 leading-[1.06]">
         <motion.span
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ y: 18 }}
+          animate={{ y: 0 }}
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
           className="block text-base sm:text-xl lg:text-2xl text-zinc-500 font-semibold tracking-[0.04em] mb-1"
         >
@@ -23,8 +23,8 @@ export function HeroSection() {
         </motion.span>
 
         <motion.span
-          initial={{ opacity: 0, y: 26 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ y: 26 }}
+          animate={{ y: 0 }}
           transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
           className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl text-shimmer"
         >
@@ -45,9 +45,9 @@ export function HeroSection() {
           <motion.div
             key={pill.label}
             variants={{
-              hidden: { opacity: 0, scale: 0.78, y: 6 },
+              hidden: { scale: 0.78, y: 6 },
               show: {
-                opacity: 1, scale: 1, y: 0,
+                scale: 1, y: 0,
                 transition: { type: 'spring' as const, stiffness: 340, damping: 22 },
               },
             }}
