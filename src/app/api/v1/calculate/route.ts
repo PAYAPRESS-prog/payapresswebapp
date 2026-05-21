@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
   if (isNaN(thickness) || thickness < 1 || thickness > 50)
     return err(400, 'INVALID_INPUT', 'thickness must be between 1 and 50 mm', 'thickness');
 
-  if (isNaN(length) || length < 1 || length > 100_000)
+  if (isNaN(length) || length < 1 || length > 100000)
     return err(400, 'INVALID_INPUT', 'length must be between 1 and 100,000 mm', 'length');
 
   const grade = MATERIAL_GRADES.find(g => g.id === gradeId);

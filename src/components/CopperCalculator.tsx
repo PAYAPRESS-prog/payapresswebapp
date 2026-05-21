@@ -48,7 +48,7 @@ type CurrencyCode = typeof ALL_CURRENCIES[number]['code'];
 type CurrencyMeta = typeof ALL_CURRENCIES[number];
 
 function fmtCurrency(localVal: number, meta: CurrencyMeta, decimalsOverride?: number): string {
-  if (Math.abs(localVal) >= 10_000) {
+  if (Math.abs(localVal) >= 10000) {
     const n = fmtCompact(localVal);
     return meta.suffix ? `${n} ${meta.code}` : `${meta.symbol}${n}`;
   }
@@ -366,7 +366,7 @@ export function CopperCalculator() {
   const hadResult = useRef(false);
 
   const size = useMemo<BusbarSize>(() => {
-    const w = Math.max(5,      Math.min(100000, parseFloat(widthStr) || 60));
+    const w = Math.max(1,      Math.min(100000, parseFloat(widthStr) || 60));
     const h = Math.max(1,      Math.min(100000, parseFloat(thickStr) || 8));
     return { id: 'custom', width: w, thickness: h, label: `${w} × ${h} mm` };
   }, [widthStr, thickStr]);
@@ -402,7 +402,7 @@ export function CopperCalculator() {
       setLoad(false);
     };
     fetchAll();
-    const iv = setInterval(fetchAll, 300_000);
+    const iv = setInterval(fetchAll, 300000);
     return () => clearInterval(iv);
   }, []);
 
@@ -461,7 +461,7 @@ export function CopperCalculator() {
     if (!dragStart.current) return;
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
-    const newW = Math.max(5,  Math.min(400, Math.round(dragStart.current.w + dx * 0.7)));
+    const newW = Math.max(1,  Math.min(400, Math.round(dragStart.current.w + dx * 0.7)));
     const newT = Math.max(1,  Math.min(100, Math.round(dragStart.current.t - dy * 0.12)));
     setWidthStr(String(newW));
     setThickStr(String(newT));
@@ -566,7 +566,7 @@ export function CopperCalculator() {
                       const v = parseFloat(raw);
                       setWidthStr(!isNaN(v) && v > 100000 ? '100000' : raw);
                     }}
-                    onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setWidthStr(String(Math.max(5, Math.min(100000, v)))); else setWidthStr('60'); }} />
+                    onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setWidthStr(String(Math.max(1, Math.min(100000, v)))); else setWidthStr('60'); }} />
                   <span className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
                 </div>
               </div>
@@ -612,8 +612,8 @@ export function CopperCalculator() {
             </div>
 
             {/* IEC quick-select presets — horizontal scroll, no wrap */}
-            <div className="mt-4" style={{ overflowX: 'auto', overflowY: 'visible', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
-              <div className="flex gap-1.5 pb-2" style={{ width: 'max-content', minHeight: '2rem' }}>
+            <div className="mt-5" style={{ overflowX: 'auto', overflowY: 'visible', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
+              <div className="flex gap-1.5 pb-3" style={{ width: 'max-content', minHeight: '2rem' }}>
                 {QUICK_PRESETS.map(p => {
                   const active = widthStr === p.w && thickStr === p.t;
                   return (
@@ -634,8 +634,8 @@ export function CopperCalculator() {
           </div>
 
           {/* ② Grade + Currency — 2-column ──────────── */}
-          <div style={{ marginTop: '2.25rem' }}>
-          <div style={{ borderTop: '1px solid var(--color-surface-3)', marginBottom: '1.5rem' }} />
+          <div style={{ marginTop: '3rem' }}>
+          <div style={{ borderTop: '1px solid var(--color-surface-3)', marginBottom: '1.75rem' }} />
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div>
               <p className="calc-section-label">② Grade</p>
@@ -666,8 +666,8 @@ export function CopperCalculator() {
           </div>{/* /② wrapper */}
 
           {/* ④ Copper Price — compact strip ─────────── */}
-          <div style={{ marginTop: '2.25rem' }}>
-          <div style={{ borderTop: '1px solid var(--color-surface-3)', marginBottom: '1.5rem' }} />
+          <div style={{ marginTop: '3rem' }}>
+          <div style={{ borderTop: '1px solid var(--color-surface-3)', marginBottom: '1.75rem' }} />
             <p className="calc-section-label">④ Copper Price</p>
             <div className="rounded-xl border overflow-hidden"
                  style={{ background: 'var(--color-surface-3)', borderColor: 'var(--color-surface-4)' }}>
@@ -796,10 +796,10 @@ export function CopperCalculator() {
             <div className="px-5 py-5 text-center">
               <p className="text-[0.58rem] text-zinc-500 uppercase tracking-widest font-semibold mb-1.5">Weight</p>
               <p className="font-mono font-bold text-2xl text-white leading-none">
-                <AnimNumber val={result.weightPerMeter * qty} fn={v => v >= 10_000 ? fmtCompact(v) : fmt(v, 2)} />
+                <AnimNumber val={result.weightPerMeter * qty} fn={v => v >= 10000 ? fmtCompact(v) : fmt(v, 2)} />
               </p>
               <p className="text-[0.62rem] text-zinc-600 mt-1 font-mono">
-                {result.weightPerMeter >= 10_000 ? fmtCompact(result.weightPerMeter) : fmt(result.weightPerMeter, 3)} kg/m
+                {result.weightPerMeter >= 10000 ? fmtCompact(result.weightPerMeter) : fmt(result.weightPerMeter, 3)} kg/m
               </p>
               <p className="text-[0.58rem] text-zinc-600 mt-0.5">kg total</p>
             </div>
@@ -811,7 +811,7 @@ export function CopperCalculator() {
               </p>
               {currCode !== 'USD' && (
                 <p className="text-[0.62rem] text-zinc-600 mt-1 font-mono">
-                  {result.costPerM2 >= 10_000 ? `$${fmtCompact(result.costPerM2)}` : fmtUSD(result.costPerM2, 0)}
+                  {result.costPerM2 >= 10000 ? `$${fmtCompact(result.costPerM2)}` : fmtUSD(result.costPerM2, 0)}
                 </p>
               )}
               <p className="text-[0.58rem] text-zinc-600 mt-0.5">{currCode} / m²</p>
