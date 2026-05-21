@@ -363,7 +363,7 @@ export function CopperCalculator() {
 
   const size = useMemo<BusbarSize>(() => {
     const w = Math.max(5,  Math.min(400, parseFloat(widthStr) || 60));
-    const h = Math.max(1,  Math.min(50,  parseFloat(thickStr) || 8));
+    const h = Math.max(1,  Math.min(100, parseFloat(thickStr) || 8));
     return { id: 'custom', width: w, thickness: h, label: `${w} × ${h} mm` };
   }, [widthStr, thickStr]);
   const [live,  setLive]  = useState<CopperPriceData | null>(null);
@@ -455,7 +455,7 @@ export function CopperCalculator() {
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
     const newW = Math.max(5,  Math.min(400, Math.round(dragStart.current.w + dx * 0.7)));
-    const newT = Math.max(1,  Math.min(50,  Math.round(dragStart.current.t - dy * 0.12)));
+    const newT = Math.max(1,  Math.min(100, Math.round(dragStart.current.t - dy * 0.12)));
     setWidthStr(String(newW));
     setThickStr(String(newT));
   }, []);
@@ -562,7 +562,7 @@ export function CopperCalculator() {
               <div className="flex-1 min-w-0">
                 <label className="block text-[0.68rem] text-zinc-500 mb-1.5 font-semibold tracking-wide">Thickness</label>
                 <div className="relative">
-                  <input type="number" min="1" max="50" step="1" inputMode="numeric"
+                  <input type="number" min="1" max="100" step="1" inputMode="numeric"
                     className="field-input font-mono text-center pr-7 sm:pr-9 py-3 sm:py-3.5 text-xl font-bold"
                     placeholder="8" value={thickStr}
                     onChange={e => setThickStr(e.target.value)} />
