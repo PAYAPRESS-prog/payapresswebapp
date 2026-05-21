@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
 
 // Content-Security-Policy
 // - script-src: 'unsafe-inline' + 'unsafe-eval' required by Next.js App Router & Framer Motion
@@ -103,6 +104,11 @@ const nextConfig = {
         ],
       },
     ];
+  },
+
+  webpack(config) {
+    config.resolve.alias['@'] = path.join(__dirname, 'src');
+    return config;
   },
 
   async rewrites() {
