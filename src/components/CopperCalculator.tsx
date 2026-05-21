@@ -540,7 +540,7 @@ export function CopperCalculator() {
         </div>
 
         {/* ── Inputs ──────────────────────────────── */}
-        <div className="px-4 sm:px-5 md:px-6 pt-6 pb-7 space-y-7 sm:space-y-8">
+        <div className="px-4 sm:px-5 md:px-6 pt-6 pb-7">
 
           {/* ① Dimensions ─────────────────────────── */}
           <div>
@@ -590,8 +590,8 @@ export function CopperCalculator() {
             </div>
 
             {/* IEC quick-select presets — horizontal scroll, no wrap */}
-            <div className="mt-4 overflow-x-auto no-scrollbar">
-              <div className="flex gap-1.5 pb-1" style={{ width: 'max-content' }}>
+            <div className="mt-4" style={{ overflowX: 'auto', overflowY: 'visible', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
+              <div className="flex gap-1.5 pb-2" style={{ width: 'max-content', minHeight: '2rem' }}>
                 {QUICK_PRESETS.map(p => {
                   const active = widthStr === p.w && thickStr === p.t;
                   return (
@@ -612,7 +612,7 @@ export function CopperCalculator() {
           </div>
 
           {/* ② Grade + Currency — 2-column ──────────── */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-8 sm:mt-9">
             <div>
               <p className="calc-section-label">② Grade</p>
               <div className="relative">
@@ -640,7 +640,7 @@ export function CopperCalculator() {
           </div>
 
           {/* ④ Copper Price — compact strip ─────────── */}
-          <div>
+          <div className="mt-8 sm:mt-9">
             <p className="calc-section-label">④ Copper Price</p>
             <div className="rounded-xl border overflow-hidden"
                  style={{ background: 'var(--color-surface-3)', borderColor: 'var(--color-surface-4)' }}>
