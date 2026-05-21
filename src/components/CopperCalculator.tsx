@@ -554,29 +554,31 @@ export function CopperCalculator() {
               <div className="flex-1 min-w-0">
                 <label className="block text-[0.68rem] text-zinc-500 mb-2 font-semibold tracking-wide">Width</label>
                 <div className="relative">
-                  <input type="number" min="5" max="400" step="1" inputMode="numeric"
+                  <input type="text" inputMode="numeric" pattern="[0-9]*"
                     className="field-input font-mono text-center pr-7 sm:pr-9 py-3 sm:py-3.5 text-xl font-bold"
                     placeholder="60" value={widthStr}
                     onChange={e => {
-                      const v = parseFloat(e.target.value);
-                      setWidthStr(!isNaN(v) && v > 400 ? '400' : e.target.value);
+                      const raw = e.target.value.replace(/[^0-9]/g, '');
+                      const v = parseFloat(raw);
+                      setWidthStr(!isNaN(v) && v > 400 ? '400' : raw);
                     }}
-                    onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setWidthStr(String(Math.max(5, Math.min(400, v)))); }} />
+                    onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setWidthStr(String(Math.max(5, Math.min(400, v)))); else setWidthStr('60'); }} />
                   <span className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
                 </div>
               </div>
-              <div className="pb-[0.875rem] text-zinc-600 font-bold text-lg select-none flex-shrink-0">×</div>
+              <div className="pb-3 sm:pb-3.5 text-zinc-600 font-bold text-lg select-none flex-shrink-0">×</div>
               <div className="flex-1 min-w-0">
                 <label className="block text-[0.68rem] text-zinc-500 mb-2 font-semibold tracking-wide">Thickness</label>
                 <div className="relative">
-                  <input type="number" min="1" max="100" step="1" inputMode="numeric"
+                  <input type="text" inputMode="numeric" pattern="[0-9]*"
                     className="field-input font-mono text-center pr-7 sm:pr-9 py-3 sm:py-3.5 text-xl font-bold"
                     placeholder="8" value={thickStr}
                     onChange={e => {
-                      const v = parseFloat(e.target.value);
-                      setThickStr(!isNaN(v) && v > 100 ? '100' : e.target.value);
+                      const raw = e.target.value.replace(/[^0-9]/g, '');
+                      const v = parseFloat(raw);
+                      setThickStr(!isNaN(v) && v > 100 ? '100' : raw);
                     }}
-                    onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setThickStr(String(Math.max(1, Math.min(100, v)))); }} />
+                    onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setThickStr(String(Math.max(1, Math.min(100, v)))); else setThickStr('8'); }} />
                   <span className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
                 </div>
               </div>
@@ -586,14 +588,15 @@ export function CopperCalculator() {
             <div className="mt-4">
               <label className="block text-[0.68rem] text-zinc-500 mb-2 font-semibold tracking-wide">Length</label>
               <div className="relative">
-                <input type="number" min="1" max="100000" step="100" inputMode="numeric"
+                <input type="text" inputMode="numeric" pattern="[0-9]*"
                   className="field-input font-mono pr-20 py-3.5 text-base"
                   placeholder="1000" value={lengthStr}
                   onChange={e => {
-                    const v = parseFloat(e.target.value);
-                    setLengthStr(!isNaN(v) && v > 100000 ? '100000' : e.target.value);
+                    const raw = e.target.value.replace(/[^0-9]/g, '');
+                    const v = parseFloat(raw);
+                    setLengthStr(!isNaN(v) && v > 100000 ? '100000' : raw);
                   }}
-                  onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setLengthStr(String(Math.max(1, Math.min(100000, v)))); }} />
+                  onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setLengthStr(String(Math.max(1, Math.min(100000, v)))); else setLengthStr('1000'); }} />
                 {/* show meters conversion inline */}
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none text-right leading-tight">
                   <span className="block">mm</span>
@@ -716,10 +719,14 @@ export function CopperCalculator() {
                     style={{ borderColor: 'var(--color-surface-4)' }}>
                     <div className="flex items-center px-4 py-3">
                       <span className="text-zinc-400 font-mono font-semibold mr-1">$</span>
-                      <input type="number" min="0" step="0.001" inputMode="decimal"
+                      <input type="text" inputMode="decimal"
                         className="flex-1 bg-transparent text-white font-mono py-1 outline-none placeholder:text-zinc-700 text-base"
                         placeholder="13.975" value={manual}
-                        onChange={e => setMan(e.target.value)} />
+                        onChange={e => {
+                          const raw = e.target.value.replace(/[^0-9.]/g, '');
+                          const parts = raw.split('.');
+                          setMan(parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : raw);
+                        }} />
                       <span className="text-zinc-500 text-xs font-mono">USD / kg</span>
                     </div>
                   </motion.div>

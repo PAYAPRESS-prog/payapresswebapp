@@ -6,7 +6,6 @@
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#060608",
   "theme_color": "#cd7f32",
   "orientation": "portrait-primary",
@@ -15,25 +14,19 @@
   "categories": ["business", "utilities", "productivity"],
   "icons": [
     {
-      "src": "/icons/icon-192.png",
-      "sizes": "192x192",
+      "src": "/apple-icon",
+      "sizes": "180x180",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-192-maskable.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/icons/icon-512.png",
+      "src": "/icon",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512-maskable.png",
+      "src": "/icon",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -45,43 +38,20 @@
       "purpose": "any"
     }
   ],
-  "screenshots": [
-    {
-      "src": "/screenshots/mobile-calculator.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Copper busbar cost calculator on mobile"
-    },
-    {
-      "src": "/screenshots/desktop-calculator.png",
-      "sizes": "1280x800",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Copper busbar cost calculator on desktop"
-    }
-  ],
   "shortcuts": [
     {
       "name": "Calculate",
       "short_name": "Calculate",
       "description": "Open the busbar cost calculator",
       "url": "/?shortcut=calculate",
-      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/apple-icon", "sizes": "180x180" }]
     },
     {
       "name": "Privacy Policy",
       "short_name": "Privacy",
       "description": "View privacy policy",
       "url": "/privacy",
-      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
-    }
-  ],
-  "related_applications": [
-    {
-      "platform": "play",
-      "url": "https://play.google.com/store/apps/details?id=com.payapress.calculator",
-      "id": "com.payapress.calculator"
+      "icons": [{ "src": "/apple-icon", "sizes": "180x180" }]
     }
   ],
   "prefer_related_applications": false
