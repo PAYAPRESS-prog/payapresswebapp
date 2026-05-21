@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
+import SplashScreen from '@/components/SplashScreen';
 import '@/styles/globals.css';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://payapress.com';
@@ -90,6 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
+        <SplashScreen />
         {children}
         {/* Register service worker for PWA / offline support */}
         <Script id="sw-register" strategy="afterInteractive">{`
