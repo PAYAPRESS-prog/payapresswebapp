@@ -497,8 +497,8 @@ export function CopperCalculator() {
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
     >
-    {/* Mobile: stacked · Desktop lg+: side-by-side */}
-    <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-6 lg:items-start">
+    {/* Mobile: stacked · Desktop lg+: side-by-side (configurator 60 / results 40) */}
+    <div className="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-[3fr_2fr] lg:gap-6 lg:items-start">
 
     {/* ╔══════════════════════════════════════════╗
         ║  CARD 1 — CONFIGURATOR                   ║
@@ -813,13 +813,51 @@ export function CopperCalculator() {
       ) : (
         <motion.div key="results-empty"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          className="rounded-[1.25rem] border border-dashed px-5 py-10 text-center"
-          style={{ borderColor: 'var(--color-surface-4)' }}>
-          <p className="text-zinc-600 text-sm">
-            {loading
-              ? <span className="animate-pulse">Loading live copper price…</span>
-              : 'Enter a manual copper price to calculate'}
-          </p>
+          className="rounded-[1.25rem] border overflow-hidden"
+          style={{ borderColor: 'var(--color-surface-3)', background: 'var(--color-surface-1)' }}
+        >
+          {/* Hero placeholder */}
+          <div className="px-5 py-7 sm:py-8 text-center border-b"
+               style={{ borderColor: 'var(--color-surface-2)' }}>
+            <p className="text-[0.58rem] text-zinc-600 uppercase tracking-widest font-semibold mb-3">
+              Total Cost
+            </p>
+            <p className="font-mono font-extrabold leading-none text-zinc-700"
+               style={{ fontSize: 'clamp(2.4rem, 11vw, 3.2rem)' }}>
+              {loading ? <span className="animate-pulse">···</span> : '—'}
+            </p>
+            <p className="text-zinc-600 text-xs mt-3 leading-relaxed">
+              {loading
+                ? <span className="animate-pulse">Fetching live copper price…</span>
+                : <>Set your copper price<br className="hidden sm:block" /> to see results</>
+              }
+            </p>
+          </div>
+
+          {/* Metric placeholders */}
+          <div className="grid grid-cols-2 divide-x" style={{ borderColor: 'var(--color-surface-2)' }}>
+            <div className="px-5 py-4 text-center divide-x-0">
+              <p className="text-[0.58rem] text-zinc-600 uppercase tracking-widest font-semibold mb-1.5">Weight</p>
+              <p className="font-mono font-bold text-2xl text-zinc-700 leading-none">—</p>
+              <p className="text-[0.58rem] text-zinc-600 mt-1">kg total</p>
+            </div>
+            <div className="px-5 py-4 text-center" style={{ borderLeft: '1px solid var(--color-surface-2)' }}>
+              <p className="text-[0.58rem] text-zinc-600 uppercase tracking-widest font-semibold mb-1.5">Rate / m²</p>
+              <p className="font-mono font-bold text-2xl text-zinc-700 leading-none">—</p>
+              <p className="text-[0.58rem] text-zinc-600 mt-1">USD / m²</p>
+            </div>
+          </div>
+
+          {/* Status row */}
+          <div className="border-t px-5 py-3.5 text-center"
+               style={{ borderColor: 'var(--color-surface-2)' }}>
+            <p className="text-[0.62rem] text-zinc-600 font-mono">
+              {loading
+                ? <span className="animate-pulse">Loading live COMEX HG=F price…</span>
+                : 'Live price loaded · waiting for input'
+              }
+            </p>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

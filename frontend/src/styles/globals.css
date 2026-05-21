@@ -87,16 +87,11 @@ body {
   position: relative;
   overflow: hidden;
   transform-style: preserve-3d;
+  /* Static shadow — no box-shadow animation (not GPU composited, causes repaint) */
   box-shadow:
-    0 0 0 1px rgba(184, 115, 51, 0.06),
+    0 0 0 1px rgba(184, 115, 51, 0.08),
     0 8px 50px rgba(0, 0, 0, 0.7),
-    0 0 80px rgba(184, 115, 51, 0.05);
-  animation: card-breathe 5s ease-in-out infinite;
-}
-
-@keyframes card-breathe {
-  0%, 100% { box-shadow: 0 0 0 1px rgba(184,115,51,0.06), 0 8px 50px rgba(0,0,0,0.7), 0 0 60px rgba(184,115,51,0.05); }
-  50%       { box-shadow: 0 0 0 1px rgba(184,115,51,0.14), 0 8px 50px rgba(0,0,0,0.7), 0 0 100px rgba(184,115,51,0.12); }
+    0 0 80px rgba(184, 115, 51, 0.07);
 }
 
 .card-copper::before {
@@ -106,6 +101,13 @@ body {
   background: radial-gradient(ellipse at 50% 0%, rgba(205,127,50,0.06) 0%, transparent 65%);
   pointer-events: none;
   z-index: 0;
+  /* GPU-composited glow breathe via opacity (not box-shadow) */
+  animation: card-breathe 5s ease-in-out infinite;
+}
+
+@keyframes card-breathe {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1; }
 }
 
 /* ── Live dot ─────────────────────────────────────── */

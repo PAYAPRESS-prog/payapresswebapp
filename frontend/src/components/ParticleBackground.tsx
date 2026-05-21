@@ -25,69 +25,59 @@ export function ParticleBackground() {
       canvas.height = window.innerHeight;
     };
     resize();
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', resize, { passive: true });
 
-    // 45 hex particles
-    const particles: Particle[] = Array.from({ length: 45 }, () => ({
-      x:    Math.random() * window.innerWidth,
-      y:    Math.random() * window.innerHeight,
-      vx:   (Math.random() - 0.5) * 0.25,
-      vy:   -(Math.random() * 0.35 + 0.08),
-      size: Math.random() * 14 + 5,
-      opacity: Math.random() * 0.1 + 0.03,
-      rot:  Math.random() * 360,
-      rotV: (Math.random() - 0.5) * 0.4,
+    // Reduced to 16 particles (was 45) — eliminates O(n²) overhead on mobile
+    const COUNT = window.innerWidth < 768 ? 10 : 16;
+    const particles: Particle[] = Array.from({ length: COUNT }, () => ({
+      x:       Math.random() * window.innerWidth,
+      y:       Math.random() * window.innerHeight,
+      vx:      (Math.random() - 0.5) * 0.18,
+      vy:      -(Math.random() * 0.28 + 0.06),
+      size:    Math.random() * 12 + 4,
+      opacity: Math.random() * 0.09 + 0.02,
+      rot:     Math.random() * 360,
+      rotV:    (Math.random() - 0.5) * 0.3,
     }));
 
     const drawHex = (x: number, y: number, r: number, rot: number) => {
       ctx.beginPath();
       for (let i = 0; i < 6; i++) {
         const a = ((i * 60 + rot) * Math.PI) / 180;
-        const px = x + r * Math.cos(a);
-        const py = y + r * Math.sin(a);
-        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        i === 0
+          ? ctx.moveTo(x + r * Math.cos(a), y + r * Math.sin(a))
+          : ctx.lineTo(x + r * Math.cos(a), y + r * Math.sin(a));
       }
       ctx.closePath();
     };
 
     const tick = () => {
+      raf = requestAnimationFrame(tick);
+
+      // Skip rendering when tab is not visible — saves battery/CPU
+      if (document.hidden) return;
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw connection lines between nearby particles
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 130) {
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(205,127,50,${0.05 * (1 - dist / 130)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
+      // Connection lines removed: O(n²) was the main CPU cost on mobile
+      // (45×44/2 = 990 checks per frame at 60fps = ~59,400/s)
 
-      particles.forEach(p => {
+      for (const p of particles) {
         p.x   += p.vx;
         p.y   += p.vy;
         p.rot += p.rotV;
 
-        if (p.y < -30) { p.y = canvas.height + 20; p.x = Math.random() * canvas.width; }
-        if (p.x < -30)              p.x = canvas.width + 20;
-        if (p.x > canvas.width + 30) p.x = -20;
+        if (p.y < -30)                p.y = canvas.height + 20, p.x = Math.random() * canvas.width;
+        if (p.x < -30)                p.x = canvas.width + 20;
+        if (p.x > canvas.width + 30)  p.x = -20;
 
         drawHex(p.x, p.y, p.size, p.rot);
         ctx.fillStyle   = `rgba(205,127,50,${p.opacity})`;
-        ctx.strokeStyle = `rgba(205,127,50,${p.opacity * 2.2})`;
-        ctx.lineWidth   = 0.6;
+        ctx.strokeStyle = `rgba(205,127,50,${p.opacity * 2})`;
+        ctx.lineWidth   = 0.5;
         ctx.fill();
         ctx.stroke();
-      });
-
-      raf = requestAnimationFrame(tick);
+      }
     };
 
     tick();
@@ -101,7 +91,7 @@ export function ParticleBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
-      style={{ zIndex: 0 }}
+      style={{ zIndex: 0, willChange: 'contents' }}
     />
   );
 }
