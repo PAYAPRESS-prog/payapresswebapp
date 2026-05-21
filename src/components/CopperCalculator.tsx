@@ -540,7 +540,7 @@ export function CopperCalculator() {
         </div>
 
         {/* ── Inputs ──────────────────────────────── */}
-        <div className="px-4 sm:px-5 md:px-6 pt-5 pb-6 space-y-5">
+        <div className="px-4 sm:px-5 md:px-6 pt-6 pb-7 space-y-7 sm:space-y-8">
 
           {/* ① Dimensions ─────────────────────────── */}
           <div>
@@ -572,7 +572,7 @@ export function CopperCalculator() {
             </div>
 
             {/* Length */}
-            <div className="mt-3">
+            <div className="mt-4">
               <label className="block text-[0.68rem] text-zinc-500 mb-1.5 font-semibold tracking-wide">Length</label>
               <div className="relative">
                 <input type="number" min="1" max="100000" step="100" inputMode="numeric"
@@ -590,8 +590,8 @@ export function CopperCalculator() {
             </div>
 
             {/* IEC quick-select presets — horizontal scroll, no wrap */}
-            <div className="mt-3 overflow-x-auto no-scrollbar">
-              <div className="flex gap-1.5 pb-0.5" style={{ width: 'max-content' }}>
+            <div className="mt-4 overflow-x-auto no-scrollbar">
+              <div className="flex gap-1.5 pb-1" style={{ width: 'max-content' }}>
                 {QUICK_PRESETS.map(p => {
                   const active = widthStr === p.w && thickStr === p.t;
                   return (
@@ -624,7 +624,7 @@ export function CopperCalculator() {
                 </select>
                 <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs">▾</span>
               </div>
-              <p className="text-[0.62rem] text-zinc-600 mt-1.5 font-mono leading-snug">
+              <p className="text-[0.62rem] text-zinc-600 mt-2.5 font-mono leading-snug">
                 {(grade.purity*100).toFixed(2)}%<br/>ρ {grade.density} g/cm³
               </p>
             </div>
@@ -632,7 +632,7 @@ export function CopperCalculator() {
               <p className="calc-section-label">③ Currency</p>
               <CurrencySelector value={currCode} onChange={setCurrCode} />
               {currCode !== 'USD' && fx && (
-                <p className="text-[0.62rem] text-zinc-600 mt-1.5 font-mono leading-snug">
+                <p className="text-[0.62rem] text-zinc-600 mt-2.5 font-mono leading-snug">
                   1 USD<br/>= {fxRate.toFixed(4)} {currCode}
                 </p>
               )}
