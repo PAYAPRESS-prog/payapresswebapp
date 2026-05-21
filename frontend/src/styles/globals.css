@@ -270,6 +270,10 @@ body {
 ::-webkit-scrollbar-thumb { background: rgba(184,115,51,0.28); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(184,115,51,0.52); }
 
+/* ── Hide scrollbar (used on horizontal chip rows) ── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
 /* ── Floating animation ───────────────────────────── */
 @keyframes float-y {
   0%, 100% { transform: translateY(0px); }

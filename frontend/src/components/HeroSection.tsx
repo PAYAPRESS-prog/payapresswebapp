@@ -28,7 +28,7 @@ export function HeroSection() {
           transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
           className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl text-shimmer"
         >
-          Cost Calculator
+          Busbar Calculator
         </motion.span>
       </h1>
 

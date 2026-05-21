@@ -517,22 +517,26 @@ export function CopperCalculator() {
           onPointerCancel={onViewerPointerUp}
         >
           <BusbarRender width={size.width} thickness={size.thickness} />
-          <div className="flex items-center justify-center gap-2 mt-2 flex-wrap">
-            <span className="font-mono text-sm font-bold text-copper-500 tracking-wide">{size.label}</span>
-            <span className="text-zinc-700 text-xs">·</span>
-            <span className="font-mono text-xs text-zinc-500">{size.width * size.thickness} mm²</span>
-            <span className="text-zinc-700 text-xs">·</span>
-            <span className="font-mono text-xs text-zinc-500">{grade.label}</span>
-            {BUSBAR_SIZES.some(s => s.width === size.width && s.thickness === size.thickness) && (
-              <span className="text-[0.55rem] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full"
-                    style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.22)' }}>
-                IEC STD
+          <div className="mt-2 text-center space-y-1">
+            <div className="flex items-center justify-center gap-1.5 flex-wrap">
+              <span className="font-mono text-sm font-bold text-copper-500 tracking-wide">
+                {size.width} × {size.thickness} mm
               </span>
-            )}
+              <span className="text-zinc-700 text-[0.6rem]">·</span>
+              <span className="font-mono text-xs text-zinc-500">{size.width * size.thickness} mm²</span>
+              <span className="text-zinc-700 text-[0.6rem]">·</span>
+              <span className="font-mono text-xs text-zinc-500">{grade.label}</span>
+              {BUSBAR_SIZES.some(s => s.width === size.width && s.thickness === size.thickness) && (
+                <span className="text-[0.55rem] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full"
+                      style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.22)' }}>
+                  IEC STD
+                </span>
+              )}
+            </div>
+            <p className={`text-[0.52rem] tracking-widest transition-opacity ${isDragging ? 'opacity-0' : 'opacity-35'} text-zinc-500`}>
+              ← DRAG TO RESIZE →
+            </p>
           </div>
-          <p className={`text-center text-[0.52rem] tracking-widest mt-1.5 pb-0.5 transition-opacity ${isDragging ? 'opacity-0' : 'opacity-40'} text-zinc-500`}>
-            ← DRAG TO RESIZE →
-          </p>
         </div>
 
         {/* ── Inputs ──────────────────────────────── */}
@@ -572,35 +576,38 @@ export function CopperCalculator() {
               <label className="block text-[0.68rem] text-zinc-500 mb-1.5 font-semibold tracking-wide">Length</label>
               <div className="relative">
                 <input type="number" min="1" max="100000" step="100" inputMode="numeric"
-                  className="field-input font-mono pr-12 py-3.5 text-base"
+                  className="field-input font-mono pr-20 py-3.5 text-base"
                   placeholder="1000" value={lengthStr}
                   onChange={e => setLengthStr(e.target.value)} />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono font-semibold pointer-events-none">mm</span>
+                {/* show meters conversion inline */}
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none text-right leading-tight">
+                  <span className="block">mm</span>
+                  <span className="block text-zinc-700">
+                    {qty >= 10 ? qty.toFixed(1) : qty >= 1 ? qty.toFixed(2) : qty.toFixed(3)} m
+                  </span>
+                </span>
               </div>
             </div>
 
-            {/* Spec + presets */}
-            <p className="text-[0.65rem] text-zinc-600 font-mono mt-2.5 leading-relaxed">
-              {size.width}×{size.thickness} mm &nbsp;·&nbsp; {size.width*size.thickness} mm² &nbsp;·&nbsp;
-              {qty >= 10 ? qty.toFixed(1) : qty >= 1 ? qty.toFixed(2) : qty.toFixed(3)} m &nbsp;·&nbsp;
-              {(size.width * size.thickness * qty).toFixed(0)} cm³
-            </p>
-            <div className="flex gap-1.5 flex-wrap mt-2.5">
-              {QUICK_PRESETS.map(p => {
-                const active = widthStr === p.w && thickStr === p.t;
-                return (
-                  <motion.button key={`${p.w}x${p.t}`} whileTap={{ scale: 0.85 }}
-                    onClick={() => { setWidthStr(p.w); setThickStr(p.t); }}
-                    className="text-[0.6rem] font-mono font-semibold px-2.5 py-1 rounded-full border transition-all"
-                    style={{
-                      background:   active ? 'rgba(205,127,50,0.16)' : 'rgba(255,255,255,0.03)',
-                      borderColor:  active ? 'rgba(205,127,50,0.5)'  : 'rgba(255,255,255,0.07)',
-                      color:        active ? '#cd7f32' : '#52525b',
-                    }}>
-                    {p.w}×{p.t}
-                  </motion.button>
-                );
-              })}
+            {/* IEC quick-select presets — horizontal scroll, no wrap */}
+            <div className="mt-3 -mx-1 px-1 overflow-x-auto no-scrollbar">
+              <div className="flex gap-2 pb-0.5" style={{ width: 'max-content' }}>
+                {QUICK_PRESETS.map(p => {
+                  const active = widthStr === p.w && thickStr === p.t;
+                  return (
+                    <motion.button key={`${p.w}x${p.t}`} whileTap={{ scale: 0.82 }}
+                      onClick={() => { setWidthStr(p.w); setThickStr(p.t); }}
+                      className="text-[0.65rem] font-mono font-semibold px-3 py-1.5 rounded-full border transition-all whitespace-nowrap"
+                      style={{
+                        background:  active ? 'rgba(205,127,50,0.18)' : 'rgba(255,255,255,0.04)',
+                        borderColor: active ? 'rgba(205,127,50,0.55)' : 'rgba(255,255,255,0.08)',
+                        color:       active ? '#cd7f32' : '#52525b',
+                      }}>
+                      {p.w}×{p.t}
+                    </motion.button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -637,17 +644,22 @@ export function CopperCalculator() {
             <p className="calc-section-label">④ Copper Price</p>
             <div className="rounded-xl border overflow-hidden"
                  style={{ background: 'var(--color-surface-3)', borderColor: 'var(--color-surface-4)' }}>
-              {/* Price row */}
+              {/* Price row: left = price block, right = manual toggle */}
               <div className="flex items-center gap-3 px-4 py-3">
                 {loading ? (
                   <span className="text-zinc-500 text-sm animate-pulse flex-1">Fetching…</span>
                 ) : live && !useMan ? (
-                  <>
+                  <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
                     <span className={live.isFallback ? 'fallback-dot' : 'live-dot'} />
                     <span className="font-mono text-2xl font-extrabold text-copper-400 result-glow tracking-tight">
                       ${fmt(live.pricePerKg, 3)}
                     </span>
-                    <span className="text-zinc-500 text-xs">/kg</span>
+                    <div className="flex flex-col leading-none">
+                      <span className="text-zinc-500 text-[0.65rem]">/kg</span>
+                      <span className="text-zinc-700 text-[0.6rem] font-mono mt-0.5">
+                        ${fmt(live.pricePerKg / 2.20462, 3)}/lb
+                      </span>
+                    </div>
                     {(() => {
                       const mood = getPriceMood(live.pricePerKg);
                       return (
@@ -657,19 +669,18 @@ export function CopperCalculator() {
                         </span>
                       );
                     })()}
-                    <span className="text-zinc-600 text-xs font-mono ml-auto">${fmt(live.pricePerKg / 2.20462, 3)}/lb</span>
-                  </>
+                  </div>
                 ) : useMan && priceUSD ? (
-                  <>
+                  <div className="flex-1 min-w-0 flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-zinc-500 flex-shrink-0" />
                     <span className="font-mono text-2xl font-extrabold text-white tracking-tight">${fmt(priceUSD, 3)}</span>
                     <span className="text-zinc-500 text-xs">/kg manual</span>
-                  </>
+                  </div>
                 ) : (
                   <span className="text-amber-500 text-sm flex-1">Price unavailable</span>
                 )}
                 <button onClick={() => { setUM(v => !v); setMan(''); }}
-                  className="btn-ghost text-xs px-2.5 py-1.5 flex items-center gap-1.5 flex-shrink-0 ml-auto">
+                  className="btn-ghost text-xs px-2.5 py-1.5 flex items-center gap-1.5 flex-shrink-0">
                   {useMan
                     ? <><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 112.7 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M2 2v3h3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg> Live</>
                     : <><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M11 2.5l2.5 2.5-8 8H3v-2.5l8-8z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg> Manual</>

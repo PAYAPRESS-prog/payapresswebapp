@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
 
   title: {
-    default:  'PAYAPRESS — Copper Busbar Cost Calculator',
-    template: '%s | PAYAPRESS',
+    default:  'Busbar Calculator — PAYAPRESS',
+    template: '%s | Busbar Calculator',
   },
   description:
     'Professional real-time copper busbar cost calculator for electrical panel fabricators. ' +
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
     type:        'website',
     locale:      'en_US',
     url:          BASE_URL,
-    siteName:    'PAYAPRESS PRO',
-    title:       'PAYAPRESS — Copper Busbar Cost Calculator',
+    siteName:    'Busbar Calculator',
+    title:       'Busbar Calculator — PAYAPRESS',
     description: 'Live COMEX copper pricing · manual dimension inputs · 22 currencies · IEC/DIN standards.',
     images: [
       {
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
 
   twitter: {
     card:        'summary_large_image',
-    title:       'PAYAPRESS — Copper Busbar Cost Calculator',
+    title:       'Busbar Calculator — PAYAPRESS',
     description: 'Live COMEX copper pricing · 22 currencies · IEC/DIN standards.',
     images:      ['/og-image.png'],
     creator:     '@payapress',
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
   appLinks: {},
   appleWebApp: {
     capable: true,
-    title: 'PAYAPRESS',
+    title: 'Busbar Calc',
     statusBarStyle: 'black-translucent',
     startupImage: [],
   },

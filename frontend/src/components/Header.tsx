@@ -42,7 +42,7 @@ export function Header() {
         </motion.a>
 
         <span className="hidden md:block text-[0.65rem] text-zinc-700 font-mono tracking-wide select-none">
-          Copper Busbar Cost Calculator
+          Busbar Calculator
         </span>
       </div>
     </motion.header>

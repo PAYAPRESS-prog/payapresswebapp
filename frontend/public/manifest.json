@@ -1,7 +1,7 @@
 {
   "id": "com.payapress.calculator",
-  "name": "PAYAPRESS — Copper Busbar Calculator",
-  "short_name": "PAYAPRESS",
+  "name": "Busbar Calculator",
+  "short_name": "Busbar Calc",
   "description": "Professional real-time copper busbar cost calculator. Live COMEX pricing, 22 currencies, IEC/DIN standards.",
   "start_url": "/?source=pwa",
   "scope": "/",
