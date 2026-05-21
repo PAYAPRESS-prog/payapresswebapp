@@ -554,7 +554,10 @@ export function CopperCalculator() {
                   <input type="number" min="5" max="400" step="1" inputMode="numeric"
                     className="field-input font-mono text-center pr-7 sm:pr-9 py-3 sm:py-3.5 text-xl font-bold"
                     placeholder="60" value={widthStr}
-                    onChange={e => setWidthStr(e.target.value)}
+                    onChange={e => {
+                      const v = parseFloat(e.target.value);
+                      setWidthStr(!isNaN(v) && v > 400 ? '400' : e.target.value);
+                    }}
                     onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setWidthStr(String(Math.max(5, Math.min(400, v)))); }} />
                   <span className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
                 </div>
@@ -566,7 +569,10 @@ export function CopperCalculator() {
                   <input type="number" min="1" max="100" step="1" inputMode="numeric"
                     className="field-input font-mono text-center pr-7 sm:pr-9 py-3 sm:py-3.5 text-xl font-bold"
                     placeholder="8" value={thickStr}
-                    onChange={e => setThickStr(e.target.value)}
+                    onChange={e => {
+                      const v = parseFloat(e.target.value);
+                      setThickStr(!isNaN(v) && v > 100 ? '100' : e.target.value);
+                    }}
                     onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setThickStr(String(Math.max(1, Math.min(100, v)))); }} />
                   <span className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
                 </div>
@@ -580,7 +586,10 @@ export function CopperCalculator() {
                 <input type="number" min="1" max="100000" step="100" inputMode="numeric"
                   className="field-input font-mono pr-20 py-3.5 text-base"
                   placeholder="1000" value={lengthStr}
-                  onChange={e => setLengthStr(e.target.value)}
+                  onChange={e => {
+                    const v = parseFloat(e.target.value);
+                    setLengthStr(!isNaN(v) && v > 100000 ? '100000' : e.target.value);
+                  }}
                   onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setLengthStr(String(Math.max(1, Math.min(100000, v)))); }} />
                 {/* show meters conversion inline */}
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none text-right leading-tight">
