@@ -240,7 +240,7 @@ export default function WhitepaperPage() {
                     ['Language', 'TypeScript (strict mode)', '5.x'],
                     ['Styling', 'Tailwind CSS v4', '4.x'],
                     ['Animation', 'Framer Motion', '12.x'],
-                    ['Deployment', 'Netlify / Vercel', '—'],
+                    ['Deployment', 'Hostinger Node.js', '—'],
                     ['Copper Price Feed', 'COMEX HG=F via Yahoo Finance', 'server-side'],
                     ['FX Rates', 'Frankfurter API (ECB)', 'server-side'],
                     ['Offline Support', 'Service Worker (Cache API)', 'PWA v1'],
