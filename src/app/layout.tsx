@@ -95,14 +95,36 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ background: '#060608' }}>
         <SplashScreen />
         {children}
-        {/* Global error capture — shows error on screen if React can't mount */}
+        {/* Global error capture — shows error on screen even if React can't mount */}
         <Script id="err-capture" strategy="beforeInteractive">{`
           window.__pp_errs = [];
+          var __pp_errDiv = null;
+          function __pp_showErr(msg) {
+            try {
+              if (!__pp_errDiv) {
+                __pp_errDiv = document.createElement('div');
+                __pp_errDiv.setAttribute('style',
+                  'position:fixed;top:0;left:0;right:0;z-index:99999;' +
+                  'background:#1a0000;border-bottom:2px solid #ef4444;' +
+                  'color:#fca5a5;padding:12px 16px;font:12px/1.5 monospace;' +
+                  'white-space:pre-wrap;word-break:break-all;max-height:60vh;overflow:auto;');
+                __pp_errDiv.innerHTML = '<b style="color:#ef4444">PAYAPRESS JS ERROR (send this to dev):</b>\n';
+                document.body.appendChild(__pp_errDiv);
+              }
+              __pp_errDiv.innerHTML += msg + '\n';
+            } catch(ex) {}
+          }
           window.addEventListener('error', function(e) {
-            window.__pp_errs.push(e.message + ' @ ' + e.filename + ':' + e.lineno);
+            var m = (e.message||'?') + '\\n  @ ' + (e.filename||'?') + ':' + e.lineno + ':' + e.colno;
+            if (e.error && e.error.stack) m += '\\n' + e.error.stack;
+            window.__pp_errs.push(m);
+            __pp_showErr(m);
           });
           window.addEventListener('unhandledrejection', function(e) {
-            window.__pp_errs.push('Unhandled: ' + String(e.reason));
+            var m = 'Unhandled Promise: ' + String(e.reason);
+            if (e.reason && e.reason.stack) m += '\\n' + e.reason.stack;
+            window.__pp_errs.push(m);
+            __pp_showErr(m);
           });
         `}</Script>
         {/* Register service worker for PWA / offline support */}
