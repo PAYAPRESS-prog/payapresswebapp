@@ -92,6 +92,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" style={{ background: '#060608' }} suppressHydrationWarning>
+      {/* Tell browsers and CDNs never to cache HTML pages */}
+      <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+      <meta httpEquiv="Pragma" content="no-cache" />
+      <meta httpEquiv="Expires" content="0" />
       {/* Critical inline styles — dark background guaranteed even if CSS bundle fails to load */}
       <style dangerouslySetInnerHTML={{ __html:
         'html,body{background:#060608!important;color:#f0f0f0;margin:0;padding:0;' +
@@ -133,14 +137,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __pp_showErr(m);
           });
         `}</Script>
-        {/* Register service worker; auto-fix stale SW cache if CSS bundle failed to load */}
+        {/* Register service worker; auto-fix stale cache if CSS bundle failed to load */}
         <Script id="sw-register" strategy="afterInteractive">{`
           (function() {
             function run() {
+              // Clean up cache-bust param from URL if present
+              if (window.location.search.indexOf('_pp=') !== -1) {
+                try { history.replaceState(null, '', window.location.pathname + window.location.hash); } catch(e) {}
+              }
+
               var cssLoaded = !!(getComputedStyle(document.documentElement)
                 .getPropertyValue('--color-copper-500') || '').trim();
+
               if (!cssLoaded && !sessionStorage.getItem('pp_css_fix')) {
                 sessionStorage.setItem('pp_css_fix', '1');
+                // Clear SW + all caches first, then redirect with cache-busting param
+                // (cache-busting param forces CDN to fetch fresh copy instead of serving stale)
                 var hasSW = 'serviceWorker' in navigator;
                 var hasCaches = 'caches' in window;
                 var p = (hasSW && hasCaches)
@@ -149,15 +161,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       .then(function() { return caches.keys(); })
                       .then(function(k) { return Promise.all(k.map(function(c) { return caches.delete(c); })); })
                   : Promise.resolve();
-                p.then(function() { location.reload(); }).catch(function() { location.reload(); });
+                p.then(function() {
+                  window.location.href = window.location.pathname + '?_pp=' + Date.now() + window.location.hash;
+                }).catch(function() {
+                  window.location.href = window.location.pathname + '?_pp=' + Date.now() + window.location.hash;
+                });
                 return;
               }
+
               sessionStorage.removeItem('pp_css_fix');
               if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js').catch(function(){});
               }
             }
-            // Run immediately if document already loaded (script may fire after load event)
             if (document.readyState === 'complete') {
               run();
             } else {
