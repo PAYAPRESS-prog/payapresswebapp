@@ -2,17 +2,8 @@
 
 import dynamic from 'next/dynamic';
 
-/* Dynamic (client-only) wrappers for all Framer Motion-heavy components.
-   ssr:false eliminates SSR/CSR hydration mismatches in React 19 strict mode. */
-
-export const HeroSection = dynamic(
-  () => import('./HeroSection').then(m => ({ default: m.HeroSection })),
-  {
-    ssr: false,
-    loading: () => <div className="mb-10 sm:mb-12 lg:mb-16" style={{ minHeight: '180px' }} />,
-  },
-);
-
+/* CopperCalculator uses heavy Framer Motion (TiltCard, useSpring, AnimatePresence)
+   that causes React 19 hydration mismatches — must stay client-only. */
 export const CopperCalculator = dynamic(
   () => import('./CopperCalculator').then(m => ({ default: m.CopperCalculator })),
   {
@@ -24,19 +15,4 @@ export const CopperCalculator = dynamic(
       />
     ),
   },
-);
-
-export const ComingSoonSection = dynamic(
-  () => import('./ComingSoonSection').then(m => ({ default: m.ComingSoonSection })),
-  { ssr: false },
-);
-
-export const Footer = dynamic(
-  () => import('./Footer').then(m => ({ default: m.Footer })),
-  { ssr: false },
-);
-
-export const InstallPrompt = dynamic(
-  () => import('./InstallPrompt').then(m => ({ default: m.InstallPrompt })),
-  { ssr: false },
 );

@@ -295,6 +295,25 @@ body {
   to   { transform: translateY(0);    }
 }
 
+/* ── Hero section entry animations ──────────────────── */
+@keyframes hero-slide-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes hero-pill-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.78); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Footer link hover ───────────────────────────────── */
+.footer-link {
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+.footer-link:hover {
+  color: #cd7f32 !important;
+  transform: translateX(3px);
+}
+
 /* ── Floating animation ───────────────────────────── */
 @keyframes float-y {
   0%, 100% { transform: translateY(0px); }
