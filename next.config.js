@@ -37,8 +37,6 @@ const CSP_EMBED = [
 ].join('; ');
 
 const nextConfig = {
-  output: 'standalone',
-
   images: {
     remotePatterns: [
       {

@@ -149,8 +149,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               var cssLoaded = !!(getComputedStyle(document.documentElement)
                 .getPropertyValue('--color-copper-500') || '').trim();
 
-              if (!cssLoaded && !sessionStorage.getItem('pp_css_fix')) {
-                sessionStorage.setItem('pp_css_fix', '1');
+              var ssAlreadyFixed = false;
+              try { ssAlreadyFixed = !!sessionStorage.getItem('pp_css_fix'); } catch(e) {}
+
+              if (!cssLoaded && !ssAlreadyFixed) {
+                try { sessionStorage.setItem('pp_css_fix', '1'); } catch(e) {}
                 // Clear SW + all caches first, then redirect with cache-busting param
                 // (cache-busting param forces CDN to fetch fresh copy instead of serving stale)
                 var hasSW = 'serviceWorker' in navigator;
@@ -169,7 +172,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 return;
               }
 
-              sessionStorage.removeItem('pp_css_fix');
+              try { sessionStorage.removeItem('pp_css_fix'); } catch(e) {}
               if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js').catch(function(){});
               }

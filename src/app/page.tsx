@@ -15,7 +15,9 @@ export default function HomePage() {
         <ParticleBackground />
       </SectionErrorBoundary>
 
-      <Header />
+      <SectionErrorBoundary>
+        <Header />
+      </SectionErrorBoundary>
 
       <main className="relative z-10">
         <div className="w-full max-w-2xl lg:max-w-[92vw] 2xl:max-w-[1440px]
@@ -24,20 +26,28 @@ export default function HomePage() {
                         pt-8 sm:pt-10 lg:pt-14
                         pb-8 sm:pb-12">
 
-          <HeroSection />
+          <SectionErrorBoundary>
+            <HeroSection />
+          </SectionErrorBoundary>
 
           <SectionErrorBoundary>
             <CopperCalculator />
           </SectionErrorBoundary>
 
           <div className="mt-12 sm:mt-16 lg:mt-20">
-            <ComingSoonSection />
+            <SectionErrorBoundary>
+              <ComingSoonSection />
+            </SectionErrorBoundary>
           </div>
         </div>
       </main>
 
-      <InstallPrompt />
-      <Footer />
+      <SectionErrorBoundary>
+        <InstallPrompt />
+      </SectionErrorBoundary>
+      <SectionErrorBoundary>
+        <Footer />
+      </SectionErrorBoundary>
     </div>
   );
 }

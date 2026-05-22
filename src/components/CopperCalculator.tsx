@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   motion, AnimatePresence,
-  useMotionValue, useTransform, useSpring, useInView,
+  useMotionValue, useTransform, useSpring,
 } from 'framer-motion';
 import { MATERIAL_GRADES, DEFAULT_GRADE, BUSBAR_SIZES } from '@/lib/copperData';
 import { calculateCost, fmt, fmtUSD, fmtCompact } from '@/lib/copperPrice';
@@ -287,8 +287,11 @@ function AnimNumber({ val, fn }: { val: number; fn: (n: number) => string }) {
 function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
-  const rotX = useSpring(useTransform(my, [-160, 160], [5, -5]), { stiffness: 300, damping: 32 });
-  const rotY = useSpring(useTransform(mx, [-160, 160], [-5, 5]), { stiffness: 300, damping: 32 });
+  // Assign useTransform to variables first to avoid inline hook call pattern
+  const transformY = useTransform(my, [-160, 160], [5, -5]);
+  const transformX = useTransform(mx, [-160, 160], [-5, 5]);
+  const rotX = useSpring(transformY, { stiffness: 300, damping: 32 });
+  const rotY = useSpring(transformX, { stiffness: 300, damping: 32 });
 
   const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
@@ -299,7 +302,6 @@ function TiltCard({ children, className }: { children: React.ReactNode; classNam
   const onLeave = useCallback(() => { mx.set(0); my.set(0); }, [mx, my]);
 
   return (
-    /* CSS perspective on plain div — avoids SSR/CSR mismatch from Framer Motion perspective handling */
     <div style={{ perspective: '1100px' }}>
       <motion.div
         className={className}
@@ -353,7 +355,17 @@ function ResultCard({
 // ── Main component ─────────────────────────────────────────────────
 export function CopperCalculator() {
   const cardRef  = useRef<HTMLDivElement>(null);
-  const inView   = useInView(cardRef, { once: true, margin: '-60px' });
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') { setInView(true); return; }
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setInView(true); obs.disconnect(); } },
+      { rootMargin: '-60px' },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
   const [widthStr, setWidthStr] = useState('60');
   const [thickStr, setThickStr] = useState('8');
   const [grade, setGrade] = useState<MaterialGrade>(DEFAULT_GRADE);
@@ -500,12 +512,13 @@ export function CopperCalculator() {
   const totalCostUSD   = result ? result.costPerMeter * qty : 0;
 
   return (
-    <motion.div
+    <div
       ref={cardRef}
       className="relative"
-      initial={{ y: 12 }}
-      animate={inView ? { y: 0 } : {}}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      style={{
+        transform: inView ? 'translateY(0)' : 'translateY(12px)',
+        transition: 'transform 0.7s cubic-bezier(0.22,1,0.36,1)',
+      }}
     >
     {/* Mobile: stacked · Desktop lg+: side-by-side (configurator 60 / results 40) */}
     <div className="space-y-6 lg:space-y-0 lg:grid lg:grid-cols-[3fr_2fr] lg:gap-6 lg:items-start">
@@ -922,6 +935,6 @@ export function CopperCalculator() {
       )}
     </AnimatePresence>
 
-    </motion.div>
+    </div>
   );
 }
