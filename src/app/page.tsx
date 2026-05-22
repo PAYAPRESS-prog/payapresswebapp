@@ -1,17 +1,12 @@
-import dynamic from 'next/dynamic';
 import { Header } from '@/components/Header';
-import { CopperCalculator } from '@/components/CopperCalculator';
-import { HeroSection } from '@/components/HeroSection';
-import { InstallPrompt } from '@/components/InstallPrompt';
 import { ParticleBackground } from '@/components/ParticleBackground';
-
-const ComingSoonSection = dynamic(
-  () => import('@/components/ComingSoonSection').then(m => ({ default: m.ComingSoonSection })),
-);
-
-const Footer = dynamic(
-  () => import('@/components/Footer').then(m => ({ default: m.Footer })),
-);
+import {
+  HeroSection,
+  CopperCalculator,
+  ComingSoonSection,
+  Footer,
+  InstallPrompt,
+} from '@/components/DynamicPage';
 
 export default function HomePage() {
   return (
