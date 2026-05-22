@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const BASE = 'https://guileless-torrone-f24c5e.netlify.app';
+const BASE = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://payapress.com';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

@@ -181,7 +181,7 @@ function CurrencySelector({ value, onChange }: { value: CurrencyCode; onChange: 
       >
         <img
           src={`${FLAG_CDN}/${selected.flag}.png`}
-          width={20} height={14} alt=""
+          width={20} height={14} alt={selected.name}
           className="rounded-[2px] flex-shrink-0"
         />
         <span className="font-mono font-semibold text-sm text-white">{selected.code}</span>
@@ -229,7 +229,7 @@ function CurrencySelector({ value, onChange }: { value: CurrencyCode; onChange: 
                 >
                   <img
                     src={`${FLAG_CDN}/${c.flag}.png`}
-                    width={20} height={14} alt=""
+                    width={20} height={14} alt={c.name}
                     className="rounded-[2px] flex-shrink-0"
                   />
                   <span className="font-mono font-semibold text-xs w-10 flex-shrink-0">{c.code}</span>

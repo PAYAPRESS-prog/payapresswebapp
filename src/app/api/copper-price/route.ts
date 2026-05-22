@@ -1,20 +1,19 @@
 import { NextResponse } from 'next/server';
+import { fetchWithRetry } from '@/lib/fetchWithRetry';
 
 // COMEX Copper Futures via Yahoo Finance (server-side, no CORS issues)
 const YAHOO_URL =
   'https://query1.finance.yahoo.com/v8/finance/chart/HG=F?interval=1d&range=1d';
 
-// Fallback: approximate LME copper price (update periodically)
-const FALLBACK_PER_LB = 4.45;
+// Fallback: approximate LME copper spot (updated periodically)
+const FALLBACK_PER_LB = 4.50;
 
 export async function GET() {
   try {
-    const res = await fetch(YAHOO_URL, {
-      headers: { 'User-Agent': 'Mozilla/5.0' },
-      next: { revalidate: 300 }, // cache 5 min
-    });
-
-    if (!res.ok) throw new Error(`Yahoo ${res.status}`);
+    const res = await fetchWithRetry(
+      YAHOO_URL,
+      { headers: { 'User-Agent': 'Mozilla/5.0' }, next: { revalidate: 300 } },
+    );
 
     const json = await res.json();
     const pricePerLb: number | undefined =

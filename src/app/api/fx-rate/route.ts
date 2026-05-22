@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { fetchWithRetry } from '@/lib/fetchWithRetry';
 
 // Hardcoded pegged / stable rates (USD-based)
 // ECB doesn't carry these, so we always use fixed values
@@ -12,10 +13,10 @@ const PEGGED: Record<string, number> = {
 
 // Static fallback if Frankfurter fails
 const FALLBACK: Record<string, number> = {
-  EUR: 0.92,  GBP: 0.79,  CHF: 0.89,  JPY: 149.50, CAD: 1.36,
-  AUD: 1.53,  CNY: 7.24,  INR: 83.12, SGD: 1.34,   KRW: 1325.0,
-  TRY: 32.10, BRL: 4.97,  MXN: 17.15, NOK: 10.55,  SEK: 10.42,
-  ZAR: 18.63,
+  EUR: 0.91,  GBP: 0.77,  CHF: 0.87,  JPY: 145.00, CAD: 1.42,
+  AUD: 1.59,  CNY: 7.28,  INR: 85.00, SGD: 1.34,   KRW: 1380.0,
+  TRY: 38.50, BRL: 5.75,  MXN: 18.50, NOK: 10.85,  SEK: 10.40,
+  ZAR: 18.50,
   ...PEGGED,
 };
 
@@ -27,10 +28,10 @@ const WANTED = [
 
 export async function GET() {
   try {
-    const res = await fetch('https://api.frankfurter.app/latest?from=USD', {
-      next: { revalidate: 21600 }, // refresh every 6 hours
-    });
-    if (!res.ok) throw new Error(`Frankfurter HTTP ${res.status}`);
+    const res = await fetchWithRetry(
+      'https://api.frankfurter.app/latest?from=USD',
+      { next: { revalidate: 21600 } }, // refresh every 6 hours
+    );
     const data = await res.json() as { rates: Record<string, number>; date: string };
 
     const rates: Record<string, number> = {};
