@@ -53,6 +53,15 @@ const nextConfig = {
   async headers() {
     return [
       {
+        // ── HTML navigation pages: NEVER cache — new builds change JS/CSS hashes ──
+        // Excludes _next/* (static assets) and api/* (dynamic routes with their own caching)
+        // sw.js and manifest.json have their own entries below that override this
+        source: '/((?!_next|api).*)',
+        headers: [
+          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate' },
+        ],
+      },
+      {
         // ── Global security headers ────────────────────────────────
         source: '/(.*)',
         headers: [

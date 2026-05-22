@@ -133,27 +133,37 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __pp_showErr(m);
           });
         `}</Script>
-        {/* Register service worker; auto-fix stale SW cache if CSS failed to load */}
+        {/* Register service worker; auto-fix stale SW cache if CSS bundle failed to load */}
         <Script id="sw-register" strategy="afterInteractive">{`
-          window.addEventListener('load', function() {
-            var cssLoaded = !!getComputedStyle(document.documentElement)
-              .getPropertyValue('--color-copper-500').trim();
-            if (!cssLoaded && !sessionStorage.getItem('pp_css_fix')) {
-              sessionStorage.setItem('pp_css_fix', '1');
-              var p = 'serviceWorker' in navigator
-                ? navigator.serviceWorker.getRegistrations()
-                    .then(function(r) { return Promise.all(r.map(function(x) { return x.unregister(); })); })
-                    .then(function() { return caches.keys(); })
-                    .then(function(k) { return Promise.all(k.map(function(c) { return caches.delete(c); })); })
-                : Promise.resolve();
-              p.then(function() { location.reload(); });
-              return;
+          (function() {
+            function run() {
+              var cssLoaded = !!(getComputedStyle(document.documentElement)
+                .getPropertyValue('--color-copper-500') || '').trim();
+              if (!cssLoaded && !sessionStorage.getItem('pp_css_fix')) {
+                sessionStorage.setItem('pp_css_fix', '1');
+                var hasSW = 'serviceWorker' in navigator;
+                var hasCaches = 'caches' in window;
+                var p = (hasSW && hasCaches)
+                  ? navigator.serviceWorker.getRegistrations()
+                      .then(function(r) { return Promise.all(r.map(function(x) { return x.unregister(); })); })
+                      .then(function() { return caches.keys(); })
+                      .then(function(k) { return Promise.all(k.map(function(c) { return caches.delete(c); })); })
+                  : Promise.resolve();
+                p.then(function() { location.reload(); }).catch(function() { location.reload(); });
+                return;
+              }
+              sessionStorage.removeItem('pp_css_fix');
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').catch(function(){});
+              }
             }
-            sessionStorage.removeItem('pp_css_fix');
-            if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.register('/sw.js').catch(function(){});
+            // Run immediately if document already loaded (script may fire after load event)
+            if (document.readyState === 'complete') {
+              run();
+            } else {
+              window.addEventListener('load', run);
             }
-          });
+          })();
         `}</Script>
       </body>
     </html>

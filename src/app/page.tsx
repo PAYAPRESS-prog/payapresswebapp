@@ -1,5 +1,6 @@
 import { Header } from '@/components/Header';
 import { ParticleBackground } from '@/components/ParticleBackground';
+import { SectionErrorBoundary } from '@/components/SectionErrorBoundary';
 import {
   HeroSection,
   CopperCalculator,
@@ -12,7 +13,9 @@ export default function HomePage() {
   return (
     <div className="grid-bg min-h-screen">
       <div className="bg-radial-pulse" />
-      <ParticleBackground />
+      <SectionErrorBoundary>
+        <ParticleBackground />
+      </SectionErrorBoundary>
 
       {/* Header outside any overflow container — fixes sticky on iOS Safari */}
       <Header />
@@ -25,16 +28,29 @@ export default function HomePage() {
                         pt-8 sm:pt-10 lg:pt-14
                         pb-8 sm:pb-12">
 
-          <HeroSection />
-          <CopperCalculator />
+          <SectionErrorBoundary>
+            <HeroSection />
+          </SectionErrorBoundary>
+
+          <SectionErrorBoundary>
+            <CopperCalculator />
+          </SectionErrorBoundary>
+
           <div className="mt-12 sm:mt-16 lg:mt-20">
-            <ComingSoonSection />
+            <SectionErrorBoundary>
+              <ComingSoonSection />
+            </SectionErrorBoundary>
           </div>
         </div>
       </main>
 
-      <InstallPrompt />
-      <Footer />
+      <SectionErrorBoundary>
+        <InstallPrompt />
+      </SectionErrorBoundary>
+
+      <SectionErrorBoundary>
+        <Footer />
+      </SectionErrorBoundary>
     </div>
   );
 }
