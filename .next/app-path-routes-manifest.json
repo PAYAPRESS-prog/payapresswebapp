@@ -1,18 +1,18 @@
 {
   "/_not-found/page": "/_not-found",
-  "/api/fx-rate/route": "/api/fx-rate",
   "/api/copper-price/route": "/api/copper-price",
-  "/api/v1/calculate/route": "/api/v1/calculate",
-  "/api/v1/copper-price/route": "/api/v1/copper-price",
   "/api/v1/fx-rates/route": "/api/v1/fx-rates",
-  "/robots.txt/route": "/robots.txt",
+  "/api/v1/calculate/route": "/api/v1/calculate",
+  "/api/fx-rate/route": "/api/fx-rate",
+  "/api/v1/copper-price/route": "/api/v1/copper-price",
   "/sitemap.xml/route": "/sitemap.xml",
+  "/robots.txt/route": "/robots.txt",
   "/apple-icon/route": "/apple-icon",
   "/icon/route": "/icon",
+  "/page": "/",
   "/offline/page": "/offline",
   "/embed/page": "/embed",
-  "/page": "/",
   "/roadmap/page": "/roadmap",
-  "/privacy/page": "/privacy",
-  "/whitepaper/page": "/whitepaper"
+  "/whitepaper/page": "/whitepaper",
+  "/privacy/page": "/privacy"
 }

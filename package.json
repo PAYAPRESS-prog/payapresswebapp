@@ -13,8 +13,7 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "test": "jest --no-coverage",
-    "test:watch": "jest --watch",
-    "postinstall": "next build"
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.3.0",
