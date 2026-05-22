@@ -94,7 +94,6 @@ body {
   border-radius: 1.25rem;
   position: relative;
   overflow: hidden;
-  transform-style: preserve-3d;
   /* Static shadow — no box-shadow animation (not GPU composited, causes repaint) */
   box-shadow:
     0 0 0 1px rgba(184, 115, 51, 0.08),

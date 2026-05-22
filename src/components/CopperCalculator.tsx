@@ -299,14 +299,17 @@ function TiltCard({ children, className }: { children: React.ReactNode; classNam
   const onLeave = useCallback(() => { mx.set(0); my.set(0); }, [mx, my]);
 
   return (
-    <motion.div
-      className={className}
-      style={{ rotateX: rotX, rotateY: rotY, transformStyle: 'preserve-3d', perspective: 1100 }}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-    >
-      {children}
-    </motion.div>
+    /* CSS perspective on plain div — avoids SSR/CSR mismatch from Framer Motion perspective handling */
+    <div style={{ perspective: '1100px' }}>
+      <motion.div
+        className={className}
+        style={{ rotateX: rotX, rotateY: rotY }}
+        onMouseMove={onMove}
+        onMouseLeave={onLeave}
+      >
+        {children}
+      </motion.div>
+    </div>
   );
 }
 
