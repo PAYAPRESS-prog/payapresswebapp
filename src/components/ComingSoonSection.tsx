@@ -13,14 +13,22 @@ export function ComingSoonSection() {
   const [inView, setInView] = useState(false);
 
   useEffect(() => {
+    // Timeout fallback: always show cards after 1.8s regardless of IntersectionObserver
+    const timer = setTimeout(() => setInView(true), 1800);
     const el = ref.current;
-    if (!el || typeof IntersectionObserver === 'undefined') { setInView(true); return; }
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setInView(true);
+      clearTimeout(timer);
+      return () => clearTimeout(timer);
+    }
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setInView(true); observer.disconnect(); } },
-      { threshold: 0.15 },
+      ([entry]) => {
+        if (entry.isIntersecting) { setInView(true); clearTimeout(timer); observer.disconnect(); }
+      },
+      { threshold: 0.05 },
     );
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => { observer.disconnect(); clearTimeout(timer); };
   }, []);
 
   return (

@@ -1,10 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import {
-  motion, AnimatePresence,
-  useMotionValue, useTransform, useSpring,
-} from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { MATERIAL_GRADES, DEFAULT_GRADE, BUSBAR_SIZES } from '@/lib/copperData';
 import { calculateCost, fmt, fmtUSD, fmtCompact } from '@/lib/copperPrice';
 import { BusbarRender } from './BusbarRender';
@@ -283,36 +280,9 @@ function AnimNumber({ val, fn }: { val: number; fn: (n: number) => string }) {
   return <>{fn(animated)}</>;
 }
 
-// ── 3D tilt card wrapper ───────────────────────────────────────────
+// ── Card wrapper (tilt removed — useSpring+useTransform unstable in FM12+React19) ─
 function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  // Assign useTransform to variables first to avoid inline hook call pattern
-  const transformY = useTransform(my, [-160, 160], [5, -5]);
-  const transformX = useTransform(mx, [-160, 160], [-5, 5]);
-  const rotX = useSpring(transformY, { stiffness: 300, damping: 32 });
-  const rotY = useSpring(transformX, { stiffness: 300, damping: 32 });
-
-  const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    mx.set(e.clientX - (r.left + r.width  / 2));
-    my.set(e.clientY - (r.top  + r.height / 2));
-  }, [mx, my]);
-
-  const onLeave = useCallback(() => { mx.set(0); my.set(0); }, [mx, my]);
-
-  return (
-    <div style={{ perspective: '1100px' }}>
-      <motion.div
-        className={className}
-        style={{ rotateX: rotX, rotateY: rotY }}
-        onMouseMove={onMove}
-        onMouseLeave={onLeave}
-      >
-        {children}
-      </motion.div>
-    </div>
-  );
+  return <div className={className}>{children}</div>;
 }
 
 // ── Animated result card ───────────────────────────────────────────
