@@ -4,7 +4,10 @@ node_modules/
 .pnp.js
 
 # Next.js
-.next/
+# .next/ is committed (pre-built for Hostinger — no build step needed on server)
+# only exclude the webpack cache (198MB) and trace files
+.next/cache/
+.next/trace
 out/
 build/
 

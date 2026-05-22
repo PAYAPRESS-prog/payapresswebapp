@@ -18,11 +18,13 @@ const dev = false;
 const app = next({ dev, dir: __dirname });
 const handle = app.getRequestHandler();
 
-// Verify the .next build directory exists before starting
-const buildDir = path.join(__dirname, '.next');
-if (!fs.existsSync(buildDir)) {
-  console.error('[PAYAPRESS] FATAL: .next build directory not found at', buildDir);
-  console.error('[PAYAPRESS] Run "npm run build" before starting the server');
+// Verify a complete production build exists (BUILD_ID is written last by next build)
+const buildDir  = path.join(__dirname, '.next');
+const buildIdFile = path.join(buildDir, 'BUILD_ID');
+if (!fs.existsSync(buildIdFile)) {
+  console.error('[PAYAPRESS] FATAL: No BUILD_ID found in .next/');
+  console.error('[PAYAPRESS] The .next directory exists but the build is incomplete or missing.');
+  console.error('[PAYAPRESS] Run "npm run build" before starting the server.');
   process.exit(1);
 }
 
@@ -30,8 +32,7 @@ if (!fs.existsSync(buildDir)) {
 console.log('[PAYAPRESS] Starting server...');
 console.log('[PAYAPRESS] NODE_ENV =', process.env.NODE_ENV);
 console.log('[PAYAPRESS] PORT =', PORT);
-console.log('[PAYAPRESS] __dirname =', __dirname);
-console.log('[PAYAPRESS] .next exists =', fs.existsSync(buildDir));
+console.log('[PAYAPRESS] BUILD_ID =', fs.readFileSync(buildIdFile, 'utf8').trim());
 
 app.prepare().then(() => {
   createServer(async (req, res) => {
