@@ -1,28 +1,27 @@
-/* PAYAPRESS Service Worker — v4 */
+/* PAYAPRESS Service Worker — v8 */
 
-const CACHE_VERSION = 'v7';
+const CACHE_VERSION = 'v8';
 const SHELL_CACHE   = `payapress-shell-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `payapress-dynamic-${CACHE_VERSION}`;
 
-const PRECACHE_URLS = [
-  '/',
-  '/offline',
-  '/whitepaper',
-  '/roadmap',
+/* Only precache static assets with content-hashed filenames.
+   HTML navigation pages are NEVER precached — they change on every deploy
+   and caching them causes stale CSS hash references → unstyled page. */
+const PRECACHE_ASSETS = [
   '/manifest.json',
   '/favicon.svg',
 ];
 
-// ── Install: precache app shell ──────────────────────────────────────────────
+// ── Install: precache only static assets ─────────────────────────────────────
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(SHELL_CACHE)
-      .then(cache => cache.addAll(PRECACHE_URLS))
+      .then(cache => cache.addAll(PRECACHE_ASSETS))
       .then(() => self.skipWaiting())
   );
 });
 
-// ── Activate: purge old caches ───────────────────────────────────────────────
+// ── Activate: purge ALL old caches immediately ────────────────────────────────
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
@@ -43,23 +42,31 @@ self.addEventListener('fetch', event => {
   // Skip non-GET or cross-origin requests
   if (request.method !== 'GET' || url.origin !== self.location.origin) return;
 
-  // API routes → network-first (live copper price, FX rates)
+  // API routes → network-only (live copper price, FX rates — never cache)
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
       fetch(request)
-        .then(res => {
-          const clone = res.clone();
-          caches.open(DYNAMIC_CACHE).then(c => c.put(request, clone));
-          return res;
-        })
         .catch(() => caches.match(request).then(r => r || Response.error()))
     );
     return;
   }
 
-  // Static assets → cache-first (JS chunks, fonts, icons)
+  // _next/static/ → cache-first (content-hashed, safe to cache indefinitely)
+  if (url.pathname.startsWith('/_next/static/')) {
+    event.respondWith(
+      caches.match(request).then(cached =>
+        cached ||
+        fetch(request).then(res => {
+          if (res.ok) caches.open(SHELL_CACHE).then(c => c.put(request, res.clone()));
+          return res;
+        })
+      )
+    );
+    return;
+  }
+
+  // Static files (icons, fonts, images) → cache-first
   if (
-    url.pathname.startsWith('/_next/static/') ||
     url.pathname.startsWith('/icons/') ||
     url.pathname.endsWith('.svg') ||
     url.pathname.endsWith('.png') ||
@@ -77,24 +84,20 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Navigation → network-first, fallback to offline page
+  // Navigation (HTML pages) → network-ONLY, fallback to /offline if network fails
+  // IMPORTANT: Never cache HTML pages — they contain hashed CSS/JS URLs that
+  // become stale on redeploy, causing the unstyled white-page bug.
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request).catch(() =>
-        caches.match('/offline').then(r => r || caches.match('/'))
+        caches.match('/offline').then(r => r || Response.error())
       )
     );
     return;
   }
 
-  // Default → stale-while-revalidate
+  // Default → network-first
   event.respondWith(
-    caches.match(request).then(cached => {
-      const fresh = fetch(request).then(res => {
-        if (res.ok) caches.open(DYNAMIC_CACHE).then(c => c.put(request, res.clone()));
-        return res;
-      });
-      return cached || fresh;
-    })
+    fetch(request).catch(() => caches.match(request).then(r => r || Response.error()))
   );
 });

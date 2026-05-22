@@ -92,6 +92,12 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" style={{ background: '#060608' }} suppressHydrationWarning>
+      {/* Critical inline styles — dark background guaranteed even if CSS bundle fails to load */}
+      <style dangerouslySetInnerHTML={{ __html:
+        'html,body{background:#060608!important;color:#f0f0f0;margin:0;padding:0;' +
+        'font-family:ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}' +
+        '*{box-sizing:border-box}'
+      }} />
       <body style={{ background: '#060608' }}>
         <SplashScreen />
         {children}
