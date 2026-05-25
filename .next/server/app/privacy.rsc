@@ -36,24 +36,27 @@ c:I[4062,["219","static/chunks/app/global-error-9bc3c60ab74015d3.js"],"default"]
             window.__pp_errs.push(m);
             __pp_showErr(m);
           });
-        8:T8c5,
+        8:Ta4a,
           (function() {
             function run() {
-              // Clean up cache-bust param from URL if present
-              if (window.location.search.indexOf('_pp=') !== -1) {
+              // Check for cache-bust param BEFORE removing it — used below to
+              // detect that we already attempted a redirect this navigation.
+              var alreadyRedirected = window.location.search.indexOf('_pp=') !== -1;
+
+              // Clean up cache-bust param from URL bar (cosmetic)
+              if (alreadyRedirected) {
                 try { history.replaceState(null, '', window.location.pathname + window.location.hash); } catch(e) {}
               }
 
               var cssLoaded = !!(getComputedStyle(document.documentElement)
                 .getPropertyValue('--color-copper-500') || '').trim();
 
-              var ssAlreadyFixed = false;
-              try { ssAlreadyFixed = !!sessionStorage.getItem('pp_css_fix'); } catch(e) {}
-
-              if (!cssLoaded && !ssAlreadyFixed) {
-                try { sessionStorage.setItem('pp_css_fix', '1'); } catch(e) {}
-                // Clear SW + all caches first, then redirect with cache-busting param
-                // (cache-busting param forces CDN to fetch fresh copy instead of serving stale)
+              // CSS missing AND this is not already a post-redirect load:
+              // clear all SW registrations + caches, then hard-navigate with a
+              // cache-busting query param so the browser fetches fresh HTML.
+              // Using URL-state (not sessionStorage) avoids the "stuck flag" bug
+              // where a previously failed redirect blocks all future auto-fixes.
+              if (!cssLoaded && !alreadyRedirected) {
                 var hasSW = 'serviceWorker' in navigator;
                 var hasCaches = 'caches' in window;
                 var p = (hasSW && hasCaches)
@@ -70,6 +73,8 @@ c:I[4062,["219","static/chunks/app/global-error-9bc3c60ab74015d3.js"],"default"]
                 return;
               }
 
+              // CSS is loaded (or we already redirected once) — register SW normally.
+              // Also clear any legacy pp_css_fix flag from older versions.
               try { sessionStorage.removeItem('pp_css_fix'); } catch(e) {}
               if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js').catch(function(){});
@@ -81,7 +86,7 @@ c:I[4062,["219","static/chunks/app/global-error-9bc3c60ab74015d3.js"],"default"]
               window.addEventListener('load', run);
             }
           })();
-        0:{"P":null,"b":"7HPb23knHgBq2S7ByW0MD","p":"","c":["","privacy"],"i":false,"f":[[["",{"children":["privacy",{"children":["__PAGE__",{}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/0594fd42265656c3.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","style":{"background":"#060608"},"suppressHydrationWarning":true,"children":[["$","meta",null,{"httpEquiv":"Cache-Control","content":"no-cache, no-store, must-revalidate"}],["$","meta",null,{"httpEquiv":"Pragma","content":"no-cache"}],["$","meta",null,{"httpEquiv":"Expires","content":"0"}],["$","style",null,{"dangerouslySetInnerHTML":{"__html":"html,body{background:#060608!important;color:#f0f0f0;margin:0;padding:0;font-family:ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}*{box-sizing:border-box}"}}],["$","body",null,{"style":{"background":"#060608"},"children":[["$","$L2",null,{}],["$","$L3",null,{"parallelRouterKey":"children","error":"$4","errorStyles":[],"errorScripts":[],"template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}],["$","$L6",null,{"id":"err-capture","strategy":"beforeInteractive","children":"$7"}],["$","$L6",null,{"id":"sw-register","strategy":"afterInteractive","children":"$8"}]]}]]}]]}],{"children":["privacy","$L9",{"children":["__PAGE__","$La",{},null,false]},null,false]},null,false],"$Lb",false]],"m":"$undefined","G":["$c",[]],"s":false,"S":true}
+        0:{"P":null,"b":"dqwog4o-kpidjpNmR-Kf9","p":"","c":["","privacy"],"i":false,"f":[[["",{"children":["privacy",{"children":["__PAGE__",{}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/0594fd42265656c3.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","style":{"background":"#060608"},"suppressHydrationWarning":true,"children":[["$","meta",null,{"httpEquiv":"Cache-Control","content":"no-cache, no-store, must-revalidate"}],["$","meta",null,{"httpEquiv":"Pragma","content":"no-cache"}],["$","meta",null,{"httpEquiv":"Expires","content":"0"}],["$","style",null,{"dangerouslySetInnerHTML":{"__html":"html,body{background:#060608!important;color:#f0f0f0;margin:0;padding:0;font-family:ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}*{box-sizing:border-box}"}}],["$","body",null,{"style":{"background":"#060608"},"children":[["$","$L2",null,{}],["$","$L3",null,{"parallelRouterKey":"children","error":"$4","errorStyles":[],"errorScripts":[],"template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}],["$","$L6",null,{"id":"err-capture","strategy":"beforeInteractive","children":"$7"}],["$","$L6",null,{"id":"sw-register","strategy":"afterInteractive","children":"$8"}]]}]]}]]}],{"children":["privacy","$L9",{"children":["__PAGE__","$La",{},null,false]},null,false]},null,false],"$Lb",false]],"m":"$undefined","G":["$c",[]],"s":false,"S":true}
 15:I[4431,[],"ViewportBoundary"]
 17:I[4431,[],"MetadataBoundary"]
 18:"$Sreact.suspense"

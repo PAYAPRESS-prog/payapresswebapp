@@ -141,21 +141,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script id="sw-register" strategy="afterInteractive">{`
           (function() {
             function run() {
-              // Clean up cache-bust param from URL if present
-              if (window.location.search.indexOf('_pp=') !== -1) {
+              // Check for cache-bust param BEFORE removing it — used below to
+              // detect that we already attempted a redirect this navigation.
+              var alreadyRedirected = window.location.search.indexOf('_pp=') !== -1;
+
+              // Clean up cache-bust param from URL bar (cosmetic)
+              if (alreadyRedirected) {
                 try { history.replaceState(null, '', window.location.pathname + window.location.hash); } catch(e) {}
               }
 
               var cssLoaded = !!(getComputedStyle(document.documentElement)
                 .getPropertyValue('--color-copper-500') || '').trim();
 
-              var ssAlreadyFixed = false;
-              try { ssAlreadyFixed = !!sessionStorage.getItem('pp_css_fix'); } catch(e) {}
-
-              if (!cssLoaded && !ssAlreadyFixed) {
-                try { sessionStorage.setItem('pp_css_fix', '1'); } catch(e) {}
-                // Clear SW + all caches first, then redirect with cache-busting param
-                // (cache-busting param forces CDN to fetch fresh copy instead of serving stale)
+              // CSS missing AND this is not already a post-redirect load:
+              // clear all SW registrations + caches, then hard-navigate with a
+              // cache-busting query param so the browser fetches fresh HTML.
+              // Using URL-state (not sessionStorage) avoids the "stuck flag" bug
+              // where a previously failed redirect blocks all future auto-fixes.
+              if (!cssLoaded && !alreadyRedirected) {
                 var hasSW = 'serviceWorker' in navigator;
                 var hasCaches = 'caches' in window;
                 var p = (hasSW && hasCaches)
@@ -172,6 +175,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 return;
               }
 
+              // CSS is loaded (or we already redirected once) — register SW normally.
+              // Also clear any legacy pp_css_fix flag from older versions.
               try { sessionStorage.removeItem('pp_css_fix'); } catch(e) {}
               if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js').catch(function(){});
