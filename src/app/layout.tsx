@@ -146,6 +146,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             } catch(ex) {}
           }
 
+          // URL-based cycle detection (NOT sessionStorage) avoids "stuck flag"
+          // bug where a previously failed recovery permanently blocks future
+          // auto-fixes. ?_pp=<timestamp> is added on recovery; if it's already
+          // there we don't loop.
+          function __pp_alreadyTried() {
+            return window.location.search.indexOf('_pp=') !== -1;
+          }
+
           window.addEventListener('error', function(e) {
             var msg  = e.message  || '';
             var file = e.filename || '';
@@ -157,13 +165,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                (msg === '' || msg === 'Script error.' || msg === 'Script error'));
             if (isChunk) {
               e.preventDefault();
-              try {
-                var already = sessionStorage.getItem('pp_chunk_retry');
-                if (!already) {
-                  sessionStorage.setItem('pp_chunk_retry', '1');
-                  __pp_chunkReload();
-                }
-              } catch(ex) { __pp_chunkReload(); }
+              if (!__pp_alreadyTried()) { __pp_chunkReload(); return; }
+              // Already tried recovery — show the error so the user knows
+              __pp_showErr('Stale chunk after recovery — please hard-refresh');
               return;
             }
             var m = msg + '\\n  @ ' + file + ':' + e.lineno + ':' + e.colno;
@@ -171,6 +175,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             window.__pp_errs.push(m);
             __pp_showErr(m);
           });
+
+          // Also catch <script> tag and <link> tag load failures (404). These
+          // fire a non-bubbling 'error' on the element itself, not on window,
+          // so the window 'error' handler above misses them unless we capture.
+          window.addEventListener('error', function(e) {
+            var t = e.target;
+            if (!t || t === window) return;
+            var src = t.src || t.href || '';
+            if (src.indexOf('/_next/static/') !== -1) {
+              if (!__pp_alreadyTried()) { __pp_chunkReload(); return; }
+              __pp_showErr('Stale asset after recovery: ' + src);
+            }
+          }, true); // capture phase
 
           window.addEventListener('unhandledrejection', function(e) {
             var reason = e.reason;
@@ -181,13 +198,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               rMsg.indexOf('ChunkLoadError') !== -1;
             if (isChunk) {
               e.preventDefault();
-              try {
-                var already = sessionStorage.getItem('pp_chunk_retry');
-                if (!already) {
-                  sessionStorage.setItem('pp_chunk_retry', '1');
-                  __pp_chunkReload();
-                }
-              } catch(ex) { __pp_chunkReload(); }
+              if (!__pp_alreadyTried()) { __pp_chunkReload(); return; }
+              __pp_showErr('Stale chunk after recovery — please hard-refresh');
               return;
             }
             var m = 'Unhandled Promise: ' + rMsg;
@@ -235,8 +247,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               }
 
               // CSS is loaded (or we already redirected once) — register SW normally.
-              // Also clear any legacy pp_css_fix flag from older versions.
-              try { sessionStorage.removeItem('pp_css_fix'); } catch(e) {}
+              // Also clear legacy stuck-flags from older versions.
+              try {
+                sessionStorage.removeItem('pp_css_fix');
+                sessionStorage.removeItem('pp_chunk_retry');
+              } catch(e) {}
               if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js').catch(function(){});
               }

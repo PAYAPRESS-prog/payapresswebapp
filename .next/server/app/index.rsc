@@ -5,8 +5,8 @@
 5:I[8924,[],""]
 6:I[1402,["177","static/chunks/app/layout-4318c4a15da8c644.js"],""]
 b:I[4062,["219","static/chunks/app/global-error-9bc3c60ab74015d3.js"],"default"]
-:HL["/_next/static/css/27dde5636b7986d0.css","style"]
-7:Tfd3,
+:HL["/_next/static/css/a24f8976bffc82f1.css","style"]
+7:T1322,
           window.__pp_errs = [];
           var __pp_errDiv = null;
 
@@ -46,6 +46,14 @@ b:I[4062,["219","static/chunks/app/global-error-9bc3c60ab74015d3.js"],"default"]
             } catch(ex) {}
           }
 
+          // URL-based cycle detection (NOT sessionStorage) avoids "stuck flag"
+          // bug where a previously failed recovery permanently blocks future
+          // auto-fixes. ?_pp=<timestamp> is added on recovery; if it's already
+          // there we don't loop.
+          function __pp_alreadyTried() {
+            return window.location.search.indexOf('_pp=') !== -1;
+          }
+
           window.addEventListener('error', function(e) {
             var msg  = e.message  || '';
             var file = e.filename || '';
@@ -57,13 +65,9 @@ b:I[4062,["219","static/chunks/app/global-error-9bc3c60ab74015d3.js"],"default"]
                (msg === '' || msg === 'Script error.' || msg === 'Script error'));
             if (isChunk) {
               e.preventDefault();
-              try {
-                var already = sessionStorage.getItem('pp_chunk_retry');
-                if (!already) {
-                  sessionStorage.setItem('pp_chunk_retry', '1');
-                  __pp_chunkReload();
-                }
-              } catch(ex) { __pp_chunkReload(); }
+              if (!__pp_alreadyTried()) { __pp_chunkReload(); return; }
+              // Already tried recovery — show the error so the user knows
+              __pp_showErr('Stale chunk after recovery — please hard-refresh');
               return;
             }
             var m = msg + '\n  @ ' + file + ':' + e.lineno + ':' + e.colno;
@@ -71,6 +75,19 @@ b:I[4062,["219","static/chunks/app/global-error-9bc3c60ab74015d3.js"],"default"]
             window.__pp_errs.push(m);
             __pp_showErr(m);
           });
+
+          // Also catch <script> tag and <link> tag load failures (404). These
+          // fire a non-bubbling 'error' on the element itself, not on window,
+          // so the window 'error' handler above misses them unless we capture.
+          window.addEventListener('error', function(e) {
+            var t = e.target;
+            if (!t || t === window) return;
+            var src = t.src || t.href || '';
+            if (src.indexOf('/_next/static/') !== -1) {
+              if (!__pp_alreadyTried()) { __pp_chunkReload(); return; }
+              __pp_showErr('Stale asset after recovery: ' + src);
+            }
+          }, true); // capture phase
 
           window.addEventListener('unhandledrejection', function(e) {
             var reason = e.reason;
@@ -81,13 +98,8 @@ b:I[4062,["219","static/chunks/app/global-error-9bc3c60ab74015d3.js"],"default"]
               rMsg.indexOf('ChunkLoadError') !== -1;
             if (isChunk) {
               e.preventDefault();
-              try {
-                var already = sessionStorage.getItem('pp_chunk_retry');
-                if (!already) {
-                  sessionStorage.setItem('pp_chunk_retry', '1');
-                  __pp_chunkReload();
-                }
-              } catch(ex) { __pp_chunkReload(); }
+              if (!__pp_alreadyTried()) { __pp_chunkReload(); return; }
+              __pp_showErr('Stale chunk after recovery — please hard-refresh');
               return;
             }
             var m = 'Unhandled Promise: ' + rMsg;
@@ -95,13 +107,13 @@ b:I[4062,["219","static/chunks/app/global-error-9bc3c60ab74015d3.js"],"default"]
             window.__pp_errs.push(m);
             __pp_showErr(m);
           });
-        0:{"P":null,"b":"nNQbGxIfcekL79W4US6e0","p":"","c":["",""],"i":false,"f":[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/27dde5636b7986d0.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","style":{"background":"#060608"},"suppressHydrationWarning":true,"children":[["$","meta",null,{"httpEquiv":"Cache-Control","content":"no-cache, no-store, must-revalidate"}],["$","meta",null,{"httpEquiv":"Pragma","content":"no-cache"}],["$","meta",null,{"httpEquiv":"Expires","content":"0"}],["$","style",null,{"dangerouslySetInnerHTML":{"__html":"html,body{background:#060608!important;color:#f0f0f0;margin:0;padding:0;font-family:ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}*{box-sizing:border-box}"}}],["$","body",null,{"style":{"background":"#060608"},"children":[["$","$L2",null,{}],["$","$L3",null,{"parallelRouterKey":"children","error":"$4","errorStyles":[],"errorScripts":[],"template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}],["$","$L6",null,{"id":"err-capture","strategy":"beforeInteractive","children":"$7"}],"$L8"]}]]}]]}],{"children":["__PAGE__","$L9",{},null,false]},null,false],"$La",false]],"m":"$undefined","G":["$b",[]],"s":false,"S":true}
+        0:{"P":null,"b":"KErj6FBbLOLox-pyhWLqf","p":"","c":["",""],"i":false,"f":[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/a24f8976bffc82f1.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","style":{"background":"#060608"},"suppressHydrationWarning":true,"children":[["$","meta",null,{"httpEquiv":"Cache-Control","content":"no-cache, no-store, must-revalidate"}],["$","meta",null,{"httpEquiv":"Pragma","content":"no-cache"}],["$","meta",null,{"httpEquiv":"Expires","content":"0"}],["$","style",null,{"dangerouslySetInnerHTML":{"__html":"html,body{background:#060608!important;color:#f0f0f0;margin:0;padding:0;font-family:ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}*{box-sizing:border-box}"}}],["$","body",null,{"style":{"background":"#060608"},"children":[["$","$L2",null,{}],["$","$L3",null,{"parallelRouterKey":"children","error":"$4","errorStyles":[],"errorScripts":[],"template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}],["$","$L6",null,{"id":"err-capture","strategy":"beforeInteractive","children":"$7"}],"$L8"]}]]}]]}],{"children":["__PAGE__","$L9",{},null,false]},null,false],"$La",false]],"m":"$undefined","G":["$b",[]],"s":false,"S":true}
 e:I[4431,[],"OutletBoundary"]
 10:I[5278,[],"AsyncMetadataOutlet"]
 12:I[4431,[],"ViewportBoundary"]
 14:I[4431,[],"MetadataBoundary"]
 15:"$Sreact.suspense"
-c:Ta4a,
+c:Ta9d,
           (function() {
             function run() {
               // Check for cache-bust param BEFORE removing it — used below to
@@ -139,8 +151,11 @@ c:Ta4a,
               }
 
               // CSS is loaded (or we already redirected once) — register SW normally.
-              // Also clear any legacy pp_css_fix flag from older versions.
-              try { sessionStorage.removeItem('pp_css_fix'); } catch(e) {}
+              // Also clear legacy stuck-flags from older versions.
+              try {
+                sessionStorage.removeItem('pp_css_fix');
+                sessionStorage.removeItem('pp_chunk_retry');
+              } catch(e) {}
               if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js').catch(function(){});
               }
@@ -167,4 +182,4 @@ f:null
 1d:I[2866,["974","static/chunks/app/page-1b734897b2108977.js"],"ComingSoonSection"]
 1e:I[3248,["974","static/chunks/app/page-1b734897b2108977.js"],"InstallPrompt"]
 1f:I[8455,["974","static/chunks/app/page-1b734897b2108977.js"],"Footer"]
-d:["$","div",null,{"className":"grid-bg min-h-screen","children":[["$","div",null,{"className":"bg-radial-pulse"}],["$","$L18",null,{"children":["$","$L19",null,{}]}],["$","$L18",null,{"children":["$","$L1a",null,{}]}],["$","main",null,{"className":"relative z-10","children":["$","div",null,{"className":"w-full max-w-2xl lg:max-w-[92vw] 2xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 lg:pt-14 pb-8 sm:pb-12","children":[["$","$L18",null,{"children":["$","$L1b",null,{}]}],["$","$L18",null,{"children":["$","$L1c",null,{"initialData":{"copper":{"pricePerLb":4.5,"pricePerKg":9.921,"pricePerMT":10000,"currency":"USD","source":"estimated","isFallback":true,"updatedAt":"2026-05-25T22:07:28.468Z"},"aluminum":{"pricePerLb":1.134,"pricePerKg":2.5,"pricePerMT":2500,"currency":"USD","source":"estimated","isFallback":true,"updatedAt":"2026-05-25T22:07:28.469Z"},"fx":{"EUR":0.91,"GBP":0.77,"CHF":0.87,"JPY":145,"CAD":1.42,"AUD":1.59,"CNY":7.28,"INR":85,"SGD":1.34,"KRW":1380,"TRY":38.5,"BRL":5.75,"MXN":18.5,"NOK":10.85,"SEK":10.4,"ZAR":18.5,"AED":3.6725,"SAR":3.75,"QAR":3.64,"KWD":0.3075,"BHD":0.376,"isFallback":true,"source":"static fallback","updatedAt":"2026-05-25T22:07:28.469Z"}}}]}],["$","div",null,{"className":"mt-12 sm:mt-16 lg:mt-20","children":["$","$L18",null,{"children":["$","$L1d",null,{}]}]}]]}]}],["$","$L18",null,{"children":["$","$L1e",null,{}]}],["$","$L18",null,{"children":["$","$L1f",null,{}]}]]}]
+d:["$","div",null,{"className":"grid-bg min-h-screen","children":[["$","div",null,{"className":"bg-radial-pulse"}],["$","$L18",null,{"children":["$","$L19",null,{}]}],["$","$L18",null,{"children":["$","$L1a",null,{}]}],["$","main",null,{"className":"relative z-10","children":["$","div",null,{"className":"w-full max-w-2xl lg:max-w-[92vw] 2xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 lg:pt-14 pb-8 sm:pb-12","children":[["$","$L18",null,{"children":["$","$L1b",null,{}]}],["$","$L18",null,{"children":["$","$L1c",null,{"initialData":{"copper":{"pricePerLb":4.5,"pricePerKg":9.921,"pricePerMT":10000,"currency":"USD","source":"estimated","isFallback":true,"updatedAt":"2026-05-25T22:18:27.201Z"},"aluminum":{"pricePerLb":1.134,"pricePerKg":2.5,"pricePerMT":2500,"currency":"USD","source":"estimated","isFallback":true,"updatedAt":"2026-05-25T22:18:27.203Z"},"fx":{"EUR":0.91,"GBP":0.77,"CHF":0.87,"JPY":145,"CAD":1.42,"AUD":1.59,"CNY":7.28,"INR":85,"SGD":1.34,"KRW":1380,"TRY":38.5,"BRL":5.75,"MXN":18.5,"NOK":10.85,"SEK":10.4,"ZAR":18.5,"AED":3.6725,"SAR":3.75,"QAR":3.64,"KWD":0.3075,"BHD":0.376,"isFallback":true,"source":"static fallback","updatedAt":"2026-05-25T22:18:27.202Z"}}}]}],["$","div",null,{"className":"mt-12 sm:mt-16 lg:mt-20","children":["$","$L18",null,{"children":["$","$L1d",null,{}]}]}]]}]}],["$","$L18",null,{"children":["$","$L1e",null,{}]}],["$","$L18",null,{"children":["$","$L1f",null,{}]}]]}]
