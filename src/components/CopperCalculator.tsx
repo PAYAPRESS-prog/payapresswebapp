@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MATERIAL_GRADES, DEFAULT_GRADE, BUSBAR_SIZES } from '@/lib/copperData';
+import { ALUMINUM_GRADES, DEFAULT_ALUMINUM_GRADE, ALUMINUM_BUSBAR_SIZES } from '@/lib/aluminumData';
 import { calculateCost, fmt, fmtUSD, fmtCompact } from '@/lib/copperPrice';
 import { BusbarRender } from './BusbarRender';
 import type { BusbarSize, MaterialGrade, CopperPriceData } from '@/types/calculator';
@@ -74,16 +75,29 @@ function detectCurrency(): CurrencyCode {
 
 const FLAG_CDN = 'https://flagcdn.com/w20';
 
-// ── Quick dimension presets (most common IEC sizes) ────────────────
-const QUICK_PRESETS = [
+// ── Quick dimension presets ────────────────────────────────────────
+const COPPER_QUICK_PRESETS = [
   { w: '25', t: '3' }, { w: '40', t: '5' }, { w: '50', t: '5' },
   { w: '60', t: '8' }, { w: '80', t: '8' }, { w: '100', t: '10' },
   { w: '120', t: '10' },
 ] as const;
 
-// ── Copper price mood indicator ────────────────────────────────────
-// Historical COMEX HG range ≈ $4–$15/kg; bucket thresholds in USD/kg
-function getPriceMood(price: number) {
+const ALUMINUM_QUICK_PRESETS = [
+  { w: '25', t: '4' }, { w: '40', t: '5' }, { w: '60', t: '6' },
+  { w: '80', t: '8' }, { w: '100', t: '10' }, { w: '120', t: '12' },
+  { w: '160', t: '12' },
+] as const;
+
+// ── Price mood indicator (metal-aware) ────────────────────────────
+function getPriceMood(price: number, metal: 'copper' | 'aluminum') {
+  if (metal === 'aluminum') {
+    if (price < 2.0) return { label: 'Low',    fg: '#22c55e', pct: 12 } as const;
+    if (price < 2.4) return { label: 'Normal', fg: '#84cc16', pct: 36 } as const;
+    if (price < 2.8) return { label: 'Fair',   fg: '#eab308', pct: 58 } as const;
+    if (price < 3.2) return { label: 'High',   fg: '#f97316', pct: 78 } as const;
+    return                  { label: 'Peak',   fg: '#ef4444', pct: 96 } as const;
+  }
+  // Copper: historical COMEX HG range ≈ $4–$15/kg
   if (price < 7)  return { label: 'Low',    fg: '#22c55e', pct: 12 } as const;
   if (price < 9)  return { label: 'Normal', fg: '#84cc16', pct: 36 } as const;
   if (price < 11) return { label: 'Fair',   fg: '#eab308', pct: 58 } as const;
@@ -97,21 +111,32 @@ type Achievement = { id: string; icon: string; label: string; color: string };
 function getAchievements(
   result: { weightPerMeter: number; costPerMeter: number } | null,
   size: BusbarSize, grade: MaterialGrade, lengthMm: number,
+  metal: 'copper' | 'aluminum',
 ): Achievement[] {
   if (!result) return [];
   const a: Achievement[] = [];
-  if (BUSBAR_SIZES.some(s => s.width === size.width && s.thickness === size.thickness))
-    a.push({ id: 'iec',     icon: '✓', label: 'IEC Standard',      color: '#22c55e' });
-  if (result.weightPerMeter >= 8)
-    a.push({ id: 'heavy',   icon: '⚡', label: 'Heavy Gauge',       color: '#f59e0b' });
-  if (grade.id === 'cu-ofe')
-    a.push({ id: 'premium', icon: '◆', label: 'Premium Grade',      color: '#a78bfa' });
-  else if (grade.id === 'cu-of')
-    a.push({ id: 'hc',      icon: '◇', label: 'High Conductivity',  color: '#818cf8' });
+  const sizes = metal === 'copper' ? BUSBAR_SIZES : ALUMINUM_BUSBAR_SIZES;
+  if (sizes.some(s => s.width === size.width && s.thickness === size.thickness))
+    a.push({ id: 'iec',    icon: '✓', label: 'IEC Standard',     color: '#22c55e' });
+  const heavyThreshold = metal === 'copper' ? 8 : 3;
+  if (result.weightPerMeter >= heavyThreshold)
+    a.push({ id: 'heavy',  icon: '⚡', label: 'Heavy Gauge',      color: '#f59e0b' });
+  if (metal === 'copper') {
+    if (grade.id === 'cu-ofe')
+      a.push({ id: 'premium', icon: '◆', label: 'Premium Grade',    color: '#a78bfa' });
+    else if (grade.id === 'cu-of')
+      a.push({ id: 'hc',      icon: '◇', label: 'High Conductivity', color: '#818cf8' });
+  } else {
+    if (grade.id === 'al-1350')
+      a.push({ id: 'ec',   icon: '◆', label: 'EC Grade',          color: '#64b5f6' });
+    else if (grade.id === 'al-6101')
+      a.push({ id: 'hs',   icon: '◇', label: 'High Strength',     color: '#4fc3f7' });
+  }
   if (lengthMm >= 6000)
-    a.push({ id: 'long',    icon: '∞', label: 'Long Run',           color: '#34d399' });
-  if (result.costPerMeter < 20)
-    a.push({ id: 'budget',  icon: '★', label: 'Budget Cut',         color: '#fbbf24' });
+    a.push({ id: 'long',   icon: '∞', label: 'Long Run',          color: '#34d399' });
+  const budgetThreshold = metal === 'copper' ? 20 : 8;
+  if (result.costPerMeter < budgetThreshold)
+    a.push({ id: 'budget', icon: '★', label: 'Budget Cut',        color: '#fbbf24' });
   return a;
 }
 
@@ -336,6 +361,7 @@ export function CopperCalculator() {
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
+  const [metalType, setMetalType] = useState<'copper' | 'aluminum'>('copper');
   const [widthStr, setWidthStr] = useState('60');
   const [thickStr, setThickStr] = useState('8');
   const [grade, setGrade] = useState<MaterialGrade>(DEFAULT_GRADE);
@@ -355,9 +381,11 @@ export function CopperCalculator() {
     const h = Math.max(1,      Math.min(100000, parseFloat(thickStr) || 8));
     return { id: 'custom', width: w, thickness: h, label: `${w} × ${h} mm` };
   }, [widthStr, thickStr]);
-  const [live,  setLive]  = useState<CopperPriceData | null>(null);
-  const [fx,    setFx]    = useState<FxRates | null>(null);
-  const [loading, setLoad] = useState(true);
+  const [live,    setLive]  = useState<CopperPriceData | null>(null);
+  const [alLive,  setAlLive] = useState<CopperPriceData | null>(null);
+  const [fx,      setFx]    = useState<FxRates | null>(null);
+  const [loading,  setLoad] = useState(true);
+  const [alLoading, setAlLoad] = useState(true);
   const [manual, setMan]  = useState('');
   const [useMan, setUM]   = useState(false);
   const [lengthStr, setLengthStr] = useState('1000');
@@ -378,18 +406,33 @@ export function CopperCalculator() {
 
   useEffect(() => {
     const fetchAll = async () => {
-      const [p, f] = await Promise.all([
+      const [p, al, f] = await Promise.all([
         fetch('/api/copper-price').then(r => r.json()).catch(() => null),
+        fetch('/api/aluminum-price').then(r => r.json()).catch(() => null),
         fetch('/api/fx-rate').then(r => r.json()).catch(() => null),
       ]);
-      if (p) setLive(p);
-      if (f) setFx(f);
+      if (p)  setLive(p);
+      if (al) setAlLive(al);
+      if (f)  setFx(f);
       setLoad(false);
+      setAlLoad(false);
     };
     fetchAll();
     const iv = setInterval(fetchAll, 300000);
     return () => clearInterval(iv);
   }, []);
+
+  const handleMetalSwitch = useCallback((newMetal: 'copper' | 'aluminum') => {
+    setMetalType(newMetal);
+    setGrade(newMetal === 'copper' ? DEFAULT_GRADE : DEFAULT_ALUMINUM_GRADE);
+    setUM(false);
+    setMan('');
+  }, []);
+
+  const activeLive    = metalType === 'copper' ? live    : alLive;
+  const activeLoading = metalType === 'copper' ? loading : alLoading;
+  const currentGrades = metalType === 'copper' ? MATERIAL_GRADES : ALUMINUM_GRADES;
+  const quickPresets  = metalType === 'copper' ? COPPER_QUICK_PRESETS : ALUMINUM_QUICK_PRESETS;
 
   const currMeta = useMemo(
     () => ALL_CURRENCIES.find(c => c.code === currCode) ?? ALL_CURRENCIES[0],
@@ -398,8 +441,8 @@ export function CopperCalculator() {
 
   const priceUSD = useMemo<number | null>(() => {
     if (useMan) { const v = parseFloat(manual); return isNaN(v) || v <= 0 ? null : v; }
-    return live?.pricePerKg ?? null;
-  }, [useMan, manual, live]);
+    return activeLive?.pricePerKg ?? null;
+  }, [useMan, manual, activeLive]);
 
   const fxRate = useMemo(() => {
     if (!fx || currCode === 'USD') return 1;
@@ -459,12 +502,13 @@ export function CopperCalculator() {
 
   const handleCopy = async () => {
     if (!result) return;
+    const metalName = metalType === 'copper' ? 'Copper' : 'Aluminum';
     const lines = [
-      'PAYAPRESS — Copper Busbar Cost Calculator',
+      `PAYAPRESS — ${metalName} Busbar Cost Calculator`,
       '─'.repeat(44),
       `Size:          ${size.label}`,
       `Grade:         ${grade.label} (${(grade.purity*100).toFixed(2)}%)`,
-      `Copper price:  ${fmtUSD(result.pricePerKg)}/kg`,
+      `${metalName} price:  ${fmtUSD(result.pricePerKg)}/kg`,
       `Length:        ${lengthStr} mm  (${qty.toFixed(qty < 1 ? 3 : 1)} m)`,
       '─'.repeat(44),
       `Weight/m:      ${fmt(result.weightPerMeter,3)} kg/m`,
@@ -509,7 +553,7 @@ export function CopperCalculator() {
           onPointerUp={onViewerPointerUp}
           onPointerCancel={onViewerPointerUp}
         >
-          <BusbarRender width={size.width} thickness={size.thickness} />
+          <BusbarRender width={size.width} thickness={size.thickness} metal={metalType} />
           <div className="mt-3 text-center space-y-1.5">
             <div className="flex items-center justify-center gap-1.5 flex-wrap">
               <span className="font-mono text-sm font-bold text-copper-500 tracking-wide">
@@ -519,7 +563,7 @@ export function CopperCalculator() {
               <span className="font-mono text-xs text-zinc-500">{size.width * size.thickness} mm²</span>
               <span className="text-zinc-700 text-[0.6rem]">·</span>
               <span className="font-mono text-xs text-zinc-500">{grade.label}</span>
-              {BUSBAR_SIZES.some(s => s.width === size.width && s.thickness === size.thickness) && (
+              {(metalType === 'copper' ? BUSBAR_SIZES : ALUMINUM_BUSBAR_SIZES).some(s => s.width === size.width && s.thickness === size.thickness) && (
                 <span className="text-[0.55rem] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full"
                       style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.22)' }}>
                   IEC STD
@@ -534,6 +578,30 @@ export function CopperCalculator() {
 
         {/* ── Inputs ──────────────────────────────── */}
         <div className="px-4 sm:px-5 md:px-6 pt-7 pb-8">
+
+          {/* ── Metal type toggle ────────────────────── */}
+          <div className="flex rounded-xl overflow-hidden border mb-6"
+               style={{ borderColor: 'var(--color-surface-4)' }}>
+            <button
+              onClick={() => handleMetalSwitch('copper')}
+              className="flex-1 py-2.5 text-sm font-semibold transition-all"
+              style={{
+                background:  metalType === 'copper' ? 'rgba(205,127,50,0.18)' : 'transparent',
+                color:       metalType === 'copper' ? '#cd7f32' : '#52525b',
+              }}>
+              Cu — Copper
+            </button>
+            <button
+              onClick={() => handleMetalSwitch('aluminum')}
+              className="flex-1 py-2.5 text-sm font-semibold transition-all border-l"
+              style={{
+                borderColor: 'var(--color-surface-4)',
+                background:  metalType === 'aluminum' ? 'rgba(160,185,210,0.18)' : 'transparent',
+                color:       metalType === 'aluminum' ? '#a0b8d0' : '#52525b',
+              }}>
+              Al — Aluminum
+            </button>
+          </div>
 
           {/* ① Dimensions ─────────────────────────── */}
           <div>
@@ -600,7 +668,7 @@ export function CopperCalculator() {
             {/* IEC quick-select presets — horizontal scroll, no wrap */}
             <div className="mt-5" style={{ overflowX: 'auto', overflowY: 'visible', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
               <div className="flex gap-1.5 pb-3" style={{ width: 'max-content', minHeight: '2rem' }}>
-                {QUICK_PRESETS.map(p => {
+                {quickPresets.map(p => {
                   const active = widthStr === p.w && thickStr === p.t;
                   return (
                     <motion.button key={`${p.w}x${p.t}`} whileTap={{ scale: 0.82 }}
@@ -627,8 +695,8 @@ export function CopperCalculator() {
               <p className="calc-section-label">② Grade</p>
               <div className="relative">
                 <select className="field-select pr-7 py-3 text-sm" value={grade.id}
-                  onChange={e => setGrade(MATERIAL_GRADES.find(g => g.id === e.target.value) ?? DEFAULT_GRADE)}>
-                  {MATERIAL_GRADES.map(g => (
+                  onChange={e => setGrade(currentGrades.find(g => g.id === e.target.value) ?? (metalType === 'copper' ? DEFAULT_GRADE : DEFAULT_ALUMINUM_GRADE))}>
+                  {currentGrades.map(g => (
                     <option key={g.id} value={g.id}>{g.label}</option>
                   ))}
                 </select>
@@ -654,27 +722,31 @@ export function CopperCalculator() {
           {/* ④ Copper Price — compact strip ─────────── */}
           <div className="mt-8">
           <div className="border-t border-[var(--color-surface-3)] mb-5" />
-            <p className="calc-section-label">④ Copper Price</p>
+            <p className="calc-section-label">
+              {metalType === 'copper' ? '④ Copper Price' : '④ Aluminum Price'}
+            </p>
             <div className="rounded-xl border overflow-hidden"
                  style={{ background: 'var(--color-surface-3)', borderColor: 'var(--color-surface-4)' }}>
               {/* Price row: left = price block, right = manual toggle */}
               <div className="flex items-center gap-3 px-4 py-4">
-                {loading ? (
+                {activeLoading ? (
                   <span className="text-zinc-500 text-sm animate-pulse flex-1">Fetching…</span>
-                ) : live && !useMan ? (
+                ) : activeLive && !useMan ? (
                   <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
-                    <span className={live.isFallback ? 'fallback-dot' : 'live-dot'} />
+                    <span className={activeLive.isFallback ? 'fallback-dot' : 'live-dot'} />
                     <span className="font-mono text-2xl font-extrabold text-copper-400 result-glow tracking-tight">
-                      ${fmt(live.pricePerKg, 3)}
+                      ${fmt(activeLive.pricePerKg, 3)}
                     </span>
                     <div className="flex flex-col leading-none">
                       <span className="text-zinc-500 text-[0.65rem]">/kg</span>
                       <span className="text-zinc-700 text-[0.6rem] font-mono mt-0.5">
-                        ${fmt(live.pricePerKg / 2.20462, 3)}/lb
+                        {metalType === 'copper'
+                          ? `$${fmt(activeLive.pricePerKg / 2.20462, 3)}/lb`
+                          : `$${fmt(activeLive.pricePerMT, 0)}/MT`}
                       </span>
                     </div>
                     {(() => {
-                      const mood = getPriceMood(live.pricePerKg);
+                      const mood = getPriceMood(activeLive.pricePerKg, metalType);
                       return (
                         <span className="text-[0.55rem] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full"
                               style={{ background: `${mood.fg}15`, color: mood.fg, border: `1px solid ${mood.fg}35` }}>
@@ -744,7 +816,7 @@ export function CopperCalculator() {
         >
           {/* Achievement badges */}
           {(() => {
-            const badges = getAchievements(result, size, grade, parseFloat(lengthStr) || 1000);
+            const badges = getAchievements(result, size, grade, parseFloat(lengthStr) || 1000, metalType);
             return badges.length > 0 ? (
               <div className="flex flex-wrap gap-1.5 px-5 pt-4 pb-0">
                 {badges.map((b, i) => (
@@ -859,9 +931,9 @@ export function CopperCalculator() {
               {loading ? <span className="animate-pulse">···</span> : '—'}
             </p>
             <p className="text-zinc-600 text-xs mt-3 leading-relaxed">
-              {loading
-                ? <span className="animate-pulse">Fetching live copper price…</span>
-                : <>Set your copper price<br className="hidden sm:block" /> to see results</>
+              {activeLoading
+                ? <span className="animate-pulse">Fetching live {metalType === 'copper' ? 'copper' : 'aluminum'} price…</span>
+                : <>Set your {metalType === 'copper' ? 'copper' : 'aluminum'} price<br className="hidden sm:block" /> to see results</>
               }
             </p>
           </div>
@@ -889,8 +961,8 @@ export function CopperCalculator() {
           <div className="border-t px-5 py-3.5 text-center"
                style={{ borderColor: 'var(--color-surface-2)' }}>
             <p className="text-[0.62rem] text-zinc-600 font-mono">
-              {loading
-                ? <span className="animate-pulse">Loading live COMEX HG=F price…</span>
+              {activeLoading
+                ? <span className="animate-pulse">Loading live {metalType === 'copper' ? 'COMEX HG=F' : 'LME ALI=F'} price…</span>
                 : 'Live price loaded · waiting for input'
               }
             </p>

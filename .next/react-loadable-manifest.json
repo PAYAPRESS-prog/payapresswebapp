@@ -1,16 +1,16 @@
 {
   "app/embed/page.tsx -> @/components/CopperCalculator": {
-    "id": 5901,
+    "id": 8771,
     "files": [
       "static/chunks/212.c9eb5954677ff523.js",
-      "static/chunks/901.70e9346ea1de76e8.js"
+      "static/chunks/771.929750250b9ce43c.js"
     ]
   },
   "components/DynamicPage.tsx -> ./CopperCalculator": {
-    "id": 5901,
+    "id": 8771,
     "files": [
       "static/chunks/212.c9eb5954677ff523.js",
-      "static/chunks/901.70e9346ea1de76e8.js"
+      "static/chunks/771.929750250b9ce43c.js"
     ]
   },
   "components/DynamicRoadmap.tsx -> ./RoadmapClient": {
