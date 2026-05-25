@@ -6,8 +6,21 @@ import { Footer } from '@/components/Footer';
 import { InstallPrompt } from '@/components/InstallPrompt';
 import { SectionErrorBoundary } from '@/components/SectionErrorBoundary';
 import { CopperCalculator } from '@/components/DynamicPage';
+import { fetchCopperPrice, fetchAluminumPrice, fetchFxRates } from '@/lib/serverPrices';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [copper, aluminum, fx] = await Promise.allSettled([
+    fetchCopperPrice(),
+    fetchAluminumPrice(),
+    fetchFxRates(),
+  ]);
+
+  const initialData = {
+    copper:   copper.status   === 'fulfilled' ? copper.value   : null,
+    aluminum: aluminum.status === 'fulfilled' ? aluminum.value : null,
+    fx:       fx.status       === 'fulfilled' ? fx.value       : null,
+  };
+
   return (
     <div className="grid-bg min-h-screen">
       <div className="bg-radial-pulse" />
@@ -31,7 +44,7 @@ export default function HomePage() {
           </SectionErrorBoundary>
 
           <SectionErrorBoundary>
-            <CopperCalculator />
+            <CopperCalculator initialData={initialData} />
           </SectionErrorBoundary>
 
           <div className="mt-12 sm:mt-16 lg:mt-20">

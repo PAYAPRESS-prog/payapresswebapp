@@ -1,10 +1,13 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import type { InitialPriceData } from '@/types/calculator';
 
-/* CopperCalculator uses heavy Framer Motion (TiltCard, useSpring, AnimatePresence)
-   that causes React 19 hydration mismatches — must stay client-only. */
-export const CopperCalculator = dynamic(
+/* CopperCalculator uses Framer Motion AnimatePresence and browser APIs
+   (localStorage, navigator.language, pointer events) — stays client-only.
+   initialData is fetched server-side in page.tsx and passed here so the
+   component mounts with real prices instead of showing a "Fetching…" state. */
+export const CopperCalculator = dynamic<{ initialData?: InitialPriceData }>(
   () => import('./CopperCalculator').then(m => ({ default: m.CopperCalculator })),
   {
     ssr: false,

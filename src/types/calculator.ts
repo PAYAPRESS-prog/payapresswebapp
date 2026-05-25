@@ -31,3 +31,17 @@ export interface CalculationResult {
   costPerM2: number;       // $/m²
   pricePerKg: number;      // $/kg used
 }
+
+export interface FxRates {
+  EUR: number; GBP: number; CHF: number; JPY: number; CAD: number; AUD: number;
+  CNY: number; INR: number; SGD: number; KRW: number; TRY: number; BRL: number;
+  MXN: number; NOK: number; SEK: number; ZAR: number;
+  AED: number; SAR: number; QAR: number; KWD: number; BHD: number;
+  isFallback: boolean; source: string; updatedAt: string;
+}
+
+export interface InitialPriceData {
+  copper:   CopperPriceData | null;
+  aluminum: CopperPriceData | null;
+  fx:       FxRates | null;
+}

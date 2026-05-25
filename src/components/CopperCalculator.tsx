@@ -6,15 +6,7 @@ import { MATERIAL_GRADES, DEFAULT_GRADE, BUSBAR_SIZES } from '@/lib/copperData';
 import { ALUMINUM_GRADES, DEFAULT_ALUMINUM_GRADE, ALUMINUM_BUSBAR_SIZES } from '@/lib/aluminumData';
 import { calculateCost, fmt, fmtUSD, fmtCompact } from '@/lib/copperPrice';
 import { BusbarRender } from './BusbarRender';
-import type { BusbarSize, MaterialGrade, CopperPriceData } from '@/types/calculator';
-
-interface FxRates {
-  EUR: number; GBP: number; CHF: number; JPY: number; CAD: number; AUD: number;
-  CNY: number; INR: number; SGD: number; KRW: number; TRY: number; BRL: number;
-  MXN: number; NOK: number; SEK: number; ZAR: number;
-  AED: number; SAR: number; QAR: number; KWD: number; BHD: number;
-  isFallback: boolean; source: string; updatedAt: string;
-}
+import type { BusbarSize, MaterialGrade, CopperPriceData, FxRates, InitialPriceData } from '@/types/calculator';
 
 // flag = ISO 3166-1 alpha-2 country code for flagcdn.com
 // suffix = true means display as "3.25 AED" not "$3.25"
@@ -348,7 +340,7 @@ function ResultCard({
 }
 
 // ── Main component ─────────────────────────────────────────────────
-export function CopperCalculator() {
+export function CopperCalculator({ initialData }: { initialData?: InitialPriceData }) {
   const cardRef  = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
   useEffect(() => {
@@ -381,11 +373,11 @@ export function CopperCalculator() {
     const h = Math.max(1,      Math.min(100000, parseFloat(thickStr) || 8));
     return { id: 'custom', width: w, thickness: h, label: `${w} × ${h} mm` };
   }, [widthStr, thickStr]);
-  const [live,    setLive]  = useState<CopperPriceData | null>(null);
-  const [alLive,  setAlLive] = useState<CopperPriceData | null>(null);
-  const [fx,      setFx]    = useState<FxRates | null>(null);
-  const [loading,  setLoad] = useState(true);
-  const [alLoading, setAlLoad] = useState(true);
+  const [live,    setLive]  = useState<CopperPriceData | null>(initialData?.copper   ?? null);
+  const [alLive,  setAlLive] = useState<CopperPriceData | null>(initialData?.aluminum ?? null);
+  const [fx,      setFx]    = useState<FxRates | null>(initialData?.fx ?? null);
+  const [loading,  setLoad] = useState(initialData?.copper   == null);
+  const [alLoading, setAlLoad] = useState(initialData?.aluminum == null);
   const [manual, setMan]  = useState('');
   const [useMan, setUM]   = useState(false);
   const [lengthStr, setLengthStr] = useState('1000');
@@ -405,7 +397,7 @@ export function CopperCalculator() {
   }, []);
 
   useEffect(() => {
-    const fetchAll = async () => {
+    const fetchAll = async (isInitial: boolean) => {
       const [p, al, f] = await Promise.all([
         fetch('/api/copper-price').then(r => r.json()).catch(() => null),
         fetch('/api/aluminum-price').then(r => r.json()).catch(() => null),
@@ -414,12 +406,13 @@ export function CopperCalculator() {
       if (p)  setLive(p);
       if (al) setAlLive(al);
       if (f)  setFx(f);
-      setLoad(false);
-      setAlLoad(false);
+      // Only clear loading state on initial fetch (skipped when initialData was provided)
+      if (isInitial) { setLoad(false); setAlLoad(false); }
     };
-    fetchAll();
-    const iv = setInterval(fetchAll, 300000);
+    fetchAll(initialData?.copper == null);
+    const iv = setInterval(() => fetchAll(false), 300000);
     return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleMetalSwitch = useCallback((newMetal: 'copper' | 'aluminum') => {
