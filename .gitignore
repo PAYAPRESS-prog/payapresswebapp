@@ -3,8 +3,10 @@ node_modules/
 .pnp
 .pnp.js
 
-# Next.js — built on deployment via postinstall (not committed to git)
-.next/
+# Next.js — build artifacts ARE committed so Hostinger serves without rebuilding.
+# Only the build cache and trace are excluded (large, not needed at runtime).
+.next/cache/
+.next/trace
 out/
 build/
 

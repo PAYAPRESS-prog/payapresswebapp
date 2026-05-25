@@ -9,32 +9,19 @@ const { createServer } = require('http');
 const { parse }        = require('url');
 const path             = require('path');
 const fs               = require('fs');
-const { execSync }     = require('child_process');
 const next             = require('next');
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 
-const buildDir    = path.join(__dirname, '.next');
-const buildIdFile = path.join(buildDir, 'BUILD_ID');
+const buildIdFile = path.join(__dirname, '.next', 'BUILD_ID');
 
-// ── Fallback build ────────────────────────────────────────────────────────────
-// If .next/ is missing (postinstall didn't run or was skipped by host),
-// build now before starting the server. This adds ~30s to first startup but
-// ensures the server always comes up even on hosts that skip npm scripts.
+// .next/ is committed to git — it must always be present.
+// If somehow missing, fail fast with a clear message.
 if (!fs.existsSync(buildIdFile)) {
-  console.log('[PAYAPRESS] No BUILD_ID found — running next build as fallback...');
-  console.log('[PAYAPRESS] This takes ~30s on first deploy; subsequent starts are instant.');
-  try {
-    execSync('npx next build', {
-      stdio:  'inherit',
-      cwd:    __dirname,
-      env:    { ...process.env, NODE_ENV: 'production' },
-    });
-    console.log('[PAYAPRESS] Fallback build complete.');
-  } catch (err) {
-    console.error('[PAYAPRESS] FATAL: next build failed:', err.message);
-    process.exit(1);
-  }
+  console.error('[PAYAPRESS] FATAL: .next/BUILD_ID not found.');
+  console.error('[PAYAPRESS] The build artifacts are missing from the repository.');
+  console.error('[PAYAPRESS] Run "npm run build" locally and commit the .next/ directory.');
+  process.exit(1);
 }
 
 // ── Startup diagnostics ───────────────────────────────────────────────────────
