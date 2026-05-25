@@ -1,34 +1,77 @@
-# PAYAPRESS WebApp
+# PAYAPRESS — Busbar Calculator
 
-> Professional copper busbar cost calculator for electrical panel fabricators — live COMEX pricing, manual dimension inputs, 22 supported currencies, embeddable in WordPress, with a public REST API.
+> Professional copper & aluminum busbar cost calculator for electrical panel fabricators.  
+> Live COMEX & LME pricing · 22 currencies · IEC/DIN standards · Installable PWA.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19-61dafb?logo=react)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38bdf8?logo=tailwindcss)](https://tailwindcss.com)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![GitHub Issues](https://img.shields.io/github/issues/PAYAPRESS-prog/payapresswebapp)](https://github.com/PAYAPRESS-prog/payapresswebapp/issues)
+
+**[Live App](https://www.payapress.com)** · **[API Reference](docs/API.md)** · **[Architecture](docs/architecture.md)** · **[Changelog](CHANGELOG.md)**
+
+---
+
+## Overview
+
+PAYAPRESS Busbar Calculator is a production-grade web application that helps electrical panel fabricators calculate the material cost of copper and aluminum busbars in real time. It pulls live metal prices from COMEX (copper) and LME (aluminum), supports 22 currencies with live FX rates, and ships as an installable PWA with a public REST API.
 
 ---
 
 ## Features
 
-- **Live copper price** — COMEX HG=F via Yahoo Finance, auto-refreshed every 5 minutes, no API key needed
-- **Manual dimension inputs** — enter any width × thickness in mm (5–400 mm × 1–50 mm)
-- **3 material grades** — Cu-ETP (99.9%), Cu-OF (99.95%), Cu-OFE (99.99%)
-- **22 currencies** — USD, EUR, GBP, AED, SAR, KWD and more with live FX rates
-- **Length calculator** — enter length in mm, get total weight and cost
-- **Cross-section SVG diagram** — visual representation of selected dimensions
-- **Public REST API** — `/api/v1/calculate` for programmatic cost calculation (see [docs/API.md](docs/API.md))
-- **WordPress shortcode** — embed via `[payapress_app]` in any page
-- **Standalone iframe** — `/embed` route for headless embedding
+### Copper Busbar
+- **Live COMEX HG=F pricing** via Yahoo Finance, auto-refreshed every 5 minutes
+- **3 material grades:** Cu-ETP (99.90%) · Cu-OF (99.95%) · Cu-OFE (99.99%)
+- **IEC 60317-3 / EN 13601** standard size presets (25×3 mm → 120×10 mm)
+
+### Aluminum Busbar
+- **Live LME ALI=F pricing** via Yahoo Finance (USD/MT → USD/kg, server-side)
+- **3 material grades:** Al-1350 EC (99.50%) · Al-6101 · Al-6063
+- **IEC 60317-40** standard size presets (20×3 mm → 160×12 mm)
+
+### Calculator
+- Manual width × thickness inputs (any dimension, no preset lock-in)
+- Length input in mm — total weight and cost auto-calculated
+- 22 currencies with live ECB/Frankfurter FX rates
+- Auto locale detection (defaults to user's local currency)
+- Manual price override for custom pricing scenarios
+- Copy results to clipboard (formatted report)
+- IEC standard badge highlights when a size matches published standards
+
+### Visual
+- Photorealistic 3D busbar SVG renderer with per-metal color palette
+- Drag-to-resize busbar viewer (pointer capture)
+- Animated result cards with Framer Motion spring physics
+- Achievement badges · milestone toasts · confetti burst
+
+### PWA
+- Installable as a home-screen web app on iOS and Android
+- Service worker with cache-first static assets and network-only HTML
+- Offline fallback page
+- Auto-recovery from stale-cache errors on every new deploy
+
+### Embedding & API
+- Public REST API `/api/v1/` with full CORS (`Access-Control-Allow-Origin: *`)
+- `/embed` route for frameless iframe embedding
+- WordPress companion plugin with `[payapress_app]` shortcode
 
 ---
 
 ## Tech Stack
 
-- **Framework:** Next.js 15 (App Router) · React 19
-- **Styling:** Tailwind CSS v4
-- **Animations:** Framer Motion
-- **Language:** TypeScript
-- **Deployment:** Netlify / Vercel
+| Layer | Technology | Version |
+|-------|------------|---------|
+| Framework | Next.js App Router | 15 |
+| UI | React | 19 |
+| Language | TypeScript | 5 |
+| Styling | Tailwind CSS | v4 |
+| Animations | Framer Motion | 12 |
+| Runtime | Node.js | ≥ 20 |
+| Process manager | PM2 (ecosystem.config.js) | — |
+| Testing | Jest + ts-jest | — |
 
 ---
 
@@ -36,114 +79,112 @@
 
 ```
 payapresswebapp/
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── copper-price/      # COMEX HG=F · 5-min server cache
+│   │   │   ├── aluminum-price/    # LME ALI=F · 5-min server cache
+│   │   │   ├── fx-rate/           # ECB FX rates · 6-hr server cache
+│   │   │   └── v1/                # Public REST API (CORS *)
+│   │   │       ├── calculate/
+│   │   │       ├── copper-price/
+│   │   │       └── fx-rates/
+│   │   ├── embed/                 # Minimal page for iframe embedding
+│   │   ├── offline/               # PWA offline fallback
+│   │   ├── roadmap/               # Product roadmap page
+│   │   ├── whitepaper/            # Technical whitepaper
+│   │   ├── layout.tsx             # Root layout, SW registration, error capture
+│   │   └── page.tsx
+│   ├── components/
+│   │   ├── CopperCalculator.tsx   # Main calculator — Cu & Al toggle
+│   │   ├── BusbarRender.tsx       # Photorealistic SVG busbar (Cu + Al palette)
+│   │   ├── DynamicPage.tsx        # ssr:false wrapper for calculator
+│   │   ├── Header.tsx
+│   │   ├── HeroSection.tsx
+│   │   ├── ComingSoonSection.tsx
+│   │   ├── Footer.tsx
+│   │   ├── InstallPrompt.tsx
+│   │   ├── ParticleBackground.tsx
+│   │   ├── SectionErrorBoundary.tsx
+│   │   └── SplashScreen.tsx
+│   ├── lib/
+│   │   ├── copperData.ts          # Cu grades, IEC sizes
+│   │   ├── aluminumData.ts        # Al grades, IEC 60317-40 sizes
+│   │   ├── copperPrice.ts         # calculateCost(), fmt(), fmtUSD()
+│   │   └── fetchWithRetry.ts      # Fetch with exponential backoff
+│   ├── styles/globals.css         # Tailwind v4 @theme + design tokens
+│   └── types/calculator.ts
+├── public/
+│   ├── sw.js                      # Service worker (v11)
+│   ├── manifest.json              # PWA manifest
+│   └── icons/
 ├── docs/
-│   └── API.md                       # Public API reference documentation
-├── frontend/                        # Next.js 15 + TypeScript
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── api/copper-price/    # COMEX price endpoint (cached 5 min)
-│   │   │   ├── api/fx-rate/         # FX rates (cached 6 hr)
-│   │   │   ├── api/v1/calculate/    # Public REST API — busbar cost
-│   │   │   ├── api/v1/copper-price/ # Public REST API — copper price proxy
-│   │   │   ├── api/v1/fx-rates/     # Public REST API — FX rates proxy
-│   │   │   ├── embed/               # Minimal page for iframe embedding
-│   │   │   ├── layout.tsx
-│   │   │   └── page.tsx
-│   │   ├── components/
-│   │   │   ├── CopperCalculator.tsx  # Main interactive calculator
-│   │   │   ├── Header.tsx            # Live price ticker header
-│   │   │   └── ComingSoonSection.tsx
-│   │   ├── lib/
-│   │   │   ├── copperData.ts   # Material grades constants
-│   │   │   └── copperPrice.ts  # calculateCost(), fmt(), fmtUSD()
-│   │   └── types/calculator.ts
-│   ├── jest.config.js
-│   └── package.json
-│
-└── wordpress-plugin/
-    ├── includes/
-    │   ├── class-payapress-shortcode.php  # [payapress_app] shortcode
-    │   ├── class-payapress-settings.php   # Admin settings page
-    │   ├── class-payapress-cors.php
-    │   └── class-payapress-rest-api.php
-    └── payapress-webapp.php
+│   ├── API.md                     # Public REST API reference
+│   └── architecture.md            # Technical architecture overview
+├── wordpress-plugin/              # WP plugin with [payapress_app] shortcode
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   └── workflows/
+├── server.js                      # Custom Node.js server (Hostinger)
+├── ecosystem.config.js            # PM2 process config
+├── next.config.js
+├── package.json
+└── tsconfig.json
 ```
 
 ---
 
 ## Quick Start
 
-### 1. Frontend (Next.js)
+```bash
+git clone https://github.com/PAYAPRESS-prog/payapresswebapp.git
+cd payapresswebapp
+cp .env.example .env.local
+npm install
+npm run dev          # → http://localhost:3000
+npm run build        # production build
+npm test             # unit tests
+npm run type-check   # TypeScript check
+```
+
+---
+
+## Deployment
+
+The app runs on **Hostinger shared hosting** with Node.js and PM2. The compiled `.next/` directory is committed to the repository and served directly — no CI build step needed on the server.
 
 ```bash
-cd frontend
-cp .env.example .env.local
-# Edit .env.local — see Configuration section below
-npm install
-npm run dev        # http://localhost:3000
-npm run build      # production build
-npm test           # run unit tests
+npm run build
+git add .next
+git commit -m "chore: rebuild for deploy"
+git push
+# Hostinger pulls from the branch and PM2 restarts the process
 ```
 
-### 2. Deploy to Vercel (recommended — free)
-
-1. Import this repository in the [Vercel dashboard](https://vercel.com/new)
-2. **Set Root Directory → `frontend`**
-3. Add environment variables from `.env.example`
-4. Deploy — Vercel handles the rest
-
-### 3. WordPress Plugin
-
-1. Copy `wordpress-plugin/` → `wp-content/plugins/payapress-webapp/`
-2. Activate in WordPress admin → Plugins
-3. Go to **Settings → PAYAPRESS WebApp**
-4. Enter your Next.js app URL (e.g., `https://your-app.vercel.app`)
-5. Add `[payapress_app]` shortcode to any page
-
-```
-[payapress_app]                    ← default 650px height
-[payapress_app height="800"]       ← custom height
-[payapress_app path="/embed"]      ← explicit embed path
-```
+The custom `server.js` handles:
+- Security headers (`X-Frame-Options`, `X-Content-Type-Options`, CSP, etc.)
+- `Cache-Control: no-store` on all HTML responses (prevents stale page caching)
+- `X-Robots-Tag: noindex, nofollow` until public launch
+- CORS headers on `/api/*` routes
 
 ---
 
-## Configuration
+## API
 
-| Variable | Description | Example |
-|---|---|---|
-| `NEXT_PUBLIC_WP_URL` | WordPress site URL | `https://mysite.com` |
-| `NEXT_PUBLIC_WP_API_BASE` | WordPress REST API base | `https://mysite.com/wp-json/wp/v2` |
-| `PAYAPRESS_SECRET_KEY` | Plugin auth secret | *(random 32-byte string)* |
+Full reference: **[docs/API.md](docs/API.md)**
 
-> Copper prices and FX rates are fetched from free public APIs (no API key required).
+**Base URL:** `https://www.payapress.com/api/v1`
 
----
-
-## API Endpoints
-
-### Internal (Next.js app)
-
-| Route | Description | Cache |
-|---|---|---|
-| `GET /api/copper-price` | COMEX Cu price in USD (lb, kg, MT) | 5 min |
-| `GET /api/fx-rate` | FX rates (22 currencies) per USD | 6 hr |
-
-### Public REST API (v1)
-
-Full documentation: **[docs/API.md](docs/API.md)**
-
-| Route | Description |
-|---|---|
-| `GET /api/v1/calculate` | Copper busbar cost given width, thickness, length, grade, currency |
-| `GET /api/v1/copper-price` | Live COMEX copper price (proxies internal endpoint) |
-| `GET /api/v1/fx-rates` | USD-based FX rates for all supported currencies |
-
-All v1 endpoints include `Access-Control-Allow-Origin: *` CORS headers.
+| Endpoint | Description | Cache |
+|----------|-------------|-------|
+| `GET /calculate` | Busbar cost given dimensions, grade, metal, currency | Per request |
+| `GET /copper-price` | Live COMEX HG=F price (USD/lb · kg · MT) | 5 min |
+| `GET /fx-rates` | USD-based FX rates for all 22 currencies | 6 hr |
 
 **Quick example:**
 ```http
-GET https://guileless-torrone-f24c5e.netlify.app/api/v1/calculate?width=60&thickness=8&length=6000&grade=cu-etp&currency=AED
+GET https://www.payapress.com/api/v1/calculate?width=60&thickness=8&length=6000&grade=cu-etp&currency=AED
 ```
 
 ---
@@ -151,36 +192,54 @@ GET https://guileless-torrone-f24c5e.netlify.app/api/v1/calculate?width=60&thick
 ## Calculation Formula
 
 ```
-Volume (cm³/m) = width(mm) × thickness(mm)
-Weight (kg/m)  = Volume × density(g/cm³) / 1000
-Cost ($/m)     = Weight × copperPrice($/kg)
-Cost ($/m²)    = Cost/m ÷ (width / 1000)
+A  (mm²)  = width × thickness
+W  (kg/m) = A × density / 1000
+C  ($/m)  = W × metal_price_usd_per_kg
+P  ($/m²) = C / (width / 1000)
+T  ($)    = C × (length_mm / 1000)
 ```
 
-All densities follow IEC/EN standards:
-- Cu-ETP: 8.89 g/cm³
-- Cu-OF:  8.92 g/cm³
-- Cu-OFE: 8.94 g/cm³
+**Densities (IEC/EN):**
+
+| Grade | Density (g/cm³) | Standard |
+|-------|-----------------|----------|
+| Cu-ETP | 8.89 | EN 13601 / IEC 60317-3 |
+| Cu-OF | 8.92 | EN 13601 |
+| Cu-OFE | 8.94 | ASTM C10100 |
+| Al-1350 | 2.703 | IEC 60317-40 |
+| Al-6101 | 2.700 | IEC 60317-40 |
+| Al-6063 | 2.690 | IEC 60317-40 |
 
 ---
 
 ## Roadmap
 
-- [ ] Aluminum busbar calculator (Al-99.5E)
-- [ ] Historical copper price chart (30-day)
-- [ ] PDF/CSV export of results
-- [ ] Multiple busbars per project (bill of materials)
+- [x] Copper busbar calculator (Cu-ETP, Cu-OF, Cu-OFE)
+- [x] Aluminum busbar calculator (Al-1350, Al-6101, Al-6063)
+- [x] Live COMEX & LME pricing
+- [x] 22 currencies with live FX rates
+- [x] Installable PWA with offline support
+- [x] Public REST API v1
+- [x] Drag-to-resize busbar viewer
+- [ ] Historical 30-day price chart
+- [ ] PDF / CSV export
+- [ ] Multi-busbar bill of materials
 - [ ] WooCommerce product price sync
-- [ ] Admin dashboard for price history
+
+See the full roadmap at [/roadmap](https://www.payapress.com/roadmap).
 
 ---
 
 ## Contributing
 
-PRs welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md).
+Pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening one.
 
 ---
 
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+---
+
+*Built by the PAYAP MACHINERY engineering team · [payapress.com](https://www.payapress.com)*

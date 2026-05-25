@@ -1,8 +1,8 @@
 # PAYAPRESS PRO — Public API Reference
 
-**Base URL:** `https://guileless-torrone-f24c5e.netlify.app/api/v1`  
+**Base URL:** `https://www.payapress.com/api/v1`  
 **Version:** v1  
-**Authentication:** None (public, rate-limit courtesy applies)  
+**Authentication:** None (public)  
 **Format:** JSON · UTF-8  
 **CORS:** `Access-Control-Allow-Origin: *`
 
@@ -10,9 +10,9 @@
 
 ## Endpoints
 
-### `GET /calculate` — Copper Busbar Cost
+### `GET /calculate` — Busbar Cost
 
-Calculate the material cost of a copper busbar given its dimensions and material grade.
+Calculate the material cost of a copper or aluminum busbar given its dimensions, grade, and metal price.
 
 #### Query Parameters
 
@@ -22,16 +22,26 @@ Calculate the material cost of a copper busbar given its dimensions and material
 | `thickness` | number | ✅ | 1 – 50 | Busbar thickness in **mm** |
 | `length` | number | ❌ | 1 – 100,000 · default `1000` | Length in **mm** |
 | `grade` | string | ❌ | see table · default `cu-etp` | Material grade ID |
-| `copper_price` | number | ❌ | > 0 | Manual copper price (USD/kg). Omit to use live COMEX price. |
+| `copper_price` | number | ❌ | > 0 | Manual metal price (USD/kg). Omit to use live price. |
 | `currency` | string | ❌ | ISO 4217 · default `USD` | Output currency code |
 
 #### Supported Material Grades
 
-| `grade` | Label | Purity | Standard |
-|---------|-------|--------|----------|
-| `cu-etp` | Cu-ETP | 99.90% | EN 13601 / IEC 60317-3 |
-| `cu-of` | Cu-OF | 99.95% | EN 13601 / IEC 60317-37 |
-| `cu-ofe` | Cu-OFE | 99.99% | ASTM C10100 |
+**Copper**
+
+| `grade` | Label | Purity | Density | Standard |
+|---------|-------|--------|---------|----------|
+| `cu-etp` | Cu-ETP | 99.90% | 8.89 g/cm³ | EN 13601 / IEC 60317-3 |
+| `cu-of` | Cu-OF | 99.95% | 8.92 g/cm³ | EN 13601 |
+| `cu-ofe` | Cu-OFE | 99.99% | 8.94 g/cm³ | ASTM C10100 |
+
+**Aluminum**
+
+| `grade` | Label | Purity | Density | Standard |
+|---------|-------|--------|---------|----------|
+| `al-1350` | Al-1350 EC | 99.50% | 2.703 g/cm³ | IEC 60317-40 |
+| `al-6101` | Al-6101 | — | 2.700 g/cm³ | IEC 60317-40 |
+| `al-6063` | Al-6063 | — | 2.690 g/cm³ | IEC 60317-40 |
 
 #### Supported Currencies
 
@@ -58,29 +68,29 @@ GET /api/v1/calculate?width=60&thickness=8&length=6000&grade=cu-etp&currency=AED
       "standard": "EN 13601 / IEC 60317-3",
       "density_g_cm3": 8.89
     },
-    "copper_price_usd_per_kg": 13.9750,
+    "copper_price_usd_per_kg": 9.675,
     "currency": "AED"
   },
   "results": {
     "cross_section_mm2": 480,
     "weight_per_meter_kg": 4.2672,
     "weight_total_kg": 25.6032,
-    "cost_per_meter_usd": 59.6341,
-    "cost_per_m2_usd": 993.9016,
-    "cost_total_usd": 357.8047,
-    "cost_per_meter_local": 219.0063,
-    "cost_per_m2_local": 3650.1051,
-    "cost_total_local": 1314.0378,
+    "cost_per_meter_usd": 41.2835,
+    "cost_per_m2_usd": 688.0583,
+    "cost_total_usd": 247.7010,
+    "cost_per_meter_local": 151.5968,
+    "cost_per_m2_local": 2526.6138,
+    "cost_total_local": 909.5811,
     "exchange_rate": {
       "from": "USD",
       "to": "AED",
-      "rate": 3.672500
+      "rate": 3.6725
     }
   },
   "meta": {
     "copper_price_source": "COMEX HG=F",
     "fx_source": "ECB via Frankfurter",
-    "calculated_at": "2025-05-20T09:00:00.000Z",
+    "calculated_at": "2025-05-25T09:00:00.000Z",
     "api_version": "v1"
   }
 }
@@ -90,14 +100,14 @@ GET /api/v1/calculate?width=60&thickness=8&length=6000&grade=cu-etp&currency=AED
 
 ```json
 { "error": "INVALID_INPUT", "message": "width must be between 5 and 400 mm", "field": "width" }
-{ "error": "SERVICE_UNAVAILABLE", "message": "Cannot fetch live copper price. Pass copper_price=<USD/kg> to use a manual value." }
+{ "error": "SERVICE_UNAVAILABLE", "message": "Cannot fetch live price. Pass copper_price=<USD/kg> to use a manual value." }
 ```
 
 ---
 
 ### `GET /copper-price` — Live Copper Price
 
-Returns the current COMEX copper futures price (HG=F via Yahoo Finance), cached for 5 minutes.
+Returns the current COMEX copper futures price (HG=F via Yahoo Finance), cached for 5 minutes server-side.
 
 #### Example Response
 
@@ -109,16 +119,39 @@ Returns the current COMEX copper futures price (HG=F via Yahoo Finance), cached 
   "currency": "USD",
   "source": "COMEX HG=F",
   "isFallback": false,
-  "updatedAt": "2025-05-20T09:00:00.000Z",
-  "api_version": "v1"
+  "updatedAt": "2025-05-25T09:00:00.000Z"
 }
 ```
+
+When Yahoo Finance is unavailable, `isFallback: true` is returned with a static fallback price.
+
+---
+
+### `GET /aluminum-price` — Live Aluminum Price
+
+Returns the current LME aluminum futures price (ALI=F via Yahoo Finance), cached for 5 minutes server-side. The raw USD/MT quote is converted to USD/kg server-side.
+
+#### Example Response
+
+```json
+{
+  "pricePerLb": 1.1023,
+  "pricePerKg": 2.4320,
+  "pricePerMT": 2432,
+  "currency": "USD",
+  "source": "LME ALI=F",
+  "isFallback": false,
+  "updatedAt": "2025-05-25T09:00:00.000Z"
+}
+```
+
+> **Note:** `/api/aluminum-price` is an internal endpoint. The public v1 API (`/api/v1/calculate`) sources aluminum prices from this endpoint automatically.
 
 ---
 
 ### `GET /fx-rates` — FX Exchange Rates
 
-Returns USD-based exchange rates for all supported currencies, sourced from the European Central Bank via Frankfurter. Cached for 6 hours. Gulf-pegged currencies (AED, SAR, QAR, KWD, BHD) use fixed central-bank pegs.
+Returns USD-based exchange rates for all supported currencies, sourced from the European Central Bank via Frankfurter. Cached for 6 hours. Gulf-pegged currencies (AED, SAR, QAR, KWD, BHD) use fixed central-bank peg rates.
 
 #### Example Response
 
@@ -131,8 +164,7 @@ Returns USD-based exchange rates for all supported currencies, sourced from the 
   "KWD": 0.3075,
   "isFallback": false,
   "source": "ECB via Frankfurter",
-  "updatedAt": "2025-05-20T09:00:00.000Z",
-  "api_version": "v1"
+  "updatedAt": "2025-05-25T09:00:00.000Z"
 }
 ```
 
@@ -140,25 +172,25 @@ Returns USD-based exchange rates for all supported currencies, sourced from the 
 
 ## Calculation Method
 
-Weight and cost are derived using the standard IEC/EN formula:
-
 ```
 A (mm²)  = width × thickness
-W (kg/m) = A × ρ / 1000                  ← mm²·m × g/cm³ simplifies to kg/m
-C ($/m)  = W × copper_price_per_kg
+W (kg/m) = A × ρ / 1000
+C ($/m)  = W × metal_price_per_kg
 P ($/m²) = C / (width / 1000)
 T ($)    = C × (length_mm / 1000)
 ```
 
-Where ρ (density g/cm³): Cu-ETP = 8.89 · Cu-OF = 8.92 · Cu-OFE = 8.94
+Where ρ (density g/cm³):
+- Cu-ETP = 8.89 · Cu-OF = 8.92 · Cu-OFE = 8.94
+- Al-1350 = 2.703 · Al-6101 = 2.700 · Al-6063 = 2.690
 
-**Example** — 60 × 8 mm, Cu-ETP, $13.975/kg:
+**Example** — 60 × 8 mm Cu-ETP at $9.675/kg:
 ```
 A = 60 × 8 = 480 mm²
 W = 480 × 8.89 / 1000 = 4.2672 kg/m
-C = 4.2672 × 13.975 = $59.6341/m
-P = 59.6341 / 0.06   = $993.90/m²
-T = 59.6341 × 6      = $357.80  (for 6000 mm)
+C = 4.2672 × 9.675 = $41.28/m
+P = 41.28 / 0.06 = $688.06/m²
+T = 41.28 × 6 = $247.70  (for 6 000 mm)
 ```
 
 ---
@@ -167,9 +199,9 @@ T = 59.6341 × 6      = $357.80  (for 6000 mm)
 
 This API is free and publicly accessible. Please cache responses on your side:
 
-- Copper price: cache for at least **5 minutes**
+- Metal prices: cache for at least **5 minutes**
 - FX rates: cache for at least **6 hours**
-- Calculate: safe to call on every user action (no heavy backend work)
+- Calculate: safe to call on every user interaction (no heavy backend work)
 
 ---
 
@@ -177,4 +209,5 @@ This API is free and publicly accessible. Please cache responses on your side:
 
 | Version | Date | Notes |
 |---------|------|-------|
-| v1 | 2025-05 | Initial public release |
+| v1.1 | 2025-05-25 | Added aluminum grades; `/aluminum-price` endpoint |
+| v1.0 | 2025-05-20 | Initial public release |
