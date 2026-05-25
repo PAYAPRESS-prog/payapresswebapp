@@ -45,7 +45,7 @@ export function InstallPrompt() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[100] px-4"
+      className="fixed bottom-0 left-0 right-0 z-[100] px-3 sm:px-4"
       style={{
         transform: visible ? 'translateY(0)' : 'translateY(calc(100% + 2rem))',
         transition: 'transform 0.4s cubic-bezier(0.22,1,0.36,1)',
@@ -53,7 +53,7 @@ export function InstallPrompt() {
       }}
     >
       <div
-        className="max-w-sm mx-auto rounded-2xl p-4 flex items-center gap-3"
+        className="max-w-md mx-auto rounded-2xl p-3 sm:p-4 flex items-center gap-2.5 sm:gap-3"
         style={{
           background: '#131318',
           border: '1px solid rgba(184,115,51,0.3)',
@@ -61,26 +61,26 @@ export function InstallPrompt() {
         }}
       >
         <div
-          className="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-lg font-black"
+          className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-base sm:text-lg font-black"
           style={{ background: 'linear-gradient(135deg, #b87333, #cd7f32, #e8a855)', color: '#060608' }}
         >
           PP
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-zinc-100 leading-tight">Install PAYAPRESS</p>
-          <p className="text-xs text-zinc-500 mt-0.5 leading-snug">Add to home screen for offline access</p>
+          <p className="text-sm font-semibold text-zinc-100 leading-tight truncate">Install PAYAPRESS</p>
+          <p className="text-[11px] sm:text-xs text-zinc-500 mt-0.5 leading-snug truncate">Add to home screen</p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <button
             onClick={handleDismiss}
-            className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors px-2 py-1"
+            className="text-[11px] sm:text-xs text-zinc-600 hover:text-zinc-400 transition-colors px-1.5 sm:px-2 py-1 whitespace-nowrap"
             aria-label="Dismiss install prompt"
           >
             Not now
           </button>
           <button
             onClick={handleInstall}
-            className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-opacity hover:opacity-85"
+            className="text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-lg transition-opacity hover:opacity-85 whitespace-nowrap"
             style={{ background: 'linear-gradient(135deg, #cd7f32, #b87333)', color: '#fff' }}
           >
             Install
