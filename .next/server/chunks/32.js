@@ -1,6 +1,27 @@
 exports.id=32,exports.ids=[32],exports.modules={293:(a,b,c)=>{Promise.resolve().then(c.t.bind(c,4702,23)),Promise.resolve().then(c.bind(c,7964))},1472:(a,b,c)=>{"use strict";c.r(b),c.d(b,{default:()=>j,metadata:()=>h,viewport:()=>i});var d=c(5338),e=c(4105),f=c(2874);c(5692);let g=process.env.NEXT_PUBLIC_BASE_URL??"https://payapress.com",h={metadataBase:new URL(g),title:{default:"Busbar Calculator — PAYAPRESS",template:"%s | Busbar Calculator"},description:"Professional real-time copper busbar cost calculator for electrical panel fabricators. Live COMEX pricing, manual dimension inputs, 22 currencies, IEC/DIN standards.",keywords:["copper busbar","cost calculator","electrical panel","IEC 60317","Cu-ETP","live copper price","COMEX","busbar weight","شینه مسی","قیمت شینه مسی","محاسبه قیمت مس"],authors:[{name:"PAYAP MACHINERY",url:"https://www.payapress.com"}],creator:"PAYAP MACHINERY",publisher:"PAYAPRESS",robots:{index:!1,follow:!1,googleBot:{index:!1,follow:!1}},openGraph:{type:"website",locale:"en_US",url:g,siteName:"Busbar Calculator",title:"Busbar Calculator — PAYAPRESS",description:"Live COMEX copper pricing \xb7 manual dimension inputs \xb7 22 currencies \xb7 IEC/DIN standards.",images:[{url:"/og-image.png",width:1200,height:630,alt:"PAYAPRESS Copper Busbar Cost Calculator"}]},twitter:{card:"summary_large_image",title:"Busbar Calculator — PAYAPRESS",description:"Live COMEX copper pricing \xb7 22 currencies \xb7 IEC/DIN standards.",images:["/og-image.png"],creator:"@payapress"},icons:{icon:[{url:"/favicon.svg",type:"image/svg+xml"}],shortcut:"/favicon.svg",apple:[{url:"/apple-icon",sizes:"180x180",type:"image/png"}],other:[{rel:"mask-icon",url:"/favicon.svg",color:"#cd7f32"}]},appLinks:{},appleWebApp:{capable:!0,title:"Busbar Calc",statusBarStyle:"black-translucent",startupImage:[]},manifest:"/manifest.json",alternates:{canonical:g}},i={width:"device-width",initialScale:1,minimumScale:1,viewportFit:"cover",themeColor:"#cd7f32"};function j({children:a}){return(0,d.jsxs)("html",{lang:"en",style:{background:"#060608"},suppressHydrationWarning:!0,children:[(0,d.jsx)("meta",{httpEquiv:"Cache-Control",content:"no-cache, no-store, must-revalidate"}),(0,d.jsx)("meta",{httpEquiv:"Pragma",content:"no-cache"}),(0,d.jsx)("meta",{httpEquiv:"Expires",content:"0"}),(0,d.jsx)("style",{dangerouslySetInnerHTML:{__html:"html,body{background:#060608!important;color:#f0f0f0;margin:0;padding:0;font-family:ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}*{box-sizing:border-box}"}}),(0,d.jsxs)("body",{style:{background:"#060608"},children:[(0,d.jsx)(f.default,{}),a,(0,d.jsx)(e.default,{id:"err-capture",strategy:"beforeInteractive",children:`
           window.__pp_errs = [];
           var __pp_errDiv = null;
+
+          // Hard-reload with cache-bust after clearing all SW caches.
+          // Called when stale chunks are detected so the browser fetches fresh HTML.
+          function __pp_chunkReload() {
+            try {
+              var hasSW = 'serviceWorker' in navigator;
+              var hasCaches = 'caches' in window;
+              var dest = window.location.pathname + '?_pp=' + Date.now() + window.location.hash;
+              var p = (hasSW && hasCaches)
+                ? navigator.serviceWorker.getRegistrations()
+                    .then(function(r) { return Promise.all(r.map(function(x) { return x.unregister(); })); })
+                    .then(function() { return caches.keys(); })
+                    .then(function(k) { return Promise.all(k.map(function(c) { return caches.delete(c); })); })
+                : Promise.resolve();
+              p.then(function() { window.location.href = dest; })
+               .catch(function() { window.location.href = dest; });
+            } catch(ex) {
+              window.location.reload(true);
+            }
+          }
+
           function __pp_showErr(msg) {
             try {
               if (!__pp_errDiv) {
@@ -16,15 +37,53 @@ exports.id=32,exports.ids=[32],exports.modules={293:(a,b,c)=>{Promise.resolve().
               __pp_errDiv.innerHTML += msg + '\\n';
             } catch(ex) {}
           }
+
           window.addEventListener('error', function(e) {
-            var m = (e.message||'?') + '\\n  @ ' + (e.filename||'?') + ':' + e.lineno + ':' + e.colno;
+            var msg  = e.message  || '';
+            var file = e.filename || '';
+            // Stale chunk: script tag for an old content-hash fails to load (404)
+            var isChunk =
+              msg.indexOf('Loading chunk') !== -1 ||
+              msg.indexOf('ChunkLoadError') !== -1 ||
+              (file.indexOf('/_next/static/') !== -1 &&
+               (msg === '' || msg === 'Script error.' || msg === 'Script error'));
+            if (isChunk) {
+              e.preventDefault();
+              try {
+                var already = sessionStorage.getItem('pp_chunk_retry');
+                if (!already) {
+                  sessionStorage.setItem('pp_chunk_retry', '1');
+                  __pp_chunkReload();
+                }
+              } catch(ex) { __pp_chunkReload(); }
+              return;
+            }
+            var m = msg + '\\n  @ ' + file + ':' + e.lineno + ':' + e.colno;
             if (e.error && e.error.stack) m += '\\n' + e.error.stack;
             window.__pp_errs.push(m);
             __pp_showErr(m);
           });
+
           window.addEventListener('unhandledrejection', function(e) {
-            var m = 'Unhandled Promise: ' + String(e.reason);
-            if (e.reason && e.reason.stack) m += '\\n' + e.reason.stack;
+            var reason = e.reason;
+            var rMsg = reason ? (reason.message || String(reason)) : '';
+            // Stale chunk via dynamic import (Next.js lazy-loads chunks as promises)
+            var isChunk =
+              rMsg.indexOf('Loading chunk') !== -1 ||
+              rMsg.indexOf('ChunkLoadError') !== -1;
+            if (isChunk) {
+              e.preventDefault();
+              try {
+                var already = sessionStorage.getItem('pp_chunk_retry');
+                if (!already) {
+                  sessionStorage.setItem('pp_chunk_retry', '1');
+                  __pp_chunkReload();
+                }
+              } catch(ex) { __pp_chunkReload(); }
+              return;
+            }
+            var m = 'Unhandled Promise: ' + rMsg;
+            if (reason && reason.stack) m += '\\n' + reason.stack;
             window.__pp_errs.push(m);
             __pp_showErr(m);
           });

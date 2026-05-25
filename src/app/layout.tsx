@@ -109,6 +109,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Script id="err-capture" strategy="beforeInteractive">{`
           window.__pp_errs = [];
           var __pp_errDiv = null;
+
+          // Hard-reload with cache-bust after clearing all SW caches.
+          // Called when stale chunks are detected so the browser fetches fresh HTML.
+          function __pp_chunkReload() {
+            try {
+              var hasSW = 'serviceWorker' in navigator;
+              var hasCaches = 'caches' in window;
+              var dest = window.location.pathname + '?_pp=' + Date.now() + window.location.hash;
+              var p = (hasSW && hasCaches)
+                ? navigator.serviceWorker.getRegistrations()
+                    .then(function(r) { return Promise.all(r.map(function(x) { return x.unregister(); })); })
+                    .then(function() { return caches.keys(); })
+                    .then(function(k) { return Promise.all(k.map(function(c) { return caches.delete(c); })); })
+                : Promise.resolve();
+              p.then(function() { window.location.href = dest; })
+               .catch(function() { window.location.href = dest; });
+            } catch(ex) {
+              window.location.reload(true);
+            }
+          }
+
           function __pp_showErr(msg) {
             try {
               if (!__pp_errDiv) {
@@ -124,15 +145,53 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               __pp_errDiv.innerHTML += msg + '\\n';
             } catch(ex) {}
           }
+
           window.addEventListener('error', function(e) {
-            var m = (e.message||'?') + '\\n  @ ' + (e.filename||'?') + ':' + e.lineno + ':' + e.colno;
+            var msg  = e.message  || '';
+            var file = e.filename || '';
+            // Stale chunk: script tag for an old content-hash fails to load (404)
+            var isChunk =
+              msg.indexOf('Loading chunk') !== -1 ||
+              msg.indexOf('ChunkLoadError') !== -1 ||
+              (file.indexOf('/_next/static/') !== -1 &&
+               (msg === '' || msg === 'Script error.' || msg === 'Script error'));
+            if (isChunk) {
+              e.preventDefault();
+              try {
+                var already = sessionStorage.getItem('pp_chunk_retry');
+                if (!already) {
+                  sessionStorage.setItem('pp_chunk_retry', '1');
+                  __pp_chunkReload();
+                }
+              } catch(ex) { __pp_chunkReload(); }
+              return;
+            }
+            var m = msg + '\\n  @ ' + file + ':' + e.lineno + ':' + e.colno;
             if (e.error && e.error.stack) m += '\\n' + e.error.stack;
             window.__pp_errs.push(m);
             __pp_showErr(m);
           });
+
           window.addEventListener('unhandledrejection', function(e) {
-            var m = 'Unhandled Promise: ' + String(e.reason);
-            if (e.reason && e.reason.stack) m += '\\n' + e.reason.stack;
+            var reason = e.reason;
+            var rMsg = reason ? (reason.message || String(reason)) : '';
+            // Stale chunk via dynamic import (Next.js lazy-loads chunks as promises)
+            var isChunk =
+              rMsg.indexOf('Loading chunk') !== -1 ||
+              rMsg.indexOf('ChunkLoadError') !== -1;
+            if (isChunk) {
+              e.preventDefault();
+              try {
+                var already = sessionStorage.getItem('pp_chunk_retry');
+                if (!already) {
+                  sessionStorage.setItem('pp_chunk_retry', '1');
+                  __pp_chunkReload();
+                }
+              } catch(ex) { __pp_chunkReload(); }
+              return;
+            }
+            var m = 'Unhandled Promise: ' + rMsg;
+            if (reason && reason.stack) m += '\\n' + reason.stack;
             window.__pp_errs.push(m);
             __pp_showErr(m);
           });

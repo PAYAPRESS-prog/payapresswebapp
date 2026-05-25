@@ -1,19 +1,19 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
-  "/api/aluminum-price/route": "app/api/aluminum-price/route.js",
-  "/api/copper-price/route": "app/api/copper-price/route.js",
-  "/api/fx-rate/route": "app/api/fx-rate/route.js",
-  "/api/v1/calculate/route": "app/api/v1/calculate/route.js",
   "/api/v1/copper-price/route": "app/api/v1/copper-price/route.js",
-  "/api/v1/fx-rates/route": "app/api/v1/fx-rates/route.js",
+  "/api/fx-rate/route": "app/api/fx-rate/route.js",
+  "/api/aluminum-price/route": "app/api/aluminum-price/route.js",
+  "/api/v1/calculate/route": "app/api/v1/calculate/route.js",
   "/robots.txt/route": "app/robots.txt/route.js",
+  "/api/v1/fx-rates/route": "app/api/v1/fx-rates/route.js",
   "/sitemap.xml/route": "app/sitemap.xml/route.js",
   "/apple-icon/route": "app/apple-icon/route.js",
   "/icon/route": "app/icon/route.js",
-  "/embed/page": "app/embed/page.js",
+  "/api/copper-price/route": "app/api/copper-price/route.js",
   "/page": "app/page.js",
   "/offline/page": "app/offline/page.js",
+  "/embed/page": "app/embed/page.js",
+  "/privacy/page": "app/privacy/page.js",
   "/roadmap/page": "app/roadmap/page.js",
-  "/whitepaper/page": "app/whitepaper/page.js",
-  "/privacy/page": "app/privacy/page.js"
+  "/whitepaper/page": "app/whitepaper/page.js"
 }

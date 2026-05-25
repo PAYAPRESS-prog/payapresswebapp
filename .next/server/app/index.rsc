@@ -6,9 +6,30 @@
 6:I[1402,["177","static/chunks/app/layout-4318c4a15da8c644.js"],""]
 b:I[4062,["219","static/chunks/app/global-error-9bc3c60ab74015d3.js"],"default"]
 :HL["/_next/static/css/27dde5636b7986d0.css","style"]
-7:T5bc,
+7:Tfd3,
           window.__pp_errs = [];
           var __pp_errDiv = null;
+
+          // Hard-reload with cache-bust after clearing all SW caches.
+          // Called when stale chunks are detected so the browser fetches fresh HTML.
+          function __pp_chunkReload() {
+            try {
+              var hasSW = 'serviceWorker' in navigator;
+              var hasCaches = 'caches' in window;
+              var dest = window.location.pathname + '?_pp=' + Date.now() + window.location.hash;
+              var p = (hasSW && hasCaches)
+                ? navigator.serviceWorker.getRegistrations()
+                    .then(function(r) { return Promise.all(r.map(function(x) { return x.unregister(); })); })
+                    .then(function() { return caches.keys(); })
+                    .then(function(k) { return Promise.all(k.map(function(c) { return caches.delete(c); })); })
+                : Promise.resolve();
+              p.then(function() { window.location.href = dest; })
+               .catch(function() { window.location.href = dest; });
+            } catch(ex) {
+              window.location.reload(true);
+            }
+          }
+
           function __pp_showErr(msg) {
             try {
               if (!__pp_errDiv) {
@@ -24,19 +45,71 @@ b:I[4062,["219","static/chunks/app/global-error-9bc3c60ab74015d3.js"],"default"]
               __pp_errDiv.innerHTML += msg + '\n';
             } catch(ex) {}
           }
+
           window.addEventListener('error', function(e) {
-            var m = (e.message||'?') + '\n  @ ' + (e.filename||'?') + ':' + e.lineno + ':' + e.colno;
+            var msg  = e.message  || '';
+            var file = e.filename || '';
+            // Stale chunk: script tag for an old content-hash fails to load (404)
+            var isChunk =
+              msg.indexOf('Loading chunk') !== -1 ||
+              msg.indexOf('ChunkLoadError') !== -1 ||
+              (file.indexOf('/_next/static/') !== -1 &&
+               (msg === '' || msg === 'Script error.' || msg === 'Script error'));
+            if (isChunk) {
+              e.preventDefault();
+              try {
+                var already = sessionStorage.getItem('pp_chunk_retry');
+                if (!already) {
+                  sessionStorage.setItem('pp_chunk_retry', '1');
+                  __pp_chunkReload();
+                }
+              } catch(ex) { __pp_chunkReload(); }
+              return;
+            }
+            var m = msg + '\n  @ ' + file + ':' + e.lineno + ':' + e.colno;
             if (e.error && e.error.stack) m += '\n' + e.error.stack;
             window.__pp_errs.push(m);
             __pp_showErr(m);
           });
+
           window.addEventListener('unhandledrejection', function(e) {
-            var m = 'Unhandled Promise: ' + String(e.reason);
-            if (e.reason && e.reason.stack) m += '\n' + e.reason.stack;
+            var reason = e.reason;
+            var rMsg = reason ? (reason.message || String(reason)) : '';
+            // Stale chunk via dynamic import (Next.js lazy-loads chunks as promises)
+            var isChunk =
+              rMsg.indexOf('Loading chunk') !== -1 ||
+              rMsg.indexOf('ChunkLoadError') !== -1;
+            if (isChunk) {
+              e.preventDefault();
+              try {
+                var already = sessionStorage.getItem('pp_chunk_retry');
+                if (!already) {
+                  sessionStorage.setItem('pp_chunk_retry', '1');
+                  __pp_chunkReload();
+                }
+              } catch(ex) { __pp_chunkReload(); }
+              return;
+            }
+            var m = 'Unhandled Promise: ' + rMsg;
+            if (reason && reason.stack) m += '\n' + reason.stack;
             window.__pp_errs.push(m);
             __pp_showErr(m);
           });
-        8:Ta4a,
+        0:{"P":null,"b":"3UqnmeQ8247RImZhcEhQ4","p":"","c":["",""],"i":false,"f":[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/27dde5636b7986d0.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","style":{"background":"#060608"},"suppressHydrationWarning":true,"children":[["$","meta",null,{"httpEquiv":"Cache-Control","content":"no-cache, no-store, must-revalidate"}],["$","meta",null,{"httpEquiv":"Pragma","content":"no-cache"}],["$","meta",null,{"httpEquiv":"Expires","content":"0"}],["$","style",null,{"dangerouslySetInnerHTML":{"__html":"html,body{background:#060608!important;color:#f0f0f0;margin:0;padding:0;font-family:ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}*{box-sizing:border-box}"}}],["$","body",null,{"style":{"background":"#060608"},"children":[["$","$L2",null,{}],["$","$L3",null,{"parallelRouterKey":"children","error":"$4","errorStyles":[],"errorScripts":[],"template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}],["$","$L6",null,{"id":"err-capture","strategy":"beforeInteractive","children":"$7"}],"$L8"]}]]}]]}],{"children":["__PAGE__","$L9",{},null,false]},null,false],"$La",false]],"m":"$undefined","G":["$b",[]],"s":false,"S":true}
+d:I[1334,["974","static/chunks/app/page-1b734897b2108977.js"],"SectionErrorBoundary"]
+e:I[915,["974","static/chunks/app/page-1b734897b2108977.js"],"ParticleBackground"]
+f:I[1398,["974","static/chunks/app/page-1b734897b2108977.js"],"Header"]
+10:I[9918,["974","static/chunks/app/page-1b734897b2108977.js"],"HeroSection"]
+11:I[5081,["974","static/chunks/app/page-1b734897b2108977.js"],"CopperCalculator"]
+12:I[2866,["974","static/chunks/app/page-1b734897b2108977.js"],"ComingSoonSection"]
+13:I[3248,["974","static/chunks/app/page-1b734897b2108977.js"],"InstallPrompt"]
+14:I[8455,["974","static/chunks/app/page-1b734897b2108977.js"],"Footer"]
+15:I[4431,[],"OutletBoundary"]
+17:I[5278,[],"AsyncMetadataOutlet"]
+19:I[4431,[],"ViewportBoundary"]
+1b:I[4431,[],"MetadataBoundary"]
+1c:"$Sreact.suspense"
+c:Ta4a,
           (function() {
             function run() {
               // Check for cache-bust param BEFORE removing it — used below to
@@ -86,24 +159,11 @@ b:I[4062,["219","static/chunks/app/global-error-9bc3c60ab74015d3.js"],"default"]
               window.addEventListener('load', run);
             }
           })();
-        0:{"P":null,"b":"o7cwbR3eL1SnLSJHbvJJW","p":"","c":["",""],"i":false,"f":[[["",{"children":["__PAGE__",{}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/27dde5636b7986d0.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","style":{"background":"#060608"},"suppressHydrationWarning":true,"children":[["$","meta",null,{"httpEquiv":"Cache-Control","content":"no-cache, no-store, must-revalidate"}],["$","meta",null,{"httpEquiv":"Pragma","content":"no-cache"}],["$","meta",null,{"httpEquiv":"Expires","content":"0"}],["$","style",null,{"dangerouslySetInnerHTML":{"__html":"html,body{background:#060608!important;color:#f0f0f0;margin:0;padding:0;font-family:ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}*{box-sizing:border-box}"}}],["$","body",null,{"style":{"background":"#060608"},"children":[["$","$L2",null,{}],["$","$L3",null,{"parallelRouterKey":"children","error":"$4","errorStyles":[],"errorScripts":[],"template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}],["$","$L6",null,{"id":"err-capture","strategy":"beforeInteractive","children":"$7"}],["$","$L6",null,{"id":"sw-register","strategy":"afterInteractive","children":"$8"}]]}]]}]]}],{"children":["__PAGE__","$L9",{},null,false]},null,false],"$La",false]],"m":"$undefined","G":["$b",[]],"s":false,"S":true}
-c:I[1334,["974","static/chunks/app/page-1b734897b2108977.js"],"SectionErrorBoundary"]
-d:I[915,["974","static/chunks/app/page-1b734897b2108977.js"],"ParticleBackground"]
-e:I[1398,["974","static/chunks/app/page-1b734897b2108977.js"],"Header"]
-f:I[9918,["974","static/chunks/app/page-1b734897b2108977.js"],"HeroSection"]
-10:I[5081,["974","static/chunks/app/page-1b734897b2108977.js"],"CopperCalculator"]
-11:I[2866,["974","static/chunks/app/page-1b734897b2108977.js"],"ComingSoonSection"]
-12:I[3248,["974","static/chunks/app/page-1b734897b2108977.js"],"InstallPrompt"]
-13:I[8455,["974","static/chunks/app/page-1b734897b2108977.js"],"Footer"]
-14:I[4431,[],"OutletBoundary"]
-16:I[5278,[],"AsyncMetadataOutlet"]
-18:I[4431,[],"ViewportBoundary"]
-1a:I[4431,[],"MetadataBoundary"]
-1b:"$Sreact.suspense"
-9:["$","$1","c",{"children":[["$","div",null,{"className":"grid-bg min-h-screen","children":[["$","div",null,{"className":"bg-radial-pulse"}],["$","$Lc",null,{"children":["$","$Ld",null,{}]}],["$","$Lc",null,{"children":["$","$Le",null,{}]}],["$","main",null,{"className":"relative z-10","children":["$","div",null,{"className":"w-full max-w-2xl lg:max-w-[92vw] 2xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 lg:pt-14 pb-8 sm:pb-12","children":[["$","$Lc",null,{"children":["$","$Lf",null,{}]}],["$","$Lc",null,{"children":["$","$L10",null,{}]}],["$","div",null,{"className":"mt-12 sm:mt-16 lg:mt-20","children":["$","$Lc",null,{"children":["$","$L11",null,{}]}]}]]}]}],["$","$Lc",null,{"children":["$","$L12",null,{}]}],["$","$Lc",null,{"children":["$","$L13",null,{}]}]]}],null,["$","$L14",null,{"children":["$L15",["$","$L16",null,{"promise":"$@17"}]]}]]}]
-a:["$","$1","h",{"children":[null,[["$","$L18",null,{"children":"$L19"}],null],["$","$L1a",null,{"children":["$","div",null,{"hidden":true,"children":["$","$1b",null,{"fallback":null,"children":"$L1c"}]}]}]]}]
-19:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","content":"#cd7f32"}]]
-15:null
-1d:I[622,[],"IconMark"]
-17:{"metadata":[["$","title","0",{"children":"Busbar Calculator — PAYAPRESS"}],["$","meta","1",{"name":"description","content":"Professional real-time copper busbar cost calculator for electrical panel fabricators. Live COMEX pricing, manual dimension inputs, 22 currencies, IEC/DIN standards."}],["$","link","2",{"rel":"author","href":"https://www.payapress.com"}],["$","meta","3",{"name":"author","content":"PAYAP MACHINERY"}],["$","link","4",{"rel":"manifest","href":"/manifest.json","crossOrigin":"$undefined"}],["$","meta","5",{"name":"keywords","content":"copper busbar,cost calculator,electrical panel,IEC 60317,Cu-ETP,live copper price,COMEX,busbar weight,شینه مسی,قیمت شینه مسی,محاسبه قیمت مس"}],["$","meta","6",{"name":"creator","content":"PAYAP MACHINERY"}],["$","meta","7",{"name":"publisher","content":"PAYAPRESS"}],["$","meta","8",{"name":"robots","content":"noindex, nofollow"}],["$","meta","9",{"name":"googlebot","content":"noindex, nofollow"}],["$","link","10",{"rel":"canonical","href":"https://payapress.com"}],["$","meta","11",{"name":"mobile-web-app-capable","content":"yes"}],["$","meta","12",{"name":"apple-mobile-web-app-title","content":"Busbar Calc"}],["$","meta","13",{"name":"apple-mobile-web-app-status-bar-style","content":"black-translucent"}],["$","meta","14",{"property":"og:title","content":"Busbar Calculator — PAYAPRESS"}],["$","meta","15",{"property":"og:description","content":"Live COMEX copper pricing · manual dimension inputs · 22 currencies · IEC/DIN standards."}],["$","meta","16",{"property":"og:url","content":"https://payapress.com"}],["$","meta","17",{"property":"og:site_name","content":"Busbar Calculator"}],["$","meta","18",{"property":"og:locale","content":"en_US"}],["$","meta","19",{"property":"og:image","content":"https://payapress.com/og-image.png"}],["$","meta","20",{"property":"og:image:width","content":"1200"}],["$","meta","21",{"property":"og:image:height","content":"630"}],["$","meta","22",{"property":"og:image:alt","content":"PAYAPRESS Copper Busbar Cost Calculator"}],["$","meta","23",{"property":"og:type","content":"website"}],["$","meta","24",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","25",{"name":"twitter:creator","content":"@payapress"}],["$","meta","26",{"name":"twitter:title","content":"Busbar Calculator — PAYAPRESS"}],["$","meta","27",{"name":"twitter:description","content":"Live COMEX copper pricing · 22 currencies · IEC/DIN standards."}],["$","meta","28",{"name":"twitter:image","content":"https://payapress.com/og-image.png"}],["$","link","29",{"rel":"shortcut icon","href":"/favicon.svg"}],["$","link","30",{"rel":"icon","href":"/favicon.svg","type":"image/svg+xml"}],["$","link","31",{"rel":"apple-touch-icon","href":"/apple-icon","sizes":"180x180","type":"image/png"}],["$","link","32",{"rel":"mask-icon","href":"/favicon.svg","color":"#cd7f32"}],["$","$L1d","33",{}]],"error":null,"digest":"$undefined"}
-1c:"$17:metadata"
+        8:["$","$L6",null,{"id":"sw-register","strategy":"afterInteractive","children":"$c"}]
+9:["$","$1","c",{"children":[["$","div",null,{"className":"grid-bg min-h-screen","children":[["$","div",null,{"className":"bg-radial-pulse"}],["$","$Ld",null,{"children":["$","$Le",null,{}]}],["$","$Ld",null,{"children":["$","$Lf",null,{}]}],["$","main",null,{"className":"relative z-10","children":["$","div",null,{"className":"w-full max-w-2xl lg:max-w-[92vw] 2xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 lg:pt-14 pb-8 sm:pb-12","children":[["$","$Ld",null,{"children":["$","$L10",null,{}]}],["$","$Ld",null,{"children":["$","$L11",null,{}]}],["$","div",null,{"className":"mt-12 sm:mt-16 lg:mt-20","children":["$","$Ld",null,{"children":["$","$L12",null,{}]}]}]]}]}],["$","$Ld",null,{"children":["$","$L13",null,{}]}],["$","$Ld",null,{"children":["$","$L14",null,{}]}]]}],null,["$","$L15",null,{"children":["$L16",["$","$L17",null,{"promise":"$@18"}]]}]]}]
+a:["$","$1","h",{"children":[null,[["$","$L19",null,{"children":"$L1a"}],null],["$","$L1b",null,{"children":["$","div",null,{"hidden":true,"children":["$","$1c",null,{"fallback":null,"children":"$L1d"}]}]}]]}]
+1a:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","content":"#cd7f32"}]]
+16:null
+1e:I[622,[],"IconMark"]
+18:{"metadata":[["$","title","0",{"children":"Busbar Calculator — PAYAPRESS"}],["$","meta","1",{"name":"description","content":"Professional real-time copper busbar cost calculator for electrical panel fabricators. Live COMEX pricing, manual dimension inputs, 22 currencies, IEC/DIN standards."}],["$","link","2",{"rel":"author","href":"https://www.payapress.com"}],["$","meta","3",{"name":"author","content":"PAYAP MACHINERY"}],["$","link","4",{"rel":"manifest","href":"/manifest.json","crossOrigin":"$undefined"}],["$","meta","5",{"name":"keywords","content":"copper busbar,cost calculator,electrical panel,IEC 60317,Cu-ETP,live copper price,COMEX,busbar weight,شینه مسی,قیمت شینه مسی,محاسبه قیمت مس"}],["$","meta","6",{"name":"creator","content":"PAYAP MACHINERY"}],["$","meta","7",{"name":"publisher","content":"PAYAPRESS"}],["$","meta","8",{"name":"robots","content":"noindex, nofollow"}],["$","meta","9",{"name":"googlebot","content":"noindex, nofollow"}],["$","link","10",{"rel":"canonical","href":"https://payapress.com"}],["$","meta","11",{"name":"mobile-web-app-capable","content":"yes"}],["$","meta","12",{"name":"apple-mobile-web-app-title","content":"Busbar Calc"}],["$","meta","13",{"name":"apple-mobile-web-app-status-bar-style","content":"black-translucent"}],["$","meta","14",{"property":"og:title","content":"Busbar Calculator — PAYAPRESS"}],["$","meta","15",{"property":"og:description","content":"Live COMEX copper pricing · manual dimension inputs · 22 currencies · IEC/DIN standards."}],["$","meta","16",{"property":"og:url","content":"https://payapress.com"}],["$","meta","17",{"property":"og:site_name","content":"Busbar Calculator"}],["$","meta","18",{"property":"og:locale","content":"en_US"}],["$","meta","19",{"property":"og:image","content":"https://payapress.com/og-image.png"}],["$","meta","20",{"property":"og:image:width","content":"1200"}],["$","meta","21",{"property":"og:image:height","content":"630"}],["$","meta","22",{"property":"og:image:alt","content":"PAYAPRESS Copper Busbar Cost Calculator"}],["$","meta","23",{"property":"og:type","content":"website"}],["$","meta","24",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","25",{"name":"twitter:creator","content":"@payapress"}],["$","meta","26",{"name":"twitter:title","content":"Busbar Calculator — PAYAPRESS"}],["$","meta","27",{"name":"twitter:description","content":"Live COMEX copper pricing · 22 currencies · IEC/DIN standards."}],["$","meta","28",{"name":"twitter:image","content":"https://payapress.com/og-image.png"}],["$","link","29",{"rel":"shortcut icon","href":"/favicon.svg"}],["$","link","30",{"rel":"icon","href":"/favicon.svg","type":"image/svg+xml"}],["$","link","31",{"rel":"apple-touch-icon","href":"/apple-icon","sizes":"180x180","type":"image/png"}],["$","link","32",{"rel":"mask-icon","href":"/favicon.svg","color":"#cd7f32"}],["$","$L1e","33",{}]],"error":null,"digest":"$undefined"}
+1d:"$18:metadata"
