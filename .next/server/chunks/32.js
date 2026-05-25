@@ -10,12 +10,10 @@ exports.id=32,exports.ids=[32],exports.modules={293:(a,b,c)=>{Promise.resolve().
                   'background:#1a0000;border-bottom:2px solid #ef4444;' +
                   'color:#fca5a5;padding:12px 16px;font:12px/1.5 monospace;' +
                   'white-space:pre-wrap;word-break:break-all;max-height:60vh;overflow:auto;');
-                __pp_errDiv.innerHTML = '<b style="color:#ef4444">PAYAPRESS JS ERROR (send this to dev):</b>
-';
+                __pp_errDiv.innerHTML = '<b style="color:#ef4444">PAYAPRESS JS ERROR (send this to dev):</b>\\n';
                 document.body.appendChild(__pp_errDiv);
               }
-              __pp_errDiv.innerHTML += msg + '
-';
+              __pp_errDiv.innerHTML += msg + '\\n';
             } catch(ex) {}
           }
           window.addEventListener('error', function(e) {

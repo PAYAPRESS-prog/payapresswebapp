@@ -1,9 +1,9 @@
 {
-  "/_not-found/page": "/_not-found",
   "/api/copper-price/route": "/api/copper-price",
-  "/api/v1/fx-rates/route": "/api/v1/fx-rates",
-  "/api/v1/calculate/route": "/api/v1/calculate",
+  "/_not-found/page": "/_not-found",
   "/api/fx-rate/route": "/api/fx-rate",
+  "/api/v1/calculate/route": "/api/v1/calculate",
+  "/api/v1/fx-rates/route": "/api/v1/fx-rates",
   "/api/v1/copper-price/route": "/api/v1/copper-price",
   "/sitemap.xml/route": "/sitemap.xml",
   "/robots.txt/route": "/robots.txt",
@@ -12,7 +12,7 @@
   "/page": "/",
   "/offline/page": "/offline",
   "/embed/page": "/embed",
+  "/privacy/page": "/privacy",
   "/roadmap/page": "/roadmap",
-  "/whitepaper/page": "/whitepaper",
-  "/privacy/page": "/privacy"
+  "/whitepaper/page": "/whitepaper"
 }
