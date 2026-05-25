@@ -3,14 +3,14 @@
     "id": 8771,
     "files": [
       "static/chunks/212.c9eb5954677ff523.js",
-      "static/chunks/771.929750250b9ce43c.js"
+      "static/chunks/771.0c7341b399070f94.js"
     ]
   },
   "components/DynamicPage.tsx -> ./CopperCalculator": {
     "id": 8771,
     "files": [
       "static/chunks/212.c9eb5954677ff523.js",
-      "static/chunks/771.929750250b9ce43c.js"
+      "static/chunks/771.0c7341b399070f94.js"
     ]
   },
   "components/DynamicRoadmap.tsx -> ./RoadmapClient": {
