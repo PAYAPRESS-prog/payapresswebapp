@@ -468,10 +468,10 @@ export function CopperCalculator() {
       `Length:        ${lengthStr} mm  (${qty.toFixed(qty < 1 ? 3 : 1)} m)`,
       '─'.repeat(44),
       `Weight/m:      ${fmt(result.weightPerMeter,3)} kg/m`,
-      `Cost/m:        ${fmtUSD(result.costPerMeter)}/m`,
-      `Cost/m²:       ${fmtUSD(result.costPerM2,0)}/m²`,
       `Total weight:  ${fmt(result.weightPerMeter*qty,2)} kg`,
+      `Cost/m:        ${fmtUSD(result.costPerMeter)}/m`,
       `Total cost:    ${fmtUSD(result.costPerMeter*qty)}`,
+      `Cost/m²:       ${fmtUSD(result.costPerM2,0)}/m²`,
     ];
     await navigator.clipboard.writeText(lines.join('\n'));
     setCopy(true);
@@ -620,8 +620,8 @@ export function CopperCalculator() {
           </div>
 
           {/* ② Grade + Currency — 2-column ──────────── */}
-          <div style={{ marginTop: '2rem' }}>
-          <div style={{ borderTop: '1px solid var(--color-surface-3)', marginBottom: '1.25rem' }} />
+          <div className="mt-8">
+          <div className="border-t border-[var(--color-surface-3)] mb-5" />
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div>
               <p className="calc-section-label">② Grade</p>
@@ -652,8 +652,8 @@ export function CopperCalculator() {
           </div>{/* /② wrapper */}
 
           {/* ④ Copper Price — compact strip ─────────── */}
-          <div style={{ marginTop: '2rem' }}>
-          <div style={{ borderTop: '1px solid var(--color-surface-3)', marginBottom: '1.25rem' }} />
+          <div className="mt-8">
+          <div className="border-t border-[var(--color-surface-3)] mb-5" />
             <p className="calc-section-label">④ Copper Price</p>
             <div className="rounded-xl border overflow-hidden"
                  style={{ background: 'var(--color-surface-3)', borderColor: 'var(--color-surface-4)' }}>
@@ -777,26 +777,38 @@ export function CopperCalculator() {
             )}
           </div>
 
-          {/* Supporting metrics — 2-col divided */}
-          <div className="grid grid-cols-2 divide-x divide-[var(--color-surface-3)]">
-            <div className="px-5 py-5 text-center">
+          {/* Supporting metrics — 3-col: Weight | Cost/m | Rate/m² */}
+          <div className="grid grid-cols-3 divide-x divide-[var(--color-surface-3)]">
+            <div className="px-3 sm:px-4 py-4 text-center">
               <p className="text-[0.58rem] text-zinc-500 uppercase tracking-widest font-semibold mb-1.5">Weight</p>
-              <p className="font-mono font-bold text-2xl text-white leading-none">
+              <p className="font-mono font-bold text-lg sm:text-xl text-white leading-none">
                 <AnimNumber val={result.weightPerMeter * qty} fn={v => v >= 10000 ? fmtCompact(v) : fmt(v, 2)} />
               </p>
-              <p className="text-[0.62rem] text-zinc-600 mt-1 font-mono">
+              <p className="text-[0.6rem] text-zinc-600 mt-1 font-mono">
                 {result.weightPerMeter >= 10000 ? fmtCompact(result.weightPerMeter) : fmt(result.weightPerMeter, 3)} kg/m
               </p>
               <p className="text-[0.58rem] text-zinc-600 mt-0.5">kg total</p>
             </div>
-            <div className="px-5 py-5 text-center"
+            <div className="px-3 sm:px-4 py-4 text-center">
+              <p className="text-[0.58rem] text-zinc-500 uppercase tracking-widest font-semibold mb-1.5">Cost / m</p>
+              <p className="font-mono font-bold text-lg sm:text-xl text-copper-400 leading-none">
+                <AnimNumber val={result.costPerMeter * fxRate} fn={v => fmtCurrency(v, currMeta)} />
+              </p>
+              {currCode !== 'USD' && (
+                <p className="text-[0.6rem] text-zinc-600 mt-1 font-mono">
+                  {fmtUSD(result.costPerMeter)}
+                </p>
+              )}
+              <p className="text-[0.58rem] text-zinc-600 mt-0.5">{currCode} / m</p>
+            </div>
+            <div className="px-3 sm:px-4 py-4 text-center"
                  style={{ background: 'linear-gradient(135deg, rgba(205,127,50,0.07), rgba(184,115,51,0.03))' }}>
               <p className="text-[0.58rem] text-zinc-500 uppercase tracking-widest font-semibold mb-1.5">Rate / m²</p>
-              <p className="font-mono font-bold text-2xl text-copper-400 leading-none">
+              <p className="font-mono font-bold text-lg sm:text-xl text-copper-400 leading-none">
                 <AnimNumber val={result.costPerM2 * fxRate} fn={v => fmtCurrency(v, currMeta, 0)} />
               </p>
               {currCode !== 'USD' && (
-                <p className="text-[0.62rem] text-zinc-600 mt-1 font-mono">
+                <p className="text-[0.6rem] text-zinc-600 mt-1 font-mono">
                   {result.costPerM2 >= 10000 ? `$${fmtCompact(result.costPerM2)}` : fmtUSD(result.costPerM2, 0)}
                 </p>
               )}
@@ -854,17 +866,22 @@ export function CopperCalculator() {
             </p>
           </div>
 
-          {/* Metric placeholders */}
-          <div className="grid grid-cols-2 divide-x" style={{ borderColor: 'var(--color-surface-2)' }}>
-            <div className="px-5 py-4 text-center divide-x-0">
+          {/* Metric placeholders — 3-col */}
+          <div className="grid grid-cols-3 divide-x" style={{ borderColor: 'var(--color-surface-2)' }}>
+            <div className="px-3 sm:px-4 py-4 text-center">
               <p className="text-[0.58rem] text-zinc-600 uppercase tracking-widest font-semibold mb-1.5">Weight</p>
-              <p className="font-mono font-bold text-2xl text-zinc-700 leading-none">—</p>
+              <p className="font-mono font-bold text-xl text-zinc-700 leading-none">—</p>
               <p className="text-[0.58rem] text-zinc-600 mt-1">kg total</p>
             </div>
-            <div className="px-5 py-4 text-center" style={{ borderLeft: '1px solid var(--color-surface-2)' }}>
+            <div className="px-3 sm:px-4 py-4 text-center" style={{ borderLeft: '1px solid var(--color-surface-2)' }}>
+              <p className="text-[0.58rem] text-zinc-600 uppercase tracking-widest font-semibold mb-1.5">Cost / m</p>
+              <p className="font-mono font-bold text-xl text-zinc-700 leading-none">—</p>
+              <p className="text-[0.58rem] text-zinc-600 mt-1">— / m</p>
+            </div>
+            <div className="px-3 sm:px-4 py-4 text-center" style={{ borderLeft: '1px solid var(--color-surface-2)' }}>
               <p className="text-[0.58rem] text-zinc-600 uppercase tracking-widest font-semibold mb-1.5">Rate / m²</p>
-              <p className="font-mono font-bold text-2xl text-zinc-700 leading-none">—</p>
-              <p className="text-[0.58rem] text-zinc-600 mt-1">USD / m²</p>
+              <p className="font-mono font-bold text-xl text-zinc-700 leading-none">—</p>
+              <p className="text-[0.58rem] text-zinc-600 mt-1">— / m²</p>
             </div>
           </div>
 

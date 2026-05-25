@@ -54,7 +54,7 @@ export function Footer() {
       />
 
       <div className="w-full max-w-2xl lg:max-w-[92vw] 2xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-12">
-        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-5 gap-x-4 gap-y-8 md:gap-8">
+        <div className="grid grid-cols-3 md:grid-cols-5 gap-x-4 gap-y-8 md:gap-x-8 md:gap-y-10">
 
           <div className="col-span-3 md:col-span-2 space-y-3">
             <a

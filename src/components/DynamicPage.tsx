@@ -11,7 +11,7 @@ export const CopperCalculator = dynamic(
     loading: () => (
       <div
         className="card-copper rounded-[1.25rem] animate-pulse"
-        style={{ minHeight: '520px' }}
+        style={{ minHeight: '520px', background: '#131318', borderRadius: '1.25rem' }}
       />
     ),
   },
