@@ -3,7 +3,7 @@ import Script from 'next/script';
 import SplashScreen from '@/components/SplashScreen';
 import '@/styles/globals.css';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://payapress.com';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://calculator.payapress.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
