@@ -32,9 +32,9 @@ export function ComingSoonSection() {
   }, []);
 
   return (
-    <section ref={ref} className="mt-16 mb-12">
-      <div className="copper-divider mb-8">Coming Soon</div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <section ref={ref} className="mb-12">
+      <div className="copper-divider mb-6">Coming Soon</div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         {UPCOMING.map((u, i) => (
           <div
             key={u.title}

@@ -33,11 +33,10 @@ export default async function HomePage() {
       </SectionErrorBoundary>
 
       <main className="relative z-10">
-        <div className="w-full max-w-2xl lg:max-w-[92vw] 2xl:max-w-[1440px]
-                        mx-auto
-                        px-4 sm:px-6 lg:px-8
-                        pt-8 sm:pt-10 lg:pt-14
-                        pb-8 sm:pb-12">
+        <div className="w-full max-w-2xl mx-auto
+                        px-4 sm:px-6
+                        pt-8 sm:pt-12
+                        pb-10 sm:pb-14">
 
           <SectionErrorBoundary>
             <HeroSection />
@@ -47,7 +46,7 @@ export default async function HomePage() {
             <CopperCalculator initialData={initialData} />
           </SectionErrorBoundary>
 
-          <div className="mt-12 sm:mt-16 lg:mt-20">
+          <div className="mt-10 sm:mt-14">
             <SectionErrorBoundary>
               <ComingSoonSection />
             </SectionErrorBoundary>

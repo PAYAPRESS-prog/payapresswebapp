@@ -20,8 +20,8 @@ export function Header() {
           : 'border-b border-transparent bg-transparent'
       }`}
     >
-      <div className="w-full max-w-2xl lg:max-w-[92vw] 2xl:max-w-[1440px] mx-auto
-                      px-4 sm:px-6 lg:px-8
+      <div className="w-full max-w-2xl mx-auto
+                      px-4 sm:px-6
                       h-12 sm:h-14
                       flex items-center justify-between">
 

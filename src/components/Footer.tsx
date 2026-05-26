@@ -20,12 +20,11 @@ function FooterLink({ href, children, external = false, disabled = false }: Foot
       href={href}
       target={external ? '_blank' : undefined}
       rel={external ? 'noopener noreferrer' : undefined}
-      className="block text-[0.78rem] focus-visible:outline-none footer-link"
-      style={{ color: '#71717a', textDecoration: 'none' }}
+      className="block text-[0.78rem] text-zinc-500 no-underline footer-link focus-visible:outline-none"
     >
       {children}
       {external && (
-        <span aria-hidden="true" style={{ marginLeft: '0.2rem', fontSize: '0.65rem', color: '#52525b' }}>↗</span>
+        <span aria-hidden="true" className="ml-0.5 text-[0.65rem] text-zinc-600">↗</span>
       )}
     </a>
   );
@@ -33,7 +32,7 @@ function FooterLink({ href, children, external = false, disabled = false }: Foot
 
 function ColHeading({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[0.62rem] font-bold tracking-[0.12em] uppercase mb-3.5 select-none" style={{ color: '#3f3f46' }}>
+    <p className="text-[0.62rem] font-bold tracking-[0.12em] uppercase mb-3.5 text-zinc-700 select-none">
       {children}
     </p>
   );
@@ -42,42 +41,45 @@ function ColHeading({ children }: { children: React.ReactNode }) {
 export function Footer() {
   return (
     <footer
-      style={{ background: 'linear-gradient(to bottom, transparent, var(--color-surface-1))' }}
       className="relative z-10"
+      style={{ background: 'linear-gradient(to bottom, transparent, var(--color-surface-1))' }}
     >
+      {/* Copper rule */}
       <div
         aria-hidden="true"
-        style={{
-          height: '1px',
-          background: 'linear-gradient(to right, transparent, rgba(205,127,50,0.35) 30%, rgba(205,127,50,0.35) 70%, transparent)',
-        }}
+        className="h-px"
+        style={{ background: 'linear-gradient(to right, transparent, rgba(205,127,50,0.35) 30%, rgba(205,127,50,0.35) 70%, transparent)' }}
       />
 
-      <div className="w-full max-w-2xl lg:max-w-[92vw] 2xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-12">
-        <div className="grid grid-cols-3 md:grid-cols-5 gap-x-4 gap-y-8 md:gap-x-8 md:gap-y-10">
+      <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 pt-10 sm:pt-12">
 
-          <div className="col-span-3 md:col-span-2 space-y-3">
+        {/* Grid: brand + 3 link columns */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-8">
+
+          {/* Brand column */}
+          <div className="col-span-2 sm:col-span-1 space-y-3">
             <a
               href="/"
               className="flex items-center gap-2 w-fit transition-transform duration-150 hover:scale-[1.03] active:scale-[0.97]"
             >
-              <span className="text-base font-black tracking-tight text-shimmer">PAYAPRESS</span>
+              <span className="text-sm font-black tracking-tight text-shimmer">PAYAPRESS</span>
               <span
-                className="text-[0.55rem] font-bold tracking-widest rounded px-1.5 py-0.5"
-                style={{ color: '#52525b', border: '1px solid var(--color-surface-4)' }}
+                className="text-[0.55rem] font-bold tracking-widest text-zinc-600 rounded px-1.5 py-0.5"
+                style={{ border: '1px solid var(--color-surface-4)' }}
               >
                 PRO
               </span>
             </a>
-            <p className="text-[0.78rem] leading-snug max-w-[18rem]" style={{ color: '#52525b' }}>
+            <p className="text-[0.75rem] leading-relaxed text-zinc-600 max-w-[16rem]">
               Industrial Tools for Electrical Panel Fabricators
             </p>
-            <p className="text-[0.68rem]" style={{ color: '#3f3f46' }}>
+            <p className="text-[0.68rem] text-zinc-700">
               A PAYAP MACHINERY initiative
             </p>
           </div>
 
-          <div className="col-span-1">
+          {/* Product column */}
+          <div>
             <ColHeading>Product</ColHeading>
             <nav className="space-y-2.5" aria-label="Product">
               <FooterLink href="/">Calculator</FooterLink>
@@ -86,14 +88,21 @@ export function Footer() {
             </nav>
           </div>
 
-          <div className="col-span-1">
+          {/* Resources column */}
+          <div>
             <ColHeading>Resources</ColHeading>
             <nav className="space-y-2.5" aria-label="Resources">
               <FooterLink href="/whitepaper">Whitepaper</FooterLink>
-              <FooterLink href="https://github.com/PAYAPRESS-prog/payapresswebapp/blob/main/docs/API.md" external>
+              <FooterLink
+                href="https://github.com/PAYAPRESS-prog/payapresswebapp/blob/main/docs/API.md"
+                external
+              >
                 API Reference
               </FooterLink>
-              <FooterLink href="https://github.com/PAYAPRESS-prog/payapresswebapp/blob/main/docs/architecture.md" external>
+              <FooterLink
+                href="https://github.com/PAYAPRESS-prog/payapresswebapp/blob/main/docs/architecture.md"
+                external
+              >
                 Architecture
               </FooterLink>
               <FooterLink href="https://github.com/PAYAPRESS-prog/payapresswebapp" external>
@@ -102,29 +111,34 @@ export function Footer() {
             </nav>
           </div>
 
-          <div className="col-span-1">
+          {/* Company column */}
+          <div>
             <ColHeading>Company</ColHeading>
             <nav className="space-y-2.5" aria-label="Company">
               <FooterLink href="https://www.payapress.com" external>payapress.com</FooterLink>
               <FooterLink href="/privacy">Privacy Policy</FooterLink>
-              <FooterLink href="https://github.com/PAYAPRESS-prog/payapresswebapp/blob/main/SECURITY.md" external>
+              <FooterLink
+                href="https://github.com/PAYAPRESS-prog/payapresswebapp/blob/main/SECURITY.md"
+                external
+              >
                 Security
               </FooterLink>
             </nav>
           </div>
         </div>
 
+        {/* Divider */}
         <div className="copper-divider mt-10 mb-0" aria-hidden="true" />
 
-        <div
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0 pt-5"
-          style={{ color: '#3f3f46' }}
-        >
+        {/* Bottom bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 pt-4 text-zinc-700">
           <p className="text-[0.68rem]">© 2025 PAYAP MACHINERY · Trading as PAYAPRESS</p>
-          <p className="text-[0.68rem] sm:text-right">Prices from COMEX HG=F · For reference only · v1.0.0</p>
+          <p className="text-[0.68rem] sm:text-right">
+            Prices from COMEX HG=F · For reference only · v1.0.0
+          </p>
         </div>
 
-        <p className="text-center text-[0.63rem] mt-3 pb-safe" style={{ color: '#27272f' }}>
+        <p className="text-center text-[0.63rem] mt-3 pb-safe text-zinc-800">
           Built with ♥ by PAYAPRESS Digital Marketing Team
         </p>
       </div>

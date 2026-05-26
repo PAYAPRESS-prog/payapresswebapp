@@ -19,6 +19,23 @@
   --color-surface-3:  #1c1c23;
   --color-surface-4:  #27272f;
 
+  /* Brand — Figma redesign orange */
+  --color-brand:        #e8731a;
+  --color-brand-dim:    rgba(232,115,26,0.15);
+  --color-brand-border: rgba(232,115,26,0.45);
+  --color-brand-glow:   rgba(232,115,26,0.08);
+
+  /* Aluminum accent */
+  --color-al:           #6fb3e0;
+  --color-al-dim:       rgba(111,179,224,0.15);
+  --color-al-border:    rgba(111,179,224,0.40);
+  --color-al-glow:      rgba(111,179,224,0.08);
+
+  /* Calculator component surfaces */
+  --color-calc-card:    #12151f;
+  --color-calc-input:   #0c0f18;
+  --color-border-subtle: rgba(255,255,255,0.07);
+
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
 }
 
@@ -327,4 +344,172 @@ body {
 @keyframes radial-breathe {
   0%,100% { opacity: 0.6; transform: scale(1); }
   50%      { opacity: 1;   transform: scale(1.08); }
+}
+
+/* ══════════════════════════════════════════════════════
+   CALCULATOR — Figma Design System
+   All component-specific classes live here.
+   CSS custom props cascade from .calc-root so copper /
+   aluminum switching is a single data-attribute flip.
+   ══════════════════════════════════════════════════════ */
+
+/* 1 · Accent cascade root */
+.calc-root {
+  --accent:        var(--color-brand);
+  --accent-dim:    var(--color-brand-dim);
+  --accent-border: var(--color-brand-border);
+  --accent-glow:   var(--color-brand-glow);
+}
+.calc-root[data-metal="aluminum"] {
+  --accent:        var(--color-al);
+  --accent-dim:    var(--color-al-dim);
+  --accent-border: var(--color-al-border);
+  --accent-glow:   var(--color-al-glow);
+}
+
+/* 2 · Card shell */
+.calc-card-shell {
+  background: var(--color-calc-card);
+  border: 1px solid var(--accent-border);
+  border-radius: 24px;
+  box-shadow: 0 0 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.3s;
+}
+
+/* 3 · Figma text input */
+.fi {
+  width: 100%;
+  background: var(--color-calc-input);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 12px;
+  color: #888;
+  padding: 13px 16px;
+  min-height: 48px;
+  font-size: 1rem; /* 16 px — prevents iOS zoom */
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s, color 0.18s;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+.fi.is-set { color: #fff; border-color: var(--accent-border); }
+.fi:focus  { color: #fff; border-color: var(--accent-border); box-shadow: 0 0 0 3px var(--accent-glow); }
+.fi[type=number]::-webkit-inner-spin-button,
+.fi[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* 4 · Pill button — currencies, presets, metal toggle */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  flex-shrink: 0;
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  background: var(--color-calc-input);
+  border: 1px solid var(--color-border-subtle);
+  color: #555;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+}
+.pill.active {
+  background: var(--accent-dim);
+  border-color: var(--accent-border);
+  color: #fff;
+}
+
+/* Metal toggle variant — equal-width, taller, 1.5 px border */
+.pill.metal {
+  flex: 1;
+  justify-content: center;
+  padding: 10px 16px;
+  border-width: 1.5px;
+}
+
+/* Quick-preset variant — monospace, compact */
+.pill.preset {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  color: #444;
+}
+.pill.preset.active { color: var(--accent); }
+
+/* 5 · Grade pill — taller, rounded-xl */
+.grade-pill {
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  background: var(--color-calc-input);
+  border: 1px solid var(--color-border-subtle);
+  color: #555;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+}
+.grade-pill.active {
+  background: var(--accent-dim);
+  border-color: var(--accent-border);
+  color: #fff;
+}
+
+/* 6 · Result card — 2 × 2 grid cell */
+.res-card {
+  background: var(--color-calc-input);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+.res-card.hl {
+  background: rgba(232,115,26,0.08);
+  border-color: var(--accent-border);
+}
+
+/* 7 · Section label */
+.sec-lbl      { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.sec-lbl-icon { width: 24px; height: 24px; border-radius: 50%;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 11px; font-weight: 700; flex-shrink: 0;
+                background: var(--accent-dim); color: var(--accent); }
+.sec-lbl-text { font-size: 0.875rem; font-weight: 600; color: var(--accent); }
+
+/* 8 · Manual price input row */
+.manual-row {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--color-calc-input);
+  border: 1px solid var(--accent-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+/* 9 · Total cost hero */
+.total-hero {
+  background: var(--color-calc-input);
+  border: 1.5px solid var(--color-border-subtle);
+  border-radius: 16px;
+  padding: 16px 20px;
+  text-align: center;
+  transition: background 0.3s, border-color 0.3s;
+}
+.total-hero.has-result {
+  background: rgba(232,115,26,0.06);
+  border-color: var(--accent-border);
+}
+
+/* 10 · Busbar viewer */
+.busbar-viewer {
+  background: var(--color-calc-input);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 16px;
+  padding: 20px 16px 12px;
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
 }
