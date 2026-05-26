@@ -8,34 +8,66 @@ import { calculateCost, fmt, fmtUSD, fmtCompact } from '@/lib/copperPrice';
 import { BusbarRender } from './BusbarRender';
 import type { BusbarSize, MaterialGrade, CopperPriceData, FxRates, InitialPriceData } from '@/types/calculator';
 
-// flag = ISO 3166-1 alpha-2 country code for flagcdn.com
-// suffix = true means display as "3.25 AED" not "$3.25"
+// ── Design tokens ──────────────────────────────────────────────────
+const C = {
+  orange:        '#e8731a',
+  orangeDim:     'rgba(232,115,26,0.15)',
+  orangeBorder:  'rgba(232,115,26,0.45)',
+  orangeGlow:    'rgba(232,115,26,0.08)',
+  card:          '#12151f',
+  inputBg:       '#0c0f18',
+  border:        'rgba(255,255,255,0.07)',
+  borderHover:   'rgba(255,255,255,0.13)',
+  alBlue:        '#6fb3e0',
+  alBlueDim:     'rgba(111,179,224,0.15)',
+  alBlueBorder:  'rgba(111,179,224,0.4)',
+} as const;
+
+// ── Currency data ──────────────────────────────────────────────────
 const ALL_CURRENCIES = [
-  { code: 'USD', symbol: '$',  name: 'US Dollar',           flag: 'us', decimals: 2, suffix: false },
-  { code: 'EUR', symbol: '€',  name: 'Euro',                flag: 'eu', decimals: 2, suffix: false },
-  { code: 'GBP', symbol: '£',  name: 'British Pound',       flag: 'gb', decimals: 2, suffix: false },
-  { code: 'CHF', symbol: 'Fr', name: 'Swiss Franc',         flag: 'ch', decimals: 2, suffix: false },
-  { code: 'JPY', symbol: '¥',  name: 'Japanese Yen',        flag: 'jp', decimals: 0, suffix: false },
-  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar',     flag: 'ca', decimals: 2, suffix: false },
-  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar',   flag: 'au', decimals: 2, suffix: false },
-  { code: 'AED', symbol: '',   name: 'UAE Dirham',          flag: 'ae', decimals: 2, suffix: true  },
-  { code: 'SAR', symbol: '',   name: 'Saudi Riyal',         flag: 'sa', decimals: 2, suffix: true  },
-  { code: 'KWD', symbol: '',   name: 'Kuwaiti Dinar',       flag: 'kw', decimals: 3, suffix: true  },
-  { code: 'QAR', symbol: '',   name: 'Qatari Riyal',        flag: 'qa', decimals: 2, suffix: true  },
-  { code: 'BHD', symbol: '',   name: 'Bahraini Dinar',      flag: 'bh', decimals: 3, suffix: true  },
-  { code: 'CNY', symbol: '¥',  name: 'Chinese Yuan',        flag: 'cn', decimals: 2, suffix: false },
-  { code: 'INR', symbol: '₹',  name: 'Indian Rupee',        flag: 'in', decimals: 2, suffix: false },
-  { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar',    flag: 'sg', decimals: 2, suffix: false },
-  { code: 'KRW', symbol: '₩',  name: 'South Korean Won',    flag: 'kr', decimals: 0, suffix: false },
-  { code: 'TRY', symbol: '₺',  name: 'Turkish Lira',        flag: 'tr', decimals: 2, suffix: false },
-  { code: 'BRL', symbol: 'R$', name: 'Brazilian Real',      flag: 'br', decimals: 2, suffix: false },
-  { code: 'MXN', symbol: '$',  name: 'Mexican Peso',        flag: 'mx', decimals: 2, suffix: false },
-  { code: 'NOK', symbol: '',   name: 'Norwegian Krone',     flag: 'no', decimals: 2, suffix: true  },
-  { code: 'SEK', symbol: '',   name: 'Swedish Krona',       flag: 'se', decimals: 2, suffix: true  },
-  { code: 'ZAR', symbol: 'R',  name: 'South African Rand',  flag: 'za', decimals: 2, suffix: false },
+  { code: 'USD', symbol: '$',  name: 'US Dollars',       flag: 'us', decimals: 2, suffix: false },
+  { code: 'AED', symbol: '',   name: 'AED',               flag: 'ae', decimals: 2, suffix: true  },
+  { code: 'CNY', symbol: '¥',  name: 'Yuan',              flag: 'cn', decimals: 2, suffix: false },
+  { code: 'EUR', symbol: '€',  name: 'Euro',              flag: 'eu', decimals: 2, suffix: false },
+  { code: 'GBP', symbol: '£',  name: 'British Pound',     flag: 'gb', decimals: 2, suffix: false },
+  { code: 'SAR', symbol: '',   name: 'Saudi Riyal',       flag: 'sa', decimals: 2, suffix: true  },
+  { code: 'KWD', symbol: '',   name: 'Kuwaiti Dinar',     flag: 'kw', decimals: 3, suffix: true  },
+  { code: 'QAR', symbol: '',   name: 'Qatari Riyal',      flag: 'qa', decimals: 2, suffix: true  },
+  { code: 'BHD', symbol: '',   name: 'Bahraini Dinar',    flag: 'bh', decimals: 3, suffix: true  },
+  { code: 'JPY', symbol: '¥',  name: 'Japanese Yen',     flag: 'jp', decimals: 0, suffix: false },
+  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar',  flag: 'ca', decimals: 2, suffix: false },
+  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar',flag: 'au', decimals: 2, suffix: false },
+  { code: 'CHF', symbol: 'Fr', name: 'Swiss Franc',      flag: 'ch', decimals: 2, suffix: false },
+  { code: 'INR', symbol: '₹',  name: 'Indian Rupee',     flag: 'in', decimals: 2, suffix: false },
+  { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar', flag: 'sg', decimals: 2, suffix: false },
+  { code: 'KRW', symbol: '₩',  name: 'South Korean Won', flag: 'kr', decimals: 0, suffix: false },
+  { code: 'TRY', symbol: '₺',  name: 'Turkish Lira',     flag: 'tr', decimals: 2, suffix: false },
+  { code: 'BRL', symbol: 'R$', name: 'Brazilian Real',   flag: 'br', decimals: 2, suffix: false },
+  { code: 'MXN', symbol: '$',  name: 'Mexican Peso',     flag: 'mx', decimals: 2, suffix: false },
+  { code: 'NOK', symbol: '',   name: 'Norwegian Krone',  flag: 'no', decimals: 2, suffix: true  },
+  { code: 'SEK', symbol: '',   name: 'Swedish Krona',    flag: 'se', decimals: 2, suffix: true  },
+  { code: 'ZAR', symbol: 'R',  name: 'South African Rand',flag:'za', decimals: 2, suffix: false },
 ] as const;
 type CurrencyCode = typeof ALL_CURRENCIES[number]['code'];
 type CurrencyMeta = typeof ALL_CURRENCIES[number];
+
+const LOCALE_CURRENCY: Partial<Record<string, CurrencyCode>> = {
+  'en-US': 'USD', 'en-CA': 'CAD', 'en-GB': 'GBP', 'en-AU': 'AUD', 'en-SG': 'SGD',
+  'en-AE': 'AED', 'en-SA': 'SAR', 'en-KW': 'KWD', 'en-QA': 'QAR', 'en-BH': 'BHD',
+  'de': 'EUR', 'fr': 'EUR', 'it': 'EUR', 'es': 'EUR', 'nl': 'EUR',
+  'ar': 'AED', 'ar-AE': 'AED', 'ar-SA': 'SAR', 'ar-KW': 'KWD', 'ar-QA': 'QAR',
+  'zh': 'CNY', 'zh-CN': 'CNY', 'ja': 'JPY', 'ko': 'KRW', 'hi': 'INR',
+  'tr': 'TRY', 'pt-BR': 'BRL', 'es-MX': 'MXN', 'sv': 'SEK', 'no': 'NOK', 'nb': 'NOK',
+  'af': 'ZAR', 'de-CH': 'CHF', 'fr-CH': 'CHF',
+};
+
+const FLAG_CDN = 'https://flagcdn.com/w40';
+
+function detectCurrency(): CurrencyCode {
+  if (typeof navigator === 'undefined') return 'USD';
+  const lang = navigator.language || 'en-US';
+  return LOCALE_CURRENCY[lang] ?? LOCALE_CURRENCY[lang.split('-')[0]] ?? 'USD';
+}
 
 function fmtCurrency(localVal: number, meta: CurrencyMeta, decimalsOverride?: number): string {
   if (Math.abs(localVal) >= 10000) {
@@ -47,107 +79,29 @@ function fmtCurrency(localVal: number, meta: CurrencyMeta, decimalsOverride?: nu
   return meta.suffix ? `${n} ${meta.code}` : `${meta.symbol}${n}`;
 }
 
-const LOCALE_CURRENCY: Partial<Record<string, CurrencyCode>> = {
-  'en-US': 'USD', 'en-CA': 'CAD', 'en-GB': 'GBP', 'en-AU': 'AUD', 'en-SG': 'SGD',
-  'en-AE': 'AED', 'en-SA': 'SAR', 'en-KW': 'KWD', 'en-QA': 'QAR', 'en-BH': 'BHD',
-  'de': 'EUR', 'fr': 'EUR', 'it': 'EUR', 'es': 'EUR', 'nl': 'EUR', 'pt-PT': 'EUR',
-  'ar': 'AED', 'ar-AE': 'AED', 'ar-SA': 'SAR', 'ar-KW': 'KWD', 'ar-QA': 'QAR',
-  'zh': 'CNY', 'zh-CN': 'CNY', 'ja': 'JPY', 'ko': 'KRW', 'hi': 'INR',
-  'tr': 'TRY', 'pt-BR': 'BRL', 'es-MX': 'MXN', 'sv': 'SEK', 'no': 'NOK', 'nb': 'NOK',
-  'af': 'ZAR', 'ch': 'CHF', 'de-CH': 'CHF', 'fr-CH': 'CHF',
-};
-
-function detectCurrency(): CurrencyCode {
-  if (typeof navigator === 'undefined') return 'USD';
-  const lang = navigator.language || 'en-US';
-  return LOCALE_CURRENCY[lang]
-    ?? LOCALE_CURRENCY[lang.split('-')[0]]
-    ?? 'USD';
+// ── Current capacity (simplified IEC empirical formula) ────────────
+function calcCurrentCapacity(widthMm: number, thicknessMm: number, metal: 'copper' | 'aluminum'): number {
+  const area = widthMm * thicknessMm;
+  return Math.round(area * (metal === 'copper' ? 2.24 : 1.40));
 }
 
-const FLAG_CDN = 'https://flagcdn.com/w20';
+// ── Quick presets ──────────────────────────────────────────────────
+const COPPER_QUICK_PRESETS    = [{ w:'25',t:'3'},{ w:'40',t:'5'},{ w:'50',t:'5'},{ w:'60',t:'8'},{ w:'80',t:'8'},{ w:'100',t:'10'},{ w:'120',t:'10'}] as const;
+const ALUMINUM_QUICK_PRESETS  = [{ w:'25',t:'4'},{ w:'40',t:'5'},{ w:'60',t:'6'},{ w:'80',t:'8'},{ w:'100',t:'10'},{ w:'120',t:'12'},{ w:'160',t:'12'}] as const;
 
-// ── Quick dimension presets ────────────────────────────────────────
-const COPPER_QUICK_PRESETS = [
-  { w: '25', t: '3' }, { w: '40', t: '5' }, { w: '50', t: '5' },
-  { w: '60', t: '8' }, { w: '80', t: '8' }, { w: '100', t: '10' },
-  { w: '120', t: '10' },
-] as const;
-
-const ALUMINUM_QUICK_PRESETS = [
-  { w: '25', t: '4' }, { w: '40', t: '5' }, { w: '60', t: '6' },
-  { w: '80', t: '8' }, { w: '100', t: '10' }, { w: '120', t: '12' },
-  { w: '160', t: '12' },
-] as const;
-
-// ── Price mood indicator (metal-aware) ────────────────────────────
-function getPriceMood(price: number, metal: 'copper' | 'aluminum') {
-  if (metal === 'aluminum') {
-    if (price < 2.0) return { label: 'Low',    fg: '#22c55e', pct: 12 } as const;
-    if (price < 2.4) return { label: 'Normal', fg: '#84cc16', pct: 36 } as const;
-    if (price < 2.8) return { label: 'Fair',   fg: '#eab308', pct: 58 } as const;
-    if (price < 3.2) return { label: 'High',   fg: '#f97316', pct: 78 } as const;
-    return                  { label: 'Peak',   fg: '#ef4444', pct: 96 } as const;
-  }
-  // Copper: historical COMEX HG range ≈ $4–$15/kg
-  if (price < 7)  return { label: 'Low',    fg: '#22c55e', pct: 12 } as const;
-  if (price < 9)  return { label: 'Normal', fg: '#84cc16', pct: 36 } as const;
-  if (price < 11) return { label: 'Fair',   fg: '#eab308', pct: 58 } as const;
-  if (price < 13) return { label: 'High',   fg: '#f97316', pct: 78 } as const;
-  return                 { label: 'Peak',   fg: '#ef4444', pct: 96 } as const;
-}
-
-// ── Achievement badge system ───────────────────────────────────────
-type Achievement = { id: string; icon: string; label: string; color: string };
-
-function getAchievements(
-  result: { weightPerMeter: number; costPerMeter: number } | null,
-  size: BusbarSize, grade: MaterialGrade, lengthMm: number,
-  metal: 'copper' | 'aluminum',
-): Achievement[] {
-  if (!result) return [];
-  const a: Achievement[] = [];
-  const sizes = metal === 'copper' ? BUSBAR_SIZES : ALUMINUM_BUSBAR_SIZES;
-  if (sizes.some(s => s.width === size.width && s.thickness === size.thickness))
-    a.push({ id: 'iec',    icon: '✓', label: 'IEC Standard',     color: '#22c55e' });
-  const heavyThreshold = metal === 'copper' ? 8 : 3;
-  if (result.weightPerMeter >= heavyThreshold)
-    a.push({ id: 'heavy',  icon: '⚡', label: 'Heavy Gauge',      color: '#f59e0b' });
-  if (metal === 'copper') {
-    if (grade.id === 'cu-ofe')
-      a.push({ id: 'premium', icon: '◆', label: 'Premium Grade',    color: '#a78bfa' });
-    else if (grade.id === 'cu-of')
-      a.push({ id: 'hc',      icon: '◇', label: 'High Conductivity', color: '#818cf8' });
-  } else {
-    if (grade.id === 'al-1350')
-      a.push({ id: 'ec',   icon: '◆', label: 'EC Grade',          color: '#64b5f6' });
-    else if (grade.id === 'al-6101')
-      a.push({ id: 'hs',   icon: '◇', label: 'High Strength',     color: '#4fc3f7' });
-  }
-  if (lengthMm >= 6000)
-    a.push({ id: 'long',   icon: '∞', label: 'Long Run',          color: '#34d399' });
-  const budgetThreshold = metal === 'copper' ? 20 : 8;
-  if (result.costPerMeter < budgetThreshold)
-    a.push({ id: 'budget', icon: '★', label: 'Budget Cut',        color: '#fbbf24' });
-  return a;
-}
-
-// ── Confetti burst component ───────────────────────────────────────
+// ── Confetti burst ─────────────────────────────────────────────────
 function ConfettiBurst() {
   const particles = useMemo(() =>
     Array.from({ length: 22 }, (_, i) => ({
       id: i,
-      x: 10 + Math.random() * 80,
-      y: 20 + Math.random() * 50,
-      w: Math.random() * 7 + 4,
-      h: Math.random() * 3 + 2,
-      color: ['#cd7f32','#f5d78e','#b87333','#fbbf24','#e08830','#fff'][Math.floor(Math.random() * 6)],
-      dx: (Math.random() - 0.5) * 140,
-      dy: -(Math.random() * 110 + 50),
+      x: 10 + Math.random() * 80, y: 20 + Math.random() * 50,
+      w: Math.random() * 7 + 4, h: Math.random() * 3 + 2,
+      color: ['#e8731a','#f5d78e','#d06010','#fbbf24','#e08030','#fff'][Math.floor(Math.random() * 6)],
+      dx: (Math.random() - 0.5) * 140, dy: -(Math.random() * 110 + 50),
       rot: Math.random() * 720 - 360,
     })), []);
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden z-50 rounded-[1.25rem]">
+    <div className="pointer-events-none absolute inset-0 overflow-hidden z-50 rounded-2xl">
       {particles.map(p => (
         <motion.div key={p.id}
           initial={{ opacity: 1, x: `${p.x}%`, y: `${p.y}%`, rotate: 0, scale: 1 }}
@@ -160,187 +114,129 @@ function ConfettiBurst() {
   );
 }
 
-// ── Currency selector with flag + search ───────────────────────────
-function CurrencySelector({ value, onChange }: { value: CurrencyCode; onChange: (c: CurrencyCode) => void }) {
-  const [open,  setOpen]  = useState(false);
-  const [query, setQuery] = useState('');
-  const wrapRef   = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
-
-  const selected = ALL_CURRENCIES.find(c => c.code === value) ?? ALL_CURRENCIES[0];
-  const filtered = ALL_CURRENCIES.filter(c =>
-    c.code.toLowerCase().includes(query.toLowerCase()) ||
-    c.name.toLowerCase().includes(query.toLowerCase())
-  );
-
-  useEffect(() => {
-    if (!open) return;
-    const close = (e: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
-        setOpen(false); setQuery('');
-      }
-    };
-    document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
-  }, [open]);
-
-  useEffect(() => {
-    if (open) setTimeout(() => searchRef.current?.focus(), 50);
-  }, [open]);
-
-  return (
-    <div ref={wrapRef} className="relative">
-      {/* Trigger */}
-      <button
-        onClick={() => { setOpen(v => !v); setQuery(''); }}
-        aria-expanded={open}
-        className="w-full flex items-center gap-2.5 field-select py-2 text-left cursor-pointer"
-      >
-        <img
-          src={`${FLAG_CDN}/${selected.flag}.png`}
-          width={20} height={14} alt={selected.name}
-          className="rounded-[2px] flex-shrink-0"
-        />
-        <span className="font-mono font-semibold text-sm text-white">{selected.code}</span>
-        <span className="text-zinc-500 text-xs flex-1 truncate">{selected.name}</span>
-        <span className="text-zinc-600 text-[0.6rem] ml-1 flex-shrink-0">{open ? '▴' : '▾'}</span>
-      </button>
-
-      {/* Dropdown */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -5, scaleY: 0.92 }}
-            animate={{ opacity: 1, y: 0, scaleY: 1 }}
-            exit={{ opacity: 0, y: -5, scaleY: 0.92 }}
-            style={{ transformOrigin: 'top', zIndex: 200 }}
-            className="absolute top-full mt-1 left-0 right-0
-                       bg-[var(--color-surface-2)] border border-[var(--color-surface-4)]
-                       rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden"
-          >
-            {/* Search input */}
-            <div className="p-2 border-b border-[var(--color-surface-4)]">
-              <input
-                ref={searchRef}
-                type="text"
-                placeholder="Search currency…"
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Escape') { setOpen(false); setQuery(''); } }}
-                className="w-full bg-[var(--color-surface-3)] rounded-lg px-3 py-1.5 text-sm
-                           outline-none text-white placeholder:text-zinc-600
-                           border border-transparent focus:border-copper-600/40"
-              />
-            </div>
-            {/* Currency list */}
-            <div className="max-h-52 overflow-y-auto">
-              {filtered.map(c => (
-                <button
-                  key={c.code}
-                  onClick={() => { onChange(c.code); setOpen(false); setQuery(''); }}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors ${
-                    c.code === value
-                      ? 'bg-copper-600/15 text-copper-400'
-                      : 'text-zinc-300 hover:bg-[var(--color-surface-3)]'
-                  }`}
-                >
-                  <img
-                    src={`${FLAG_CDN}/${c.flag}.png`}
-                    width={20} height={14} alt={c.name}
-                    className="rounded-[2px] flex-shrink-0"
-                  />
-                  <span className="font-mono font-semibold text-xs w-10 flex-shrink-0">{c.code}</span>
-                  <span className="text-zinc-500 text-xs flex-1 truncate">{c.name}</span>
-                </button>
-              ))}
-              {filtered.length === 0 && (
-                <p className="text-center text-zinc-600 text-xs py-4">No results</p>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// ── Smooth animated number ─────────────────────────────────────────
+// ── Animated number hook ───────────────────────────────────────────
 function useAnimatedNumber(target: number, duration = 420) {
   const [current, setCurrent] = useState(target);
   const prev = useRef(target);
   const rafRef = useRef(0);
-
   useEffect(() => {
     cancelAnimationFrame(rafRef.current);
     const from = prev.current;
     if (Math.abs(target - from) < 0.00001) { setCurrent(target); return; }
     const start = performance.now();
-
     const tick = (now: number) => {
       const t = Math.min((now - start) / duration, 1);
-      const e = 1 - Math.pow(1 - t, 3); // easeOutCubic
-      const val = from + (target - from) * e;
-      setCurrent(val);
+      const e = 1 - Math.pow(1 - t, 3);
+      setCurrent(from + (target - from) * e);
       if (t < 1) rafRef.current = requestAnimationFrame(tick);
       else prev.current = target;
     };
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
   }, [target, duration]);
-
   return current;
 }
 
-// ── Animated number (inline helper) ───────────────────────────────
 function AnimNumber({ val, fn }: { val: number; fn: (n: number) => string }) {
-  const animated = useAnimatedNumber(val);
-  return <>{fn(animated)}</>;
+  return <>{fn(useAnimatedNumber(val))}</>;
 }
 
-// ── Card wrapper (tilt removed — useSpring+useTransform unstable in FM12+React19) ─
-function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={className}>{children}</div>;
+// ── Section label (Figma style: circle icon + orange text) ─────────
+function SectionLabel({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2.5 mb-3">
+      <div className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0"
+           style={{ background: C.orangeDim, color: C.orange }}>
+        {icon}
+      </div>
+      <span className="text-sm font-semibold" style={{ color: C.orange }}>
+        {children}
+      </span>
+    </div>
+  );
 }
 
-// ── Animated result card ───────────────────────────────────────────
-function ResultCard({
-  label, rawValue, formatFn, secondary, unit, highlight = false, delay = 0,
+// ── Figma-style input ──────────────────────────────────────────────
+function FigmaInput({
+  placeholder, value, onChange, onBlur, suffix, active = false,
 }: {
-  label: string; rawValue: number; formatFn: (v: number) => string;
-  secondary?: string; unit: string; highlight?: boolean; delay?: number;
+  placeholder: string; value: string;
+  onChange: (v: string) => void;
+  onBlur: (v: string) => void;
+  suffix?: string; active?: boolean;
 }) {
-  const animated = useAnimatedNumber(rawValue);
+  const [focused, setFocused] = useState(false);
+  const isActive = focused || (value !== '' && value !== '0');
+  return (
+    <div className="relative">
+      <input
+        type="text" inputMode="numeric" pattern="[0-9]*"
+        placeholder={placeholder}
+        value={value}
+        onChange={e => onChange(e.target.value.replace(/[^0-9]/g, ''))}
+        onFocus={() => setFocused(true)}
+        onBlur={e => { setFocused(false); onBlur(e.target.value); }}
+        style={{
+          width: '100%',
+          background: C.inputBg,
+          border: `1px solid ${isActive || active ? C.orangeBorder : C.border}`,
+          borderRadius: 12,
+          color: isActive ? '#ffffff' : '#888',
+          padding: '13px 16px',
+          paddingRight: suffix ? 52 : 16,
+          fontSize: '1rem',
+          fontFamily: 'inherit',
+          outline: 'none',
+          transition: 'border-color 0.18s, color 0.18s',
+          WebkitAppearance: 'none',
+          boxShadow: isActive ? `0 0 0 3px ${C.orangeGlow}` : 'none',
+        }}
+      />
+      {suffix && (
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[0.65rem] font-mono pointer-events-none"
+              style={{ color: '#555' }}>
+          {suffix}
+        </span>
+      )}
+    </div>
+  );
+}
 
+// ── Calculation result card (2×2 grid) ─────────────────────────────
+function CalcCard({
+  label, value, unit, highlight = false, delay = 0,
+}: {
+  label: string; value: string; unit: string; highlight?: boolean; delay?: number;
+}) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 22, scale: 0.93 }}
+      initial={{ opacity: 0, y: 14, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 22, delay }}
-      whileHover={{ y: -2, transition: { duration: 0.15 } }}
-      className={`rounded-xl border p-3 text-center transition-colors cursor-default ${
-        highlight
-          ? 'result-card-highlight border-copper-700/40'
-          : 'bg-[var(--color-surface-3)] border-[var(--color-surface-4)]'
-      }`}
+      transition={{ type: 'spring', stiffness: 280, damping: 22, delay }}
+      style={{
+        background: highlight ? 'rgba(232,115,26,0.08)' : C.inputBg,
+        border: `1px solid ${highlight ? C.orangeBorder : C.border}`,
+        borderRadius: 16,
+        padding: '14px 16px',
+      }}
     >
-      <p className="text-[0.59rem] text-zinc-500 uppercase tracking-wider mb-1.5 font-semibold leading-none">
+      <p className="text-[10px] font-bold tracking-[0.12em] uppercase mb-2.5"
+         style={{ color: highlight ? C.orange : '#666' }}>
         {label}
       </p>
-      <p className={`font-mono font-bold text-lg sm:text-xl leading-tight ${
-        highlight ? 'text-copper-400 result-glow' : 'text-white'
-      }`}>
-        {formatFn(animated)}
+      <p className="text-2xl font-bold font-mono leading-none"
+         style={{ color: highlight ? C.orange : '#fff' }}>
+        {value}
       </p>
-      {secondary && (
-        <p className="text-[0.65rem] text-zinc-600 mt-0.5 font-mono">{secondary}</p>
-      )}
-      <p className="text-[0.58rem] text-zinc-600 mt-1 leading-none">{unit}</p>
+      <p className="text-[11px] mt-2" style={{ color: '#555' }}>{unit}</p>
     </motion.div>
   );
 }
 
 // ── Main component ─────────────────────────────────────────────────
 export function CopperCalculator({ initialData }: { initialData?: InitialPriceData }) {
+
+  // ── Visibility ──────────────────────────────────────────────────
   const cardRef  = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
   useEffect(() => {
@@ -348,79 +244,51 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
     if (!el || typeof IntersectionObserver === 'undefined') { setInView(true); return; }
     const obs = new IntersectionObserver(
       ([e]) => { if (e.isIntersecting) { setInView(true); obs.disconnect(); } },
-      { rootMargin: '-60px' },
+      { rootMargin: '-40px' },
     );
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
-  const [metalType, setMetalType] = useState<'copper' | 'aluminum'>('copper');
-  const [widthStr, setWidthStr] = useState('60');
-  const [thickStr, setThickStr] = useState('8');
-  const [grade, setGrade] = useState<MaterialGrade>(DEFAULT_GRADE);
 
-  // drag-to-resize state
-  const dragStart = useRef<{ x: number; y: number; w: number; t: number } | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
+  // ── Core state ──────────────────────────────────────────────────
+  const [metalType,  setMetalType]  = useState<'copper' | 'aluminum'>('copper');
+  const [widthStr,   setWidthStr]   = useState('60');
+  const [thickStr,   setThickStr]   = useState('8');
+  const [lengthStr,  setLengthStr]  = useState('1000');
+  const [grade,      setGrade]      = useState<MaterialGrade>(DEFAULT_GRADE);
+  const [currCode,   setCurrCode]   = useState<CurrencyCode>('USD');
+  const [manual,     setMan]        = useState('');
+  const [useMan,     setUM]         = useState(false);
+  const [copied,     setCopy]       = useState(false);
 
-  // gamification
-  const [calcCount,    setCalcCount]    = useState(0);
-  const [milestone,    setMilestone]    = useState('');
-  const [showConfetti, setConfetti]     = useState(false);
+  // ── Price state ──────────────────────────────────────────────────
+  const [live,      setLive]   = useState<CopperPriceData | null>(initialData?.copper   ?? null);
+  const [alLive,    setAlLive] = useState<CopperPriceData | null>(initialData?.aluminum ?? null);
+  const [fx,        setFx]     = useState<FxRates | null>(initialData?.fx ?? null);
+  const [loading,   setLoad]   = useState(initialData?.copper   == null);
+  const [alLoading, setAlLoad] = useState(initialData?.aluminum == null);
+
+  // ── Gamification ─────────────────────────────────────────────────
+  const [calcCount,    setCalcCount]  = useState(0);
+  const [milestone,    setMilestone]  = useState('');
+  const [showConfetti, setConfetti]   = useState(false);
   const hadResult = useRef(false);
 
+  // ── Drag-to-resize ───────────────────────────────────────────────
+  const dragStart   = useRef<{ x: number; y: number; w: number; t: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // ── Computed ────────────────────────────────────────────────────
   const size = useMemo<BusbarSize>(() => {
-    const w = Math.max(1,      Math.min(100000, parseFloat(widthStr) || 60));
-    const h = Math.max(1,      Math.min(100000, parseFloat(thickStr) || 8));
+    const w = Math.max(1, Math.min(100000, parseFloat(widthStr) || 60));
+    const h = Math.max(1, Math.min(100000, parseFloat(thickStr) || 8));
     return { id: 'custom', width: w, thickness: h, label: `${w} × ${h} mm` };
   }, [widthStr, thickStr]);
-  const [live,    setLive]  = useState<CopperPriceData | null>(initialData?.copper   ?? null);
-  const [alLive,  setAlLive] = useState<CopperPriceData | null>(initialData?.aluminum ?? null);
-  const [fx,      setFx]    = useState<FxRates | null>(initialData?.fx ?? null);
-  const [loading,  setLoad] = useState(initialData?.copper   == null);
-  const [alLoading, setAlLoad] = useState(initialData?.aluminum == null);
-  const [manual, setMan]  = useState('');
-  const [useMan, setUM]   = useState(false);
-  const [lengthStr, setLengthStr] = useState('1000');
 
-  // qty in meters for calculations, user enters in mm
   const qty = useMemo(() => {
     const mm = parseFloat(lengthStr) || 1000;
     return Math.max(1, Math.min(100000, mm)) / 1000;
   }, [lengthStr]);
-  const [currCode, setCurrCode] = useState<CurrencyCode>('USD');
-  const [copied, setCopy] = useState(false);
-
-  // Auto-detect currency from browser locale on mount
-  useEffect(() => {
-    setCurrCode(detectCurrency());
-    try { setCalcCount(parseInt(localStorage.getItem('pp_calcs') || '0')); } catch { /* ignore */ }
-  }, []);
-
-  useEffect(() => {
-    const fetchAll = async (isInitial: boolean) => {
-      const [p, al, f] = await Promise.all([
-        fetch('/api/copper-price').then(r => r.json()).catch(() => null),
-        fetch('/api/aluminum-price').then(r => r.json()).catch(() => null),
-        fetch('/api/fx-rate').then(r => r.json()).catch(() => null),
-      ]);
-      if (p)  setLive(p);
-      if (al) setAlLive(al);
-      if (f)  setFx(f);
-      // Only clear loading state on initial fetch (skipped when initialData was provided)
-      if (isInitial) { setLoad(false); setAlLoad(false); }
-    };
-    fetchAll(initialData?.copper == null);
-    const iv = setInterval(() => fetchAll(false), 300000);
-    return () => clearInterval(iv);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleMetalSwitch = useCallback((newMetal: 'copper' | 'aluminum') => {
-    setMetalType(newMetal);
-    setGrade(newMetal === 'copper' ? DEFAULT_GRADE : DEFAULT_ALUMINUM_GRADE);
-    setUM(false);
-    setMan('');
-  }, []);
 
   const activeLive    = metalType === 'copper' ? live    : alLive;
   const activeLoading = metalType === 'copper' ? loading : alLoading;
@@ -448,15 +316,44 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
     [size, grade, priceUSD],
   );
 
-  // Confetti + calc counter when result first arrives
+  const totalCostLocal = result ? result.costPerMeter * qty * fxRate : 0;
+  const materialCost   = result ? result.costPerMeter * qty * fxRate : 0;
+  const fabricationCost = result ? result.costPerMeter * qty * fxRate * 1.045 : 0;
+  const weightPerBar   = result ? result.weightPerMeter * qty : 0;
+  const currentCap     = useMemo(() => calcCurrentCapacity(size.width, size.thickness, metalType), [size, metalType]);
+
+  const isIecStd = (metalType === 'copper' ? BUSBAR_SIZES : ALUMINUM_BUSBAR_SIZES)
+    .some(s => s.width === size.width && s.thickness === size.thickness);
+
+  // ── Effects ──────────────────────────────────────────────────────
+  useEffect(() => {
+    setCurrCode(detectCurrency());
+    try { setCalcCount(parseInt(localStorage.getItem('pp_calcs') || '0')); } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => {
+    const fetchAll = async (isInitial: boolean) => {
+      const [p, al, f] = await Promise.all([
+        fetch('/api/copper-price').then(r => r.json()).catch(() => null),
+        fetch('/api/aluminum-price').then(r => r.json()).catch(() => null),
+        fetch('/api/fx-rate').then(r => r.json()).catch(() => null),
+      ]);
+      if (p)  setLive(p);
+      if (al) setAlLive(al);
+      if (f)  setFx(f);
+      if (isInitial) { setLoad(false); setAlLoad(false); }
+    };
+    fetchAll(initialData?.copper == null);
+    const iv = setInterval(() => fetchAll(false), 300000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (result && !hadResult.current) {
       hadResult.current = true;
       let next = 1;
-      try {
-        next = parseInt(localStorage.getItem('pp_calcs') || '0') + 1;
-        localStorage.setItem('pp_calcs', String(next));
-      } catch { /* Private Browsing / storage unavailable — keep count in memory */ }
+      try { next = parseInt(localStorage.getItem('pp_calcs') || '0') + 1; localStorage.setItem('pp_calcs', String(next)); } catch { /* ignore */ }
       setCalcCount(next);
       setConfetti(true);
       setTimeout(() => setConfetti(false), 1300);
@@ -467,14 +364,16 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
     }
   }, [result]);
 
-  // ── Drag-to-resize busbar viewer ──────────────────────────────────
+  // ── Handlers ─────────────────────────────────────────────────────
+  const handleMetalSwitch = useCallback((m: 'copper' | 'aluminum') => {
+    setMetalType(m);
+    setGrade(m === 'copper' ? DEFAULT_GRADE : DEFAULT_ALUMINUM_GRADE);
+    setUM(false); setMan('');
+  }, []);
+
   const onViewerPointerDown = useCallback((e: React.PointerEvent) => {
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    dragStart.current = {
-      x: e.clientX, y: e.clientY,
-      w: parseFloat(widthStr) || 60,
-      t: parseFloat(thickStr) || 8,
-    };
+    dragStart.current = { x: e.clientX, y: e.clientY, w: parseFloat(widthStr) || 60, t: parseFloat(thickStr) || 8 };
     setIsDragging(true);
   }, [widthStr, thickStr]);
 
@@ -482,510 +381,403 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
     if (!dragStart.current) return;
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
-    const newW = Math.max(1,  Math.min(400, Math.round(dragStart.current.w + dx * 0.7)));
-    const newT = Math.max(1,  Math.min(100, Math.round(dragStart.current.t - dy * 0.12)));
-    setWidthStr(String(newW));
-    setThickStr(String(newT));
+    setWidthStr(String(Math.max(1, Math.min(400, Math.round(dragStart.current.w + dx * 0.7)))));
+    setThickStr(String(Math.max(1, Math.min(100, Math.round(dragStart.current.t - dy * 0.12)))));
   }, []);
 
-  const onViewerPointerUp = useCallback(() => {
-    dragStart.current = null;
-    setIsDragging(false);
-  }, []);
+  const onViewerPointerUp = useCallback(() => { dragStart.current = null; setIsDragging(false); }, []);
 
   const handleCopy = async () => {
     if (!result) return;
-    const metalName = metalType === 'copper' ? 'Copper' : 'Aluminum';
+    const metal = metalType === 'copper' ? 'Copper' : 'Aluminum';
     const lines = [
-      `PAYAPRESS — ${metalName} Busbar Cost Calculator`,
+      `PAYAPRESS — ${metal} Busbar Cost Calculator`,
       '─'.repeat(44),
-      `Size:          ${size.label}`,
-      `Grade:         ${grade.label} (${(grade.purity*100).toFixed(2)}%)`,
-      `${metalName} price:  ${fmtUSD(result.pricePerKg)}/kg`,
-      `Length:        ${lengthStr} mm  (${qty.toFixed(qty < 1 ? 3 : 1)} m)`,
+      `Size:         ${size.label}`,
+      `Grade:        ${grade.label} (${(grade.purity * 100).toFixed(2)}%)`,
+      `${metal} price: ${fmtUSD(result.pricePerKg)}/kg`,
+      `Length:       ${lengthStr} mm  (${qty.toFixed(qty < 1 ? 3 : 1)} m)`,
       '─'.repeat(44),
-      `Weight/m:      ${fmt(result.weightPerMeter,3)} kg/m`,
-      `Total weight:  ${fmt(result.weightPerMeter*qty,2)} kg`,
-      `Cost/m:        ${fmtUSD(result.costPerMeter)}/m`,
-      `Total cost:    ${fmtUSD(result.costPerMeter*qty)}`,
-      `Cost/m²:       ${fmtUSD(result.costPerM2,0)}/m²`,
+      `Weight:       ${fmt(weightPerBar, 2)} kg`,
+      `Material:     ${fmtCurrency(materialCost, currMeta)}`,
+      `Total/Bar:    ${fmtCurrency(fabricationCost, currMeta)} (incl. fabrication)`,
+      `Current Cap:  ${currentCap}A`,
     ];
     await navigator.clipboard.writeText(lines.join('\n'));
     setCopy(true);
     setTimeout(() => setCopy(false), 2500);
   };
 
-  const totalCostLocal = result ? result.costPerMeter * qty * fxRate : 0;
-  const totalCostUSD   = result ? result.costPerMeter * qty : 0;
+  // ── Render ───────────────────────────────────────────────────────
+  const accentColor = metalType === 'copper' ? C.orange   : C.alBlue;
+  const accentDim   = metalType === 'copper' ? C.orangeDim : C.alBlueDim;
+  const accentBorder = metalType === 'copper' ? C.orangeBorder : C.alBlueBorder;
 
   return (
     <div
       ref={cardRef}
-      className="relative"
+      className="w-full max-w-sm mx-auto relative"
       style={{
-        transform: inView ? 'translateY(0)' : 'translateY(12px)',
+        transform: inView ? 'translateY(0)' : 'translateY(16px)',
         transition: 'transform 0.7s cubic-bezier(0.22,1,0.36,1)',
       }}
     >
-    {/* Mobile: stacked · Desktop lg+: side-by-side (configurator 60 / results 40) */}
-    <div className="space-y-6 lg:space-y-0 lg:grid lg:grid-cols-[3fr_2fr] lg:gap-6 lg:items-start">
+      <div
+        className="relative overflow-hidden"
+        style={{
+          background: C.card,
+          border: `1px solid ${accentBorder}`,
+          borderRadius: 24,
+          boxShadow: `0 0 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03)`,
+        }}
+      >
+        <AnimatePresence>{showConfetti && <ConfettiBurst key="confetti" />}</AnimatePresence>
 
-    {/* ╔══════════════════════════════════════════╗
-        ║  CARD 1 — CONFIGURATOR                   ║
-        ╚══════════════════════════════════════════╝ */}
-    <TiltCard className="card-copper scanlines">
-      <AnimatePresence>{showConfetti && <ConfettiBurst key="confetti" />}</AnimatePresence>
-      <div className="relative z-10">
+        <div className="p-5 space-y-5">
 
-        {/* ── Busbar Visual — drag to resize ──────── */}
-        <div
-          className={`viewer-bg rounded-t-[1.25rem] overflow-hidden px-4 sm:px-5 pt-5 sm:pt-6 pb-5 select-none
-                      ${isDragging ? 'cursor-ew-resize' : 'cursor-grab'}`}
-          onPointerDown={onViewerPointerDown}
-          onPointerMove={onViewerPointerMove}
-          onPointerUp={onViewerPointerUp}
-          onPointerCancel={onViewerPointerUp}
-        >
-          <BusbarRender width={size.width} thickness={size.thickness} metal={metalType} />
-          <div className="mt-3 text-center space-y-1.5">
-            <div className="flex items-center justify-center gap-1.5 flex-wrap">
-              <span className="font-mono text-sm font-bold text-copper-500 tracking-wide">
+          {/* ── Price header ──────────────────────────────────────── */}
+          <div className="flex items-center justify-between">
+            <span className="text-base font-semibold" style={{ color: accentColor }}>
+              {metalType === 'copper' ? 'Copper Price' : 'Aluminum Price'}
+            </span>
+            <span className="text-2xl font-bold font-mono tracking-tight" style={{ color: accentColor }}>
+              {activeLoading
+                ? <span className="animate-pulse text-xl" style={{ color: '#555' }}>···</span>
+                : activeLive
+                  ? `$${fmt(activeLive.pricePerKg, 3)}`
+                  : <span style={{ color: '#444' }}>—</span>
+              }
+            </span>
+          </div>
+
+          {/* ── Metal toggle ──────────────────────────────────────── */}
+          <div className="flex gap-2.5">
+            {(['copper', 'aluminum'] as const).map(m => {
+              const active = metalType === m;
+              const color  = m === 'copper' ? C.orange : C.alBlue;
+              const dim    = m === 'copper' ? C.orangeDim : C.alBlueDim;
+              const border = m === 'copper' ? C.orangeBorder : C.alBlueBorder;
+              return (
+                <button key={m} onClick={() => handleMetalSwitch(m)}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-medium transition-all select-none"
+                  style={{
+                    background: active ? dim : 'transparent',
+                    border: `1.5px solid ${active ? border : C.border}`,
+                    color: active ? color : '#666',
+                  }}
+                >
+                  <span className="text-[10px]">{active ? '●' : '○'}</span>
+                  {m === 'copper' ? 'CU-Copper' : 'Al-Aluminium'}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* ── Busbar render ─────────────────────────────────────── */}
+          <div
+            className={`rounded-2xl overflow-hidden select-none ${isDragging ? 'cursor-ew-resize' : 'cursor-grab'}`}
+            style={{ background: C.inputBg, border: `1px solid ${C.border}`, padding: '20px 16px 12px' }}
+            onPointerDown={onViewerPointerDown}
+            onPointerMove={onViewerPointerMove}
+            onPointerUp={onViewerPointerUp}
+            onPointerCancel={onViewerPointerUp}
+          >
+            <BusbarRender width={size.width} thickness={size.thickness} metal={metalType} />
+            <div className="mt-2.5 flex items-center justify-center gap-2 flex-wrap">
+              <span className="font-mono text-xs font-bold" style={{ color: accentColor }}>
                 {size.width} × {size.thickness} mm
               </span>
-              <span className="text-zinc-700 text-[0.6rem]">·</span>
-              <span className="font-mono text-xs text-zinc-500">{size.width * size.thickness} mm²</span>
-              <span className="text-zinc-700 text-[0.6rem]">·</span>
-              <span className="font-mono text-xs text-zinc-500">{grade.label}</span>
-              {(metalType === 'copper' ? BUSBAR_SIZES : ALUMINUM_BUSBAR_SIZES).some(s => s.width === size.width && s.thickness === size.thickness) && (
-                <span className="text-[0.55rem] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full"
-                      style={{ background: 'rgba(34,197,94,0.12)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.22)' }}>
+              <span style={{ color: '#333', fontSize: '0.5rem' }}>·</span>
+              <span className="font-mono text-xs" style={{ color: '#555' }}>{size.width * size.thickness} mm²</span>
+              {isIecStd && (
+                <span className="text-[9px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full"
+                      style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}>
                   IEC STD
                 </span>
               )}
             </div>
-            <p className={`text-[0.52rem] tracking-widest transition-opacity ${isDragging ? 'opacity-0' : 'opacity-35'} text-zinc-500`}>
+            <p className="text-center text-[9px] tracking-widest mt-1.5" style={{ color: '#333', opacity: isDragging ? 0 : 1, transition: 'opacity 0.15s' }}>
               ← DRAG TO RESIZE →
             </p>
           </div>
-        </div>
 
-        {/* ── Inputs ──────────────────────────────── */}
-        <div className="px-4 sm:px-5 md:px-6 pt-7 pb-8">
+          {/* ── Dimensions ────────────────────────────────────────── */}
+          <div>
+            <SectionLabel icon="i">Dimensions in mm</SectionLabel>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <FigmaInput
+                placeholder="Width"
+                value={widthStr}
+                suffix="↔"
+                onChange={raw => { const v = parseFloat(raw); setWidthStr(!isNaN(v) && v > 100000 ? '100000' : raw); }}
+                onBlur={v => { const n = Math.round(parseFloat(v)); setWidthStr(String(!isNaN(n) ? Math.max(1, Math.min(100000, n)) : 60)); }}
+              />
+              <FigmaInput
+                placeholder="Height"
+                value={thickStr}
+                suffix="mm"
+                onChange={raw => { const v = parseFloat(raw); setThickStr(!isNaN(v) && v > 100000 ? '100000' : raw); }}
+                onBlur={v => { const n = Math.round(parseFloat(v)); setThickStr(String(!isNaN(n) ? Math.max(1, Math.min(100000, n)) : 8)); }}
+              />
+            </div>
+            <FigmaInput
+              placeholder="Length"
+              value={lengthStr}
+              suffix="mm"
+              onChange={raw => { const v = parseFloat(raw); setLengthStr(!isNaN(v) && v > 100000 ? '100000' : raw); }}
+              onBlur={v => { const n = Math.round(parseFloat(v)); setLengthStr(String(!isNaN(n) ? Math.max(1, Math.min(100000, n)) : 1000)); }}
+            />
 
-          {/* ── Metal type toggle ────────────────────── */}
-          <div className="flex rounded-xl overflow-hidden border mb-6"
-               style={{ borderColor: 'var(--color-surface-4)' }}>
-            <button
-              onClick={() => handleMetalSwitch('copper')}
-              className="flex-1 py-2.5 text-sm font-semibold transition-all"
-              style={{
-                background:  metalType === 'copper' ? 'rgba(205,127,50,0.18)' : 'transparent',
-                color:       metalType === 'copper' ? '#cd7f32' : '#52525b',
-              }}>
-              Cu — Copper
-            </button>
-            <button
-              onClick={() => handleMetalSwitch('aluminum')}
-              className="flex-1 py-2.5 text-sm font-semibold transition-all border-l"
-              style={{
-                borderColor: 'var(--color-surface-4)',
-                background:  metalType === 'aluminum' ? 'rgba(160,185,210,0.18)' : 'transparent',
-                color:       metalType === 'aluminum' ? '#a0b8d0' : '#52525b',
-              }}>
-              Al — Aluminum
-            </button>
+            {/* Quick dimension presets */}
+            <div className="mt-3 flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+              {quickPresets.map(p => {
+                const active = widthStr === p.w && thickStr === p.t;
+                return (
+                  <button key={`${p.w}x${p.t}`}
+                    onClick={() => { setWidthStr(p.w); setThickStr(p.t); }}
+                    className="text-[10px] font-mono font-semibold px-2.5 py-1 rounded-full flex-shrink-0 transition-all"
+                    style={{
+                      background: active ? accentDim : 'rgba(255,255,255,0.04)',
+                      border: `1px solid ${active ? accentBorder : 'rgba(255,255,255,0.07)'}`,
+                      color: active ? accentColor : '#444',
+                    }}>
+                    {p.w}×{p.t}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* ① Dimensions ─────────────────────────── */}
+          {/* ── Currency Conversion ───────────────────────────────── */}
           <div>
-            <p className="calc-section-label">① Dimensions</p>
-
-            {/* W × T on one line */}
-            <div className="flex items-end gap-1.5 sm:gap-2">
-              <div className="flex-1 min-w-0">
-                <label className="block text-[0.68rem] text-zinc-500 mb-2 font-semibold tracking-wide">Width</label>
-                <div className="relative">
-                  <input type="text" inputMode="numeric" pattern="[0-9]*"
-                    className="field-input font-mono text-center pr-7 sm:pr-9 py-3 sm:py-3.5 text-xl font-bold"
-                    placeholder="60" value={widthStr}
-                    onChange={e => {
-                      const raw = e.target.value.replace(/[^0-9]/g, '');
-                      const v = parseFloat(raw);
-                      setWidthStr(!isNaN(v) && v > 100000 ? '100000' : raw);
-                    }}
-                    onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setWidthStr(String(Math.max(1, Math.min(100000, v)))); else setWidthStr('60'); }} />
-                  <span className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
-                </div>
-              </div>
-              <div className="pb-3 sm:pb-3.5 text-zinc-600 font-bold text-lg select-none flex-shrink-0">×</div>
-              <div className="flex-1 min-w-0">
-                <label className="block text-[0.68rem] text-zinc-500 mb-2 font-semibold tracking-wide">Thickness</label>
-                <div className="relative">
-                  <input type="text" inputMode="numeric" pattern="[0-9]*"
-                    className="field-input font-mono text-center pr-7 sm:pr-9 py-3 sm:py-3.5 text-xl font-bold"
-                    placeholder="8" value={thickStr}
-                    onChange={e => {
-                      const raw = e.target.value.replace(/[^0-9]/g, '');
-                      const v = parseFloat(raw);
-                      setThickStr(!isNaN(v) && v > 100000 ? '100000' : raw);
-                    }}
-                    onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setThickStr(String(Math.max(1, Math.min(100000, v)))); else setThickStr('8'); }} />
-                  <span className="absolute right-2 sm:right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none">mm</span>
-                </div>
-              </div>
+            <SectionLabel icon="$">Currency Conversion</SectionLabel>
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+              {ALL_CURRENCIES.map(c => {
+                const active = c.code === currCode;
+                return (
+                  <button key={c.code} onClick={() => setCurrCode(c.code)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-full flex-shrink-0 transition-all"
+                    style={{
+                      background: active ? accentDim : C.inputBg,
+                      border: `1px solid ${active ? accentBorder : C.border}`,
+                      color: active ? '#fff' : '#666',
+                    }}>
+                    <img
+                      src={`${FLAG_CDN}/${c.flag}.png`}
+                      width={20} height={20} alt={c.name}
+                      className="rounded-full flex-shrink-0 object-cover"
+                      style={{ width: 20, height: 20 }}
+                    />
+                    <span className="text-sm font-medium whitespace-nowrap">{c.name}</span>
+                  </button>
+                );
+              })}
             </div>
+            {currCode !== 'USD' && fx && (
+              <p className="text-[11px] mt-2 font-mono" style={{ color: '#444' }}>
+                1 USD = {fxRate.toFixed(4)} {currCode}
+              </p>
+            )}
+          </div>
 
-            {/* Length */}
-            <div className="mt-4">
-              <label className="block text-[0.68rem] text-zinc-500 mb-2 font-semibold tracking-wide">Length</label>
-              <div className="relative">
-                <input type="text" inputMode="numeric" pattern="[0-9]*"
-                  className="field-input font-mono pr-20 py-3.5 text-base"
-                  placeholder="1000" value={lengthStr}
-                  onChange={e => {
-                    const raw = e.target.value.replace(/[^0-9]/g, '');
-                    const v = parseFloat(raw);
-                    setLengthStr(!isNaN(v) && v > 100000 ? '100000' : raw);
-                  }}
-                  onBlur={e => { const v = Math.round(parseFloat(e.target.value)); if (!isNaN(v)) setLengthStr(String(Math.max(1, Math.min(100000, v)))); else setLengthStr('1000'); }} />
-                {/* show meters conversion inline */}
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 text-[0.6rem] font-mono pointer-events-none text-right leading-tight">
-                  <span className="block">mm</span>
-                  <span className="block text-zinc-700">
-                    {qty >= 10 ? qty.toFixed(1) : qty >= 1 ? qty.toFixed(2) : qty.toFixed(3)} m
+          {/* ── Grade ─────────────────────────────────────────────── */}
+          <div>
+            <SectionLabel icon="▤">
+              Grade of {metalType === 'copper' ? 'Copper' : 'Aluminum'}
+            </SectionLabel>
+            <div className="flex gap-2 flex-wrap">
+              {currentGrades.map(g => {
+                const active = g.id === grade.id;
+                return (
+                  <button key={g.id} onClick={() => setGrade(g)}
+                    className="px-4 py-2.5 rounded-xl text-sm font-semibold transition-all"
+                    style={{
+                      background: active ? accentDim : C.inputBg,
+                      border: `1px solid ${active ? accentBorder : C.border}`,
+                      color: active ? '#fff' : '#666',
+                    }}>
+                    {g.label}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[11px] mt-2 font-mono" style={{ color: '#444' }}>
+              {(grade.purity * 100).toFixed(2)}% purity · ρ {grade.density} g/cm³
+            </p>
+          </div>
+
+          {/* ── Manual price toggle ───────────────────────────────── */}
+          <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 16 }}>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold" style={{ color: '#555' }}>
+                {metalType === 'copper' ? 'Copper' : 'Aluminum'} Price / kg
+              </span>
+              <button onClick={() => { setUM(v => !v); setMan(''); }}
+                className="text-xs px-3 py-1 rounded-full transition-all"
+                style={{
+                  background: useMan ? accentDim : 'rgba(255,255,255,0.05)',
+                  border: `1px solid ${useMan ? accentBorder : C.border}`,
+                  color: useMan ? accentColor : '#555',
+                }}>
+                {useMan ? '⟳ Use Live' : '✎ Manual'}
+              </button>
+            </div>
+            <AnimatePresence>
+              {useMan && (
+                <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
+                  <div className="flex items-center gap-2 mb-2"
+                       style={{ background: C.inputBg, border: `1px solid ${accentBorder}`, borderRadius: 12, padding: '12px 16px' }}>
+                    <span className="font-mono font-semibold" style={{ color: '#555' }}>$</span>
+                    <input type="text" inputMode="decimal"
+                      className="flex-1 bg-transparent outline-none font-mono text-white text-base"
+                      placeholder="Enter price per kg" value={manual}
+                      onChange={e => {
+                        const raw = e.target.value.replace(/[^0-9.]/g, '');
+                        const parts = raw.split('.');
+                        setMan(parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : raw);
+                      }} />
+                    <span className="text-xs font-mono" style={{ color: '#444' }}>USD / kg</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* ── Total Cost card ───────────────────────────────────── */}
+          <motion.div
+            style={{
+              background: result ? 'rgba(232,115,26,0.06)' : C.inputBg,
+              border: `1.5px solid ${result ? accentBorder : C.border}`,
+              borderRadius: 16,
+              padding: '16px 20px',
+              textAlign: 'center',
+              transition: 'all 0.3s ease',
+            }}
+          >
+            <p className="text-xs font-semibold mb-2" style={{ color: result ? accentColor : '#444' }}>
+              Total Cost — {lengthStr || '1000'} mm
+            </p>
+            <p className="text-4xl font-bold font-mono leading-none" style={{ color: accentColor }}>
+              {result
+                ? <AnimNumber val={totalCostLocal} fn={v => fmtCurrency(v, currMeta)} />
+                : activeLoading
+                  ? <span className="animate-pulse text-2xl" style={{ color: '#333' }}>···</span>
+                  : <span style={{ color: '#333' }}>—</span>
+              }
+            </p>
+            {result && currCode !== 'USD' && (
+              <p className="text-xs font-mono mt-2" style={{ color: '#555' }}>
+                <AnimNumber val={result.costPerMeter * qty} fn={v => fmtUSD(v)} />
+              </p>
+            )}
+          </motion.div>
+
+          {/* ── Calculation Result section ────────────────────────── */}
+          <AnimatePresence>
+            {result && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {/* Section header */}
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-base font-semibold" style={{ color: accentColor }}>
+                    Calculation Result
                   </span>
-                </span>
-              </div>
-            </div>
+                  <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+                        style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
+                    {activeLive?.isFallback ? 'Cached' : 'Live'}
+                  </span>
+                </div>
 
-            {/* IEC quick-select presets — horizontal scroll, no wrap */}
-            <div className="mt-5" style={{ overflowX: 'auto', overflowY: 'visible', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
-              <div className="flex gap-1.5 pb-3" style={{ width: 'max-content', minHeight: '2rem' }}>
-                {quickPresets.map(p => {
-                  const active = widthStr === p.w && thickStr === p.t;
-                  return (
-                    <motion.button key={`${p.w}x${p.t}`} whileTap={{ scale: 0.82 }}
-                      onClick={() => { setWidthStr(p.w); setThickStr(p.t); }}
-                      className="text-[0.65rem] font-mono font-semibold px-3 py-1.5 rounded-full border transition-all whitespace-nowrap"
-                      style={{
-                        background:  active ? 'rgba(205,127,50,0.18)' : 'rgba(255,255,255,0.04)',
-                        borderColor: active ? 'rgba(205,127,50,0.55)' : 'rgba(255,255,255,0.08)',
-                        color:       active ? '#cd7f32' : '#52525b',
-                      }}>
-                      {p.w}×{p.t}
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+                {/* 2 × 2 result grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  <CalcCard
+                    label="Weight"
+                    value={weightPerBar >= 10000 ? fmtCompact(weightPerBar) : fmt(weightPerBar, 2)}
+                    unit="Kg / Bar"
+                    delay={0}
+                  />
+                  <CalcCard
+                    label="Material"
+                    value={<AnimNumber val={materialCost} fn={v => fmtCurrency(v, currMeta)} /> as unknown as string}
+                    unit={`${metalType === 'copper' ? 'Copper' : 'Aluminum'} Cost`}
+                    delay={0.06}
+                  />
+                  <CalcCard
+                    label="Total / Bar"
+                    value={<AnimNumber val={fabricationCost} fn={v => fmtCurrency(v, currMeta)} /> as unknown as string}
+                    unit="Incl. fabrication"
+                    highlight
+                    delay={0.12}
+                  />
+                  <CalcCard
+                    label="Current Cap"
+                    value={`${currentCap.toLocaleString()}A`}
+                    unit="IEC Std."
+                    delay={0.18}
+                  />
+                </div>
 
-          {/* ② Grade + Currency — 2-column ──────────── */}
-          <div className="mt-8">
-          <div className="border-t border-[var(--color-surface-3)] mb-5" />
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            <div>
-              <p className="calc-section-label">② Grade</p>
-              <div className="relative">
-                <select className="field-select pr-7 py-3 text-sm" value={grade.id}
-                  onChange={e => setGrade(currentGrades.find(g => g.id === e.target.value) ?? (metalType === 'copper' ? DEFAULT_GRADE : DEFAULT_ALUMINUM_GRADE))}>
-                  {currentGrades.map(g => (
-                    <option key={g.id} value={g.id}>{g.label}</option>
-                  ))}
-                </select>
-                <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs">▾</span>
-              </div>
-              <p className="text-[0.62rem] text-zinc-600 mt-2.5 font-mono leading-snug">
-                {(grade.purity*100).toFixed(2)}%<br/>ρ {grade.density} g/cm³
-              </p>
-            </div>
-            <div>
-              <p className="calc-section-label">③ Currency</p>
-              <CurrencySelector value={currCode} onChange={setCurrCode} />
-              {currCode !== 'USD' && fx && (
-                <p className="text-[0.62rem] text-zinc-600 mt-2.5 font-mono leading-snug">
-                  1 USD<br/>= {fxRate.toFixed(4)} {currCode}
-                </p>
-              )}
-            </div>
-          </div>
+                {/* Copy button */}
+                <motion.button onClick={handleCopy}
+                  whileHover={{ scale: 1.012 }} whileTap={{ scale: 0.975 }}
+                  className="w-full mt-4 py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all"
+                  style={{
+                    background: 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${C.border}`,
+                    color: copied ? '#22c55e' : '#555',
+                  }}>
+                  <AnimatePresence mode="wait">
+                    <motion.span key={copied ? 'ok' : 'cp'}
+                      initial={{ opacity: 0, y: -3 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 3 }}
+                      className="flex items-center gap-2">
+                      {copied
+                        ? <><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> Copied to clipboard</>
+                        : <><svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="opacity-50"><rect x="5" y="1" width="9" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.5"/><path d="M2 5v9a1.5 1.5 0 001.5 1.5H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg> Copy Results</>
+                      }
+                    </motion.span>
+                  </AnimatePresence>
+                </motion.button>
 
-          </div>{/* /② wrapper */}
-
-          {/* ④ Copper Price — compact strip ─────────── */}
-          <div className="mt-8">
-          <div className="border-t border-[var(--color-surface-3)] mb-5" />
-            <p className="calc-section-label">
-              {metalType === 'copper' ? '④ Copper Price' : '④ Aluminum Price'}
-            </p>
-            <div className="rounded-xl border overflow-hidden"
-                 style={{ background: 'var(--color-surface-3)', borderColor: 'var(--color-surface-4)' }}>
-              {/* Price row: left = price block, right = manual toggle */}
-              <div className="flex items-center gap-3 px-4 py-4">
-                {activeLoading ? (
-                  <span className="text-zinc-500 text-sm animate-pulse flex-1">Fetching…</span>
-                ) : activeLive && !useMan ? (
-                  <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
-                    <span className={activeLive.isFallback ? 'fallback-dot' : 'live-dot'} />
-                    <span className="font-mono text-2xl font-extrabold text-copper-400 result-glow tracking-tight">
-                      ${fmt(activeLive.pricePerKg, 3)}
-                    </span>
-                    <div className="flex flex-col leading-none">
-                      <span className="text-zinc-500 text-[0.65rem]">/kg</span>
-                      <span className="text-zinc-700 text-[0.6rem] font-mono mt-0.5">
-                        {metalType === 'copper'
-                          ? `$${fmt(activeLive.pricePerKg / 2.20462, 3)}/lb`
-                          : `$${fmt(activeLive.pricePerMT, 0)}/MT`}
-                      </span>
-                    </div>
-                    {(() => {
-                      const mood = getPriceMood(activeLive.pricePerKg, metalType);
-                      return (
-                        <span className="text-[0.55rem] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full"
-                              style={{ background: `${mood.fg}15`, color: mood.fg, border: `1px solid ${mood.fg}35` }}>
-                          {mood.label}
-                        </span>
-                      );
-                    })()}
-                  </div>
-                ) : useMan && priceUSD ? (
-                  <div className="flex-1 min-w-0 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-zinc-500 flex-shrink-0" />
-                    <span className="font-mono text-2xl font-extrabold text-white tracking-tight">${fmt(priceUSD, 3)}</span>
-                    <span className="text-zinc-500 text-xs">/kg manual</span>
-                  </div>
-                ) : (
-                  <span className="text-amber-500 text-sm flex-1">Price unavailable</span>
+                {calcCount > 1 && (
+                  <p className="text-center text-[10px] mt-2 font-mono" style={{ color: '#333' }}>
+                    calculation #{calcCount.toLocaleString()}
+                  </p>
                 )}
-                <button onClick={() => { setUM(v => !v); setMan(''); }}
-                  className="btn-ghost text-xs px-2.5 py-1.5 flex items-center gap-1.5 flex-shrink-0">
-                  {useMan
-                    ? <><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 112.7 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/><path d="M2 2v3h3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg> Live</>
-                    : <><svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M11 2.5l2.5 2.5-8 8H3v-2.5l8-8z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg> Manual</>
-                  }
-                </button>
-              </div>
-              {/* Manual input (animated expand) */}
-              <AnimatePresence>
-                {useMan && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }}
-                    className="overflow-hidden border-t"
-                    style={{ borderColor: 'var(--color-surface-4)' }}>
-                    <div className="flex items-center px-4 py-3">
-                      <span className="text-zinc-400 font-mono font-semibold mr-1">$</span>
-                      <input type="text" inputMode="decimal"
-                        className="flex-1 bg-transparent text-white font-mono py-1 outline-none placeholder:text-zinc-700 text-base"
-                        placeholder="13.975" value={manual}
-                        onChange={e => {
-                          const raw = e.target.value.replace(/[^0-9.]/g, '');
-                          const parts = raw.split('.');
-                          setMan(parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : raw);
-                        }} />
-                      <span className="text-zinc-500 text-xs font-mono">USD / kg</span>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-
-        </div>{/* /inputs */}
-      </div>
-    </TiltCard>
-
-    {/* ╔══════════════════════════════════════════╗
-        ║  CARD 2 — RESULTS                        ║
-        ╚══════════════════════════════════════════╝ */}
-    {/* lg+: sticky so results stay visible while scrolling the form */}
-    <div className="lg:sticky lg:top-[4.5rem] lg:self-start">
-    <AnimatePresence mode="wait">
-      {result ? (
-        <motion.div key="results-card"
-          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ type: 'spring', stiffness: 220, damping: 22, delay: 0.04 }}
-          className="card-copper rounded-[1.25rem] overflow-hidden"
-        >
-          {/* Achievement badges */}
-          {(() => {
-            const badges = getAchievements(result, size, grade, parseFloat(lengthStr) || 1000, metalType);
-            return badges.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5 px-5 pt-4 pb-0">
-                {badges.map((b, i) => (
-                  <motion.span key={b.id}
-                    initial={{ opacity: 0, scale: 0.55 }} animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.12 + i * 0.06, type: 'spring', stiffness: 340, damping: 20 }}
-                    className="text-[0.57rem] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full"
-                    style={{ background: `${b.color}15`, color: b.color, border: `1px solid ${b.color}30` }}>
-                    {b.icon} {b.label}
-                  </motion.span>
-                ))}
-              </div>
-            ) : null;
-          })()}
-
-          {/* Hero — Total Cost */}
-          <div className="px-5 pt-6 pb-6 text-center border-b"
-               style={{ borderColor: 'var(--color-surface-3)' }}>
-            <p className="calc-section-label text-center mb-2">
-              Total Cost &nbsp;·&nbsp; {Number(lengthStr) || 1000} mm
-            </p>
-            <p className="font-mono font-extrabold leading-none text-copper-400 result-glow"
-               style={{ fontSize: 'clamp(2.4rem, 11vw, 3.2rem)' }}>
-              <AnimNumber val={totalCostLocal} fn={v => fmtCurrency(v, currMeta)} />
-            </p>
-            {currCode !== 'USD' && (
-              <p className="text-zinc-500 text-sm font-mono mt-2">
-                <AnimNumber val={totalCostUSD} fn={v => fmtUSD(v)} />
-              </p>
+              </motion.div>
             )}
-          </div>
+          </AnimatePresence>
 
-          {/* Supporting metrics — 3-col: Weight | Cost/m | Rate/m² */}
-          <div className="grid grid-cols-3 divide-x divide-[var(--color-surface-3)]">
-            <div className="px-3 sm:px-4 py-4 text-center">
-              <p className="text-[0.58rem] text-zinc-500 uppercase tracking-widest font-semibold mb-1.5">Weight</p>
-              <p className="font-mono font-bold text-lg sm:text-xl text-white leading-none">
-                <AnimNumber val={result.weightPerMeter * qty} fn={v => v >= 10000 ? fmtCompact(v) : fmt(v, 2)} />
-              </p>
-              <p className="text-[0.6rem] text-zinc-600 mt-1 font-mono">
-                {result.weightPerMeter >= 10000 ? fmtCompact(result.weightPerMeter) : fmt(result.weightPerMeter, 3)} kg/m
-              </p>
-              <p className="text-[0.58rem] text-zinc-600 mt-0.5">kg total</p>
-            </div>
-            <div className="px-3 sm:px-4 py-4 text-center">
-              <p className="text-[0.58rem] text-zinc-500 uppercase tracking-widest font-semibold mb-1.5">Cost / m</p>
-              <p className="font-mono font-bold text-lg sm:text-xl text-copper-400 leading-none">
-                <AnimNumber val={result.costPerMeter * fxRate} fn={v => fmtCurrency(v, currMeta)} />
-              </p>
-              {currCode !== 'USD' && (
-                <p className="text-[0.6rem] text-zinc-600 mt-1 font-mono">
-                  {fmtUSD(result.costPerMeter)}
-                </p>
-              )}
-              <p className="text-[0.58rem] text-zinc-600 mt-0.5">{currCode} / m</p>
-            </div>
-            <div className="px-3 sm:px-4 py-4 text-center"
-                 style={{ background: 'linear-gradient(135deg, rgba(205,127,50,0.07), rgba(184,115,51,0.03))' }}>
-              <p className="text-[0.58rem] text-zinc-500 uppercase tracking-widest font-semibold mb-1.5">Rate / m²</p>
-              <p className="font-mono font-bold text-lg sm:text-xl text-copper-400 leading-none">
-                <AnimNumber val={result.costPerM2 * fxRate} fn={v => fmtCurrency(v, currMeta, 0)} />
-              </p>
-              {currCode !== 'USD' && (
-                <p className="text-[0.6rem] text-zinc-600 mt-1 font-mono">
-                  {result.costPerM2 >= 10000 ? `$${fmtCompact(result.costPerM2)}` : fmtUSD(result.costPerM2, 0)}
-                </p>
-              )}
-              <p className="text-[0.58rem] text-zinc-600 mt-0.5">{currCode} / m²</p>
-            </div>
-          </div>
+        </div>{/* /padding */}
+      </div>{/* /card */}
 
-          {/* Copy + counter */}
-          <div className="border-t px-5 py-3.5" style={{ borderColor: 'var(--color-surface-3)' }}>
-            {calcCount > 0 && (
-              <p className="text-center text-[0.58rem] text-zinc-700 font-mono mb-2.5">
-                calculation #{calcCount.toLocaleString()}
-              </p>
-            )}
-            <motion.button onClick={handleCopy}
-              whileHover={{ scale: 1.012 }} whileTap={{ scale: 0.975 }}
-              className="btn-ghost w-full py-3 flex items-center justify-center gap-2 text-sm">
-              <AnimatePresence mode="wait">
-                <motion.span key={copied ? 'ok' : 'cp'}
-                  initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
-                  className="flex items-center gap-2">
-                  {copied ? (
-                    <><svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="text-green-500"><path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg> Copied to clipboard</>
-                  ) : (
-                    <><svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="opacity-60"><rect x="5" y="1" width="9" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.5"/><path d="M2 5v9a1.5 1.5 0 001.5 1.5H11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg> Copy Results</>
-                  )}
-                </motion.span>
-              </AnimatePresence>
-            </motion.button>
-          </div>
-        </motion.div>
-
-      ) : (
-        <motion.div key="results-empty"
-          initial={{ y: 8 }} animate={{ y: 0 }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="rounded-[1.25rem] border overflow-hidden"
-          style={{ borderColor: 'var(--color-surface-3)', background: 'var(--color-surface-1)' }}
-        >
-          {/* Hero placeholder */}
-          <div className="px-5 py-7 sm:py-8 text-center border-b"
-               style={{ borderColor: 'var(--color-surface-2)' }}>
-            <p className="text-[0.58rem] text-zinc-600 uppercase tracking-widest font-semibold mb-3">
-              Total Cost
-            </p>
-            <p className="font-mono font-extrabold leading-none text-zinc-700"
-               style={{ fontSize: 'clamp(2.4rem, 11vw, 3.2rem)' }}>
-              {loading ? <span className="animate-pulse">···</span> : '—'}
-            </p>
-            <p className="text-zinc-600 text-xs mt-3 leading-relaxed">
-              {activeLoading
-                ? <span className="animate-pulse">Fetching live {metalType === 'copper' ? 'copper' : 'aluminum'} price…</span>
-                : <>Set your {metalType === 'copper' ? 'copper' : 'aluminum'} price<br className="hidden sm:block" /> to see results</>
-              }
-            </p>
-          </div>
-
-          {/* Metric placeholders — 3-col */}
-          <div className="grid grid-cols-3 divide-x" style={{ borderColor: 'var(--color-surface-2)' }}>
-            <div className="px-3 sm:px-4 py-4 text-center">
-              <p className="text-[0.58rem] text-zinc-600 uppercase tracking-widest font-semibold mb-1.5">Weight</p>
-              <p className="font-mono font-bold text-xl text-zinc-700 leading-none">—</p>
-              <p className="text-[0.58rem] text-zinc-600 mt-1">kg total</p>
+      {/* Milestone toast */}
+      <AnimatePresence>
+        {milestone && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.88 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+            className="absolute -bottom-14 left-1/2 -translate-x-1/2 z-50 whitespace-nowrap flex items-center gap-2.5 px-5 py-2.5 rounded-2xl"
+            style={{
+              background: C.card,
+              border: `1px solid ${C.orangeBorder}`,
+              boxShadow: '0 16px 50px rgba(0,0,0,0.8)',
+            }}>
+            <span>🎉</span>
+            <div>
+              <p className="text-white text-xs font-bold leading-none">Milestone!</p>
+              <p className="text-[10px] mt-0.5 font-mono" style={{ color: C.orange }}>{milestone}</p>
             </div>
-            <div className="px-3 sm:px-4 py-4 text-center" style={{ borderLeft: '1px solid var(--color-surface-2)' }}>
-              <p className="text-[0.58rem] text-zinc-600 uppercase tracking-widest font-semibold mb-1.5">Cost / m</p>
-              <p className="font-mono font-bold text-xl text-zinc-700 leading-none">—</p>
-              <p className="text-[0.58rem] text-zinc-600 mt-1">— / m</p>
-            </div>
-            <div className="px-3 sm:px-4 py-4 text-center" style={{ borderLeft: '1px solid var(--color-surface-2)' }}>
-              <p className="text-[0.58rem] text-zinc-600 uppercase tracking-widest font-semibold mb-1.5">Rate / m²</p>
-              <p className="font-mono font-bold text-xl text-zinc-700 leading-none">—</p>
-              <p className="text-[0.58rem] text-zinc-600 mt-1">— / m²</p>
-            </div>
-          </div>
-
-          {/* Status row */}
-          <div className="border-t px-5 py-3.5 text-center"
-               style={{ borderColor: 'var(--color-surface-2)' }}>
-            <p className="text-[0.62rem] text-zinc-600 font-mono">
-              {activeLoading
-                ? <span className="animate-pulse">Loading live {metalType === 'copper' ? 'COMEX HG=F' : 'LME ALI=F'} price…</span>
-                : 'Live price loaded · waiting for input'
-              }
-            </p>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-    </div>{/* /sticky wrapper */}
-    </div>{/* /responsive grid */}
-
-    {/* Milestone toast */}
-    <AnimatePresence>
-      {milestone && (
-        <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.88 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -12, scale: 0.9 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-          className="absolute -bottom-14 left-1/2 -translate-x-1/2 z-50 whitespace-nowrap
-                     flex items-center gap-2.5 px-5 py-2.5 rounded-2xl
-                     bg-[var(--color-surface-2)] border border-copper-600/40
-                     shadow-[0_16px_50px_rgba(0,0,0,0.8)]">
-          <span>🎉</span>
-          <div>
-            <p className="text-white text-xs font-bold leading-none">Milestone!</p>
-            <p className="text-copper-500 text-[0.65rem] mt-0.5 font-mono">{milestone}</p>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
