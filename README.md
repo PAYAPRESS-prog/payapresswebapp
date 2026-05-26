@@ -10,7 +10,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38bdf8?logo=tailwindcss)](https://tailwindcss.com)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-**[Live App](https://www.payapress.com)** · **[API Reference](docs/API.md)** · **[Architecture](docs/architecture.md)** · **[Changelog](CHANGELOG.md)**
+**[Live App](https://calculator.payapress.com)** · **[API Reference](docs/API.md)** · **[Architecture](docs/architecture.md)** · **[Changelog](CHANGELOG.md)**
 
 ---
 
@@ -108,6 +108,7 @@ payapresswebapp/
 │   │   ├── SectionErrorBoundary.tsx
 │   │   └── SplashScreen.tsx
 │   ├── lib/
+│   │   ├── serverPrices.ts        # Server-side price fetching (ISR, shared by page + API routes)
 │   │   ├── copperData.ts          # Cu grades, IEC sizes
 │   │   ├── aluminumData.ts        # Al grades, IEC 60317-40 sizes
 │   │   ├── copperPrice.ts         # calculateCost(), fmt(), fmtUSD()
@@ -115,7 +116,7 @@ payapresswebapp/
 │   ├── styles/globals.css         # Tailwind v4 @theme + design tokens
 │   └── types/calculator.ts
 ├── public/
-│   ├── sw.js                      # Service worker (v11)
+│   ├── sw.js                      # Service worker (v12)
 │   ├── manifest.json              # PWA manifest
 │   └── icons/
 ├── docs/
@@ -174,7 +175,7 @@ The custom `server.js` handles:
 
 Full reference: **[docs/API.md](docs/API.md)**
 
-**Base URL:** `https://www.payapress.com/api/v1`
+**Base URL:** `https://calculator.payapress.com/api/v1`
 
 | Endpoint | Description | Cache |
 |----------|-------------|-------|
@@ -184,7 +185,7 @@ Full reference: **[docs/API.md](docs/API.md)**
 
 **Quick example:**
 ```http
-GET https://www.payapress.com/api/v1/calculate?width=60&thickness=8&length=6000&grade=cu-etp&currency=AED
+GET https://calculator.payapress.com/api/v1/calculate?width=60&thickness=8&length=6000&grade=cu-etp&currency=AED
 ```
 
 ---
@@ -226,7 +227,7 @@ T  ($)    = C × (length_mm / 1000)
 - [ ] Multi-busbar bill of materials
 - [ ] WooCommerce product price sync
 
-See the full roadmap at [/roadmap](https://www.payapress.com/roadmap).
+See the full roadmap at [/roadmap](https://calculator.payapress.com/roadmap).
 
 ---
 
