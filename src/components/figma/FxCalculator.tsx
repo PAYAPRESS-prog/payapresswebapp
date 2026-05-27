@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { DEFAULT_GRADE } from '@/lib/copperData';
 import { DEFAULT_ALUMINUM_GRADE } from '@/lib/aluminumData';
-import { fmt } from '@/lib/copperPrice';
 import type { CopperPriceData, FxRates, InitialPriceData } from '@/types/calculator';
 import {
   BusbarMock, RulerAngularIcon, RulerIcon, DollarIcon, ChartUpIcon,
@@ -47,11 +46,19 @@ function clampInt(raw: string, min: number, max: number, fallback: number) {
   return Math.max(min, Math.min(max, n));
 }
 
+// Deterministic number formatting — avoids toLocaleString differences
+// between Node.js (server) and Android WebView (client) that cause #418.
 function fmtMoney(n: number, decimals = 2): string {
-  return n.toLocaleString('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
+  const fixed = Math.abs(n).toFixed(decimals);
+  const [int, dec] = fixed.split('.');
+  const intFmt = int.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const sign = n < 0 ? '-' : '';
+  return dec !== undefined ? `${sign}${intFmt}.${dec}` : `${sign}${intFmt}`;
+}
+
+// Deterministic price formatting (replaces toLocaleString-based fmt)
+function fmtPrice(n: number, decimals = 3): string {
+  return fmtMoney(n, decimals);
 }
 
 export function FxCalculator({ initialData }: { initialData?: InitialPriceData }) {
@@ -65,6 +72,10 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const [copper,   setCopper]   = useState<CopperPriceData | null>(initialData?.copper   ?? null);
   const [aluminum, setAluminum] = useState<CopperPriceData | null>(initialData?.aluminum ?? null);
   const [fx,       setFx]       = useState<FxRates | null>(initialData?.fx ?? null);
+
+  // "Updated: X ago" must only render client-side — Date.now() on server
+  // differs from client → React #418 hydration mismatch.
+  const [updatedLabel, setUpdatedLabel] = useState('just now');
 
   // Live refresh every 5 min
   useEffect(() => {
@@ -86,6 +97,14 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
   const grade = metal === 'copper' ? DEFAULT_GRADE : DEFAULT_ALUMINUM_GRADE;
   const live  = metal === 'copper' ? copper        : aluminum;
+
+  // Update relative timestamp client-side only (safe from hydration mismatch)
+  useEffect(() => {
+    const update = () => setUpdatedLabel(relativeTime(live?.updatedAt));
+    update();
+    const id = setInterval(update, 30_000);
+    return () => clearInterval(id);
+  }, [live?.updatedAt]);
 
   const w = clampInt(width,  1, 100000, 120);
   const t = clampInt(thick,  1, 100000, 10);
@@ -110,9 +129,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
   const activeCurrTotal = totalIn(curr);
 
-  // Trend chart numbers (static change% for now — live history not available)
   const trendPrice = pricePerKgUSD;
-  const updatedLabel = relativeTime(live?.updatedAt);
 
   return (
     <div className="fx-content">
@@ -274,7 +291,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             <div>
               <div className="fx-chart-current-label">Current Price</div>
               <div className="fx-chart-current-price">
-                ${fmt(trendPrice, 3)}
+                ${fmtPrice(trendPrice)}
                 <span className="unit">/kg</span>
               </div>
               <div className="fx-chart-change">+2.45% (220.50)</div>
