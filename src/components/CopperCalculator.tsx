@@ -138,22 +138,22 @@ function SectionLabel({ icon, children }: { icon: React.ReactNode; children: Rea
 
 // ── Figma-style input ──────────────────────────────────────────────
 interface FigmaInputProps {
-  placeholder: string;
+  label: string;
   value: string;
   onChange: (v: string) => void;
   onBlur: (v: string) => void;
   suffix?: string;
 }
-function FigmaInput({ placeholder, value, onChange, onBlur, suffix }: FigmaInputProps) {
+function FigmaInput({ label, value, onChange, onBlur, suffix }: FigmaInputProps) {
   const [focused, setFocused] = useState(false);
   const isSet = focused || (value !== '' && value !== '0');
   return (
-    <div className="relative">
+    <div className="fi-wrap">
+      <span className="fi-label">{label}</span>
       <input
         type="text"
         inputMode="numeric"
         pattern="[0-9]*"
-        placeholder={placeholder}
         value={value}
         className={`fi${isSet ? ' is-set' : ''}`}
         style={suffix ? { paddingRight: 52 } : undefined}
@@ -162,7 +162,7 @@ function FigmaInput({ placeholder, value, onChange, onBlur, suffix }: FigmaInput
         onBlur={e => { setFocused(false); onBlur(e.target.value); }}
       />
       {suffix && (
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[0.65rem] font-mono pointer-events-none"
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[0.7rem] font-mono pointer-events-none"
               style={{ color: 'var(--color-text-3)' }}>
           {suffix}
         </span>
@@ -392,10 +392,9 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
   return (
     <div
       ref={cardRef}
-      className="calc-root w-full mx-auto relative"
+      className="calc-root calc-bleed relative"
       data-metal={metalType}
       style={{
-        maxWidth:   'min(100%, 460px)',
         opacity:    inView ? 1 : 0,
         transform:  inView ? 'translateY(0)' : 'translateY(16px)',
         transition: 'opacity 0.5s ease, transform 0.7s cubic-bezier(0.22,1,0.36,1)',
@@ -478,7 +477,7 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
 
             <div className="grid grid-cols-2 gap-3 mb-3">
               <FigmaInput
-                placeholder="Width"
+                label="Width"
                 value={widthStr}
                 suffix="↔"
                 onChange={raw => {
@@ -491,7 +490,7 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
                 }}
               />
               <FigmaInput
-                placeholder="Height"
+                label="Height"
                 value={thickStr}
                 suffix="mm"
                 onChange={raw => {
@@ -506,7 +505,7 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
             </div>
 
             <FigmaInput
-              placeholder="Length"
+              label="Length"
               value={lengthStr}
               suffix="mm"
               onChange={raw => {
