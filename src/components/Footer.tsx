@@ -51,7 +51,7 @@ export function Footer() {
         style={{ background: 'linear-gradient(to right, transparent, rgba(205,127,50,0.35) 30%, rgba(205,127,50,0.35) 70%, transparent)' }}
       />
 
-      <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 pt-10 sm:pt-12">
+      <div className="page-container pt-10 sm:pt-12">
 
         {/* Grid: brand + 3 link columns */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-8">

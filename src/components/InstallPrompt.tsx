@@ -53,35 +53,41 @@ export function InstallPrompt() {
       }}
     >
       <div
-        className="max-w-md mx-auto rounded-2xl p-3 sm:p-4 flex items-center gap-2.5 sm:gap-3"
+        className="max-w-md mx-auto rounded-2xl p-3 sm:p-4 flex items-center gap-3"
         style={{
-          background: '#131318',
-          border: '1px solid rgba(184,115,51,0.3)',
+          background: 'var(--color-surface-2)',
+          border: '1px solid var(--color-brand-border)',
           boxShadow: '0 -4px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(184,115,51,0.06)',
         }}
       >
         <div
-          className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-base sm:text-lg font-black"
-          style={{ background: 'linear-gradient(135deg, #b87333, #cd7f32, #e8a855)', color: '#060608' }}
+          className="shrink-0 w-11 h-11 rounded-xl flex items-center justify-center text-base font-black"
+          style={{
+            background: 'linear-gradient(135deg, var(--color-copper-600), var(--color-copper-500), var(--color-copper-300))',
+            color: 'var(--color-surface-0)',
+          }}
         >
           PP
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-zinc-100 leading-tight truncate">Install PAYAPRESS</p>
-          <p className="text-[11px] sm:text-xs text-zinc-500 mt-0.5 leading-snug truncate">Add to home screen</p>
+          <p className="text-xs text-zinc-500 mt-0.5 leading-snug truncate">Add to home screen</p>
         </div>
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={handleDismiss}
-            className="text-[11px] sm:text-xs text-zinc-600 hover:text-zinc-400 transition-colors px-1.5 sm:px-2 py-1 whitespace-nowrap"
+            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-2 whitespace-nowrap"
             aria-label="Dismiss install prompt"
           >
             Not now
           </button>
           <button
             onClick={handleInstall}
-            className="text-[11px] sm:text-xs font-semibold px-2.5 sm:px-3 py-1.5 rounded-lg transition-opacity hover:opacity-85 whitespace-nowrap"
-            style={{ background: 'linear-gradient(135deg, #cd7f32, #b87333)', color: '#fff' }}
+            className="text-xs font-semibold px-3 py-2 rounded-lg transition-opacity hover:opacity-85 whitespace-nowrap"
+            style={{
+              background: 'linear-gradient(135deg, var(--color-copper-500), var(--color-copper-600))',
+              color: '#fff',
+            }}
           >
             Install
           </button>

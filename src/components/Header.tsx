@@ -20,10 +20,7 @@ export function Header() {
           : 'border-b border-transparent bg-transparent'
       }`}
     >
-      <div className="w-full max-w-2xl mx-auto
-                      px-4 sm:px-6
-                      h-14
-                      flex items-center justify-between">
+      <div className="page-container h-14 flex items-center justify-between">
 
         <a
           href="/"

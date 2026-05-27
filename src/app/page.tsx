@@ -33,10 +33,7 @@ export default async function HomePage() {
       </SectionErrorBoundary>
 
       <main className="relative z-10">
-        <div className="w-full max-w-2xl mx-auto
-                        px-4 sm:px-6
-                        pt-6 sm:pt-10
-                        pb-10 sm:pb-14">
+        <div className="page-container pt-6 sm:pt-10 pb-10 sm:pb-14">
 
           <SectionErrorBoundary>
             <HeroSection />

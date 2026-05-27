@@ -60,8 +60,9 @@ export function BusbarRender({ width, thickness, metal = 'copper' }: Props) {
   return (
     <svg
       viewBox={`0 0 ${VW} ${VH}`}
-      className="w-full"
-      style={{ height: VH, display: 'block' }}
+      className="w-full block"
+      style={{ height: 'auto', maxHeight: VH }}
+      preserveAspectRatio="xMidYMid meet"
       aria-label={`${width}×${thickness} mm ${isAl ? 'aluminum' : 'copper'} busbar`}
     >
       <defs>

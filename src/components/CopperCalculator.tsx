@@ -163,7 +163,7 @@ function FigmaInput({ placeholder, value, onChange, onBlur, suffix }: FigmaInput
       />
       {suffix && (
         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[0.65rem] font-mono pointer-events-none"
-              style={{ color: '#555' }}>
+              style={{ color: 'var(--color-text-3)' }}>
           {suffix}
         </span>
       )}
@@ -195,7 +195,7 @@ function CalcCard({ label, value, unit, highlight = false, delay = 0 }: CalcCard
          style={{ color: highlight ? 'var(--accent)' : '#fff' }}>
         {value}
       </p>
-      <p className="text-[11px] mt-2" style={{ color: '#555' }}>{unit}</p>
+      <p className="text-[11px] mt-2" style={{ color: 'var(--color-text-3)' }}>{unit}</p>
     </motion.div>
   );
 }
@@ -392,9 +392,10 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
   return (
     <div
       ref={cardRef}
-      className="calc-root w-full max-w-sm sm:max-w-[420px] mx-auto relative"
+      className="calc-root w-full mx-auto relative"
       data-metal={metalType}
       style={{
+        maxWidth:   'min(100%, 460px)',
         opacity:    inView ? 1 : 0,
         transform:  inView ? 'translateY(0)' : 'translateY(16px)',
         transition: 'opacity 0.5s ease, transform 0.7s cubic-bezier(0.22,1,0.36,1)',
@@ -413,10 +414,10 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
             </span>
             <span className="text-xl sm:text-2xl font-bold font-mono tracking-tight whitespace-nowrap" style={{ color: 'var(--accent)' }}>
               {activeLoading
-                ? <span className="animate-pulse" style={{ color: '#444' }}>···</span>
+                ? <span className="animate-pulse" style={{ color: 'var(--color-text-4)' }}>···</span>
                 : activeLive
                   ? `$${fmt(activeLive.pricePerKg, 3)}`
-                  : <span style={{ color: '#444' }}>—</span>
+                  : <span style={{ color: 'var(--color-text-4)' }}>—</span>
               }
             </span>
           </div>
@@ -450,14 +451,14 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
               <span className="font-mono text-xs font-bold" style={{ color: 'var(--accent)' }}>
                 {size.width} × {size.thickness} mm
               </span>
-              <span className="text-[8px]" style={{ color: '#333' }}>·</span>
-              <span className="font-mono text-xs" style={{ color: '#555' }}>
+              <span className="text-[8px]" style={{ color: 'var(--color-text-4)' }}>·</span>
+              <span className="font-mono text-xs" style={{ color: 'var(--color-text-3)' }}>
                 {size.width * size.thickness} mm²
               </span>
               {isIecStd && (
                 <span
                   className="text-[9px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full"
-                  style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}
+                  style={{ background: 'var(--color-success-bg)', color: 'var(--color-success)', border: '1px solid var(--color-success-border)' }}
                 >
                   IEC STD
                 </span>
@@ -465,7 +466,7 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
             </div>
             <p
               className="text-center text-[9px] tracking-widest mt-2"
-              style={{ color: '#333', opacity: isDragging ? 0 : 1, transition: 'opacity 0.15s' }}
+              style={{ color: 'var(--color-text-4)', opacity: isDragging ? 0 : 1, transition: 'opacity 0.15s' }}
             >
               ← DRAG TO RESIZE →
             </p>
@@ -538,7 +539,7 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
           {/* 5 · Currency */}
           <div>
             <SectionLabel icon="$">Currency Conversion</SectionLabel>
-            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 scroll-fade-right">
               {ALL_CURRENCIES.map(c => (
                 <button
                   key={c.code}
@@ -556,7 +557,7 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
               ))}
             </div>
             {currCode !== 'USD' && fx && (
-              <p className="text-[11px] mt-2 font-mono" style={{ color: '#444' }}>
+              <p className="text-[11px] mt-2 font-mono" style={{ color: 'var(--color-text-4)' }}>
                 1 USD = {fxRate.toFixed(4)} {currCode}
               </p>
             )}
@@ -578,7 +579,7 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
                 </button>
               ))}
             </div>
-            <p className="text-[11px] mt-2.5 font-mono" style={{ color: '#444' }}>
+            <p className="text-[11px] mt-2.5 font-mono" style={{ color: 'var(--color-text-4)' }}>
               {(grade.purity * 100).toFixed(2)}% purity · ρ {grade.density} g/cm³
             </p>
           </div>
@@ -586,13 +587,12 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
           {/* 7 · Manual price toggle */}
           <div style={{ borderTop: '1px solid var(--color-border-subtle)', paddingTop: 16 }}>
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold" style={{ color: '#555' }}>
+              <span className="text-xs font-semibold" style={{ color: 'var(--color-text-3)' }}>
                 {metalType === 'copper' ? 'Copper' : 'Aluminum'} Price / kg
               </span>
               <button
                 onClick={() => { setUseManual(v => !v); setManual(''); }}
                 className={`pill${useManual ? ' active' : ''}`}
-                style={{ padding: '5px 12px', fontSize: '0.75rem' }}
               >
                 {useManual ? '⟳ Use Live' : '✎ Manual'}
               </button>
@@ -607,7 +607,7 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
                   className="overflow-hidden"
                 >
                   <div className="manual-row">
-                    <span className="font-mono font-semibold" style={{ color: '#555' }}>$</span>
+                    <span className="font-mono font-semibold" style={{ color: 'var(--color-text-3)' }}>$</span>
                     <input
                       type="text"
                       inputMode="decimal"
@@ -620,7 +620,7 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
                         setManual(parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : raw);
                       }}
                     />
-                    <span className="text-xs font-mono" style={{ color: '#444' }}>USD / kg</span>
+                    <span className="text-xs font-mono" style={{ color: 'var(--color-text-4)' }}>USD / kg</span>
                   </div>
                 </motion.div>
               )}
@@ -629,19 +629,20 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
 
           {/* 8 · Total cost hero */}
           <div className={`total-hero${result ? ' has-result' : ''}`}>
-            <p className="text-xs font-semibold mb-2" style={{ color: result ? 'var(--accent)' : '#444' }}>
+            <p className="text-xs font-semibold mb-2" style={{ color: result ? 'var(--accent)' : 'var(--color-text-4)' }}>
               Total Cost — {lengthStr || '1000'} mm
             </p>
-            <p className="text-3xl sm:text-4xl font-bold font-mono leading-none break-words" style={{ color: 'var(--accent)' }}>
+            <p className="font-bold font-mono leading-none break-words"
+               style={{ color: 'var(--accent)', fontSize: 'clamp(1.5rem, 6.5vw, 2.25rem)' }}>
               {result
                 ? <AnimNumber val={totalCostLocal} fn={v => fmtCurrency(v, currMeta)} />
                 : activeLoading
-                  ? <span className="animate-pulse text-2xl" style={{ color: '#333' }}>···</span>
-                  : <span style={{ color: '#333' }}>—</span>
+                  ? <span className="animate-pulse text-2xl" style={{ color: 'var(--color-text-4)' }}>···</span>
+                  : <span style={{ color: 'var(--color-text-4)' }}>—</span>
               }
             </p>
             {result && currCode !== 'USD' && (
-              <p className="text-xs font-mono mt-2" style={{ color: '#555' }}>
+              <p className="text-xs font-mono mt-2" style={{ color: 'var(--color-text-3)' }}>
                 <AnimNumber val={result.costPerMeter * qty} fn={v => fmtUSD(v)} />
               </p>
             )}
@@ -663,7 +664,7 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
                   </span>
                   <span
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
-                    style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}
+                    style={{ background: 'var(--color-success-bg)', color: 'var(--color-success)', border: '1px solid var(--color-success-border)' }}
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
                     {activeLive?.isFallback ? 'Cached' : 'Live'}
@@ -740,7 +741,7 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
                 </motion.button>
 
                 {calcCount > 1 && (
-                  <p className="text-center text-[10px] mt-2 font-mono" style={{ color: '#333' }}>
+                  <p className="text-center text-[10px] mt-2 font-mono" style={{ color: 'var(--color-text-4)' }}>
                     calculation #{calcCount.toLocaleString()}
                   </p>
                 )}
