@@ -56,6 +56,50 @@ git push -u origin claude/payapress-webapp-setup-0bjxA
 
 ---
 
+## savealfa — Complete Figma Design Overhaul Checkpoint
+
+When the user says **`savealfa`**, restore the project to this fully styled Figma-matching state.
+
+### Current Stable Checkpoint
+
+| Field | Value |
+|-------|-------|
+| **Tag** | `savealfa/stable` |
+| **Commit** | `8f29a1106e4f2a35d633885f3d8565b78967b0b7` |
+| **Date** | 2026-05-27 |
+| **Status** | ✅ Full Figma match. Build clean. Edge-to-edge mobile layout. |
+
+### What this state includes
+- **Full Figma design overhaul**: edge-to-edge card on mobile, centered on desktop
+- **Floating notched-outline labels**: FigmaInput component with Material Design 3 style
+- **Design tokens**: `--color-text-1..4`, `--color-success*`, `--space-1..8`, `--color-brand*`, `--color-al`
+- **Active state glow**: Orange box-shadow on pills, grades, metal toggle when active
+- **Responsive layout**: `.calc-bleed` full-viewport-width on mobile, normal centering on sm+
+- **SVG scaling fix**: BusbarRender uses `height: auto` with `preserveAspectRatio` for proper scaling
+- **Accessibility**: All touch targets ≥ 44px (WCAG 2.5.5 compliant)
+- **Service Worker v13**: Cache invalidation for fresh CSS delivery
+- **Consistent spacing**: Single `.page-container` utility across Header/page/Footer
+
+### How to restore (when user says "savealfa")
+
+```bash
+git fetch origin
+git checkout claude/payapress-webapp-setup-0bjxA
+git reset --hard 8f29a1106e4f2a35d633885f3d8565b78967b0b7
+npm run build
+git add -A
+git commit -m "restore: savealfa/stable"
+git push -u origin claude/payapress-webapp-setup-0bjxA
+```
+
+### How to update the checkpoint (when user says "savealfa save" or "ذخیره savealfa")
+
+1. Confirm the build is clean: `npm run build`
+2. Update the **Commit** hash above to `git rev-parse HEAD`
+3. Commit and push this CLAUDE.md
+
+---
+
 ## Key Files
 
 | File | Purpose |
