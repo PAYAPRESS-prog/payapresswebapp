@@ -853,7 +853,7 @@ body {
 
 /* ── Dimensions ───────────────────────────────────── */
 .fx-input-card {
-  background: var(--fx-card-bg);
+  background: rgba(245, 247, 250, 0.07);
   border-radius: 12px;
   padding: 10px;
   height: 100px;
@@ -892,7 +892,7 @@ body {
   text-align: center;
   font-size: 28px;
   font-weight: 510;
-  color: var(--fx-copper);
+  color: var(--fx-copper-bright);
   font-family: inherit;
   appearance: textfield;
   -moz-appearance: textfield;
@@ -934,8 +934,8 @@ body {
 }
 .fx-currency-cell.active {
   opacity: 1;
-  background: rgba(215, 25, 32, 0.05);
-  border: 0.5px solid var(--fx-copper);
+  background: rgba(245, 247, 250, 0.06);
+  border: 1px solid var(--fx-copper-bright);
 }
 .fx-currency-flag {
   width: 30px;

@@ -35,7 +35,7 @@ function relativeTime(iso?: string | null): string {
 
 const CURRENCIES: { code: CurrCode; label: string }[] = [
   { code: 'USD', label: 'USD' },
-  { code: 'AED', label: 'AED' },
+  { code: 'AED', label: 'UED' },
   { code: 'CNY', label: 'CYN' },   // matches Figma typo
   { code: 'EUR', label: 'EUR' },
 ];
