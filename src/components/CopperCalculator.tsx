@@ -404,16 +404,16 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
       <div className="calc-card-shell">
         <AnimatePresence>{showConfetti && <ConfettiBurst key="confetti" />}</AnimatePresence>
 
-        <div className="p-5 space-y-5">
+        <div className="p-4 sm:p-5 space-y-4 sm:space-y-5">
 
           {/* 1 · Live price header */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <span className="text-sm font-semibold" style={{ color: 'var(--accent)' }}>
               {metalType === 'copper' ? 'Copper Price' : 'Aluminum Price'}
             </span>
-            <span className="text-2xl font-bold font-mono tracking-tight" style={{ color: 'var(--accent)' }}>
+            <span className="text-xl sm:text-2xl font-bold font-mono tracking-tight whitespace-nowrap" style={{ color: 'var(--accent)' }}>
               {activeLoading
-                ? <span className="animate-pulse text-xl" style={{ color: '#444' }}>···</span>
+                ? <span className="animate-pulse" style={{ color: '#444' }}>···</span>
                 : activeLive
                   ? `$${fmt(activeLive.pricePerKg, 3)}`
                   : <span style={{ color: '#444' }}>—</span>
@@ -632,7 +632,7 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
             <p className="text-xs font-semibold mb-2" style={{ color: result ? 'var(--accent)' : '#444' }}>
               Total Cost — {lengthStr || '1000'} mm
             </p>
-            <p className="text-4xl font-bold font-mono leading-none" style={{ color: 'var(--accent)' }}>
+            <p className="text-3xl sm:text-4xl font-bold font-mono leading-none break-words" style={{ color: 'var(--accent)' }}>
               {result
                 ? <AnimNumber val={totalCostLocal} fn={v => fmtCurrency(v, currMeta)} />
                 : activeLoading

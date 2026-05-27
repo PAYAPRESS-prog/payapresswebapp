@@ -13,7 +13,7 @@ export function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300
+      className={`sticky top-0 z-50 pt-safe transition-all duration-300
                   animate-[header-slide-in_0.45s_cubic-bezier(0.22,1,0.36,1)_both] ${
         scrolled
           ? 'border-b border-[var(--color-surface-3)] bg-[var(--color-surface-0)]/92 backdrop-blur-2xl shadow-[0_4px_40px_rgba(0,0,0,0.55)]'
@@ -22,7 +22,7 @@ export function Header() {
     >
       <div className="w-full max-w-2xl mx-auto
                       px-4 sm:px-6
-                      h-12 sm:h-14
+                      h-14
                       flex items-center justify-between">
 
         <a

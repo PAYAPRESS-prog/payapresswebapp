@@ -8,16 +8,16 @@ const PILLS = [
 
 export function HeroSection() {
   return (
-    <div className="text-center mb-8 sm:mb-12">
-      <h1 className="font-black tracking-tight mb-4 sm:mb-5 leading-[1.06]">
+    <div className="text-center mb-6 sm:mb-10">
+      <h1 className="font-black tracking-tight mb-3 sm:mb-4 leading-[1.05]">
         <span
-          className="block text-sm sm:text-lg text-zinc-600 font-semibold tracking-[0.05em] mb-1"
+          className="block text-xs sm:text-sm text-zinc-600 font-semibold tracking-[0.15em] uppercase mb-1.5"
           style={{ animation: 'hero-slide-up 0.55s cubic-bezier(0.22,1,0.36,1) 0.1s both' }}
         >
           Professional
         </span>
         <span
-          className="block text-4xl sm:text-5xl lg:text-6xl text-shimmer"
+          className="block text-[1.75rem] sm:text-4xl lg:text-5xl text-shimmer"
           style={{ animation: 'hero-slide-up 0.65s cubic-bezier(0.22,1,0.36,1) 0.2s both' }}
         >
           Busbar Calculator
