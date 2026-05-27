@@ -601,22 +601,42 @@ body {
   --fx-success:      #22c55e;
 }
 
-/* App shell — phone-like layout */
+/* App shell — phone-like layout, centered on wider screens */
 .fx-app {
   background: var(--fx-bg);
   color: var(--fx-text-1);
-  min-height: 100svh;
+  min-height: 100vh;          /* fallback */
+  min-height: 100svh;         /* modern */
   max-width: 480px;
   margin: 0 auto;
   position: relative;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  padding-bottom: 96px;       /* bottom-nav clearance */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui,
+               'Segoe UI', Roboto, sans-serif;
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  /* Performance: own compositing layer keeps scroll smooth on iOS */
+  will-change: scroll-position;
+  /* Disable Safari tap-highlight flash */
+  -webkit-tap-highlight-color: transparent;
 }
 @media (min-width: 640px) {
   .fx-app {
     border-left:  1px solid var(--fx-divider);
     border-right: 1px solid var(--fx-divider);
     box-shadow: 0 0 80px rgba(0,0,0,0.5);
+  }
+}
+/* On very wide screens add a subtle radial background behind the phone frame */
+@media (min-width: 1024px) {
+  html, body { background: #06080a; }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 60% 50% at 50% 30%,
+                                rgba(215, 25, 32, 0.05) 0%,
+                                transparent 60%);
+    z-index: -1;
   }
 }
 
@@ -651,6 +671,15 @@ body {
 }
 .fx-icon-btn:hover { background: rgba(245, 247, 250, 0.06); }
 .fx-icon-btn:active { background: rgba(245, 247, 250, 0.1); }
+.fx-icon-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.fx-icon-btn:disabled:hover { background: transparent; }
+.fx-icon-btn:focus-visible {
+  outline: 2px solid var(--fx-copper-bright);
+  outline-offset: 2px;
+}
 .fx-logo-wrap {
   display: flex;
   align-items: center;
@@ -935,6 +964,16 @@ body {
   font-size: 14px;
   font-weight: 510;
 }
+.fx-currency-spark {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 14px;
+  pointer-events: none;
+  opacity: 0.85;
+}
 
 /* ── Estimate Price ──────────────────────────────── */
 .fx-price-display {
@@ -1098,17 +1137,26 @@ body {
   width: 100%;
   max-width: 480px;
   z-index: 40;
-  background: rgba(11, 13, 16, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(11, 13, 16, 0.85);
+  /* backdrop-filter — modern browsers + Safari */
+  -webkit-backdrop-filter: saturate(140%) blur(16px);
+          backdrop-filter: saturate(140%) blur(16px);
   border-top-left-radius: 24px;
   border-top-right-radius: 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 20px calc(10px + env(safe-area-inset-bottom));
-  height: 80px;
+  /* Safe-area-aware total height so content padding (96 px above) is enough */
+  min-height: calc(80px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--fx-divider);
+  /* Promote to its own layer to keep blur cost off the main thread */
+  transform: translateZ(0) translateX(-50%);
+  will-change: backdrop-filter;
+}
+/* Older browsers w/out backdrop-filter — opaque fallback */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .fx-bottom-nav { background: rgba(11, 13, 16, 0.98); }
 }
 .fx-bottom-tab {
   flex: 1;

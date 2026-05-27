@@ -8,19 +8,38 @@ import type { CopperPriceData, FxRates, InitialPriceData } from '@/types/calcula
 import {
   BusbarMock, RulerAngularIcon, RulerIcon, DollarIcon, ChartUpIcon,
 } from './FxIcons';
+import { FLAGS } from './FxFlags';
 
 type Metal = 'copper' | 'aluminum';
 type CurrCode = 'USD' | 'AED' | 'CNY' | 'EUR';
 type ChartRange = '1D' | '7D' | '1M' | '1Y';
 
-const CURRENCIES: { code: CurrCode; flag: string; label: string }[] = [
-  { code: 'USD', flag: 'us', label: 'USD' },
-  { code: 'AED', flag: 'ae', label: 'AED' },
-  { code: 'CNY', flag: 'cn', label: 'CYN' },   // matches Figma typo
-  { code: 'EUR', flag: 'eu', label: 'EUR' },
-];
+// Synthetic trend curves per range — deterministic so render stays stable.
+const TREND_POINTS: Record<ChartRange, string> = {
+  '1D': '0,90 12,82 24,75 36,68 48,60 60,55 72,48 84,32 95,18',
+  '7D': '0,95 12,72 24,88 36,55 48,68 60,30 72,52 84,22 95,18',
+  '1M': '0,80 14,60 28,72 42,40 56,55 70,28 84,35 95,18',
+  '1Y': '0,110 16,85 32,95 48,60 64,72 80,40 95,18',
+};
 
-const FLAG_CDN = 'https://flagcdn.com/w80';
+function relativeTime(iso?: string | null): string {
+  if (!iso) return 'just now';
+  const t = new Date(iso).getTime();
+  if (Number.isNaN(t)) return 'just now';
+  const sec = Math.max(0, Math.floor((Date.now() - t) / 1000));
+  if (sec < 30)       return 'just now';
+  if (sec < 60)       return `${sec} sec ago`;
+  if (sec < 3600)     return `${Math.floor(sec / 60)} min ago`;
+  if (sec < 86_400)   return `${Math.floor(sec / 3600)} hr ago`;
+  return `${Math.floor(sec / 86_400)} day ago`;
+}
+
+const CURRENCIES: { code: CurrCode; label: string }[] = [
+  { code: 'USD', label: 'USD' },
+  { code: 'AED', label: 'AED' },
+  { code: 'CNY', label: 'CYN' },   // matches Figma typo
+  { code: 'EUR', label: 'EUR' },
+];
 
 function clampInt(raw: string, min: number, max: number, fallback: number) {
   const n = Math.round(parseFloat(raw));
@@ -91,8 +110,9 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
   const activeCurrTotal = totalIn(curr);
 
-  // Trend chart numbers (static for now — live history not available)
-  const trendPrice = pricePerKgUSD; // shown as $X.XXX /ton in mock — divide by 1000? keep per-kg label.
+  // Trend chart numbers (static change% for now — live history not available)
+  const trendPrice = pricePerKgUSD;
+  const updatedLabel = relativeTime(live?.updatedAt);
 
   return (
     <div className="fx-content">
@@ -166,10 +186,10 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             <CurrencyCell
               key={c.code}
               code={c.code}
-              flag={c.flag}
               label={c.label}
               value={totalIn(c.code)}
               active={curr === c.code}
+              showSpark={curr === c.code}
               onClick={() => setCurr(c.code)}
             />
           ))}
@@ -179,10 +199,10 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             <CurrencyCell
               key={c.code}
               code={c.code}
-              flag={c.flag}
               label={c.label}
               value={totalIn(c.code)}
               active={curr === c.code}
+              showSpark={curr === c.code}
               onClick={() => setCurr(c.code)}
             />
           ))}
@@ -259,9 +279,9 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
               </div>
               <div className="fx-chart-change">+2.45% (220.50)</div>
             </div>
-            <div className="fx-chart-update">Updated: just now</div>
+            <div className="fx-chart-update">Updated: {updatedLabel}</div>
           </div>
-          <TrendChart metal={metal} />
+          <TrendChart metal={metal} range={range} />
         </div>
       </div>
     </div>
@@ -304,42 +324,49 @@ function DimInput({
 
 /* ── Currency cell ─────────────────────────────────────── */
 function CurrencyCell({
-  code, flag, label, value, active, onClick,
+  code, label, value, active, showSpark, onClick,
 }: {
   code: CurrCode;
-  flag: string;
   label: string;
   value: number;
   active: boolean;
+  showSpark?: boolean;
   onClick: () => void;
 }) {
+  const Flag = FLAGS[code];
   return (
     <button
       type="button"
       className={`fx-currency-cell${active ? ' active' : ''}`}
       onClick={onClick}
       aria-pressed={active}
+      aria-label={`${code} ${fmtMoney(value)}`}
     >
-      <img
-        src={`${FLAG_CDN}/${flag}.png`}
-        alt={`${code} flag`}
-        className="fx-currency-flag"
-        width={30}
-        height={30}
-      />
+      <Flag className="fx-currency-flag" width={30} height={30} />
       <div className="fx-currency-info">
         <div className="fx-currency-code">{label}</div>
         <div className="fx-currency-value">{fmtMoney(value)}</div>
       </div>
+      {showSpark && (
+        <svg className="fx-currency-spark" viewBox="0 0 100 24" aria-hidden="true">
+          <polyline
+            points="0,18 14,12 28,15 42,8 56,11 70,5 84,9 100,3"
+            fill="none"
+            stroke="#d71920"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      )}
     </button>
   );
 }
 
 /* ── Trend chart (decorative — matches Figma layout) ───── */
-function TrendChart({ metal }: { metal: Metal }) {
+function TrendChart({ metal, range }: { metal: Metal; range: ChartRange }) {
   const stroke = metal === 'copper' ? '#d71920' : '#6fb3e0';
-  // Synthetic but deterministic curve so the visual matches the design intent.
-  const points = '0,90 10,82 22,78 34,55 46,72 58,40 70,30 82,46 95,18';
+  const points = TREND_POINTS[range];
   return (
     <div className="fx-chart-canvas">
       <svg viewBox="0 0 100 140" preserveAspectRatio="none" width="100%" height="100%">
