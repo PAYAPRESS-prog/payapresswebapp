@@ -14,6 +14,6 @@
   "/page": "/",
   "/offline/page": "/offline",
   "/roadmap/page": "/roadmap",
-  "/whitepaper/page": "/whitepaper",
-  "/privacy/page": "/privacy"
+  "/privacy/page": "/privacy",
+  "/whitepaper/page": "/whitepaper"
 }

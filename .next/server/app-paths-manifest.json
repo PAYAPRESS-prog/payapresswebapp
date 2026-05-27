@@ -14,6 +14,6 @@
   "/page": "app/page.js",
   "/offline/page": "app/offline/page.js",
   "/roadmap/page": "app/roadmap/page.js",
-  "/whitepaper/page": "app/whitepaper/page.js",
-  "/privacy/page": "app/privacy/page.js"
+  "/privacy/page": "app/privacy/page.js",
+  "/whitepaper/page": "app/whitepaper/page.js"
 }
