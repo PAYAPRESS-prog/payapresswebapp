@@ -1,11 +1,9 @@
-import { Header } from '@/components/Header';
-import { ParticleBackground } from '@/components/ParticleBackground';
-import { HeroSection } from '@/components/HeroSection';
-import { ComingSoonSection } from '@/components/ComingSoonSection';
-import { Footer } from '@/components/Footer';
-import { InstallPrompt } from '@/components/InstallPrompt';
+import { FxHeader } from '@/components/figma/FxHeader';
+import { FxHero } from '@/components/figma/FxHero';
+import { FxFooter } from '@/components/figma/FxFooter';
+import { FxBottomNav } from '@/components/figma/FxBottomNav';
+import { FxCalculator } from '@/components/figma/FxCalculator';
 import { SectionErrorBoundary } from '@/components/SectionErrorBoundary';
-import { CopperCalculator } from '@/components/DynamicPage';
 import { fetchCopperPrice, fetchAluminumPrice, fetchFxRates } from '@/lib/serverPrices';
 
 export default async function HomePage() {
@@ -22,40 +20,27 @@ export default async function HomePage() {
   };
 
   return (
-    <div className="grid-bg min-h-screen">
-      <div className="bg-radial-pulse" />
+    <div className="fx-app">
       <SectionErrorBoundary>
-        <ParticleBackground />
+        <FxHeader />
       </SectionErrorBoundary>
 
-      <SectionErrorBoundary>
-        <Header />
-      </SectionErrorBoundary>
+      <main>
+        <SectionErrorBoundary>
+          <FxHero />
+        </SectionErrorBoundary>
 
-      <main className="relative z-10">
-        <div className="page-container pt-6 sm:pt-10 pb-10 sm:pb-14">
+        <SectionErrorBoundary>
+          <FxCalculator initialData={initialData} />
+        </SectionErrorBoundary>
 
-          <SectionErrorBoundary>
-            <HeroSection />
-          </SectionErrorBoundary>
-
-          <SectionErrorBoundary>
-            <CopperCalculator initialData={initialData} />
-          </SectionErrorBoundary>
-
-          <div className="mt-10 sm:mt-14">
-            <SectionErrorBoundary>
-              <ComingSoonSection />
-            </SectionErrorBoundary>
-          </div>
-        </div>
+        <SectionErrorBoundary>
+          <FxFooter />
+        </SectionErrorBoundary>
       </main>
 
       <SectionErrorBoundary>
-        <InstallPrompt />
-      </SectionErrorBoundary>
-      <SectionErrorBoundary>
-        <Footer />
+        <FxBottomNav />
       </SectionErrorBoundary>
     </div>
   );

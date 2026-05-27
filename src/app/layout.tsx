@@ -91,18 +91,18 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" style={{ background: '#060608' }} suppressHydrationWarning>
+    <html lang="en" style={{ background: '#0b0d10' }} suppressHydrationWarning>
       {/* Tell browsers and CDNs never to cache HTML pages */}
       <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
       <meta httpEquiv="Pragma" content="no-cache" />
       <meta httpEquiv="Expires" content="0" />
       {/* Critical inline styles — dark background guaranteed even if CSS bundle fails to load */}
       <style dangerouslySetInnerHTML={{ __html:
-        'html,body{background:#060608!important;color:#f0f0f0;margin:0;padding:0;' +
-        'font-family:ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}' +
+        'html,body{background:#0b0d10!important;color:#f5f7fa;margin:0;padding:0;' +
+        'font-family:Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}' +
         '*{box-sizing:border-box}'
       }} />
-      <body style={{ background: '#060608' }}>
+      <body style={{ background: '#0b0d10' }}>
         <SplashScreen />
         {children}
         {/* Global error capture — shows error on screen even if React can't mount */}
