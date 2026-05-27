@@ -43,13 +43,6 @@
       "static/chunks/main-app-79aa53ffd75e0158.js",
       "static/chunks/app/api/copper-price/route-038bc921b5e2d99e.js"
     ],
-    "/api/fx-rate/route": [
-      "static/chunks/webpack-1ed6dc2c50539d38.js",
-      "static/chunks/4bd1b696-c023c6e3521b1417.js",
-      "static/chunks/255-4f84124391a7dac4.js",
-      "static/chunks/main-app-79aa53ffd75e0158.js",
-      "static/chunks/app/api/fx-rate/route-038bc921b5e2d99e.js"
-    ],
     "/api/v1/calculate/route": [
       "static/chunks/webpack-1ed6dc2c50539d38.js",
       "static/chunks/4bd1b696-c023c6e3521b1417.js",
@@ -71,6 +64,13 @@
       "static/chunks/main-app-79aa53ffd75e0158.js",
       "static/chunks/app/api/v1/fx-rates/route-038bc921b5e2d99e.js"
     ],
+    "/api/fx-rate/route": [
+      "static/chunks/webpack-1ed6dc2c50539d38.js",
+      "static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "static/chunks/255-4f84124391a7dac4.js",
+      "static/chunks/main-app-79aa53ffd75e0158.js",
+      "static/chunks/app/api/fx-rate/route-038bc921b5e2d99e.js"
+    ],
     "/robots.txt/route": [
       "static/chunks/webpack-1ed6dc2c50539d38.js",
       "static/chunks/4bd1b696-c023c6e3521b1417.js",
@@ -78,12 +78,12 @@
       "static/chunks/main-app-79aa53ffd75e0158.js",
       "static/chunks/app/robots.txt/route-038bc921b5e2d99e.js"
     ],
-    "/apple-icon/route": [
+    "/sitemap.xml/route": [
       "static/chunks/webpack-1ed6dc2c50539d38.js",
       "static/chunks/4bd1b696-c023c6e3521b1417.js",
       "static/chunks/255-4f84124391a7dac4.js",
       "static/chunks/main-app-79aa53ffd75e0158.js",
-      "static/chunks/app/apple-icon/route-038bc921b5e2d99e.js"
+      "static/chunks/app/sitemap.xml/route-038bc921b5e2d99e.js"
     ],
     "/icon/route": [
       "static/chunks/webpack-1ed6dc2c50539d38.js",
@@ -92,12 +92,19 @@
       "static/chunks/main-app-79aa53ffd75e0158.js",
       "static/chunks/app/icon/route-038bc921b5e2d99e.js"
     ],
-    "/sitemap.xml/route": [
+    "/apple-icon/route": [
       "static/chunks/webpack-1ed6dc2c50539d38.js",
       "static/chunks/4bd1b696-c023c6e3521b1417.js",
       "static/chunks/255-4f84124391a7dac4.js",
       "static/chunks/main-app-79aa53ffd75e0158.js",
-      "static/chunks/app/sitemap.xml/route-038bc921b5e2d99e.js"
+      "static/chunks/app/apple-icon/route-038bc921b5e2d99e.js"
+    ],
+    "/embed/page": [
+      "static/chunks/webpack-1ed6dc2c50539d38.js",
+      "static/chunks/4bd1b696-c023c6e3521b1417.js",
+      "static/chunks/255-4f84124391a7dac4.js",
+      "static/chunks/main-app-79aa53ffd75e0158.js",
+      "static/chunks/app/embed/page-5ac604c232b36b20.js"
     ],
     "/offline/page": [
       "static/chunks/webpack-1ed6dc2c50539d38.js",
@@ -112,13 +119,6 @@
       "static/chunks/255-4f84124391a7dac4.js",
       "static/chunks/main-app-79aa53ffd75e0158.js",
       "static/chunks/app/page-17a4f2b24ca67bac.js"
-    ],
-    "/embed/page": [
-      "static/chunks/webpack-1ed6dc2c50539d38.js",
-      "static/chunks/4bd1b696-c023c6e3521b1417.js",
-      "static/chunks/255-4f84124391a7dac4.js",
-      "static/chunks/main-app-79aa53ffd75e0158.js",
-      "static/chunks/app/embed/page-5ac604c232b36b20.js"
     ],
     "/roadmap/page": [
       "static/chunks/webpack-1ed6dc2c50539d38.js",
