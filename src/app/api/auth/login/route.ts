@@ -1,0 +1,54 @@
+import { NextResponse } from 'next/server';
+import { isDbConfigured } from '@/lib/db';
+import { findUserByEmail } from '@/lib/users';
+import {
+  verifyPassword,
+  createSessionToken,
+  sessionCookieOptions,
+  isValidEmail,
+  SESSION_COOKIE,
+} from '@/lib/auth';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+export async function POST(req: Request) {
+  if (!isDbConfigured()) {
+    return NextResponse.json(
+      { error: 'Login is not available yet. Database not configured.' },
+      { status: 503 },
+    );
+  }
+
+  let body: { email?: string; password?: string; remember?: boolean };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
+  }
+
+  const email = (body.email ?? '').trim().toLowerCase();
+  const password = body.password ?? '';
+  const remember = Boolean(body.remember);
+
+  if (!isValidEmail(email) || !password) {
+    return NextResponse.json({ error: 'Invalid email or password.' }, { status: 400 });
+  }
+
+  try {
+    const user = await findUserByEmail(email);
+    // Same generic message whether the email is unknown or the password is
+    // wrong — avoids leaking which emails are registered.
+    if (!user || !(await verifyPassword(password, user.password_hash))) {
+      return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
+    }
+
+    const token = await createSessionToken({ uid: user.id, email: user.email });
+    const res = NextResponse.json({ ok: true, user: { id: user.id, email: user.email } });
+    res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(remember));
+    return res;
+  } catch (err) {
+    console.error('[auth/login]', err);
+    return NextResponse.json({ error: 'Server error. Please try again.' }, { status: 500 });
+  }
+}
