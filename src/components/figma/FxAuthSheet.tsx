@@ -11,11 +11,13 @@ export function FxAuthSheet({
   mode,
   onClose,
   onModeChange,
+  onSuccess,
 }: {
   open: boolean;
   mode: Mode;
   onClose: () => void;
   onModeChange: (m: Mode) => void;
+  onSuccess?: () => void;
 }) {
   const router = useRouter();
   const formId = useId();
@@ -79,8 +81,13 @@ export function FxAuthSheet({
         setError(data?.error || 'Something went wrong. Please try again.');
         return;
       }
-      // Success → enter the app menu
-      router.push('/app');
+      // Success
+      if (onSuccess) {
+        onSuccess();
+        onClose();
+      } else {
+        router.push('/app');
+      }
     } catch {
       setError('Network error. Please try again.');
     } finally {

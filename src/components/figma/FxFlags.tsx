@@ -114,9 +114,43 @@ export function FlagEUR(props: FlagProps) {
   );
 }
 
+export function FlagGBP(props: FlagProps) {
+  return (
+    <ClippedCircle id="fx-flag-gb" {...props}>
+      <rect width="30" height="30" fill="#ffffff" />
+      <rect x="13" y="0" width="4" height="30" fill="#cf142b" />
+      <rect x="0" y="13" width="30" height="4" fill="#cf142b" />
+    </ClippedCircle>
+  );
+}
+
+export function FlagTRY(props: FlagProps) {
+  return (
+    <ClippedCircle id="fx-flag-tr" {...props}>
+      <rect width="30" height="30" fill="#e30a17" />
+      <circle cx="12.5" cy="15" r="6.5" fill="#ffffff" />
+      <circle cx="14.8" cy="15" r="5.2" fill="#e30a17" />
+      <Star cx={20.5} cy={11.5} r={2.2} fill="#ffffff" rotate={18} />
+    </ClippedCircle>
+  );
+}
+
+export function FlagIRR(props: FlagProps) {
+  return (
+    <ClippedCircle id="fx-flag-ir" {...props}>
+      <rect x="0" y="0"  width="30" height="10" fill="#239f40" />
+      <rect x="0" y="10" width="30" height="10" fill="#ffffff" />
+      <rect x="0" y="20" width="30" height="10" fill="#da0000" />
+    </ClippedCircle>
+  );
+}
+
 export const FLAGS = {
   USD: FlagUSA,
   AED: FlagAED,
   CNY: FlagCNY,
   EUR: FlagEUR,
+  GBP: FlagGBP,
+  TRY: FlagTRY,
+  IRR: FlagIRR,
 } as const;

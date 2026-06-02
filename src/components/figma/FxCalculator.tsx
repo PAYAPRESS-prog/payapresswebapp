@@ -1,16 +1,18 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULT_GRADE } from '@/lib/copperData';
 import { DEFAULT_ALUMINUM_GRADE } from '@/lib/aluminumData';
 import type { CopperPriceData, FxRates, InitialPriceData } from '@/types/calculator';
 import {
   BusbarMock, RulerAngularIcon, RulerIcon, DollarIcon, ChartUpIcon,
 } from './FxIcons';
+import { BusbarRender } from '@/components/BusbarRender';
 import { FLAGS } from './FxFlags';
+import { FxAuthSheet } from './FxAuthSheet';
 
 type Metal = 'copper' | 'aluminum';
-type CurrCode = 'USD' | 'AED' | 'CNY' | 'EUR';
+type CurrCode = 'USD' | 'AED' | 'CNY' | 'EUR' | 'GBP' | 'TRY' | 'IRR';
 type ChartRange = '1D' | '7D' | '1M' | '1Y';
 
 const TREND_POINTS: Record<ChartRange, string> = {
@@ -28,6 +30,26 @@ const PRESETS: Array<{ w: string; t: string }> = [
   { w: '500', t: '50' },
 ];
 
+// Currencies shown in the main 2×2 grid
+const GRID_CURRENCIES: CurrCode[] = ['USD', 'EUR', 'GBP'];
+
+// Label and name for all supported currencies
+const CURR_META: Record<CurrCode, { label: string; name: string }> = {
+  USD: { label: 'USD',  name: 'US Dollar' },
+  EUR: { label: 'EUR',  name: 'Euro' },
+  GBP: { label: 'PND',  name: 'British Pound' },
+  AED: { label: 'AED',  name: 'UAE Dirham' },
+  CNY: { label: 'Yuan', name: 'Chinese Yuan' },
+  TRY: { label: 'Lira', name: 'Turkish Lira' },
+  IRR: { label: 'Rial', name: 'Iranian Rial' },
+};
+
+// Currencies shown in the "Other" picker (all that aren't always in the grid)
+const PICKER_CURRENCIES: CurrCode[] = ['GBP', 'TRY', 'IRR', 'CNY', 'AED', 'EUR'];
+
+// Current density for busbar (A/mm²) — standard indoor rating
+const CURRENT_DENSITY: Record<Metal, number> = { copper: 2.5, aluminum: 1.5 };
+
 function relativeTime(iso?: string | null): string {
   if (!iso) return 'just now';
   const t = new Date(iso).getTime();
@@ -39,13 +61,6 @@ function relativeTime(iso?: string | null): string {
   if (sec < 86_400)   return `${Math.floor(sec / 3600)} hr ago`;
   return `${Math.floor(sec / 86_400)} day ago`;
 }
-
-const CURRENCIES: { code: CurrCode; label: string }[] = [
-  { code: 'USD', label: 'USD' },
-  { code: 'AED', label: 'UED' },
-  { code: 'CNY', label: 'CYN' },
-  { code: 'EUR', label: 'EUR' },
-];
 
 function clampInt(raw: string, min: number, max: number, fallback: number) {
   const n = Math.round(parseFloat(raw));
@@ -77,8 +92,25 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const [aluminum, setAluminum] = useState<CopperPriceData | null>(initialData?.aluminum ?? null);
   const [fx,       setFx]       = useState<FxRates | null>(initialData?.fx ?? null);
 
-  const [updatedLabel, setUpdatedLabel] = useState('just now');
+  const [updatedLabel,  setUpdatedLabel]  = useState('just now');
+  const [showResults,   setShowResults]   = useState(false);
+  const [showPicker,    setShowPicker]    = useState(false);
+  const [pickerSearch,  setPickerSearch]  = useState('');
+  const [bookmarked,    setBookmarked]    = useState(false);
+  const [shareMsg,      setShareMsg]      = useState('');
 
+  // Auth sheet state (triggered when not logged in)
+  const [authOpen,     setAuthOpen]     = useState(false);
+  const [authMode,     setAuthMode]     = useState<'login' | 'signup'>('login');
+  const pendingActionRef = useRef<(() => void) | null>(null);
+
+  // User auth state
+  const [user, setUser] = useState<{ id: number; email: string } | null | undefined>(undefined);
+
+  const resultsRef  = useRef<HTMLDivElement>(null);
+  const pickerInput = useRef<HTMLInputElement>(null);
+
+  // Live price refresh every 5 min
   useEffect(() => {
     const tick = async () => {
       const [c, a, f] = await Promise.all([
@@ -94,6 +126,14 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
     const id = setInterval(tick, 300_000);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Load auth state once
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => setUser(data?.user ?? null))
+      .catch(() => setUser(null));
   }, []);
 
   const grade = metal === 'copper' ? DEFAULT_GRADE : DEFAULT_ALUMINUM_GRADE;
@@ -115,22 +155,107 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
     [w, t, L, grade.density],
   );
 
-  const pricePerKgUSD = live?.pricePerKg ?? 0;
-  const totalUSD = weightKg * pricePerKgUSD;
+  const pricePerKgUSD   = live?.pricePerKg ?? 0;
+  const totalUSD        = weightKg * pricePerKgUSD;
+  const maxCurrentA     = Math.round(w * t * CURRENT_DENSITY[metal]);
+  const crossSectionMm2 = w * t;
 
   const fxRate = (code: CurrCode): number => {
     if (code === 'USD' || !fx) return 1;
+    if (code === 'IRR') return 500000; // fixed official-ish rate
     const r = (fx as unknown as Record<string, number>)[code];
     return typeof r === 'number' && r > 0 ? r : 1;
   };
-  const totalIn = (code: CurrCode): number => totalUSD * fxRate(code);
+  const totalIn = (code: CurrCode) => totalUSD * fxRate(code);
   const activeCurrTotal = totalIn(curr);
-  const trendPrice = pricePerKgUSD;
 
-  function applyPreset(p: { w: string; t: string }) {
-    setWidth(p.w);
-    setThick(p.t);
+  // ── Actions ──────────────────────────────────────────────────────
+
+  function requireAuth(action: () => void) {
+    if (user) {
+      action();
+    } else {
+      pendingActionRef.current = action;
+      setAuthMode('login');
+      setAuthOpen(true);
+    }
   }
+
+  function handleAuthSuccess() {
+    // Re-fetch user, then run pending action
+    fetch('/api/auth/me')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        const u = data?.user ?? null;
+        setUser(u);
+        if (u && pendingActionRef.current) {
+          pendingActionRef.current();
+          pendingActionRef.current = null;
+        }
+      })
+      .catch(() => {});
+  }
+
+  function handleCalculate() {
+    setShowResults(true);
+    setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 150);
+  }
+
+  async function handleBookmark() {
+    requireAuth(async () => {
+      try {
+        await fetch('/api/history', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ metal, width: w, thickness: t, length: L }),
+        });
+        setBookmarked(true);
+        setTimeout(() => setBookmarked(false), 2500);
+      } catch { /* ignore */ }
+    });
+  }
+
+  function handleCompare() {
+    requireAuth(() => {
+      setShareMsg('Compare feature coming soon!');
+      setTimeout(() => setShareMsg(''), 2200);
+    });
+  }
+
+  async function handleShare() {
+    const metalLabel = metal === 'copper' ? 'Copper' : 'Aluminum';
+    const text = [
+      `📐 Busbar Calculator Result`,
+      ``,
+      `Material:    ${metalLabel}`,
+      `Dimensions:  ${w} × ${t} × ${L} mm`,
+      `Cross-section: ${crossSectionMm2.toLocaleString()} mm²`,
+      `Weight:      ${fmtMoney(weightKg)} kg`,
+      `Current cap: ${maxCurrentA.toLocaleString()} A`,
+      `Est. price:  $${fmtMoney(totalUSD)} USD`,
+      ``,
+      `📲 Free calculator:`,
+      `https://calculator.payapress.com`,
+    ].join('\n');
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({
+          title: 'Busbar Calculation',
+          text,
+          url: 'https://calculator.payapress.com',
+        });
+      } else {
+        await navigator.clipboard.writeText(text);
+        setShareMsg('Copied to clipboard!');
+        setTimeout(() => setShareMsg(''), 2200);
+      }
+    } catch { /* dismissed */ }
+  }
+
+  // ── Render ────────────────────────────────────────────────────────
 
   return (
     <div className="fx-content">
@@ -167,7 +292,6 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           <div className="fx-card-head-badge">mm</div>
         </div>
 
-        {/* Suggestions row */}
         <div className="fx-suggestions">
           <span className="fx-suggestions-label">Suggestions</span>
           <div className="fx-suggestions-scroll no-scrollbar">
@@ -178,77 +302,32 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
                   key={`${p.w}x${p.t}`}
                   type="button"
                   className={`fx-suggestion-pill${isActive ? ' active' : ''}`}
-                  onClick={() => applyPreset(p)}
+                  onClick={() => { setWidth(p.w); setThick(p.t); }}
                 >
-                  {p.w}x{p.t}
+                  {p.w}×{p.t}
                 </button>
               );
             })}
           </div>
         </div>
 
-        <DimInput
-          label="Length"
-          value={length}
-          onChange={setLength}
-          onBlur={v => setLength(String(clampInt(v, 1, 100000, 2500)))}
-        />
-        <DimInput
-          label="Width"
-          value={width}
-          onChange={setWidth}
-          onBlur={v => setWidth(String(clampInt(v, 1, 100000, 100)))}
-        />
-        <DimInput
-          label="Thikness"
-          value={thick}
-          onChange={setThick}
-          onBlur={v => setThick(String(clampInt(v, 1, 100000, 10)))}
-        />
+        <DimInput label="Length"   value={length} onChange={setLength}
+          onBlur={v => setLength(String(clampInt(v, 1, 100000, 2500)))} />
+        <DimInput label="Width"    value={width}  onChange={setWidth}
+          onBlur={v => setWidth(String(clampInt(v, 1, 100000, 100)))} />
+        <DimInput label="Thikness" value={thick}  onChange={setThick}
+          onBlur={v => setThick(String(clampInt(v, 1, 100000, 10)))} />
       </div>
 
-      {/* ── Busbar Render ──────────────────────────────── */}
+      {/* ── Dynamic busbar render ──────────────────────── */}
       <div className="fx-busbar-render">
-        <svg
-          viewBox="0 0 200 160"
-          width="100%"
-          height="auto"
-          style={{ maxWidth: 280 }}
-          aria-hidden="true"
-          preserveAspectRatio="xMidYMid meet"
-        >
-          <defs>
-            <linearGradient id="calc-cu-top" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#f0b486" />
-              <stop offset="100%" stopColor="#b87333" />
-            </linearGradient>
-            <linearGradient id="calc-cu-side" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#a8632a" />
-              <stop offset="100%" stopColor="#5c2e16" />
-            </linearGradient>
-            <linearGradient id="calc-al-top" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#e7ecf0" />
-              <stop offset="100%" stopColor="#a8b1b9" />
-            </linearGradient>
-            <linearGradient id="calc-al-side" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#8e9aa3" />
-              <stop offset="100%" stopColor="#535b62" />
-            </linearGradient>
-          </defs>
-          {/* aluminum bar (back) */}
-          <polygon points="40,40 170,10 195,18 60,52"   fill="url(#calc-al-top)" />
-          <polygon points="170,10 195,18 195,32 170,24" fill="#4a5258" />
-          <polygon points="60,52 195,18 195,32 60,66"   fill="url(#calc-al-side)" />
-          {/* copper bar (mid) */}
-          <polygon points="22,72 160,38 195,48 60,82"   fill="url(#calc-cu-top)" />
-          <polygon points="160,38 195,48 195,64 160,54" fill="#5c2e16" />
-          <polygon points="60,82 195,48 195,64 60,96"   fill="url(#calc-cu-side)" />
-          {/* copper bar (front) */}
-          <polygon points="5,102 150,68 195,80 50,114"  fill="url(#calc-cu-top)" />
-          <polygon points="150,68 195,80 195,98 150,86" fill="#5c2e16" />
-          <polygon points="50,114 195,80 195,98 50,132" fill="url(#calc-cu-side)" />
-        </svg>
+        <BusbarRender width={w} thickness={t} metal={metal} />
       </div>
+
+      {/* ── Calculate Now ──────────────────────────────── */}
+      <button type="button" className="fx-calc-now-btn" onClick={handleCalculate}>
+        Calculate Now
+      </button>
 
       {/* ── Currency Conversion ────────────────────────── */}
       <div className="fx-card">
@@ -257,75 +336,109 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             <DollarIcon className="fx-card-head-icon" />
             <span className="fx-card-head-title">Currency Conversion</span>
           </div>
-          <div className="fx-card-head-badge">
-            Base Currency: <span className="accent" style={{ marginLeft: 4 }}>USD</span>
-          </div>
         </div>
 
-        <div className="fx-currency-row">
-          {CURRENCIES.slice(0, 2).map(c => (
-            <CurrencyCell
-              key={c.code}
-              code={c.code}
-              label={c.label}
-              value={totalIn(c.code)}
-              active={curr === c.code}
-              showSpark={curr === c.code}
-              onClick={() => setCurr(c.code)}
-            />
-          ))}
-        </div>
-        <div className="fx-currency-row">
-          {CURRENCIES.slice(2).map(c => (
-            <CurrencyCell
-              key={c.code}
-              code={c.code}
-              label={c.label}
-              value={totalIn(c.code)}
-              active={curr === c.code}
-              showSpark={curr === c.code}
-              onClick={() => setCurr(c.code)}
-            />
-          ))}
+        {/* 2×2 grid: 3 main currencies + Other button */}
+        <div className="fx-currency-grid">
+          {GRID_CURRENCIES.map(code => {
+            const Flag = FLAGS[code as keyof typeof FLAGS];
+            const isActive = curr === code;
+            return (
+              <button
+                key={code}
+                type="button"
+                className={`fx-currency-cell2${isActive ? ' active' : ''}`}
+                onClick={() => setCurr(code)}
+                aria-pressed={isActive}
+              >
+                {Flag && <Flag className="fx-currency-flag" width={28} height={28} />}
+                <div className="fx-currency-info">
+                  <div className="fx-currency-code">{CURR_META[code].label}</div>
+                  <div className="fx-currency-value">{fmtMoney(totalIn(code))}</div>
+                </div>
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            className="fx-currency-other-btn"
+            onClick={() => { setShowPicker(true); setPickerSearch(''); }}
+          >
+            <span className="fx-currency-other-plus">+</span>
+            <span>Other</span>
+          </button>
         </div>
       </div>
 
-      {/* ── Estimate Price ─────────────────────────────── */}
-      <div className="fx-card">
-        <div className="fx-card-head">
-          <div className="fx-card-head-label">
-            <span className="fx-card-head-title">Estimate Price</span>
-          </div>
-          <div className="fx-live-badge">
-            <span className="fx-live-dot" />
-            <span className="fx-live-text">Live COMEX</span>
-          </div>
-        </div>
+      {/* ── Results ────────────────────────────────────── */}
+      {showResults && (
+        <div className="fx-results" ref={resultsRef}>
+          <h3 className="fx-results-title">Results</h3>
 
-        <div className="fx-price-display">
-          <p>
-            {curr === 'USD' ? '$' : ''}
-            {fmtMoney(activeCurrTotal)}
-            {curr !== 'USD' ? ` ${curr}` : ''}
-          </p>
-        </div>
+          <div className="fx-results-price-row">
+            <span className="fx-results-price-label">Estimate Price</span>
+            <span className="fx-results-live-badge">
+              <span className="fx-results-live-dot" />
+              Live COMEX
+            </span>
+          </div>
 
-        <div className="fx-meta-row">
-          <div className="fx-meta-cell">
-            <div className="label">WEIGHT</div>
-            <div>
-              <span className="value weight">{fmtMoney(weightKg)}</span>
-              <span className="unit">Kg</span>
+          <div className="fx-results-price">
+            {curr === 'USD' ? '$' : ''}{fmtMoney(activeCurrTotal)}
+            {curr !== 'USD' && <span className="fx-results-price-curr"> {CURR_META[curr].label}</span>}
+          </div>
+
+          <div className="fx-results-stats">
+            <div className="fx-results-stat">
+              <div className="fx-results-stat-label">WEIGHT</div>
+              <div className="fx-results-stat-value">{fmtMoney(weightKg)} <span className="fx-results-stat-unit">kg</span></div>
+            </div>
+            <div className="fx-results-stat">
+              <div className="fx-results-stat-label">MATERIAL</div>
+              <div className="fx-results-stat-value">{metal}</div>
+            </div>
+            <div className="fx-results-stat">
+              <div className="fx-results-stat-label">CURRENT CAP.</div>
+              <div className="fx-results-stat-value">{maxCurrentA.toLocaleString()} <span className="fx-results-stat-unit">A</span></div>
+            </div>
+            <div className="fx-results-stat">
+              <div className="fx-results-stat-label">PRICE / KG</div>
+              <div className="fx-results-stat-value">${fmtPrice(pricePerKgUSD)}</div>
+            </div>
+            <div className="fx-results-stat">
+              <div className="fx-results-stat-label">CROSS-SECTION</div>
+              <div className="fx-results-stat-value">{crossSectionMm2.toLocaleString()} <span className="fx-results-stat-unit">mm²</span></div>
+            </div>
+            <div className="fx-results-stat">
+              <div className="fx-results-stat-label">DIMENSIONS</div>
+              <div className="fx-results-stat-value" style={{ fontSize: 14 }}>{w}×{t}×{L}</div>
             </div>
           </div>
-          <div className="fx-meta-cell">
-            <div className="label">MATERIAL</div>
-            <div className="value material">
-              {metal === 'copper' ? 'Copper' : 'Aluminum'}
-            </div>
+
+          {shareMsg && (
+            <p className="fx-results-share-msg">{shareMsg}</p>
+          )}
+          {bookmarked && (
+            <p className="fx-results-share-msg" style={{ color: '#22c55e' }}>Saved to history!</p>
+          )}
+
+          <div className="fx-results-actions">
+            <button type="button" className="fx-results-btn" onClick={handleCompare}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h7"/><circle cx="17" cy="17" r="4"/><path d="m15 17 1 1 2-2"/></svg>
+              Compare result
+            </button>
+            <button type="button" className="fx-results-btn" onClick={handleBookmark}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+              {bookmarked ? 'Saved!' : 'Bookmark result'}
+            </button>
           </div>
+
+          <button type="button" className="fx-results-share-btn" onClick={handleShare}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Share Result
+          </button>
         </div>
-      </div>
+      )}
 
       {/* ── Price Trend ────────────────────────────────── */}
       <div className="fx-card">
@@ -355,7 +468,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             <div>
               <div className="fx-chart-current-label">Current Price</div>
               <div className="fx-chart-current-price">
-                ${fmtPrice(trendPrice)}
+                ${fmtPrice(pricePerKgUSD)}
                 <span className="unit">/kg</span>
               </div>
               <div className="fx-chart-change">+2.45% (220.50)</div>
@@ -365,16 +478,76 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           <TrendChart metal={metal} range={range} />
         </div>
       </div>
+
+      {/* ── Currency Picker Sheet ─────────────────────── */}
+      {showPicker && (
+        <div
+          className="fx-picker-overlay"
+          onClick={() => setShowPicker(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Select currency"
+        >
+          <div className="fx-picker-sheet" onClick={e => e.stopPropagation()}>
+            <div className="fx-picker-handle" />
+            <div className="fx-picker-search-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="fx-picker-search-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input
+                ref={pickerInput}
+                type="text"
+                className="fx-picker-search"
+                placeholder="Search for other currency"
+                value={pickerSearch}
+                onChange={e => setPickerSearch(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div className="fx-picker-list">
+              {PICKER_CURRENCIES
+                .filter(code => {
+                  const q = pickerSearch.toLowerCase();
+                  if (!q) return true;
+                  const m = CURR_META[code];
+                  return m.name.toLowerCase().includes(q) || m.label.toLowerCase().includes(q);
+                })
+                .map(code => {
+                  const Flag = FLAGS[code as keyof typeof FLAGS];
+                  const m = CURR_META[code];
+                  const isActive = curr === code;
+                  return (
+                    <button
+                      key={code}
+                      type="button"
+                      className={`fx-picker-row${isActive ? ' active' : ''}`}
+                      onClick={() => { setCurr(code); setShowPicker(false); }}
+                    >
+                      {Flag && <Flag className="fx-picker-flag" width={32} height={32} />}
+                      <span className="fx-picker-name">{m.name}</span>
+                      <span className="fx-picker-value">{fmtMoney(totalIn(code))}</span>
+                    </button>
+                  );
+                })
+              }
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Auth sheet (triggered by compare/bookmark) ── */}
+      <FxAuthSheet
+        open={authOpen}
+        mode={authMode}
+        onClose={() => setAuthOpen(false)}
+        onModeChange={setAuthMode}
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 }
 
 /* ── Dimension input row ────────────────────────────────── */
 function DimInput({
-  label,
-  value,
-  onChange,
-  onBlur,
+  label, value, onChange, onBlur,
 }: {
   label: string;
   value: string;
@@ -403,47 +576,6 @@ function DimInput({
   );
 }
 
-/* ── Currency cell ─────────────────────────────────────── */
-function CurrencyCell({
-  code, label, value, active, showSpark, onClick,
-}: {
-  code: CurrCode;
-  label: string;
-  value: number;
-  active: boolean;
-  showSpark?: boolean;
-  onClick: () => void;
-}) {
-  const Flag = FLAGS[code];
-  return (
-    <button
-      type="button"
-      className={`fx-currency-cell${active ? ' active' : ''}`}
-      onClick={onClick}
-      aria-pressed={active}
-      aria-label={`${code} ${fmtMoney(value)}`}
-    >
-      <Flag className="fx-currency-flag" width={30} height={30} />
-      <div className="fx-currency-info">
-        <div className="fx-currency-code">{label}</div>
-        <div className="fx-currency-value">{fmtMoney(value)}</div>
-      </div>
-      {showSpark && (
-        <svg className="fx-currency-spark" viewBox="0 0 100 24" aria-hidden="true">
-          <polyline
-            points="0,18 14,12 28,15 42,8 56,11 70,5 84,9 100,3"
-            fill="none"
-            stroke="#d71920"
-            strokeWidth="1.4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      )}
-    </button>
-  );
-}
-
 /* ── Trend chart ───────────────────────────────────────── */
 function TrendChart({ metal, range }: { metal: Metal; range: ChartRange }) {
   const stroke = metal === 'copper' ? '#d71920' : '#6fb3e0';
@@ -456,22 +588,12 @@ function TrendChart({ metal, range }: { metal: Metal; range: ChartRange }) {
                 stroke="#ffffff14" strokeWidth="0.4" />
         ))}
         {[
-          { y: 24,  t: '200' },
-          { y: 44,  t: '100' },
-          { y: 64,  t: '0' },
-          { y: 84,  t: '-100' },
-          { y: 104, t: '-200' },
-          { y: 124, t: '-300' },
+          { y: 24, t: '200' }, { y: 44, t: '100' }, { y: 64, t: '0' },
+          { y: 84, t: '-100' }, { y: 104, t: '-200' }, { y: 124, t: '-300' },
         ].map(l => (
           <text key={l.t} x="2" y={l.y} fontSize="6" fill="#9ca3af">{l.t}</text>
         ))}
-        <polyline
-          points={points}
-          fill="none"
-          stroke={stroke}
-          strokeWidth="1.2"
-          strokeLinejoin="round"
-        />
+        <polyline points={points} fill="none" stroke={stroke} strokeWidth="1.2" strokeLinejoin="round" />
         <circle cx="95" cy="18" r="2" fill={stroke} />
         <text x="80" y="14" fontSize="6" fill="#ccc">151</text>
       </svg>
