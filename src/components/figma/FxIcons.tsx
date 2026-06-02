@@ -13,6 +13,9 @@ import {
   Calculator,
   Layers,
   History,
+  Letter,
+  Eye,
+  EyeClosed,
 } from '@solar-icons/react-perf/Linear';
 import type { ComponentProps } from 'react';
 
@@ -52,6 +55,18 @@ export function LayersIcon(props: IconProps) {
 
 export function HistoryIcon(props: IconProps) {
   return <History {...props} />;
+}
+
+export function LetterIcon(props: IconProps) {
+  return <Letter {...props} />;
+}
+
+export function EyeIcon(props: IconProps) {
+  return <Eye {...props} />;
+}
+
+export function EyeClosedIcon(props: IconProps) {
+  return <EyeClosed {...props} />;
 }
 
 /* ── PAYAPRESS Logo ────────────────────────────────────────── */

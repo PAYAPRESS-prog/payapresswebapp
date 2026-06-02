@@ -164,6 +164,12 @@
       "namedRegex": "^/apple\\-icon(?:/)?$"
     },
     {
+      "page": "/busbar-calculator",
+      "regex": "^/busbar\\-calculator(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/busbar\\-calculator(?:/)?$"
+    },
+    {
       "page": "/embed",
       "regex": "^/embed(?:/)?$",
       "routeKeys": {},
@@ -198,6 +204,12 @@
       "regex": "^/robots\\.txt(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/robots\\.txt(?:/)?$"
+    },
+    {
+      "page": "/signup",
+      "regex": "^/signup(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/signup(?:/)?$"
     },
     {
       "page": "/sitemap.xml",

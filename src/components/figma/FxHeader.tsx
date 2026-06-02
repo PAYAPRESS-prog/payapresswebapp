@@ -15,7 +15,7 @@ export function FxHeader() {
         >
           <BellIcon width={24} height={24} />
         </button>
-        <a href="/" aria-label="PAYAPRESS home">
+        <a href="/busbar-calculator" aria-label="PAYAPRESS home">
           <PayapressLogo height={28} />
         </a>
         <button

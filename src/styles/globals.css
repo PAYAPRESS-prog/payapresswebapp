@@ -1255,3 +1255,342 @@ body {
     color: var(--fx-text-1);
   }
 }
+
+/* ══════════════════════════════════════════════════════
+   WELCOME / ONBOARDING GATE  (fx-welcome)
+   Matches Figma "Welcome" frame — mesh gradient + glassy CTA.
+   ══════════════════════════════════════════════════════ */
+.fx-welcome {
+  position: relative;
+  min-height: 100vh;          /* fallback */
+  min-height: 100svh;         /* modern */
+  max-width: 480px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: #0b0d10;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui,
+               'Segoe UI', Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (min-width: 640px) {
+  .fx-welcome {
+    border-left:  1px solid var(--fx-divider);
+    border-right: 1px solid var(--fx-divider);
+    box-shadow: 0 0 80px rgba(0,0,0,0.5);
+  }
+}
+
+/* Blurred mesh-gradient backdrop:
+   warm copper top-right · deep red bottom-left · cool steel bottom-right */
+.fx-welcome-bg {
+  position: absolute;
+  inset: -25%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 32% at 88% 6%,  rgba(201, 121, 46, 0.90), transparent 70%),
+    radial-gradient(46% 42% at 10% 96%, rgba(150, 24, 30, 0.85), transparent 72%),
+    radial-gradient(52% 46% at 82% 98%, rgba(128, 138, 149, 0.55), transparent 72%),
+    radial-gradient(64% 56% at 32% 42%, rgba(11, 13, 16, 0.92), transparent 82%),
+    #0b0d10;
+  filter: blur(60px);
+  transform: translateZ(0);   /* own layer — keeps blur cheap on mobile */
+}
+
+.fx-welcome-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(40px, 9vh, 88px) 28px calc(40px + env(safe-area-inset-bottom));
+  padding-top: calc(clamp(40px, 9vh, 88px) + env(safe-area-inset-top));
+}
+
+.fx-welcome-head { max-width: 92%; }
+.fx-welcome-title {
+  font-size: clamp(40px, 12vw, 56px);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0 0 18px;
+}
+.fx-welcome-sub {
+  font-size: clamp(17px, 4.6vw, 21px);
+  line-height: 1.45;
+  font-weight: 500;
+  color: rgba(245, 247, 250, 0.55);
+  margin: 0;
+}
+
+.fx-welcome-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+.fx-welcome-guest {
+  width: 100%;
+  max-width: 360px;
+  min-height: 64px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12),
+              0 8px 28px -8px rgba(0,0,0,0.5);
+  transition: background 0.18s, border-color 0.18s, transform 0.12s;
+}
+.fx-welcome-guest:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.fx-welcome-guest:active { transform: scale(0.985); }
+
+.fx-welcome-register {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+}
+.fx-welcome-signup {
+  color: var(--fx-live);
+  text-decoration: none;
+  font-weight: 700;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  font-family: inherit;
+  cursor: pointer;
+}
+.fx-welcome-signup:hover { text-decoration: underline; }
+
+/* ══════════════════════════════════════════════════════
+   AUTH BOTTOM SHEET  (Log In / Sign Up)
+   Slides up over the welcome gate — matches Figma frames.
+   ══════════════════════════════════════════════════════ */
+.fx-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  animation: fx-sheet-fade 0.25s ease;
+}
+@keyframes fx-sheet-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.fx-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  background: rgba(18, 20, 24, 0.86);
+  -webkit-backdrop-filter: saturate(140%) blur(24px);
+  backdrop-filter: saturate(140%) blur(24px);
+  border-top-left-radius: 30px;
+  border-top-right-radius: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  padding: 28px 24px calc(28px + env(safe-area-inset-bottom));
+  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.5);
+  animation: fx-sheet-up 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+@keyframes fx-sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.fx-sheet-title {
+  font-size: clamp(22px, 6vw, 28px);
+  font-weight: 700;
+  line-height: 1.2;
+  color: #ffffff;
+  margin: 0 0 26px;
+}
+
+/* Tab toggle */
+.fx-auth-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.fx-auth-tab {
+  flex: 1;
+  min-height: 56px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--fx-text-2);
+  font-size: 22px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+}
+.fx-auth-tab.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.fx-sheet-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 6px 0 22px;
+}
+
+/* Form */
+.fx-auth-form { display: flex; flex-direction: column; gap: 16px; }
+
+.fx-auth-field {
+  position: relative;
+  min-height: 64px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  align-items: center;
+  padding: 0 22px;
+}
+.fx-auth-field:focus-within {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+}
+.fx-auth-label {
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 17px;
+  font-weight: 600;
+  color: #ffffff;
+  pointer-events: none;
+  transition: all 0.15s ease;
+}
+/* Float the label up once the field has focus or a value */
+.fx-auth-field:focus-within .fx-auth-label,
+.fx-auth-input:not(:placeholder-shown) + .fx-auth-label,
+.fx-auth-input.has-value + .fx-auth-label {
+  top: 14px;
+  font-size: 11px;
+  color: var(--fx-text-2);
+}
+.fx-auth-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 17px;
+  font-family: inherit;
+  padding: 22px 0 8px;
+}
+.fx-auth-icon { color: rgba(255, 255, 255, 0.85); flex-shrink: 0; }
+.fx-auth-icon-btn {
+  background: none;
+  border: none;
+  padding: 6px;
+  margin-right: -6px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Checkbox row */
+.fx-auth-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.fx-auth-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  user-select: none;
+}
+.fx-auth-check input { position: absolute; opacity: 0; width: 0; height: 0; }
+.fx-auth-checkbox {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+  position: relative;
+  transition: background 0.15s, border-color 0.15s;
+}
+.fx-auth-check input:checked + .fx-auth-checkbox {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: #ffffff;
+}
+.fx-auth-check input:checked + .fx-auth-checkbox::after {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 4px;
+  width: 7px;
+  height: 13px;
+  border: solid #ffffff;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+}
+.fx-auth-check input:focus-visible + .fx-auth-checkbox {
+  outline: 2px solid var(--fx-copper-bright);
+  outline-offset: 2px;
+}
+.fx-auth-forgot {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+.fx-auth-forgot:hover { text-decoration: underline; }
+
+.fx-auth-error {
+  color: #fca5a5;
+  font-size: 14px;
+  margin: 0;
+}
+
+.fx-auth-submit {
+  margin-top: 8px;
+  min-height: 64px;
+  border-radius: 999px;
+  border: none;
+  background: #f5f5f7;
+  color: #0b0d10;
+  font-size: 19px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.18s, transform 0.12s;
+}
+.fx-auth-submit:hover { opacity: 0.92; }
+.fx-auth-submit:active { transform: scale(0.99); }
+.fx-auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
