@@ -5,22 +5,15 @@ import { DEFAULT_GRADE } from '@/lib/copperData';
 import { DEFAULT_ALUMINUM_GRADE } from '@/lib/aluminumData';
 import type { CopperPriceData, FxRates, InitialPriceData } from '@/types/calculator';
 import {
-  BusbarMock, RulerAngularIcon, RulerIcon, DollarIcon, ChartUpIcon,
+  BusbarMock, RulerAngularIcon, RulerIcon, DollarIcon,
 } from './FxIcons';
 import { BusbarRender } from '@/components/BusbarRender';
 import { FLAGS } from './FxFlags';
 import { FxAuthSheet } from './FxAuthSheet';
+import { FxBusbarChart } from './FxBusbarChart';
 
 type Metal = 'copper' | 'aluminum';
 type CurrCode = 'USD' | 'AED' | 'CNY' | 'EUR' | 'GBP' | 'TRY' | 'IRR';
-type ChartRange = '1D' | '7D' | '1M' | '1Y';
-
-const TREND_POINTS: Record<ChartRange, string> = {
-  '1D': '0,90 12,82 24,75 36,68 48,60 60,55 72,48 84,32 95,18',
-  '7D': '0,95 12,72 24,88 36,55 48,68 60,30 72,52 84,22 95,18',
-  '1M': '0,80 14,60 28,72 42,40 56,55 70,28 84,35 95,18',
-  '1Y': '0,110 16,85 32,95 48,60 64,72 80,40 95,18',
-};
 
 const PRESETS: Array<{ w: string; t: string }> = [
   { w: '100', t: '10' },
@@ -86,8 +79,6 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const [thick,  setThick]  = useState('10');
   const [length, setLength] = useState('2500');
   const [curr,   setCurr]   = useState<CurrCode>('USD');
-  const [range,  setRange]  = useState<ChartRange>('1D');
-
   const [copper,   setCopper]   = useState<CopperPriceData | null>(initialData?.copper   ?? null);
   const [aluminum, setAluminum] = useState<CopperPriceData | null>(initialData?.aluminum ?? null);
   const [fx,       setFx]       = useState<FxRates | null>(initialData?.fx ?? null);
@@ -440,44 +431,17 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         </div>
       )}
 
-      {/* ── Price Trend ────────────────────────────────── */}
-      <div className="fx-card">
-        <div className="fx-card-head">
-          <div className="fx-card-head-label">
-            <ChartUpIcon className="fx-card-head-icon" />
-            <span className="fx-card-head-title">
-              {metal === 'copper' ? 'Copper' : 'Aluminum'} Price Trend
-            </span>
-          </div>
-          <div className="fx-tab-group">
-            {(['1D', '7D', '1M', '1Y'] as const).map(r => (
-              <button
-                key={r}
-                type="button"
-                className={`fx-tab${range === r ? ' active' : ''}`}
-                onClick={() => setRange(r)}
-              >
-                {r}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="fx-chart-row">
-          <div className="fx-chart-info">
-            <div>
-              <div className="fx-chart-current-label">Current Price</div>
-              <div className="fx-chart-current-price">
-                ${fmtPrice(pricePerKgUSD)}
-                <span className="unit">/kg</span>
-              </div>
-              <div className="fx-chart-change">+2.45% (220.50)</div>
-            </div>
-            <div className="fx-chart-update">Updated: {updatedLabel}</div>
-          </div>
-          <TrendChart metal={metal} range={range} />
-        </div>
-      </div>
+      {/* ── Price Trend (real data) ─────────────────────── */}
+      {showResults && (
+        <FxBusbarChart
+          metal={metal}
+          weightKg={weightKg}
+          fxRate={fxRate(curr)}
+          currLabel={CURR_META[curr].label}
+          pricePerKgUSD={pricePerKgUSD}
+          updatedLabel={updatedLabel}
+        />
+      )}
 
       {/* ── Currency Picker Sheet ─────────────────────── */}
       {showPicker && (
@@ -576,27 +540,3 @@ function DimInput({
   );
 }
 
-/* ── Trend chart ───────────────────────────────────────── */
-function TrendChart({ metal, range }: { metal: Metal; range: ChartRange }) {
-  const stroke = metal === 'copper' ? '#d71920' : '#6fb3e0';
-  const points = TREND_POINTS[range];
-  return (
-    <div className="fx-chart-canvas">
-      <svg viewBox="0 0 100 140" preserveAspectRatio="none" width="100%" height="100%">
-        {[20, 40, 60, 80, 100, 120].map(y => (
-          <line key={y} x1="6" x2="98" y1={y} y2={y}
-                stroke="#ffffff14" strokeWidth="0.4" />
-        ))}
-        {[
-          { y: 24, t: '200' }, { y: 44, t: '100' }, { y: 64, t: '0' },
-          { y: 84, t: '-100' }, { y: 104, t: '-200' }, { y: 124, t: '-300' },
-        ].map(l => (
-          <text key={l.t} x="2" y={l.y} fontSize="6" fill="#9ca3af">{l.t}</text>
-        ))}
-        <polyline points={points} fill="none" stroke={stroke} strokeWidth="1.2" strokeLinejoin="round" />
-        <circle cx="95" cy="18" r="2" fill={stroke} />
-        <text x="80" y="14" fontSize="6" fill="#ccc">151</text>
-      </svg>
-    </div>
-  );
-}
