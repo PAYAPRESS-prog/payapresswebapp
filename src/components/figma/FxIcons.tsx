@@ -19,6 +19,7 @@ import {
   MagicStick,
   AltArrowLeft,
   AltArrowRight,
+  User,
 } from '@solar-icons/react-perf/Linear';
 import type { ComponentProps } from 'react';
 
@@ -82,6 +83,10 @@ export function ArrowLeftIcon(props: IconProps) {
 
 export function ArrowRightIcon(props: IconProps) {
   return <AltArrowRight {...props} />;
+}
+
+export function UserIcon(props: IconProps) {
+  return <User {...props} />;
 }
 
 /* ── PAYAPRESS Logo ────────────────────────────────────────── */

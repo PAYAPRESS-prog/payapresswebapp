@@ -1,6 +1,6 @@
 'use client';
 
-import { BellIcon, HamburgerIcon, PayapressLogo } from './FxIcons';
+import { BellIcon, HamburgerIcon } from './FxIcons';
 
 export function FxHeader() {
   return (
@@ -15,9 +15,7 @@ export function FxHeader() {
         >
           <BellIcon width={24} height={24} />
         </button>
-        <a href="/busbar-calculator" aria-label="PAYAPRESS home">
-          <PayapressLogo height={28} />
-        </a>
+        <span className="fx-header-title">Busbar Calculator</span>
         <button
           type="button"
           className="fx-icon-btn"
