@@ -7,6 +7,10 @@
   "/api/v1/fx-rates/route": "app/api/v1/fx-rates/route.js",
   "/api/v1/copper-price/route": "app/api/v1/copper-price/route.js",
   "/robots.txt/route": "app/robots.txt/route.js",
+<<<<<<< HEAD
+=======
+  "/icon/route": "app/icon/route.js",
+>>>>>>> ee91ec958adc3222773ecb94f15d5d42fb4f060b
   "/sitemap.xml/route": "app/sitemap.xml/route.js",
   "/apple-icon/route": "app/apple-icon/route.js",
   "/icon/route": "app/icon/route.js",

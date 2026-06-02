@@ -1,6 +1,7 @@
 {
   "version": 4,
   "routes": {
+<<<<<<< HEAD
     "/_not-found": {
       "initialStatus": 404,
       "experimentalBypassFor": [
@@ -55,6 +56,8 @@
         "x-next-revalidate-tag-token"
       ]
     },
+=======
+>>>>>>> ee91ec958adc3222773ecb94f15d5d42fb4f060b
     "/sitemap.xml": {
       "initialHeaders": {
         "cache-control": "public, max-age=0, must-revalidate",
@@ -84,6 +87,67 @@
         "x-next-revalidate-tag-token"
       ]
     },
+<<<<<<< HEAD
+=======
+    "/icon": {
+      "initialHeaders": {
+        "cache-control": "public, immutable, no-transform, max-age=31536000",
+        "content-type": "image/png",
+        "x-next-cache-tags": "_N_T_/layout,_N_T_/icon/layout,_N_T_/icon/route,_N_T_/icon"
+      },
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/icon",
+      "dataRoute": null,
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+    "/robots.txt": {
+      "initialHeaders": {
+        "cache-control": "public, max-age=0, must-revalidate",
+        "content-type": "text/plain",
+        "x-next-cache-tags": "_N_T_/layout,_N_T_/robots.txt/layout,_N_T_/robots.txt/route,_N_T_/robots.txt"
+      },
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/robots.txt",
+      "dataRoute": null,
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+>>>>>>> ee91ec958adc3222773ecb94f15d5d42fb4f060b
     "/apple-icon": {
       "initialHeaders": {
         "cache-control": "public, immutable, no-transform, max-age=31536000",
@@ -131,6 +195,7 @@
         }
       ],
       "initialRevalidateSeconds": false,
+<<<<<<< HEAD
       "srcRoute": "/icon",
       "dataRoute": null,
       "allowHeader": [
@@ -182,6 +247,10 @@
       "initialExpireSeconds": 31536000,
       "srcRoute": "/busbar-calculator",
       "dataRoute": "/busbar-calculator.rsc",
+=======
+      "srcRoute": "/_not-found",
+      "dataRoute": "/_not-found.rsc",
+>>>>>>> ee91ec958adc3222773ecb94f15d5d42fb4f060b
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -239,6 +308,34 @@
         "x-next-revalidate-tag-token"
       ]
     },
+<<<<<<< HEAD
+=======
+    "/": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": 300,
+      "initialExpireSeconds": 31536000,
+      "srcRoute": "/",
+      "dataRoute": "/index.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+>>>>>>> ee91ec958adc3222773ecb94f15d5d42fb4f060b
     "/roadmap": {
       "experimentalBypassFor": [
         {
@@ -263,6 +360,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
+<<<<<<< HEAD
     "/": {
       "experimentalBypassFor": [
         {
@@ -287,6 +385,8 @@
         "x-next-revalidate-tag-token"
       ]
     },
+=======
+>>>>>>> ee91ec958adc3222773ecb94f15d5d42fb4f060b
     "/whitepaper": {
       "experimentalBypassFor": [
         {
@@ -311,7 +411,11 @@
         "x-next-revalidate-tag-token"
       ]
     },
+<<<<<<< HEAD
     "/signup": {
+=======
+    "/offline": {
+>>>>>>> ee91ec958adc3222773ecb94f15d5d42fb4f060b
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -324,8 +428,13 @@
         }
       ],
       "initialRevalidateSeconds": false,
+<<<<<<< HEAD
       "srcRoute": "/signup",
       "dataRoute": "/signup.rsc",
+=======
+      "srcRoute": "/offline",
+      "dataRoute": "/offline.rsc",
+>>>>>>> ee91ec958adc3222773ecb94f15d5d42fb4f060b
       "allowHeader": [
         "host",
         "x-matched-path",

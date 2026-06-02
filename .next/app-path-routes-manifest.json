@@ -7,6 +7,10 @@
   "/api/v1/fx-rates/route": "/api/v1/fx-rates",
   "/api/v1/copper-price/route": "/api/v1/copper-price",
   "/robots.txt/route": "/robots.txt",
+<<<<<<< HEAD
+=======
+  "/icon/route": "/icon",
+>>>>>>> ee91ec958adc3222773ecb94f15d5d42fb4f060b
   "/sitemap.xml/route": "/sitemap.xml",
   "/apple-icon/route": "/apple-icon",
   "/icon/route": "/icon",
