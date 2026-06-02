@@ -31,7 +31,7 @@ export function FxWelcome({ initialSheet }: { initialSheet?: Mode }) {
         </header>
 
         <footer className="fx-welcome-actions">
-          <Link href="/busbar-calculator" className="fx-welcome-guest">
+          <Link href="/app" className="fx-welcome-guest">
             Use as guest
           </Link>
 

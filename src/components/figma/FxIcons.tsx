@@ -16,6 +16,9 @@ import {
   Letter,
   Eye,
   EyeClosed,
+  MagicStick,
+  AltArrowLeft,
+  AltArrowRight,
 } from '@solar-icons/react-perf/Linear';
 import type { ComponentProps } from 'react';
 
@@ -67,6 +70,18 @@ export function EyeIcon(props: IconProps) {
 
 export function EyeClosedIcon(props: IconProps) {
   return <EyeClosed {...props} />;
+}
+
+export function MagicStickIcon(props: IconProps) {
+  return <MagicStick {...props} />;
+}
+
+export function ArrowLeftIcon(props: IconProps) {
+  return <AltArrowLeft {...props} />;
+}
+
+export function ArrowRightIcon(props: IconProps) {
+  return <AltArrowRight {...props} />;
 }
 
 /* ── PAYAPRESS Logo ────────────────────────────────────────── */

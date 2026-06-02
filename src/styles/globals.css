@@ -1594,3 +1594,112 @@ body {
 .fx-auth-submit:hover { opacity: 0.92; }
 .fx-auth-submit:active { transform: scale(0.99); }
 .fx-auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ══════════════════════════════════════════════════════
+   APP MENU / HUB  (/app)  — section launcher
+   ══════════════════════════════════════════════════════ */
+.fx-menu {
+  position: relative;
+  min-height: 100vh;          /* fallback */
+  min-height: 100svh;         /* modern */
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--fx-bg);
+  color: var(--fx-text-1);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui,
+               'Segoe UI', Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (min-width: 640px) {
+  .fx-menu {
+    border-left:  1px solid var(--fx-divider);
+    border-right: 1px solid var(--fx-divider);
+    box-shadow: 0 0 80px rgba(0,0,0,0.5);
+  }
+}
+.fx-menu-inner {
+  padding: calc(20px + env(safe-area-inset-top)) 20px 24px;
+}
+
+/* Go back pill */
+.fx-menu-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 48px;
+  padding: 0 18px 0 12px;
+  border-radius: 999px;
+  border: none;
+  background: rgba(245, 247, 250, 0.07);
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-bottom: 36px;
+}
+.fx-menu-back:hover { background: rgba(245, 247, 250, 0.12); }
+.fx-menu-back:active { transform: scale(0.98); }
+
+/* Section rows */
+.fx-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.fx-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  min-height: 76px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(245, 247, 250, 0.04);
+  color: #ffffff;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s, transform 0.12s;
+}
+.fx-menu-row:hover {
+  background: rgba(245, 247, 250, 0.07);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.fx-menu-row:active { transform: scale(0.99); }
+.fx-menu-row-icon { color: #ffffff; flex-shrink: 0; }
+.fx-menu-row-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+.fx-menu-row-chevron { color: rgba(255, 255, 255, 0.9); flex-shrink: 0; }
+
+/* Coming-soon toast */
+.fx-menu-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(40px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 50;
+  max-width: 90%;
+  padding: 14px 22px;
+  border-radius: 999px;
+  background: rgba(18, 20, 24, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  animation: fx-toast-in 0.22s ease;
+}
+@keyframes fx-toast-in {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}

@@ -4,8 +4,8 @@
   "/api/copper-price/route": "app/api/copper-price/route.js",
   "/api/fx-rate/route": "app/api/fx-rate/route.js",
   "/api/v1/calculate/route": "app/api/v1/calculate/route.js",
-  "/api/v1/fx-rates/route": "app/api/v1/fx-rates/route.js",
   "/api/v1/copper-price/route": "app/api/v1/copper-price/route.js",
+  "/api/v1/fx-rates/route": "app/api/v1/fx-rates/route.js",
   "/robots.txt/route": "app/robots.txt/route.js",
   "/sitemap.xml/route": "app/sitemap.xml/route.js",
   "/apple-icon/route": "app/apple-icon/route.js",
@@ -16,10 +16,11 @@
   "/api/auth/signup/route": "app/api/auth/signup/route.js",
   "/busbar-calculator/page": "app/busbar-calculator/page.js",
   "/embed/page": "app/embed/page.js",
-  "/page": "app/page.js",
   "/offline/page": "app/offline/page.js",
-  "/signup/page": "app/signup/page.js",
+  "/page": "app/page.js",
+  "/app/page": "app/app/page.js",
   "/roadmap/page": "app/roadmap/page.js",
+  "/signup/page": "app/signup/page.js",
   "/privacy/page": "app/privacy/page.js",
   "/whitepaper/page": "app/whitepaper/page.js"
 }

@@ -79,8 +79,8 @@ export function FxAuthSheet({
         setError(data?.error || 'Something went wrong. Please try again.');
         return;
       }
-      // Success → enter the calculator
-      router.push('/busbar-calculator');
+      // Success → enter the app menu
+      router.push('/app');
     } catch {
       setError('Network error. Please try again.');
     } finally {
