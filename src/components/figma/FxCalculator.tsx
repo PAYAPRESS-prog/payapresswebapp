@@ -339,7 +339,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           onBlur={v => setLength(String(clampInt(v, 1, 100000, 2500)))} />
         <DimInput label="Width"    value={width}  onChange={setWidth}
           onBlur={v => setWidth(String(clampInt(v, 1, 100000, 100)))} />
-        <DimInput label="Thikness" value={thick}  onChange={setThick}
+        <DimInput label="Thickness" value={thick}  onChange={setThick}
           onBlur={v => setThick(String(clampInt(v, 1, 100000, 10)))} />
       </div>
 

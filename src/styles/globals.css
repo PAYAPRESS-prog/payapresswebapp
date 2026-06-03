@@ -597,7 +597,10 @@ body {
 
 /* App shell — phone-like layout, centered on wider screens */
 .fx-app {
-  background: var(--fx-bg);
+  background:
+    radial-gradient(ellipse 80% 40% at 90% 4%,  rgba(205, 127, 50, 0.14) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 35% at 10% 94%, rgba(140, 22, 25, 0.10)  0%, transparent 65%),
+    var(--fx-bg);
   color: var(--fx-text-1);
   min-height: 100vh;          /* fallback */
   min-height: 100svh;         /* modern */
@@ -639,8 +642,10 @@ body {
   position: sticky;
   top: 0;
   z-index: 30;
-  background: var(--fx-bg);
-  border-bottom: 1px solid var(--fx-divider);
+  background: rgba(11, 13, 16, 0.70);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   padding-top: env(safe-area-inset-top);
 }
 .fx-header-row {
@@ -748,11 +753,14 @@ body {
   gap: 16px;
 }
 
-/* ── Generic card ─────────────────────────────────── */
+/* ── Generic card — glass morphism ───────────────── */
 .fx-card {
-  background: var(--fx-card-bg);
-  border-radius: 16px;
-  padding: 10px;
+  background: rgba(255, 255, 255, 0.045);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 20px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -779,29 +787,33 @@ body {
   color: var(--fx-copper-bright);
 }
 .fx-card-head-title {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 16px;
-  color: var(--fx-text-2);
+  color: var(--fx-text-1);
 }
 .fx-card-head-badge {
-  background: var(--fx-card-bg);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
-  padding: 10px;
+  padding: 8px 12px;
   display: inline-flex;
   align-items: center;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--fx-text-1);
   flex-shrink: 0;
 }
 .fx-card-head-badge .accent { color: var(--fx-copper); }
 
-/* ── Metal toggle ─────────────────────────────────── */
+/* ── Metal toggle — glass morphism ───────────────── */
 .fx-metal-toggle {
   display: flex;
   gap: 10px;
-  background: var(--fx-card-bg);
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.045);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 20px;
   padding: 10px;
   height: 84px;
   align-items: stretch;
@@ -858,12 +870,15 @@ body {
   position: relative;
 }
 
-/* ── Dimensions ───────────────────────────────────── */
+/* ── Dimensions input card — glass morphism ───────── */
 .fx-input-card {
-  background: rgba(245, 247, 250, 0.07);
-  border-radius: 12px;
-  padding: 10px;
-  height: 100px;
+  background: rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  padding: 12px 14px;
+  min-height: 86px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1337,21 +1352,28 @@ body {
   }
 }
 
-/* Blurred mesh-gradient backdrop:
-   warm copper top-right · deep red bottom-left · cool steel bottom-right */
+/* Blurred mesh-gradient backdrop — positioned relative to visible viewport.
+   Previously used inset:-25% which pushed bottom blobs 19-22vh below fold,
+   making them invisible after overflow:hidden clipping. Now using inset:0
+   with corner-anchored gradients so every blob lands inside the viewport. */
 .fx-welcome-bg {
   position: absolute;
-  inset: -25%;
+  inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(38% 32% at 88% 6%,  rgba(201, 121, 46, 0.90), transparent 70%),
-    radial-gradient(46% 42% at 10% 96%, rgba(150, 24, 30, 0.85), transparent 72%),
-    radial-gradient(52% 46% at 82% 98%, rgba(128, 138, 149, 0.55), transparent 72%),
-    radial-gradient(64% 56% at 32% 42%, rgba(11, 13, 16, 0.92), transparent 82%),
+    /* top-right copper warm glow */
+    radial-gradient(55% 44% at 100% 0%,   rgba(205, 120, 42, 0.88) 0%, transparent 70%),
+    /* bottom-left deep red / maroon */
+    radial-gradient(62% 52% at 0%   100%, rgba(148,  22, 28, 0.82) 0%, transparent 70%),
+    /* bottom-right warm ember */
+    radial-gradient(50% 42% at 100% 100%, rgba(110,  52, 18, 0.48) 0%, transparent 70%),
+    /* bottom-center subtle red haze */
+    radial-gradient(70% 38% at 50%  100%, rgba(110,  24, 24, 0.42) 0%, transparent 70%),
+    /* base */
     #0b0d10;
-  filter: blur(60px);
-  transform: translateZ(0);   /* own layer — keeps blur cheap on mobile */
+  filter: blur(52px);
+  transform: translateZ(0);
 }
 
 .fx-welcome-content {
@@ -1795,8 +1817,10 @@ body {
   gap: 10px;
   padding: 12px 14px;
   border-radius: 14px;
-  background: rgba(245, 247, 250, 0.04);
-  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.04);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   cursor: pointer;
   transition: background 0.18s, border-color 0.18s;
   font-family: inherit;
@@ -1949,7 +1973,10 @@ body {
    RESULTS PANEL
    ══════════════════════════════════════════════════════ */
 .fx-results {
-  background: var(--fx-card-bg);
+  background: rgba(255, 255, 255, 0.045);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 20px;
   padding: 20px 16px;
   display: flex;
