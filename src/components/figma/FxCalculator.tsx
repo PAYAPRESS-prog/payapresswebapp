@@ -73,6 +73,14 @@ function fmtPrice(n: number, decimals = 3): string {
   return fmtMoney(n, decimals);
 }
 
+// Compact display for large totals (e.g. Iranian Rial in billions)
+function fmtResultPrice(n: number): string {
+  const a = Math.abs(n);
+  if (a >= 1_000_000_000) return (n / 1_000_000_000).toFixed(2) + 'B';
+  if (a >= 1_000_000)     return (n / 1_000_000).toFixed(2) + 'M';
+  return fmtMoney(n);
+}
+
 export function FxCalculator({ initialData }: { initialData?: InitialPriceData }) {
   const [metal,  setMetal]  = useState<Metal>('copper');
   const [width,  setWidth]  = useState('100');
@@ -311,7 +319,14 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
       </div>
 
       {/* ── Dynamic busbar render ──────────────────────── */}
-      <div className="fx-busbar-render">
+      <div
+        className="fx-busbar-render"
+        style={{
+          filter: metal === 'copper'
+            ? 'drop-shadow(0 10px 28px rgba(215,25,32,0.22))'
+            : 'drop-shadow(0 10px 28px rgba(111,179,224,0.28))',
+        }}
+      >
         <BusbarRender width={w} thickness={t} metal={metal} />
       </div>
 
@@ -375,7 +390,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           </div>
 
           <div className="fx-results-price">
-            {curr === 'USD' ? '$' : ''}{fmtMoney(activeCurrTotal)}
+            {curr === 'USD' ? '$' : ''}{fmtResultPrice(activeCurrTotal)}
             {curr !== 'USD' && <span className="fx-results-price-curr"> {CURR_META[curr].label}</span>}
           </div>
 

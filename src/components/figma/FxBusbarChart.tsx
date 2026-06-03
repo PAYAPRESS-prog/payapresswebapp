@@ -190,14 +190,14 @@ export function FxBusbarChart({
       <div className="fx-busbar-chart-info">
         <div>
           <div className="fx-chart-current-label">Busbar Price</div>
-          <div className="fx-chart-current-price">
+          <div className="fx-chart-current-price" style={{ color }}>
             {currPrefix}{fmtBig(displayPrice)}
           </div>
           {chart && (
             <div className={`fx-chart-change${chart.pctChg >= 0 ? ' up' : ' down'}`}>
               {chart.pctChg >= 0 ? '▲' : '▼'}&nbsp;
               {Math.abs(chart.pctChg).toFixed(2)}%
-              &nbsp;({chart.pctChg >= 0 ? '+' : ''}{fmtBig(chart.absChg)})
+              &nbsp;({chart.pctChg >= 0 ? '+' : '-'}{fmtBig(Math.abs(chart.absChg))})
             </div>
           )}
         </div>
