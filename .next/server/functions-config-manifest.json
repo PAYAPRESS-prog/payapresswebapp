@@ -1,6 +1,7 @@
 {
   "version": 1,
   "functions": {
+    "/api/auth/health": {},
     "/api/auth/login": {},
     "/api/auth/logout": {},
     "/api/auth/me": {},
