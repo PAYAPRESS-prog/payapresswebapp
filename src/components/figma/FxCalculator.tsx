@@ -4,13 +4,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULT_GRADE } from '@/lib/copperData';
 import { DEFAULT_ALUMINUM_GRADE } from '@/lib/aluminumData';
 import type { CopperPriceData, FxRates, InitialPriceData } from '@/types/calculator';
-import {
-  BusbarMock, RulerAngularIcon, RulerIcon, DollarIcon,
+import { BusbarMock, RulerAngularIcon, RulerIcon, DollarIcon,
 } from './FxIcons';
 import { BusbarRender } from '@/components/BusbarRender';
 import { FLAGS } from './FxFlags';
 import { FxAuthSheet } from './FxAuthSheet';
-import { FxBusbarChart } from './FxBusbarChart';
 
 type Metal = 'copper' | 'aluminum';
 type CurrCode =
@@ -65,17 +63,6 @@ const PICKER_CURRENCIES: CurrCode[] = [
 // Current density for busbar (A/mm²) — standard indoor rating
 const CURRENT_DENSITY: Record<Metal, number> = { copper: 2.5, aluminum: 1.5 };
 
-function relativeTime(iso?: string | null): string {
-  if (!iso) return 'just now';
-  const t = new Date(iso).getTime();
-  if (Number.isNaN(t)) return 'just now';
-  const sec = Math.max(0, Math.floor((Date.now() - t) / 1000));
-  if (sec < 30)       return 'just now';
-  if (sec < 60)       return `${sec} sec ago`;
-  if (sec < 3600)     return `${Math.floor(sec / 60)} min ago`;
-  if (sec < 86_400)   return `${Math.floor(sec / 3600)} hr ago`;
-  return `${Math.floor(sec / 86_400)} day ago`;
-}
 
 function clampInt(raw: string, min: number, max: number, fallback: number) {
   const n = Math.round(parseFloat(raw));
@@ -113,7 +100,6 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const [aluminum, setAluminum] = useState<CopperPriceData | null>(initialData?.aluminum ?? null);
   const [fx,       setFx]       = useState<FxRates | null>(initialData?.fx ?? null);
 
-  const [updatedLabel,  setUpdatedLabel]  = useState('just now');
   const [showResults,   setShowResults]   = useState(false);
   // Reveal the "Calculate Now" submit button only after the user starts
   // interacting with the dimension inputs (focus or picks a suggestion).
@@ -163,12 +149,6 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const grade = metal === 'copper' ? DEFAULT_GRADE : DEFAULT_ALUMINUM_GRADE;
   const live  = metal === 'copper' ? copper        : aluminum;
 
-  useEffect(() => {
-    const update = () => setUpdatedLabel(relativeTime(live?.updatedAt));
-    update();
-    const id = setInterval(update, 30_000);
-    return () => clearInterval(id);
-  }, [live?.updatedAt]);
 
   const w = clampInt(width,  1, 100000, 100);
   const t = clampInt(thick,  1, 100000, 10);
@@ -345,11 +325,45 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           onFocus={() => setInteracted(true)}
           onBlur={v => setThick(String(clampInt(v, 1, 100000, 10)))} />
 
-        {/* Calculate Now — appears only after the user starts entering numbers */}
+        {/* Currency + Calculate Now — appear after user starts entering numbers */}
         {interacted && (
-          <button type="button" className="fx-calc-now-btn" onClick={handleCalculate}>
-            Calculate Now
-          </button>
+          <>
+            {/* Quick currency selector */}
+            <div className="fx-inline-curr">
+              {([...GRID_CURRENCIES, 'OTHER'] as const).map(code => {
+                if (code === 'OTHER') {
+                  return (
+                    <button
+                      key="other"
+                      type="button"
+                      className="fx-inline-curr-btn"
+                      onClick={() => { setShowPicker(true); setPickerSearch(''); }}
+                    >
+                      <span className="fx-currency-other-plus">+</span>
+                      <span>Other</span>
+                    </button>
+                  );
+                }
+                const Flag = FLAGS[code as keyof typeof FLAGS];
+                const isActive = curr === code;
+                return (
+                  <button
+                    key={code}
+                    type="button"
+                    className={`fx-inline-curr-btn${isActive ? ' active' : ''}`}
+                    onClick={() => setCurr(code as CurrCode)}
+                    aria-pressed={isActive}
+                  >
+                    {Flag && <Flag width={18} height={18} />}
+                    <span>{CURR_META[code as CurrCode].label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <button type="button" className="fx-calc-now-btn" onClick={handleCalculate}>
+              Calculate Now
+            </button>
+          </>
         )}
       </div>
 
@@ -482,18 +496,6 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             Share Result
           </button>
         </div>
-      )}
-
-      {/* ── Price Trend (real data) ─────────────────────── */}
-      {showResults && (
-        <FxBusbarChart
-          metal={metal}
-          weightKg={weightKg}
-          fxRate={fxRate(curr)}
-          currLabel={CURR_META[curr].label}
-          pricePerKgUSD={pricePerKgUSD}
-          updatedLabel={updatedLabel}
-        />
       )}
 
       {/* ── Currency Picker Sheet ─────────────────────── */}

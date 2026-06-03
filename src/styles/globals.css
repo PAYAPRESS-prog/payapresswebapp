@@ -1790,6 +1790,39 @@ body {
 }
 
 /* ══════════════════════════════════════════════════════
+   INLINE CURRENCY SELECTOR  (shown after input interaction)
+   ══════════════════════════════════════════════════════ */
+.fx-inline-curr {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+.fx-inline-curr-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border-radius: 12px;
+  border: none;
+  background: rgba(245, 247, 250, 0.05);
+  color: rgba(245, 247, 250, 0.6);
+  font-size: 12px;
+  font-weight: 510;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.fx-inline-curr-btn.active {
+  background: var(--fx-copper-bright);
+  color: #f5f7fa;
+}
+.fx-inline-curr-btn:not(.active):active {
+  background: rgba(245, 247, 250, 0.1);
+}
+
+/* ══════════════════════════════════════════════════════
    CALCULATE NOW BUTTON
    ══════════════════════════════════════════════════════ */
 .fx-calc-now-btn {
