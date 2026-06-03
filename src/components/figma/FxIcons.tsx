@@ -20,6 +20,9 @@ import {
   AltArrowLeft,
   AltArrowRight,
   User,
+  Bookmark,
+  Share,
+  RoundTransferHorizontal,
 } from '@solar-icons/react-perf/Linear';
 import type { ComponentProps } from 'react';
 
@@ -87,6 +90,18 @@ export function ArrowRightIcon(props: IconProps) {
 
 export function UserIcon(props: IconProps) {
   return <User {...props} />;
+}
+
+export function BookmarkIcon(props: IconProps) {
+  return <Bookmark {...props} />;
+}
+
+export function ShareIcon(props: IconProps) {
+  return <Share {...props} />;
+}
+
+export function CompareIcon(props: IconProps) {
+  return <RoundTransferHorizontal {...props} />;
 }
 
 /* ── PAYAPRESS Logo ────────────────────────────────────────── */

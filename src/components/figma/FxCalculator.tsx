@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULT_GRADE } from '@/lib/copperData';
 import { DEFAULT_ALUMINUM_GRADE } from '@/lib/aluminumData';
 import type { CopperPriceData, FxRates, InitialPriceData } from '@/types/calculator';
-import { BusbarMock, RulerAngularIcon, RulerIcon,
+import { BusbarMock, RulerAngularIcon, RulerIcon, BookmarkIcon, ShareIcon, CompareIcon,
 } from './FxIcons';
 import { FLAGS } from './FxFlags';
 import { FxAuthSheet } from './FxAuthSheet';
@@ -101,9 +101,8 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const [fx,       setFx]       = useState<FxRates | null>(initialData?.fx ?? null);
 
   const [showResults,   setShowResults]   = useState(false);
+  const [bookmarked,    setBookmarked]    = useState(false);
   const [updatedLabel,  setUpdatedLabel]  = useState('just now');
-  // Reveal the "Calculate Now" submit button only after the user starts
-  // interacting with the dimension inputs (focus or picks a suggestion).
   const [interacted,    setInteracted]    = useState(false);
   const [showPicker,    setShowPicker]    = useState(false);
   const [pickerSearch,  setPickerSearch]  = useState('');
@@ -336,8 +335,11 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
       {/* ── Results ────────────────────────────────────── */}
       {showResults && (
         <div className="fx-results" ref={resultsRef}>
+          {/* Title */}
           <h3 className="fx-results-title">Results</h3>
+          <div className="fx-results-divider" />
 
+          {/* Estimate Price + Live badge */}
           <div className="fx-results-price-row">
             <span className="fx-results-price-label">Estimate Price</span>
             <span className="fx-results-live-badge">
@@ -346,38 +348,73 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             </span>
           </div>
 
-          <div className="fx-results-price">
-            {curr === 'USD' ? '$' : ''}{fmtResultPrice(activeCurrTotal)}
-            {curr !== 'USD' && <span className="fx-results-price-curr"> {CURR_META[curr].label}</span>}
+          {/* Currency row — flag + code + value */}
+          <div className="fx-results-curr-row">
+            {(() => {
+              const Flag = FLAGS[curr as keyof typeof FLAGS];
+              return Flag ? <Flag className="fx-results-curr-flag" width={30} height={30} /> : null;
+            })()}
+            <span className="fx-results-curr-code">{CURR_META[curr].label}</span>
+            <span className="fx-results-curr-value">{fmtResultPrice(activeCurrTotal)}</span>
           </div>
 
-          <div className="fx-results-stats">
-            <div className="fx-results-stat">
-              <div className="fx-results-stat-label">WEIGHT</div>
-              <div className="fx-results-stat-value">{fmtMoney(weightKg)} <span className="fx-results-stat-unit">kg</span></div>
-            </div>
-            <div className="fx-results-stat">
-              <div className="fx-results-stat-label">MATERIAL</div>
-              <div className="fx-results-stat-value">{metal}</div>
-            </div>
-            <div className="fx-results-stat">
-              <div className="fx-results-stat-label">CURRENT CAP.</div>
-              <div className="fx-results-stat-value">{maxCurrentA.toLocaleString()} <span className="fx-results-stat-unit">A</span></div>
-            </div>
-            <div className="fx-results-stat">
-              <div className="fx-results-stat-label">PRICE / KG</div>
-              <div className="fx-results-stat-value">${fmtPrice(pricePerKgUSD)}</div>
-            </div>
-            <div className="fx-results-stat">
-              <div className="fx-results-stat-label">CROSS-SECTION</div>
-              <div className="fx-results-stat-value">{crossSectionMm2.toLocaleString()} <span className="fx-results-stat-unit">mm²</span></div>
-            </div>
-            <div className="fx-results-stat">
-              <div className="fx-results-stat-label">DIMENSIONS</div>
-              <div className="fx-results-stat-value" style={{ fontSize: 14 }}>{w}×{t}×{L}</div>
-            </div>
+          {/* Stats rows — WEIGHT / MATERIAL / Rated Current */}
+          <div className="fx-results-stat-row fx-results-stat-border">
+            <span className="fx-results-stat-label">WEIGHT</span>
+            <span className="fx-results-stat-value">
+              {fmtMoney(weightKg)} <span className="fx-results-stat-unit">kg</span>
+            </span>
+          </div>
+          <div className="fx-results-stat-row fx-results-stat-border">
+            <span className="fx-results-stat-label">MATERIAL</span>
+            <span className="fx-results-stat-value">{metal}</span>
+          </div>
+          <div className="fx-results-stat-row">
+            <span className="fx-results-stat-label">Rated Current</span>
+            <span className="fx-results-stat-value">
+              {maxCurrentA.toLocaleString()} <span className="fx-results-stat-unit">A</span>
+            </span>
           </div>
 
+          {/* Action buttons — Compare + Bookmark */}
+          <div className="fx-results-actions">
+            <button
+              type="button"
+              className="fx-results-btn"
+              onClick={() => requireAuth(() => {})}
+              aria-label="Compare result"
+            >
+              <CompareIcon width={20} height={20} />
+              Compare result
+            </button>
+            <button
+              type="button"
+              className={`fx-results-btn${bookmarked ? ' active' : ''}`}
+              onClick={() => requireAuth(() => setBookmarked(b => !b))}
+              aria-label="Bookmark result"
+              aria-pressed={bookmarked}
+            >
+              <BookmarkIcon width={20} height={20} />
+              Bookmark result
+            </button>
+          </div>
+
+          {/* Share button */}
+          <button
+            type="button"
+            className="fx-results-share-btn"
+            onClick={() => {
+              const txt = `Busbar Calculator — ${metal} ${w}×${t}×${L}mm → ${fmtResultPrice(activeCurrTotal)} ${CURR_META[curr].label}`;
+              if (navigator.share) {
+                navigator.share({ title: 'Busbar Calculator', text: txt }).catch(() => {});
+              } else {
+                navigator.clipboard?.writeText(txt).catch(() => {});
+              }
+            }}
+          >
+            <ShareIcon width={20} height={20} />
+            Share result
+          </button>
         </div>
       )}
 
