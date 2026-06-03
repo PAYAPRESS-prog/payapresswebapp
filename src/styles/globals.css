@@ -889,7 +889,7 @@ body {
   gap: 4px;
   font-size: 12px;
   font-weight: 510;
-  color: var(--fx-text-1);
+  color: var(--fx-copper-bright);
 }
 .fx-input-label-icon {
   width: 16px;
@@ -932,33 +932,7 @@ body {
 }
 
 /* ── Dimension inputs 3-column grid ──────────────── */
-.fx-dim-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-}
-.fx-dim-grid .fx-input-card {
-  min-width: 0;        /* critical: prevents grid item from expanding past 1fr column */
-  overflow: hidden;
-  min-height: 76px;
-  padding: 10px 10px;
-}
-.fx-dim-grid .fx-input-field {
-  font-size: 22px;
-  font-weight: 600;
-}
-.fx-dim-grid .fx-input-label {
-  font-size: 10px;
-  font-weight: 600;
-  gap: 3px;
-}
-.fx-dim-grid .fx-input-label-icon {
-  display: none;
-}
-.fx-dim-grid .fx-input-unit {
-  font-size: 10px;
-  width: 18px;
-}
+/* REMOVED — Figma design uses vertical stack, not 3-column grid */
 
 /* ── Suggestions row ─────────────────────────────── */
 .fx-suggestions {
@@ -1379,31 +1353,30 @@ body {
   }
 }
 
-/* Blurred mesh-gradient backdrop.
-   Root cause of previous black-bottom: filter:blur(52px) on inset:0 fades
-   the gradient color INWARD from every edge (~52px). The bottom-left/right
-   gradients at 0%/100% got entirely eaten. Fix: extend the bg div 100px
-   beyond the parent on all sides (parent clips via overflow:hidden), then
-   re-anchor gradient origins at the VISIBLE viewport corners using calc().
-   The 100px extension absorbs the blur edge-fade outside the visible area. */
+/* Blurred mesh-gradient backdrop — exactly matching Figma "Start page" frame.
+   Figma has 4 vector blobs: top-right amber, bottom-left maroon, bottom-right
+   ember, and a left-center neutral (creates the grayish mid-screen area).
+   inset:-100px extends the div so filter:blur(52px) edge-fade happens outside
+   the visible viewport. Gradient origins are repositioned to the visible
+   corners using calc(). */
 .fx-welcome-bg {
   position: absolute;
   inset: -100px;
   z-index: 0;
   pointer-events: none;
   background:
-    /* top-right warm copper — origin at visible top-right corner */
-    radial-gradient(55% 44% at calc(100% - 100px) 100px,
-      rgba(205, 120, 42, 0.92) 0%, transparent 70%),
-    /* bottom-left deep red — origin at visible bottom-left corner */
-    radial-gradient(62% 52% at 100px calc(100% - 100px),
-      rgba(148,  22, 28, 0.88) 0%, transparent 70%),
-    /* bottom-right ember — origin at visible bottom-right corner */
-    radial-gradient(48% 40% at calc(100% - 100px) calc(100% - 100px),
-      rgba(120,  58, 18, 0.55) 0%, transparent 65%),
-    /* bottom-center red haze — origin at visible bottom-center */
-    radial-gradient(70% 36% at 50% calc(100% - 100px),
-      rgba(110,  24, 24, 0.48) 0%, transparent 70%),
+    /* top-right: warm amber/copper glow (Figma Vector 1, top-right area) */
+    radial-gradient(60% 55% at calc(100% - 100px) 100px,
+      rgba(195, 108, 22, 0.90) 0%, transparent 70%),
+    /* bottom-left: deep maroon/red (Figma Vector 2, bottom-left) */
+    radial-gradient(65% 55% at 100px calc(100% - 100px),
+      rgba(130,  16, 18, 0.88) 0%, transparent 70%),
+    /* left-center: neutral grayish blob that creates the center haze */
+    radial-gradient(55% 50% at 100px calc(50% + 100px),
+      rgba( 60,  40, 40, 0.55) 0%, transparent 65%),
+    /* bottom-right: dark warm ember */
+    radial-gradient(45% 38% at calc(100% - 100px) calc(100% - 100px),
+      rgba(110,  45, 14, 0.50) 0%, transparent 65%),
     #0b0d10;
   filter: blur(52px);
   transform: translateZ(0);
@@ -1822,7 +1795,7 @@ body {
   min-height: 56px;
   border-radius: 14px;
   border: none;
-  background: linear-gradient(135deg, #f59c30 0%, #e8731a 50%, #c25710 100%);
+  background: linear-gradient(135deg, #e02020 0%, #d71920 50%, #b81010 100%);
   color: #ffffff;
   font-size: 20px;
   font-weight: 700;
@@ -1830,8 +1803,8 @@ body {
   cursor: pointer;
   font-family: inherit;
   transition: opacity 0.15s, transform 0.12s;
-  box-shadow: 0 8px 28px -4px rgba(232, 115, 26, 0.55),
-              inset 0 1px 0 rgba(255,255,255,0.18);
+  box-shadow: 0 8px 28px -4px rgba(215, 25, 32, 0.55),
+              inset 0 1px 0 rgba(255,255,255,0.14);
 }
 .fx-calc-now-btn:hover  { opacity: 0.9; }
 .fx-calc-now-btn:active { transform: scale(0.985); }

@@ -335,14 +335,12 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           </div>
         </div>
 
-        <div className="fx-dim-grid">
-          <DimInput label="Length"   value={length} onChange={setLength}
-            onBlur={v => setLength(String(clampInt(v, 1, 100000, 2500)))} />
-          <DimInput label="Width"    value={width}  onChange={setWidth}
-            onBlur={v => setWidth(String(clampInt(v, 1, 100000, 100)))} />
-          <DimInput label="Thickness" value={thick}  onChange={setThick}
-            onBlur={v => setThick(String(clampInt(v, 1, 100000, 10)))} />
-        </div>
+        <DimInput label="Length"   value={length} onChange={setLength}
+          onBlur={v => setLength(String(clampInt(v, 1, 100000, 2500)))} />
+        <DimInput label="Width"    value={width}  onChange={setWidth}
+          onBlur={v => setWidth(String(clampInt(v, 1, 100000, 100)))} />
+        <DimInput label="Thickness" value={thick}  onChange={setThick}
+          onBlur={v => setThick(String(clampInt(v, 1, 100000, 10)))} />
       </div>
 
       {/* ── Dynamic busbar render ──────────────────────── */}
