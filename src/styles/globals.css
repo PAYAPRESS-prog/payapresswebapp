@@ -938,6 +938,8 @@ body {
   gap: 8px;
 }
 .fx-dim-grid .fx-input-card {
+  min-width: 0;        /* critical: prevents grid item from expanding past 1fr column */
+  overflow: hidden;
   min-height: 76px;
   padding: 10px 10px;
 }
@@ -1377,25 +1379,31 @@ body {
   }
 }
 
-/* Blurred mesh-gradient backdrop — positioned relative to visible viewport.
-   Previously used inset:-25% which pushed bottom blobs 19-22vh below fold,
-   making them invisible after overflow:hidden clipping. Now using inset:0
-   with corner-anchored gradients so every blob lands inside the viewport. */
+/* Blurred mesh-gradient backdrop.
+   Root cause of previous black-bottom: filter:blur(52px) on inset:0 fades
+   the gradient color INWARD from every edge (~52px). The bottom-left/right
+   gradients at 0%/100% got entirely eaten. Fix: extend the bg div 100px
+   beyond the parent on all sides (parent clips via overflow:hidden), then
+   re-anchor gradient origins at the VISIBLE viewport corners using calc().
+   The 100px extension absorbs the blur edge-fade outside the visible area. */
 .fx-welcome-bg {
   position: absolute;
-  inset: 0;
+  inset: -100px;
   z-index: 0;
   pointer-events: none;
   background:
-    /* top-right copper warm glow */
-    radial-gradient(55% 44% at 100% 0%,   rgba(205, 120, 42, 0.88) 0%, transparent 70%),
-    /* bottom-left deep red / maroon */
-    radial-gradient(62% 52% at 0%   100%, rgba(148,  22, 28, 0.82) 0%, transparent 70%),
-    /* bottom-right warm ember */
-    radial-gradient(50% 42% at 100% 100%, rgba(110,  52, 18, 0.48) 0%, transparent 70%),
-    /* bottom-center subtle red haze */
-    radial-gradient(70% 38% at 50%  100%, rgba(110,  24, 24, 0.42) 0%, transparent 70%),
-    /* base */
+    /* top-right warm copper — origin at visible top-right corner */
+    radial-gradient(55% 44% at calc(100% - 100px) 100px,
+      rgba(205, 120, 42, 0.92) 0%, transparent 70%),
+    /* bottom-left deep red — origin at visible bottom-left corner */
+    radial-gradient(62% 52% at 100px calc(100% - 100px),
+      rgba(148,  22, 28, 0.88) 0%, transparent 70%),
+    /* bottom-right ember — origin at visible bottom-right corner */
+    radial-gradient(48% 40% at calc(100% - 100px) calc(100% - 100px),
+      rgba(120,  58, 18, 0.55) 0%, transparent 65%),
+    /* bottom-center red haze — origin at visible bottom-center */
+    radial-gradient(70% 36% at 50% calc(100% - 100px),
+      rgba(110,  24, 24, 0.48) 0%, transparent 70%),
     #0b0d10;
   filter: blur(52px);
   transform: translateZ(0);
