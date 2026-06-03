@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
@@ -17,7 +18,7 @@ export default function PrivacyPage() {
       }}
     >
       <div style={{ maxWidth: '44rem', margin: '0 auto' }}>
-        <a
+        <Link
           href="/"
           style={{
             display: 'inline-block',
@@ -28,7 +29,7 @@ export default function PrivacyPage() {
           }}
         >
           ← Back to Calculator
-        </a>
+        </Link>
 
         <h1
           style={{

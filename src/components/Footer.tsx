@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 interface FooterLinkProps {
   href: string;
   children: React.ReactNode;
@@ -58,7 +60,7 @@ export function Footer() {
 
           {/* Brand column */}
           <div className="col-span-2 sm:col-span-1 space-y-3">
-            <a
+            <Link
               href="/"
               className="flex items-center gap-2 w-fit transition-transform duration-150 hover:scale-[1.03] active:scale-[0.97]"
             >
@@ -69,7 +71,7 @@ export function Footer() {
               >
                 PRO
               </span>
-            </a>
+            </Link>
             <p className="text-[0.75rem] leading-relaxed text-zinc-600 max-w-[16rem]">
               Industrial Tools for Electrical Panel Fabricators
             </p>

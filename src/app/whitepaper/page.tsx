@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { Header } from '@/components/Header';
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export default function WhitepaperPage() {
         <article style={{ maxWidth: '48rem', margin: '0 auto' }}>
 
           {/* Back link */}
-          <a href="/" style={backLink}>← Back to Calculator</a>
+          <Link href="/" style={backLink}>← Back to Calculator</Link>
 
           {/* Document header */}
           <header style={{ marginBottom: '2.5rem', paddingBottom: '2rem', borderBottom: '1px solid #1c1c23' }}>
@@ -269,7 +270,7 @@ export default function WhitepaperPage() {
             </p>
             <p style={body}>
               Security headers applied on all responses include: Content-Security-Policy
-              with <code style={inlineCode}>worker-src 'self'</code>, HSTS
+              with <code style={inlineCode}>worker-src &apos;self&apos;</code>, HSTS
               (<code style={inlineCode}>max-age=63072000; includeSubDomains; preload</code>),{' '}
               <code style={inlineCode}>X-Content-Type-Options: nosniff</code>,{' '}
               <code style={inlineCode}>Referrer-Policy: strict-origin-when-cross-origin</code>,
@@ -311,8 +312,8 @@ export default function WhitepaperPage() {
 
           {/* Footer */}
           <div style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid #1c1c23', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <a href="/" style={backLink}>← Back to Calculator</a>
-            <a href="/roadmap" style={btnLink}>View Roadmap →</a>
+            <Link href="/" style={backLink}>← Back to Calculator</Link>
+            <Link href="/roadmap" style={btnLink}>View Roadmap →</Link>
           </div>
 
         </article>

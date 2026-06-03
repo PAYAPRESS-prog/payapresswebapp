@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 export function Header() {
@@ -22,7 +23,7 @@ export function Header() {
     >
       <div className="page-container h-14 flex items-center justify-between">
 
-        <a
+        <Link
           href="/"
           className="flex items-center gap-2
                      transition-transform duration-150 hover:scale-[1.03] active:scale-[0.97]"
@@ -32,7 +33,7 @@ export function Header() {
                            border border-[var(--color-surface-4)] rounded px-1.5 py-0.5 tracking-widest">
             PRO
           </span>
-        </a>
+        </Link>
 
         <span className="hidden md:block text-[0.65rem] text-zinc-700 font-mono tracking-wide select-none">
           Busbar Calculator

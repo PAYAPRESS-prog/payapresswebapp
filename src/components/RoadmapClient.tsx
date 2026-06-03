@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { motion, AnimatePresence, useInView, useScroll, useSpring } from 'framer-motion';
 import { Header } from '@/components/Header';
@@ -424,13 +425,13 @@ export default function RoadmapClient() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="mb-16 sm:mb-20"
           >
-            <a
+            <Link
               href="/"
               className="inline-flex items-center gap-1.5 mb-8 text-sm font-medium transition-opacity hover:opacity-70"
               style={{ color: '#cd7f32', textDecoration: 'none' }}
             >
               ← Back to Calculator
-            </a>
+            </Link>
 
             {/* Launch badge */}
             <div className="mb-5">
@@ -579,7 +580,7 @@ export default function RoadmapClient() {
               </p>
             </div>
             <div className="flex gap-3 flex-wrap">
-              <a
+              <Link
                 href="/"
                 className="inline-flex items-center gap-1.5 font-semibold text-sm px-5 py-2.5 rounded-xl"
                 style={{
@@ -590,7 +591,7 @@ export default function RoadmapClient() {
                 }}
               >
                 Try the Calculator →
-              </a>
+              </Link>
               <a
                 href="/whitepaper"
                 className="inline-flex items-center gap-1.5 font-medium text-sm px-5 py-2.5 rounded-xl"

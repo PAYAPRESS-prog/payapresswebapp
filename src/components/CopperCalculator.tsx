@@ -545,6 +545,8 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
                   onClick={() => setCurrCode(c.code)}
                   className={`pill${c.code === currCode ? ' active' : ''}`}
                 >
+                  {/* 20×20 remote flag icon — next/image adds needless overhead here */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={`${FLAG_CDN}/${c.flag}.png`}
                     width={20} height={20} alt={c.name}
