@@ -13,12 +13,12 @@ const FALLBACK_FX: Record<string, number> = {
   EUR: 0.91,  GBP: 0.77,  CHF: 0.87,  JPY: 145.00, CAD: 1.42,
   AUD: 1.59,  CNY: 7.28,  INR: 85.00, SGD: 1.34,   KRW: 1380.0,
   TRY: 38.50, BRL: 5.75,  MXN: 18.50, NOK: 10.85,  SEK: 10.40,
-  ZAR: 18.50,
+  ZAR: 18.50, RUB: 90.00,
   ...PEGGED,
 };
 
 const WANTED_FX = [
-  'EUR','GBP','CHF','JPY','CAD','AUD','CNY','INR','SGD','KRW','TRY','BRL','MXN','NOK','SEK','ZAR',
+  'EUR','GBP','CHF','JPY','CAD','AUD','CNY','INR','SGD','KRW','TRY','BRL','MXN','NOK','SEK','ZAR','RUB',
 ];
 
 export async function fetchCopperPrice(): Promise<CopperPriceData> {

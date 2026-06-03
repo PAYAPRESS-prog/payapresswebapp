@@ -1,5 +1,4 @@
 import { FxHeader } from '@/components/figma/FxHeader';
-import { FxHero } from '@/components/figma/FxHero';
 import { FxFooter } from '@/components/figma/FxFooter';
 import { FxBottomNav } from '@/components/figma/FxBottomNav';
 import { FxCalculator } from '@/components/figma/FxCalculator';
@@ -26,10 +25,6 @@ export default async function CalculatorPage() {
       </SectionErrorBoundary>
 
       <main>
-        <SectionErrorBoundary>
-          <FxHero />
-        </SectionErrorBoundary>
-
         <SectionErrorBoundary>
           <FxCalculator initialData={initialData} />
         </SectionErrorBoundary>

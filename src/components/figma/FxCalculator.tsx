@@ -13,14 +13,24 @@ import { FxAuthSheet } from './FxAuthSheet';
 import { FxBusbarChart } from './FxBusbarChart';
 
 type Metal = 'copper' | 'aluminum';
-type CurrCode = 'USD' | 'AED' | 'CNY' | 'EUR' | 'GBP' | 'TRY' | 'IRR';
+type CurrCode =
+  | 'USD' | 'EUR' | 'GBP' | 'AED' | 'CNY' | 'TRY' | 'IRR'
+  | 'SAR' | 'CAD' | 'AUD' | 'CHF' | 'JPY' | 'INR' | 'RUB'
+  | 'KWD' | 'QAR' | 'SGD';
 
+// IEC standard flat busbar cross-sections (width × thickness, mm)
 const PRESETS: Array<{ w: string; t: string }> = [
+  { w: '25',  t: '3'  },
+  { w: '30',  t: '5'  },
+  { w: '40',  t: '5'  },
+  { w: '50',  t: '5'  },
+  { w: '60',  t: '6'  },
+  { w: '80',  t: '8'  },
+  { w: '80',  t: '10' },
   { w: '100', t: '10' },
-  { w: '200', t: '20' },
-  { w: '300', t: '30' },
-  { w: '400', t: '40' },
-  { w: '500', t: '50' },
+  { w: '120', t: '10' },
+  { w: '160', t: '10' },
+  { w: '200', t: '10' },
 ];
 
 // Currencies shown in the main 2×2 grid
@@ -30,15 +40,30 @@ const GRID_CURRENCIES: CurrCode[] = ['USD', 'EUR', 'GBP'];
 const CURR_META: Record<CurrCode, { label: string; name: string }> = {
   USD: { label: 'USD',  name: 'US Dollar' },
   EUR: { label: 'EUR',  name: 'Euro' },
-  GBP: { label: 'PND',  name: 'British Pound' },
+  GBP: { label: 'GBP',  name: 'British Pound' },
   AED: { label: 'AED',  name: 'UAE Dirham' },
-  CNY: { label: 'Yuan', name: 'Chinese Yuan' },
-  TRY: { label: 'Lira', name: 'Turkish Lira' },
-  IRR: { label: 'Rial', name: 'Iranian Rial' },
+  CNY: { label: 'CNY',  name: 'Chinese Yuan' },
+  TRY: { label: 'TRY',  name: 'Turkish Lira' },
+  IRR: { label: 'IRR',  name: 'Iranian Rial' },
+  SAR: { label: 'SAR',  name: 'Saudi Riyal' },
+  CAD: { label: 'CAD',  name: 'Canadian Dollar' },
+  AUD: { label: 'AUD',  name: 'Australian Dollar' },
+  CHF: { label: 'CHF',  name: 'Swiss Franc' },
+  JPY: { label: 'JPY',  name: 'Japanese Yen' },
+  INR: { label: 'INR',  name: 'Indian Rupee' },
+  RUB: { label: 'RUB',  name: 'Russian Ruble' },
+  KWD: { label: 'KWD',  name: 'Kuwaiti Dinar' },
+  QAR: { label: 'QAR',  name: 'Qatari Riyal' },
+  SGD: { label: 'SGD',  name: 'Singapore Dollar' },
 };
 
-// Currencies shown in the "Other" picker (all that aren't always in the grid)
-const PICKER_CURRENCIES: CurrCode[] = ['GBP', 'TRY', 'IRR', 'CNY', 'AED', 'EUR'];
+// Currencies shown in the "Other" picker
+const PICKER_CURRENCIES: CurrCode[] = [
+  'AED', 'SAR', 'KWD', 'QAR', 'IRR',
+  'EUR', 'GBP', 'CHF', 'TRY', 'RUB',
+  'CNY', 'JPY', 'INR', 'SGD',
+  'CAD', 'AUD',
+];
 
 // Current density for busbar (A/mm²) — standard indoor rating
 const CURRENT_DENSITY: Record<Metal, number> = { copper: 2.5, aluminum: 1.5 };

@@ -145,6 +145,146 @@ export function FlagIRR(props: FlagProps) {
   );
 }
 
+export function FlagSAR(props: FlagProps) {
+  return (
+    <ClippedCircle id="fx-flag-sa" {...props}>
+      <rect width="30" height="30" fill="#006c35" />
+      <line x1="5"  y1="20" x2="25" y2="20" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="23" y1="17" x2="25" y2="20" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="5"  y1="17" x2="5"  y2="23" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="5"  y1="11" x2="25" y2="11" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="7"  y1="14.5" x2="23" y2="14.5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+    </ClippedCircle>
+  );
+}
+
+export function FlagCAD(props: FlagProps) {
+  return (
+    <ClippedCircle id="fx-flag-ca" {...props}>
+      <rect width="30" height="30" fill="#ffffff" />
+      <rect x="0"  y="0" width="8"  height="30" fill="#ff0000" />
+      <rect x="22" y="0" width="8"  height="30" fill="#ff0000" />
+      <polygon
+        points="15,5 13,11 8,10 11,14 7,19 12,17 11.5,22 15,20.5 18.5,22 18,17 23,19 19,14 22,10 17,11"
+        fill="#ff0000"
+      />
+    </ClippedCircle>
+  );
+}
+
+export function FlagAUD(props: FlagProps) {
+  return (
+    <ClippedCircle id="fx-flag-au" {...props}>
+      <rect width="30" height="30" fill="#00008b" />
+      <rect x="0" y="5.5" width="14" height="3" fill="#ffffff" />
+      <rect x="5.5" y="0" width="3" height="14" fill="#ffffff" />
+      <rect x="0" y="6.5" width="14" height="1" fill="#cc0000" />
+      <rect x="6.5" y="0" width="1" height="14" fill="#cc0000" />
+      <circle cx="23" cy="8"  r="1.3" fill="#ffffff" />
+      <circle cx="27" cy="15" r="1.3" fill="#ffffff" />
+      <circle cx="22.5" cy="21" r="1.3" fill="#ffffff" />
+      <circle cx="18" cy="19" r="1.3" fill="#ffffff" />
+      <circle cx="16" cy="13" r="0.9" fill="#ffffff" />
+    </ClippedCircle>
+  );
+}
+
+export function FlagCHF(props: FlagProps) {
+  return (
+    <ClippedCircle id="fx-flag-ch" {...props}>
+      <rect width="30" height="30" fill="#ff0000" />
+      <rect x="13" y="7"  width="4"  height="16" fill="#ffffff" />
+      <rect x="7"  y="13" width="16" height="4"  fill="#ffffff" />
+    </ClippedCircle>
+  );
+}
+
+export function FlagJPY(props: FlagProps) {
+  return (
+    <ClippedCircle id="fx-flag-jp" {...props}>
+      <rect width="30" height="30" fill="#ffffff" />
+      <circle cx="15" cy="15" r="7.5" fill="#bc002d" />
+    </ClippedCircle>
+  );
+}
+
+export function FlagINR(props: FlagProps) {
+  const spokes = Array.from({ length: 12 }, (_, i) => {
+    const angle = i * 30 * (Math.PI / 180);
+    return {
+      x1: 15 + Math.cos(angle) * 0.6,
+      y1: 15 + Math.sin(angle) * 0.6,
+      x2: 15 + Math.cos(angle) * 3.5,
+      y2: 15 + Math.sin(angle) * 3.5,
+    };
+  });
+  return (
+    <ClippedCircle id="fx-flag-in" {...props}>
+      <rect x="0" y="0"  width="30" height="10" fill="#ff9933" />
+      <rect x="0" y="10" width="30" height="10" fill="#ffffff" />
+      <rect x="0" y="20" width="30" height="10" fill="#138808" />
+      <circle cx="15" cy="15" r="3.5" fill="none" stroke="#000080" strokeWidth="0.6" />
+      <circle cx="15" cy="15" r="0.5" fill="#000080" />
+      {spokes.map((s, i) => (
+        <line key={i} x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2} stroke="#000080" strokeWidth="0.4" />
+      ))}
+    </ClippedCircle>
+  );
+}
+
+export function FlagRUB(props: FlagProps) {
+  return (
+    <ClippedCircle id="fx-flag-ru" {...props}>
+      <rect x="0" y="0"  width="30" height="10" fill="#ffffff" />
+      <rect x="0" y="10" width="30" height="10" fill="#0039a6" />
+      <rect x="0" y="20" width="30" height="10" fill="#d52b1e" />
+    </ClippedCircle>
+  );
+}
+
+export function FlagKWD(props: FlagProps) {
+  return (
+    <ClippedCircle id="fx-flag-kw" {...props}>
+      <rect x="0" y="0"  width="30" height="10" fill="#007a3d" />
+      <rect x="0" y="10" width="30" height="10" fill="#ffffff" />
+      <rect x="0" y="20" width="30" height="10" fill="#ce1126" />
+      <polygon points="0,0 10,10 10,20 0,30" fill="#000000" />
+    </ClippedCircle>
+  );
+}
+
+export function FlagQAR(props: FlagProps) {
+  const pts: string[] = ['0,0'];
+  for (let i = 0; i <= 9; i++) {
+    pts.push(`${i % 2 === 0 ? 8 : 12},${((i / 9) * 30).toFixed(1)}`);
+  }
+  pts.push('0,30');
+  return (
+    <ClippedCircle id="fx-flag-qa" {...props}>
+      <rect width="30" height="30" fill="#8d153a" />
+      <polygon points={pts.join(' ')} fill="#ffffff" />
+    </ClippedCircle>
+  );
+}
+
+export function FlagSGD(props: FlagProps) {
+  const stars = Array.from({ length: 5 }, (_, i) => {
+    const angle = (i * 72 - 90) * (Math.PI / 180);
+    return { cx: 20 + Math.cos(angle) * 3.5, cy: 7.5 + Math.sin(angle) * 3.5 };
+  });
+  return (
+    <ClippedCircle id="fx-flag-sg" {...props}>
+      <rect x="0" y="0"  width="30" height="15" fill="#ef3340" />
+      <rect x="0" y="15" width="30" height="15" fill="#ffffff" />
+      <circle cx="7" cy="7.5" r="4.5" fill="#ffffff" />
+      <circle cx="9" cy="7.5" r="3.6" fill="#ef3340" />
+      {stars.map((s, i) => (
+        <Star key={i} cx={s.cx} cy={s.cy} r={1.3} fill="#ffffff" />
+      ))}
+    </ClippedCircle>
+  );
+}
+
 export const FLAGS = {
   USD: FlagUSA,
   AED: FlagAED,
@@ -153,4 +293,14 @@ export const FLAGS = {
   GBP: FlagGBP,
   TRY: FlagTRY,
   IRR: FlagIRR,
+  SAR: FlagSAR,
+  CAD: FlagCAD,
+  AUD: FlagAUD,
+  CHF: FlagCHF,
+  JPY: FlagJPY,
+  INR: FlagINR,
+  RUB: FlagRUB,
+  KWD: FlagKWD,
+  QAR: FlagQAR,
+  SGD: FlagSGD,
 } as const;
