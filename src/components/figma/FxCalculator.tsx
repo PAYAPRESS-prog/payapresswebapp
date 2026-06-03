@@ -341,24 +341,26 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           onBlur={v => setWidth(String(clampInt(v, 1, 100000, 100)))} />
         <DimInput label="Thickness" value={thick}  onChange={setThick}
           onBlur={v => setThick(String(clampInt(v, 1, 100000, 10)))} />
+
+        {/* Calculate Now — inside the Dimensions card (Figma Variant2) */}
+        <button type="button" className="fx-calc-now-btn" onClick={handleCalculate}>
+          Calculate Now
+        </button>
       </div>
 
-      {/* ── Dynamic busbar render ──────────────────────── */}
-      <div
-        className="fx-busbar-render"
-        style={{
-          filter: metal === 'copper'
-            ? 'drop-shadow(0 10px 28px rgba(215,25,32,0.22))'
-            : 'drop-shadow(0 10px 28px rgba(111,179,224,0.28))',
-        }}
-      >
-        <BusbarRender width={w} thickness={t} metal={metal} />
+      {/* ── Busbar render — contained render area (Figma 200px frame) ── */}
+      <div className="fx-render-card">
+        <div
+          className="fx-busbar-render"
+          style={{
+            filter: metal === 'copper'
+              ? 'drop-shadow(0 10px 28px rgba(215,25,32,0.22))'
+              : 'drop-shadow(0 10px 28px rgba(111,179,224,0.28))',
+          }}
+        >
+          <BusbarRender width={w} thickness={t} metal={metal} />
+        </div>
       </div>
-
-      {/* ── Calculate Now ──────────────────────────────── */}
-      <button type="button" className="fx-calc-now-btn" onClick={handleCalculate}>
-        Calculate Now
-      </button>
 
       {/* ── Currency Conversion ────────────────────────── */}
       <div className="fx-card">

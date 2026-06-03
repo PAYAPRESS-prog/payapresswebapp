@@ -915,15 +915,27 @@ body {
 .fx-suggestions {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   padding: 0 2px;
 }
+/* "Suggestions" label flanked by divider lines (Figma) */
 .fx-suggestions-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   font-size: 10px;
   font-weight: 510;
   color: var(--fx-text-1);
-  text-align: center;
   letter-spacing: 0.01em;
+  padding: 0 10px;
+}
+.fx-suggestions-label::before,
+.fx-suggestions-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(245, 247, 250, 0.1);
 }
 .fx-suggestions-scroll {
   display: flex;
@@ -952,12 +964,21 @@ body {
   background: rgba(245, 247, 250, 0.1);
 }
 
-/* ── Busbar render ────────────────────────────────── */
+/* ── Busbar render — contained render area (Figma 200px frame) ── */
+.fx-render-card {
+  height: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
 .fx-busbar-render {
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 12px 0 4px;
   /* Shadow is set via inline style in FxCalculator — metal-aware */
 }
 
