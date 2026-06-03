@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 type Metal = 'copper' | 'aluminum';
 type ChartRange = '1D' | '7D' | '1M' | '1Y';
@@ -19,32 +19,24 @@ interface Props {
   updatedLabel: string;
 }
 
-// SVG layout constants (viewBox "0 0 340 185")
-const PL = 54;   // left edge of plot area (leaves room for Y labels)
+// SVG viewBox: "0 0 340 185"
+const PL = 54;   // left edge of plot area
 const PR = 332;  // right edge
-const PT = 10;   // top of plot area
-const PB = 162;  // bottom of plot area
+const PT = 10;   // top
+const PB = 162;  // bottom
 const CW = PR - PL;
 const CH = PB - PT;
 
 function niceTicks(lo: number, hi: number, n = 4): number[] {
   let span = hi - lo;
-  if (span <= 0) {
-    const pad = Math.abs(lo) * 0.05 || 1;
-    lo -= pad; hi += pad; span = hi - lo;
-  }
-  const raw = span / n;
-  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  if (span <= 0) { const p = Math.abs(lo) * 0.05 || 1; lo -= p; hi += p; span = hi - lo; }
+  const raw  = span / n;
+  const mag  = Math.pow(10, Math.floor(Math.log10(raw)));
   const step = ([1, 2, 2.5, 5, 10].map(v => v * mag).find(v => v >= raw)) ?? mag * 10;
   const start = Math.ceil(lo / step) * step;
   const ticks: number[] = [];
-  for (
-    let v = start;
-    ticks.length < n + 2 && v <= hi + step * 0.01;
-    v = parseFloat((v + step).toPrecision(12))
-  ) {
+  for (let v = start; ticks.length < n + 2 && v <= hi + step * 0.01; v = parseFloat((v + step).toPrecision(12)))
     if (v >= lo - step * 0.01) ticks.push(v);
-  }
   return ticks;
 }
 
@@ -77,6 +69,19 @@ function fmtTs(ts: number, range: ChartRange): string {
   }
 }
 
+// Full date + time label for tooltip
+function fmtTooltipDate(ts: number, range: ChartRange): string {
+  const d = new Date(ts * 1000);
+  const day  = d.getDate().toString().padStart(2,'0');
+  const mon  = MONTHS[d.getMonth()];
+  const yr   = d.getFullYear();
+  const hh   = d.getHours().toString().padStart(2,'0');
+  const mm   = d.getMinutes().toString().padStart(2,'0');
+  if (range === '1D') return `${hh}:${mm}`;
+  if (range === '7D') return `${DAYS[d.getDay()]} ${hh}:${mm}`;
+  return `${day} ${mon} ${yr}`;
+}
+
 function catmullRomPath(pts: [number, number][]): string {
   if (pts.length < 2) return '';
   let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
@@ -96,31 +101,28 @@ function catmullRomPath(pts: [number, number][]): string {
 
 function thin<T>(arr: T[], max: number): T[] {
   if (arr.length <= max || max < 2) return arr;
-  return Array.from({ length: max }, (_, i) =>
-    arr[Math.round(i * (arr.length - 1) / (max - 1))],
-  );
+  return Array.from({ length: max }, (_, i) => arr[Math.round(i * (arr.length - 1) / (max - 1))]);
 }
 
-export function FxBusbarChart({
-  metal, weightKg, fxRate, currLabel, pricePerKgUSD, updatedLabel,
-}: Props) {
-  const [range, setRange] = useState<ChartRange>('1M');
-  const [raw,   setRaw]   = useState<ChartData | null>(null);
-  const [busy,  setBusy]  = useState(true);
-  const [err,   setErr]   = useState(false);
+export function FxBusbarChart({ metal, weightKg, fxRate, currLabel, pricePerKgUSD, updatedLabel }: Props) {
+  const [range,    setRange]    = useState<ChartRange>('1M');
+  const [raw,      setRaw]      = useState<ChartData | null>(null);
+  const [busy,     setBusy]     = useState(true);
+  const [err,      setErr]      = useState(false);
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     let alive = true;
-    setBusy(true);
-    setErr(false);
+    setBusy(true); setErr(false); setHoverIdx(null);
     fetch(`/api/price-history?metal=${metal}&range=${range}`)
       .then(r => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then(d  => { if (alive) { setRaw(d);  setBusy(false); } })
+      .then(d  => { if (alive) { setRaw(d); setBusy(false); } })
       .catch(() => { if (alive) { setErr(true); setBusy(false); } });
     return () => { alive = false; };
   }, [metal, range]);
 
-  const color = metal === 'copper' ? '#e8731a' : '#6fb3e0';
+  const color = metal === 'copper' ? '#f7941d' : '#6fb3e0';
   const uid   = `bch_${metal}`;
 
   const chart = useMemo(() => {
@@ -128,8 +130,8 @@ export function FxBusbarChart({
 
     const busbarPrices = raw.pricesPerKg.map(p => p * weightKg * fxRate);
     const maxPts = 60;
-    const ts  = thin(raw.timestamps,  maxPts);
-    const bps = thin(busbarPrices,    maxPts);
+    const ts  = thin(raw.timestamps, maxPts);
+    const bps = thin(busbarPrices,   maxPts);
 
     const minP = Math.min(...bps);
     const maxP = Math.max(...bps);
@@ -151,17 +153,54 @@ export function FxBusbarChart({
     const minIdx = bps.indexOf(Math.min(...bps));
     const maxIdx = bps.indexOf(Math.max(...bps));
 
-    const firstP  = bps[0];
-    const lastP   = bps[bps.length - 1];
-    const pctChg  = ((lastP - firstP) / firstP) * 100;
-    const absChg  = lastP - firstP;
+    const firstP = bps[0];
+    const lastP  = bps[bps.length - 1];
+    const pctChg = ((lastP - firstP) / firstP) * 100;
+    const absChg = lastP - firstP;
 
     return { pts, line, area, last, yTicks, xTicks, ts, bps, minIdx, maxIdx, firstP, lastP, pctChg, absChg, xOf, yOf };
   }, [raw, weightKg, fxRate]);
 
-  const currPrefix    = currLabel === 'USD' ? '$' : `${currLabel} `;
-  const currentPrice  = pricePerKgUSD * weightKg * fxRate;
-  const displayPrice  = chart?.lastP ?? currentPrice;
+  // Convert a pointer/touch event X (in screen px) to the nearest chart index
+  function nearestIdx(clientX: number): number | null {
+    if (!chart || !svgRef.current) return null;
+    const rect   = svgRef.current.getBoundingClientRect();
+    const svgW   = rect.width;
+    const svgX   = clientX - rect.left;
+    // Map screen X → viewBox X
+    const vbX    = (svgX / svgW) * 340;
+    // Clamp to plot area
+    const plotX  = Math.max(PL, Math.min(PR, vbX));
+    const frac   = (plotX - PL) / CW;
+    const rawIdx = frac * (chart.pts.length - 1);
+    return Math.max(0, Math.min(chart.pts.length - 1, Math.round(rawIdx)));
+  }
+
+  function handlePointerMove(e: React.PointerEvent<SVGSVGElement>) {
+    const idx = nearestIdx(e.clientX);
+    if (idx !== null) setHoverIdx(idx);
+  }
+
+  function handleTouchMove(e: React.TouchEvent<SVGSVGElement>) {
+    e.preventDefault();
+    if (e.touches.length > 0) {
+      const idx = nearestIdx(e.touches[0].clientX);
+      if (idx !== null) setHoverIdx(idx);
+    }
+  }
+
+  function handlePointerLeave() { setHoverIdx(null); }
+
+  const currPrefix   = currLabel === 'USD' ? '$' : `${currLabel} `;
+  const currentPrice = pricePerKgUSD * weightKg * fxRate;
+
+  // Header shows hovered point's price, or latest price
+  const activeIdx    = hoverIdx ?? (chart ? chart.pts.length - 1 : null);
+  const displayPrice = chart && activeIdx !== null ? chart.bps[activeIdx] : currentPrice;
+  const displayDate  = chart && activeIdx !== null ? fmtTooltipDate(chart.ts[activeIdx], range) : null;
+
+  // Tooltip bubble positioning
+  const tooltipPt = chart && activeIdx !== null ? chart.pts[activeIdx] : null;
 
   return (
     <div className="fx-card fx-busbar-chart-card">
@@ -189,11 +228,13 @@ export function FxBusbarChart({
       {/* ── Price info ─────────────────────── */}
       <div className="fx-busbar-chart-info">
         <div>
-          <div className="fx-chart-current-label">Busbar Price</div>
+          <div className="fx-chart-current-label">
+            {hoverIdx !== null && displayDate ? displayDate : 'Busbar Price'}
+          </div>
           <div className="fx-chart-current-price" style={{ color }}>
             {currPrefix}{fmtBig(displayPrice)}
           </div>
-          {chart && (
+          {chart && hoverIdx === null && (
             <div className={`fx-chart-change${chart.pctChg >= 0 ? ' up' : ' down'}`}>
               {chart.pctChg >= 0 ? '▲' : '▼'}&nbsp;
               {Math.abs(chart.pctChg).toFixed(2)}%
@@ -206,23 +247,24 @@ export function FxBusbarChart({
 
       {/* ── Chart area ─────────────────────── */}
       <div className="fx-busbar-chart-wrap">
-
-        {busy && (
-          <div className="fx-busbar-chart-loading">
-            <div className="fx-busbar-chart-skeleton" />
-          </div>
-        )}
-
-        {err && !busy && (
-          <div className="fx-busbar-chart-error">Historical data unavailable</div>
-        )}
+        {busy && <div className="fx-busbar-chart-loading"><div className="fx-busbar-chart-skeleton" /></div>}
+        {err && !busy && <div className="fx-busbar-chart-error">Historical data unavailable</div>}
 
         {chart && !busy && (
-          <svg viewBox="0 0 340 185" width="100%" height="100%" style={{ display: 'block' }}>
+          <svg
+            ref={svgRef}
+            viewBox="0 0 340 185"
+            width="100%" height="100%"
+            style={{ display: 'block', touchAction: 'none' }}
+            onPointerMove={handlePointerMove}
+            onPointerLeave={handlePointerLeave}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handlePointerLeave}
+          >
             <defs>
               <linearGradient id={`${uid}_fill`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"   stopColor={color} stopOpacity="0.30" />
-                <stop offset="75%"  stopColor={color} stopOpacity="0.06" />
+                <stop offset="0%"   stopColor={color} stopOpacity="0.28" />
+                <stop offset="75%"  stopColor={color} stopOpacity="0.05" />
                 <stop offset="100%" stopColor={color} stopOpacity="0" />
               </linearGradient>
               <filter id={`${uid}_glow`} x="-80%" y="-80%" width="260%" height="260%">
@@ -237,17 +279,8 @@ export function FxBusbarChart({
               if (y < PT - 4 || y > PB + 4) return null;
               return (
                 <g key={tick}>
-                  <line
-                    x1={PL} x2={PR} y1={y} y2={y}
-                    stroke="rgba(255,255,255,0.055)"
-                    strokeWidth="0.5"
-                    strokeDasharray="3,5"
-                  />
-                  <text
-                    x={PL - 5} y={y + 3.5}
-                    textAnchor="end" fontSize="8.5" fill="#6b7280"
-                    fontFamily="'Roboto Mono', 'Courier New', monospace"
-                  >
+                  <line x1={PL} x2={PR} y1={y} y2={y} stroke="rgba(255,255,255,0.055)" strokeWidth="0.5" strokeDasharray="3,5" />
+                  <text x={PL - 5} y={y + 3.5} textAnchor="end" fontSize="8.5" fill="#6b7280" fontFamily="'Roboto Mono','Courier New',monospace">
                     {fmtYLabel(tick)}
                   </text>
                 </g>
@@ -259,38 +292,25 @@ export function FxBusbarChart({
 
             {/* X labels */}
             {chart.xTicks.map(idx => (
-              <text
-                key={idx}
-                x={chart.xOf(idx)} y={PB + 14}
-                textAnchor="middle" fontSize="8.5" fill="#6b7280"
-              >
+              <text key={idx} x={chart.xOf(idx)} y={PB + 14} textAnchor="middle" fontSize="8.5" fill="#6b7280">
                 {fmtTs(chart.ts[idx], range)}
               </text>
             ))}
 
-            {/* Gradient area fill */}
+            {/* Gradient fill */}
             <path d={chart.area} fill={`url(#${uid}_fill)`} />
 
-            {/* Smooth curve */}
-            <path
-              d={chart.line}
-              fill="none"
-              stroke={color}
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+            {/* Curve */}
+            <path d={chart.line} fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
 
             {/* Min marker */}
             {chart.minIdx !== chart.maxIdx && (() => {
               const [mx, my] = chart.pts[chart.minIdx];
-              const labelY   = my + 14 <= PB + 2 ? my + 13 : my - 6;
+              const labelY = my + 14 <= PB + 2 ? my + 13 : my - 6;
               return (
                 <g>
                   <circle cx={mx} cy={my} r="2.5" fill="#111827" stroke={color} strokeWidth="1.2" />
-                  <text x={mx} y={labelY} textAnchor="middle" fontSize="8" fill="#9ca3af">
-                    {fmtYLabel(chart.bps[chart.minIdx])}
-                  </text>
+                  <text x={mx} y={labelY} textAnchor="middle" fontSize="8" fill="#9ca3af">{fmtYLabel(chart.bps[chart.minIdx])}</text>
                 </g>
               );
             })()}
@@ -298,28 +318,64 @@ export function FxBusbarChart({
             {/* Max marker */}
             {(() => {
               const [mx, my] = chart.pts[chart.maxIdx];
-              const labelY   = my - 8 >= PT ? my - 7 : my + 14;
+              const labelY = my - 8 >= PT ? my - 7 : my + 14;
               return (
                 <g>
                   <circle cx={mx} cy={my} r="2.5" fill="#111827" stroke={color} strokeWidth="1.2" />
-                  <text x={mx} y={labelY} textAnchor="middle" fontSize="8" fill="#9ca3af">
-                    {fmtYLabel(chart.bps[chart.maxIdx])}
-                  </text>
+                  <text x={mx} y={labelY} textAnchor="middle" fontSize="8" fill="#9ca3af">{fmtYLabel(chart.bps[chart.maxIdx])}</text>
                 </g>
               );
             })()}
 
-            {/* Current price dot with glow */}
-            {(() => {
+            {/* Current price dot (shown only when not hovering) */}
+            {hoverIdx === null && (() => {
               const [lx, ly] = chart.last;
               return (
                 <g>
                   <circle cx={lx} cy={ly} r="8" fill={color} opacity="0.15" filter={`url(#${uid}_glow)`} />
                   <circle cx={lx} cy={ly} r="3.5" fill={color} />
-                  <circle cx={lx} cy={ly} r="1.5" fill="white"  />
+                  <circle cx={lx} cy={ly} r="1.5" fill="white" />
                 </g>
               );
             })()}
+
+            {/* ── Interactive crosshair + tooltip ── */}
+            {hoverIdx !== null && tooltipPt && (() => {
+              const [hx, hy] = tooltipPt;
+              const priceStr = `${currPrefix}${fmtBig(chart.bps[hoverIdx])}`;
+              const dateStr  = fmtTooltipDate(chart.ts[hoverIdx], range);
+
+              // Tooltip bubble size
+              const tW = 80;
+              const tH = 28;
+              // Clamp bubble X so it stays inside the SVG
+              const tX = Math.max(2, Math.min(340 - tW - 2, hx - tW / 2));
+              // Show above or below the dot
+              const tY = hy - tH - 10 >= PT ? hy - tH - 10 : hy + 14;
+
+              return (
+                <g>
+                  {/* Vertical crosshair */}
+                  <line x1={hx} y1={PT} x2={hx} y2={PB} stroke={color} strokeWidth="0.8" strokeDasharray="3,3" opacity="0.7" />
+
+                  {/* Dot on curve */}
+                  <circle cx={hx} cy={hy} r="4" fill={color} />
+                  <circle cx={hx} cy={hy} r="2" fill="white" />
+
+                  {/* Tooltip bubble */}
+                  <rect x={tX} y={tY} width={tW} height={tH} rx="5" ry="5" fill="#1c1f2b" stroke={color} strokeWidth="0.8" opacity="0.97" />
+                  <text x={tX + tW / 2} y={tY + 10} textAnchor="middle" fontSize="8.5" fill={color} fontWeight="600" fontFamily="'Inter',system-ui,sans-serif">
+                    {priceStr}
+                  </text>
+                  <text x={tX + tW / 2} y={tY + 22} textAnchor="middle" fontSize="7.5" fill="rgba(245,247,250,0.6)" fontFamily="'Inter',system-ui,sans-serif">
+                    {dateStr}
+                  </text>
+                </g>
+              );
+            })()}
+
+            {/* Invisible wide hit-area overlay for easy touch targeting */}
+            <rect x={PL} y={PT} width={CW} height={CH + 20} fill="transparent" style={{ cursor: 'crosshair' }} />
           </svg>
         )}
       </div>

@@ -1198,63 +1198,58 @@ body {
 }
 
 /* ── Bottom navigation ────────────────────────────── */
+/* Figma Frame 83 — 232×64px frosted pill, exact token match */
 .fx-bottom-nav {
   position: fixed;
   bottom: calc(16px + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%) translateZ(0);
   z-index: 40;
-  background: rgba(22, 24, 30, 0.92);
-  -webkit-backdrop-filter: saturate(140%) blur(16px);
-          backdrop-filter: saturate(140%) blur(16px);
-  border-radius: 999px;
-  border: 1px solid var(--fx-divider);
+  width: 232px;
+  height: 64px;
+  background: rgba(245, 247, 250, 0.2);
+  -webkit-backdrop-filter: blur(12px);
+          backdrop-filter: blur(12px);
+  border-radius: 50px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 8px 12px;
-  will-change: backdrop-filter;
+  justify-content: space-between;
+  padding: 10px;
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .fx-bottom-nav { background: rgba(22, 24, 30, 0.98); }
+  .fx-bottom-nav { background: rgba(30, 32, 38, 0.97); }
 }
+/* Each tab is a 44×44 touch-target pill */
 .fx-bottom-tab {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 48px;
-  border-radius: 999px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50px;
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--fx-text-3);
+  color: rgba(245, 247, 250, 0.55);
   font-family: inherit;
-  transition: color 0.18s;
+  flex-shrink: 0;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  -webkit-tap-highlight-color: transparent;
 }
+/* Active tab: orange pill 64px wide (matches Figma w-[64px]) */
 .fx-bottom-tab.active {
-  color: var(--fx-text-1);
+  width: 64px;
+  background: rgba(247, 148, 29, 0.6);
+  color: #ffffff;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.25);
 }
 .fx-bottom-tab:disabled {
   cursor: not-allowed;
-  opacity: 0.45;
+  opacity: 0.4;
 }
 .fx-bottom-tab-icon {
-  width: 22px;
-  height: 22px;
-  flex-shrink: 0;
-}
-/* Orange circle behind active tab icon */
-.fx-bottom-tab-icon-circle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--fx-copper-bright);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
 }
 

@@ -9,6 +9,7 @@ import { BusbarMock, RulerAngularIcon, RulerIcon, DollarIcon,
 import { BusbarRender } from '@/components/BusbarRender';
 import { FLAGS } from './FxFlags';
 import { FxAuthSheet } from './FxAuthSheet';
+import { FxBusbarChart } from './FxBusbarChart';
 
 type Metal = 'copper' | 'aluminum';
 type CurrCode =
@@ -101,6 +102,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const [fx,       setFx]       = useState<FxRates | null>(initialData?.fx ?? null);
 
   const [showResults,   setShowResults]   = useState(false);
+  const [updatedLabel,  setUpdatedLabel]  = useState('just now');
   // Reveal the "Calculate Now" submit button only after the user starts
   // interacting with the dimension inputs (focus or picks a suggestion).
   const [interacted,    setInteracted]    = useState(false);
@@ -149,6 +151,23 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const grade = metal === 'copper' ? DEFAULT_GRADE : DEFAULT_ALUMINUM_GRADE;
   const live  = metal === 'copper' ? copper        : aluminum;
 
+  useEffect(() => {
+    function relativeTime(iso?: string | null): string {
+      if (!iso) return 'just now';
+      const t = new Date(iso).getTime();
+      if (Number.isNaN(t)) return 'just now';
+      const sec = Math.max(0, Math.floor((Date.now() - t) / 1000));
+      if (sec < 30)     return 'just now';
+      if (sec < 60)     return `${sec} sec ago`;
+      if (sec < 3600)   return `${Math.floor(sec / 60)} min ago`;
+      if (sec < 86_400) return `${Math.floor(sec / 3600)} hr ago`;
+      return `${Math.floor(sec / 86_400)} day ago`;
+    }
+    const update = () => setUpdatedLabel(relativeTime(live?.updatedAt));
+    update();
+    const id = setInterval(update, 30_000);
+    return () => clearInterval(id);
+  }, [live?.updatedAt]);
 
   const w = clampInt(width,  1, 100000, 100);
   const t = clampInt(thick,  1, 100000, 10);
@@ -473,29 +492,19 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             </div>
           </div>
 
-          {shareMsg && (
-            <p className="fx-results-share-msg">{shareMsg}</p>
-          )}
-          {bookmarked && (
-            <p className="fx-results-share-msg" style={{ color: '#22c55e' }}>Saved to history!</p>
-          )}
-
-          <div className="fx-results-actions">
-            <button type="button" className="fx-results-btn" onClick={handleCompare}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h7"/><circle cx="17" cy="17" r="4"/><path d="m15 17 1 1 2-2"/></svg>
-              Compare result
-            </button>
-            <button type="button" className="fx-results-btn" onClick={handleBookmark}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
-              {bookmarked ? 'Saved!' : 'Bookmark result'}
-            </button>
-          </div>
-
-          <button type="button" className="fx-results-share-btn" onClick={handleShare}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            Share Result
-          </button>
         </div>
+      )}
+
+      {/* ── Price Trend chart ──────────────────────────── */}
+      {showResults && (
+        <FxBusbarChart
+          metal={metal}
+          weightKg={weightKg}
+          fxRate={fxRate(curr)}
+          currLabel={CURR_META[curr].label}
+          pricePerKgUSD={pricePerKgUSD}
+          updatedLabel={updatedLabel}
+        />
       )}
 
       {/* ── Currency Picker Sheet ─────────────────────── */}

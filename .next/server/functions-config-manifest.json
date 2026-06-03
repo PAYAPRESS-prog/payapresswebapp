@@ -3,8 +3,8 @@
   "functions": {
     "/api/auth/login": {},
     "/api/auth/logout": {},
-    "/api/auth/signup": {},
     "/api/auth/me": {},
+    "/api/auth/signup": {},
     "/api/price-history": {}
   }
 }
