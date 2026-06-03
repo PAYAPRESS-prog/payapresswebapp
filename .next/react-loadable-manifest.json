@@ -1,10 +1,9 @@
 {
   "app/embed/page.tsx -> @/components/CopperCalculator": {
-    "id": 5618,
+    "id": 1558,
     "files": [
       "static/chunks/212.c9eb5954677ff523.js",
-      "static/chunks/365-9e54dcca24f02a5d.js",
-      "static/chunks/618.6589507827bc61be.js"
+      "static/chunks/558.29af438ece0d7d75.js"
     ]
   },
   "components/DynamicRoadmap.tsx -> ./RoadmapClient": {

@@ -4,9 +4,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULT_GRADE } from '@/lib/copperData';
 import { DEFAULT_ALUMINUM_GRADE } from '@/lib/aluminumData';
 import type { CopperPriceData, FxRates, InitialPriceData } from '@/types/calculator';
-import { BusbarMock, RulerAngularIcon, RulerIcon, DollarIcon,
+import { BusbarMock, RulerAngularIcon, RulerIcon,
 } from './FxIcons';
-import { BusbarRender } from '@/components/BusbarRender';
 import { FLAGS } from './FxFlags';
 import { FxAuthSheet } from './FxAuthSheet';
 import { FxBusbarChart } from './FxBusbarChart';
@@ -108,8 +107,6 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const [interacted,    setInteracted]    = useState(false);
   const [showPicker,    setShowPicker]    = useState(false);
   const [pickerSearch,  setPickerSearch]  = useState('');
-  const [bookmarked,    setBookmarked]    = useState(false);
-  const [shareMsg,      setShareMsg]      = useState('');
 
   // Auth sheet state (triggered when not logged in)
   const [authOpen,     setAuthOpen]     = useState(false);
@@ -226,58 +223,6 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
     }, 150);
   }
 
-  async function handleBookmark() {
-    requireAuth(async () => {
-      try {
-        await fetch('/api/history', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ metal, width: w, thickness: t, length: L }),
-        });
-        setBookmarked(true);
-        setTimeout(() => setBookmarked(false), 2500);
-      } catch { /* ignore */ }
-    });
-  }
-
-  function handleCompare() {
-    requireAuth(() => {
-      setShareMsg('Compare feature coming soon!');
-      setTimeout(() => setShareMsg(''), 2200);
-    });
-  }
-
-  async function handleShare() {
-    const metalLabel = metal === 'copper' ? 'Copper' : 'Aluminum';
-    const text = [
-      `📐 Busbar Calculator Result`,
-      ``,
-      `Material:    ${metalLabel}`,
-      `Dimensions:  ${w} × ${t} × ${L} mm`,
-      `Cross-section: ${crossSectionMm2.toLocaleString()} mm²`,
-      `Weight:      ${fmtMoney(weightKg)} kg`,
-      `Current cap: ${maxCurrentA.toLocaleString()} A`,
-      `Est. price:  $${fmtMoney(totalUSD)} USD`,
-      ``,
-      `📲 Free calculator:`,
-      `https://calculator.payapress.com`,
-    ].join('\n');
-
-    try {
-      if (typeof navigator !== 'undefined' && navigator.share) {
-        await navigator.share({
-          title: 'Busbar Calculation',
-          text,
-          url: 'https://calculator.payapress.com',
-        });
-      } else {
-        await navigator.clipboard.writeText(text);
-        setShareMsg('Copied to clipboard!');
-        setTimeout(() => setShareMsg(''), 2200);
-      }
-    } catch { /* dismissed */ }
-  }
-
   // ── Render ────────────────────────────────────────────────────────
 
   return (
@@ -386,66 +331,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         )}
       </div>
 
-      {/* Everything below is revealed only after the user presses Calculate Now */}
-
-      {/* ── Busbar render — contained render area (Figma 200px frame) ── */}
-      {showResults && (
-      <div className="fx-render-card">
-        <div
-          className="fx-busbar-render"
-          style={{
-            filter: metal === 'copper'
-              ? 'drop-shadow(0 10px 28px rgba(215,25,32,0.22))'
-              : 'drop-shadow(0 10px 28px rgba(111,179,224,0.28))',
-          }}
-        >
-          <BusbarRender width={w} thickness={t} metal={metal} />
-        </div>
-      </div>
-      )}
-
-      {/* ── Currency Conversion ────────────────────────── */}
-      {showResults && (
-      <div className="fx-card">
-        <div className="fx-card-head">
-          <div className="fx-card-head-label">
-            <DollarIcon className="fx-card-head-icon" />
-            <span className="fx-card-head-title">Currency Conversion</span>
-          </div>
-        </div>
-
-        {/* 2×2 grid: 3 main currencies + Other button */}
-        <div className="fx-currency-grid">
-          {GRID_CURRENCIES.map(code => {
-            const Flag = FLAGS[code as keyof typeof FLAGS];
-            const isActive = curr === code;
-            return (
-              <button
-                key={code}
-                type="button"
-                className={`fx-currency-cell2${isActive ? ' active' : ''}`}
-                onClick={() => setCurr(code)}
-                aria-pressed={isActive}
-              >
-                {Flag && <Flag className="fx-currency-flag" width={28} height={28} />}
-                <div className="fx-currency-info">
-                  <div className="fx-currency-code">{CURR_META[code].label}</div>
-                  <div className="fx-currency-value">{fmtMoney(totalIn(code))}</div>
-                </div>
-              </button>
-            );
-          })}
-          <button
-            type="button"
-            className="fx-currency-other-btn"
-            onClick={() => { setShowPicker(true); setPickerSearch(''); }}
-          >
-            <span className="fx-currency-other-plus">+</span>
-            <span>Other</span>
-          </button>
-        </div>
-      </div>
-      )}
+      {/* After Calculate Now: Results then Chart — no render card, no currency card */}
 
       {/* ── Results ────────────────────────────────────── */}
       {showResults && (
