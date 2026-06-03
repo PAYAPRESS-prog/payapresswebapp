@@ -1,11 +1,10 @@
 {
   "version": 1,
   "functions": {
-    "/api/auth/health": {},
-    "/api/auth/logout": {},
     "/api/auth/me": {},
-    "/api/auth/login": {},
     "/api/auth/signup": {},
-    "/api/price-history": {}
+    "/api/price-history": {},
+    "/api/auth/login": {},
+    "/api/auth/logout": {}
   }
 }

@@ -1330,8 +1330,9 @@ body {
    ══════════════════════════════════════════════════════ */
 .fx-welcome {
   position: relative;
-  min-height: 100vh;          /* fallback */
-  min-height: 100svh;         /* modern */
+  height: 100vh;               /* fallback */
+  height: 100svh;              /* small viewport — adapts when chrome hides */
+  height: 100dvh;              /* dynamic viewport — best on mobile */
   max-width: 480px;
   margin: 0 auto;
   overflow: hidden;
@@ -1365,15 +1366,15 @@ body {
     /* top-right: warm amber/copper glow (Figma Vector 1, top-right area) */
     radial-gradient(60% 55% at calc(100% - 100px) 100px,
       rgba(195, 108, 22, 0.90) 0%, transparent 70%),
-    /* bottom-left: deep maroon/red (Figma Vector 2, bottom-left) */
-    radial-gradient(65% 55% at 100px calc(100% - 100px),
+    /* bottom-left: deep maroon/red — widened to cover bottom-center */
+    radial-gradient(85% 60% at 100px calc(100% - 100px),
       rgba(130,  16, 18, 0.88) 0%, transparent 70%),
     /* left-center: neutral grayish blob that creates the center haze */
     radial-gradient(55% 50% at 100px calc(50% + 100px),
       rgba( 60,  40, 40, 0.55) 0%, transparent 65%),
-    /* bottom-right: dark warm ember */
-    radial-gradient(45% 38% at calc(100% - 100px) calc(100% - 100px),
-      rgba(110,  45, 14, 0.50) 0%, transparent 65%),
+    /* bottom-right: dark warm ember — widened to fill bottom-right corner */
+    radial-gradient(65% 50% at calc(100% - 100px) calc(100% - 100px),
+      rgba(110,  45, 14, 0.55) 0%, transparent 65%),
     #0b0d10;
   filter: blur(52px);
   transform: translateZ(0);
