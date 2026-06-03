@@ -118,6 +118,9 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
   const [updatedLabel,  setUpdatedLabel]  = useState('just now');
   const [showResults,   setShowResults]   = useState(false);
+  // Reveal the "Calculate Now" submit button only after the user starts
+  // interacting with the dimension inputs (focus or picks a suggestion).
+  const [interacted,    setInteracted]    = useState(false);
   const [showPicker,    setShowPicker]    = useState(false);
   const [pickerSearch,  setPickerSearch]  = useState('');
   const [bookmarked,    setBookmarked]    = useState(false);
@@ -326,7 +329,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
                   key={`${p.w}x${p.t}`}
                   type="button"
                   className={`fx-suggestion-pill${isActive ? ' active' : ''}`}
-                  onClick={() => { setWidth(p.w); setThick(p.t); }}
+                  onClick={() => { setWidth(p.w); setThick(p.t); setInteracted(true); }}
                 >
                   {p.w}×{p.t}
                 </button>
@@ -336,19 +339,27 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         </div>
 
         <DimInput label="Length"   value={length} onChange={setLength}
+          onFocus={() => setInteracted(true)}
           onBlur={v => setLength(String(clampInt(v, 1, 100000, 2500)))} />
         <DimInput label="Width"    value={width}  onChange={setWidth}
+          onFocus={() => setInteracted(true)}
           onBlur={v => setWidth(String(clampInt(v, 1, 100000, 100)))} />
         <DimInput label="Thickness" value={thick}  onChange={setThick}
+          onFocus={() => setInteracted(true)}
           onBlur={v => setThick(String(clampInt(v, 1, 100000, 10)))} />
 
-        {/* Calculate Now — inside the Dimensions card (Figma Variant2) */}
-        <button type="button" className="fx-calc-now-btn" onClick={handleCalculate}>
-          Calculate Now
-        </button>
+        {/* Calculate Now — appears only after the user starts entering numbers */}
+        {interacted && (
+          <button type="button" className="fx-calc-now-btn" onClick={handleCalculate}>
+            Calculate Now
+          </button>
+        )}
       </div>
 
+      {/* Everything below is revealed only after the user presses Calculate Now */}
+
       {/* ── Busbar render — contained render area (Figma 200px frame) ── */}
+      {showResults && (
       <div className="fx-render-card">
         <div
           className="fx-busbar-render"
@@ -361,8 +372,10 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           <BusbarRender width={w} thickness={t} metal={metal} />
         </div>
       </div>
+      )}
 
       {/* ── Currency Conversion ────────────────────────── */}
+      {showResults && (
       <div className="fx-card">
         <div className="fx-card-head">
           <div className="fx-card-head-label">
@@ -402,6 +415,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           </button>
         </div>
       </div>
+      )}
 
       {/* ── Results ────────────────────────────────────── */}
       {showResults && (
@@ -553,12 +567,13 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
 /* ── Dimension input row ────────────────────────────────── */
 function DimInput({
-  label, value, onChange, onBlur,
+  label, value, onChange, onBlur, onFocus,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   onBlur: (v: string) => void;
+  onFocus?: () => void;
 }) {
   return (
     <div className="fx-input-card">
@@ -574,6 +589,7 @@ function DimInput({
           className="fx-input-field"
           value={value}
           onChange={e => onChange(e.target.value.replace(/[^0-9]/g, ''))}
+          onFocus={onFocus}
           onBlur={e => onBlur(e.target.value)}
         />
         <span className="fx-input-unit">mm</span>
