@@ -17,12 +17,19 @@ const globalForDb = globalThis as unknown as { __mysqlPool?: Pool };
 export function getPool(): Pool {
   if (globalForDb.__mysqlPool) return globalForDb.__mysqlPool;
 
+  // Node 18+ resolves the literal "localhost" to the IPv6 loopback (::1) first.
+  // Hostinger's MySQL grants the DB user on the IPv4 loopback, so a ::1 TCP
+  // connection is rejected with ER_ACCESS_DENIED ('user'@'::1'). Forcing
+  // 127.0.0.1 avoids the IPv6 path entirely.
+  const rawHost = process.env.DB_HOST ?? 'localhost';
+  const host = rawHost.trim().toLowerCase() === 'localhost' ? '127.0.0.1' : rawHost.trim();
+
   const pool = mysql.createPool({
-    host:     process.env.DB_HOST     ?? 'localhost',
+    host,
     port:     Number(process.env.DB_PORT ?? 3306),
-    user:     process.env.DB_USER     ?? '',
-    password: process.env.DB_PASSWORD ?? '',
-    database: process.env.DB_NAME     ?? '',
+    user:     (process.env.DB_USER     ?? '').trim(),
+    password:  process.env.DB_PASSWORD ?? '',
+    database: (process.env.DB_NAME     ?? '').trim(),
     waitForConnections: true,
     connectionLimit: 5,
     queueLimit: 0,
