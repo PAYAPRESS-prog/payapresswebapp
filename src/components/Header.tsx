@@ -27,7 +27,7 @@ export function Header() {
           className="flex items-center gap-2
                      transition-transform duration-150 hover:scale-[1.03] active:scale-[0.97]"
         >
-          <span className="text-base sm:text-lg font-black tracking-tight text-shimmer">PAYAPRESS</span>
+          <span className="text-base sm:text-lg font-black tracking-tight text-shimmer">Busbar Calculator</span>
           <span className="text-[0.55rem] sm:text-[0.6rem] font-bold text-zinc-600
                            border border-[var(--color-surface-4)] rounded px-1.5 py-0.5 tracking-widest">
             PRO

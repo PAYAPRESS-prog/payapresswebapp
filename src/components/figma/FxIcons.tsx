@@ -93,12 +93,12 @@ export function UserIcon(props: IconProps) {
 
 export function PayapressLogo({ height = 28 }: { height?: number }) {
   return (
-    <div className="fx-logo-wrap" aria-label="PAYAPRESS">
+    <div className="fx-logo-wrap" aria-label="Busbar Calculator">
       <span className="fx-logo-mark" style={{ width: height, height, fontSize: height * 0.42 }}>
         CH
       </span>
       <span className="fx-logo-text" style={{ fontSize: height * 0.64 }}>
-        PAYAPRESS
+        Busbar Calculator
       </span>
     </div>
   );

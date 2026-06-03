@@ -6,9 +6,9 @@ export function FxFooter() {
       <PayapressLogo height={28} />
 
       <div className="fx-footer-text">
-        PayaPress delivers precision-engineered copper and aluminum busbars
-        for modern electrical systems. Built with industrial expertise,
-        reliable performance, and a commitment to quality for projects worldwide.
+        Professional copper and aluminum busbar sizing with live market pricing.
+        Accurate weight, current capacity, and cost calculations for electrical
+        engineers and panel fabricators worldwide.
       </div>
 
       <div className="fx-footer-bullet">

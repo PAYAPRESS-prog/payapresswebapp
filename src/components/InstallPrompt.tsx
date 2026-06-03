@@ -70,7 +70,7 @@ export function InstallPrompt() {
           PP
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-zinc-100 leading-tight truncate">Install PAYAPRESS</p>
+          <p className="text-sm font-semibold text-zinc-100 leading-tight truncate">Install Busbar Calculator</p>
           <p className="text-xs text-zinc-500 mt-0.5 leading-snug truncate">Add to home screen</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">

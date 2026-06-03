@@ -38,7 +38,7 @@ export default function Error({
       </svg>
 
       <p style={{ color: '#cd7f32', fontWeight: 700, letterSpacing: '0.18em', fontSize: '0.75rem', textTransform: 'uppercase' }}>
-        PAYAPRESS
+        Busbar Calculator
       </p>
 
       <p style={{ color: '#f0f0f0', fontWeight: 700, fontSize: '1.1rem', lineHeight: 1.4, margin: 0 }}>

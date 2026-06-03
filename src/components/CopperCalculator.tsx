@@ -371,7 +371,7 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
     if (!result) return;
     const metal = metalType === 'copper' ? 'Copper' : 'Aluminum';
     const lines = [
-      `PAYAPRESS — ${metal} Busbar Cost Calculator`,
+      `Busbar Calculator — ${metal} busbar cost`,
       '─'.repeat(44),
       `Size:         ${size.label}`,
       `Grade:        ${grade.label} (${(grade.purity * 100).toFixed(2)}%)`,

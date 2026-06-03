@@ -62,7 +62,7 @@ export function Footer() {
               href="/"
               className="flex items-center gap-2 w-fit transition-transform duration-150 hover:scale-[1.03] active:scale-[0.97]"
             >
-              <span className="text-sm font-black tracking-tight text-shimmer">PAYAPRESS</span>
+              <span className="text-sm font-black tracking-tight text-shimmer">Busbar Calculator</span>
               <span
                 className="text-[0.55rem] font-bold tracking-widest text-zinc-600 rounded px-1.5 py-0.5"
                 style={{ border: '1px solid var(--color-surface-4)' }}
@@ -132,14 +132,14 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 pt-4 text-zinc-700">
-          <p className="text-[0.68rem]">© 2025 PAYAP MACHINERY · Trading as PAYAPRESS</p>
+          <p className="text-[0.68rem]">© 2025 Busbar Calculator</p>
           <p className="text-[0.68rem] sm:text-right">
             Prices from COMEX HG=F · For reference only · v1.0.0
           </p>
         </div>
 
         <p className="text-center text-[0.63rem] mt-3 pb-safe text-zinc-800">
-          Built with ♥ by PAYAPRESS Digital Marketing Team
+          Built with ♥ by Busbar Calculator Team
         </p>
       </div>
     </footer>

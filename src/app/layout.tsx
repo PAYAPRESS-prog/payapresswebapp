@@ -8,12 +8,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
 
   title: {
-    default:  'Busbar Calculator — PAYAPRESS',
+    default:  'Busbar Calculator',
     template: '%s | Busbar Calculator',
   },
   description:
-    'Professional real-time copper busbar cost calculator for electrical panel fabricators. ' +
-    'Live COMEX pricing, manual dimension inputs, 22 currencies, IEC/DIN standards.',
+    'Professional real-time copper and aluminum busbar cost calculator for electrical engineers. ' +
+    'Live COMEX pricing, manual dimension inputs, 17 currencies, IEC standard cross-sections.',
   keywords: [
     'copper busbar', 'cost calculator', 'electrical panel', 'IEC 60317',
     'Cu-ETP', 'live copper price', 'COMEX', 'busbar weight',
@@ -35,22 +35,22 @@ export const metadata: Metadata = {
     locale:      'en_US',
     url:          BASE_URL,
     siteName:    'Busbar Calculator',
-    title:       'Busbar Calculator — PAYAPRESS',
-    description: 'Live COMEX copper pricing · manual dimension inputs · 22 currencies · IEC/DIN standards.',
+    title:       'Busbar Calculator',
+    description: 'Live COMEX copper & aluminum pricing · 17 currencies · IEC standard cross-sections.',
     images: [
       {
         url:    '/og-image.png',
         width:   1200,
         height:  630,
-        alt:    'PAYAPRESS Copper Busbar Cost Calculator',
+        alt:    'Busbar Calculator — copper and aluminum busbar cost calculator',
       },
     ],
   },
 
   twitter: {
     card:        'summary_large_image',
-    title:       'Busbar Calculator — PAYAPRESS',
-    description: 'Live COMEX copper pricing · 22 currencies · IEC/DIN standards.',
+    title:       'Busbar Calculator',
+    description: 'Live COMEX copper & aluminum pricing · 17 currencies · IEC standard cross-sections.',
     images:      ['/og-image.png'],
     creator:     '@payapress',
   },
@@ -137,7 +137,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   'background:#1a0000;border-bottom:2px solid #ef4444;' +
                   'color:#fca5a5;padding:12px 16px;font:12px/1.5 monospace;' +
                   'white-space:pre-wrap;word-break:break-all;max-height:60vh;overflow:auto;');
-                __pp_errDiv.innerHTML = '<b style="color:#ef4444">PAYAPRESS JS ERROR (send this to dev):</b>\\n';
+                __pp_errDiv.innerHTML = '<b style="color:#ef4444">JS ERROR — Busbar Calculator (send this to dev):</b>\\n';
                 document.body.appendChild(__pp_errDiv);
               }
               __pp_errDiv.innerHTML += msg + '\\n';
