@@ -1789,51 +1789,18 @@ body {
 }
 
 /* ══════════════════════════════════════════════════════
-   INLINE CURRENCY SELECTOR  (shown after input interaction)
-   ══════════════════════════════════════════════════════ */
-.fx-inline-curr {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-}
-.fx-inline-curr-btn {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 6px;
-  border-radius: 12px;
-  border: none;
-  background: rgba(245, 247, 250, 0.05);
-  color: rgba(245, 247, 250, 0.6);
-  font-size: 12px;
-  font-weight: 510;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-  white-space: nowrap;
-}
-.fx-inline-curr-btn.active {
-  background: var(--fx-copper-bright);
-  color: #f5f7fa;
-}
-.fx-inline-curr-btn:not(.active):active {
-  background: rgba(245, 247, 250, 0.1);
-}
-
-/* ══════════════════════════════════════════════════════
-   CALCULATE NOW BUTTON
+   CALCULATE NOW BUTTON  — Figma: bg-#d80027, rounded-12, text-24px
    ══════════════════════════════════════════════════════ */
 .fx-calc-now-btn {
   width: 100%;
-  min-height: 56px;
+  padding: 12px 24px;
   border-radius: 12px;
   border: none;
   background: #d80027;
   color: #ffffff;
   font-size: 24px;
   font-weight: 510;
-  letter-spacing: 0.01em;
+  text-align: center;
   cursor: pointer;
   font-family: inherit;
   transition: opacity 0.15s, transform 0.12s;
@@ -1842,40 +1809,108 @@ body {
 .fx-calc-now-btn:active { transform: scale(0.985); }
 
 /* ══════════════════════════════════════════════════════
-   CURRENCY GRID — 2×2 redesign
+   CURRENCY CONVERSION CARD  — Figma node 313:1124
    ══════════════════════════════════════════════════════ */
-.fx-currency-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.fx-curr-card {
+  background: rgba(245, 247, 250, 0.05);
+  border-radius: 16px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
+  overflow: hidden;
+  animation: fx-card-in 0.25s cubic-bezier(0.16,1,0.3,1);
 }
-.fx-currency-cell2 {
+@keyframes fx-card-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fx-curr-card-head {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  padding: 10px;
+}
+.fx-curr-card-head-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+.fx-curr-card-icon { color: var(--fx-copper-bright); flex-shrink: 0; }
+.fx-curr-card-title {
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--fx-copper-bright);
+  white-space: nowrap;
+}
+
+/* Grid rows */
+.fx-curr-grid-row {
+  display: flex;
+  gap: 10px;
+}
+
+/* Currency cell — inactive: no bg, 40% opacity */
+.fx-curr-cell {
+  flex: 1;
+  display: flex;
+  align-items: center;
   gap: 10px;
   padding: 10px;
   border-radius: 12px;
-  background: transparent;
   border: none;
-  cursor: pointer;
+  background: transparent;
   opacity: 0.4;
-  transition: opacity 0.18s, background 0.18s;
+  cursor: pointer;
   font-family: inherit;
   color: var(--fx-text-1);
   text-align: left;
+  overflow: hidden;
+  transition: opacity 0.18s, background 0.18s;
+  min-width: 0;
 }
-.fx-currency-cell2.active {
+/* Active cell — orange bg, full opacity */
+.fx-curr-cell.active {
   background: var(--fx-copper-bright);
   opacity: 1;
   color: #f5f7fa;
 }
-.fx-currency-cell2 .fx-currency-code  { font-size: 16px; font-weight: 510; }
-.fx-currency-cell2 .fx-currency-value { font-size: 16px; font-weight: 510; color: inherit; }
-.fx-currency-cell2.active .fx-currency-code  { color: #f5f7fa; }
-.fx-currency-cell2.active .fx-currency-value { color: #f5f7fa; }
+.fx-curr-cell:not(.active):hover { opacity: 0.65; }
+.fx-curr-cell.active:hover { opacity: 0.9; }
 
-.fx-currency-other-btn {
+.fx-curr-cell-flag {
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+.fx-curr-cell-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.fx-curr-cell-code {
+  font-size: 16px;
+  font-weight: 510;
+  line-height: 1.2;
+  color: inherit;
+  white-space: nowrap;
+}
+.fx-curr-cell-value {
+  font-size: 16px;
+  font-weight: 510;
+  line-height: 1.2;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Other button — glassmorphism pill, same height as cells */
+.fx-curr-cell-other {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1889,19 +1924,22 @@ body {
   font-size: 16px;
   font-weight: 510;
   color: var(--fx-text-1);
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s;
+  align-self: stretch;
 }
-.fx-currency-other-btn:hover { background: rgba(245, 247, 250, 0.09); }
-.fx-currency-other-plus {
-  width: 30px;
-  height: 30px;
-  display: inline-flex;
+.fx-curr-cell-other:hover { background: rgba(245, 247, 250, 0.09); }
+
+.fx-curr-other-icon {
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
-  font-weight: 400;
-  line-height: 1;
   flex-shrink: 0;
+  color: var(--fx-text-1);
+}
+.fx-curr-other-label {
+  font-size: 16px;
+  font-weight: 510;
+  color: var(--fx-text-1);
 }
 
 /* ══════════════════════════════════════════════════════

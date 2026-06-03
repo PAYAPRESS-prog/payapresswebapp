@@ -4,7 +4,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { DEFAULT_GRADE } from '@/lib/copperData';
 import { DEFAULT_ALUMINUM_GRADE } from '@/lib/aluminumData';
 import type { CopperPriceData, FxRates, InitialPriceData } from '@/types/calculator';
-import { BusbarMock, RulerAngularIcon, RulerIcon, BookmarkIcon, ShareIcon, CompareIcon,
+import {
+  BusbarMock, RulerAngularIcon, RulerIcon, DollarIcon,
+  BookmarkIcon, ShareIcon, CompareIcon,
 } from './FxIcons';
 import { FLAGS } from './FxFlags';
 import { FxAuthSheet } from './FxAuthSheet';
@@ -17,7 +19,6 @@ type CurrCode =
   | 'KWD' | 'QAR' | 'SGD';
 
 // Suggestion presets (width × thickness, mm) — exactly matching the Figma
-// "Dimensions" card pills: 100x10, 200x20, … 700x70.
 const PRESETS: Array<{ w: string; t: string }> = [
   { w: '100', t: '10' },
   { w: '200', t: '20' },
@@ -28,10 +29,9 @@ const PRESETS: Array<{ w: string; t: string }> = [
   { w: '700', t: '70' },
 ];
 
-// Currencies shown in the main 2×2 grid
+// The 3 fixed currencies in the 2×2 grid (4th cell is "Other")
 const GRID_CURRENCIES: CurrCode[] = ['USD', 'EUR', 'GBP'];
 
-// Label and name for all supported currencies
 const CURR_META: Record<CurrCode, { label: string; name: string }> = {
   USD: { label: 'USD',  name: 'US Dollar' },
   EUR: { label: 'EUR',  name: 'Euro' },
@@ -52,7 +52,6 @@ const CURR_META: Record<CurrCode, { label: string; name: string }> = {
   SGD: { label: 'SGD',  name: 'Singapore Dollar' },
 };
 
-// Currencies shown in the "Other" picker
 const PICKER_CURRENCIES: CurrCode[] = [
   'AED', 'SAR', 'KWD', 'QAR', 'IRR',
   'EUR', 'GBP', 'CHF', 'TRY', 'RUB',
@@ -60,9 +59,7 @@ const PICKER_CURRENCIES: CurrCode[] = [
   'CAD', 'AUD',
 ];
 
-// Current density for busbar (A/mm²) — standard indoor rating
 const CURRENT_DENSITY: Record<Metal, number> = { copper: 2.5, aluminum: 1.5 };
-
 
 function clampInt(raw: string, min: number, max: number, fallback: number) {
   const n = Math.round(parseFloat(raw));
@@ -78,11 +75,6 @@ function fmtMoney(n: number, decimals = 2): string {
   return dec !== undefined ? `${sign}${intFmt}.${dec}` : `${sign}${intFmt}`;
 }
 
-function fmtPrice(n: number, decimals = 3): string {
-  return fmtMoney(n, decimals);
-}
-
-// Compact display for large totals (e.g. Iranian Rial in billions)
 function fmtResultPrice(n: number): string {
   const a = Math.abs(n);
   if (a >= 1_000_000_000) return (n / 1_000_000_000).toFixed(2) + 'B';
@@ -100,22 +92,23 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const [aluminum, setAluminum] = useState<CopperPriceData | null>(initialData?.aluminum ?? null);
   const [fx,       setFx]       = useState<FxRates | null>(initialData?.fx ?? null);
 
-  const [showResults,   setShowResults]   = useState(false);
-  const [bookmarked,    setBookmarked]    = useState(false);
-  const [updatedLabel,  setUpdatedLabel]  = useState('just now');
-  const [interacted,    setInteracted]    = useState(false);
-  const [showPicker,    setShowPicker]    = useState(false);
-  const [pickerSearch,  setPickerSearch]  = useState('');
+  const [showResults,  setShowResults]  = useState(false);
+  const [bookmarked,   setBookmarked]   = useState(false);
+  const [updatedLabel, setUpdatedLabel] = useState('just now');
+  const [interacted,   setInteracted]   = useState(false);
+  const [showPicker,   setShowPicker]   = useState(false);
+  const [pickerSearch, setPickerSearch] = useState('');
+  // Custom currency selected from picker (non-grid currency)
+  const [customCurr,   setCustomCurr]   = useState<CurrCode | null>(null);
 
-  // Auth sheet state (triggered when not logged in)
-  const [authOpen,     setAuthOpen]     = useState(false);
-  const [authMode,     setAuthMode]     = useState<'login' | 'signup'>('login');
+  const [authOpen,  setAuthOpen]  = useState(false);
+  const [authMode,  setAuthMode]  = useState<'login' | 'signup'>('login');
   const pendingActionRef = useRef<(() => void) | null>(null);
 
-  // User auth state
   const [user, setUser] = useState<{ id: number; email: string } | null | undefined>(undefined);
 
-  const resultsRef  = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const currCardRef = useRef<HTMLDivElement>(null);
   const pickerInput = useRef<HTMLInputElement>(null);
 
   // Live price refresh every 5 min
@@ -136,7 +129,6 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Load auth state once
   useEffect(() => {
     fetch('/api/auth/me')
       .then(r => r.ok ? r.json() : null)
@@ -177,18 +169,21 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const pricePerKgUSD   = live?.pricePerKg ?? 0;
   const totalUSD        = weightKg * pricePerKgUSD;
   const maxCurrentA     = Math.round(w * t * CURRENT_DENSITY[metal]);
-  const crossSectionMm2 = w * t;
 
   const fxRate = (code: CurrCode): number => {
     if (code === 'USD' || !fx) return 1;
-    if (code === 'IRR') return 500000; // fixed official-ish rate
+    if (code === 'IRR') return 500000;
     const r = (fx as unknown as Record<string, number>)[code];
     return typeof r === 'number' && r > 0 ? r : 1;
   };
   const totalIn = (code: CurrCode) => totalUSD * fxRate(code);
-  const activeCurrTotal = totalIn(curr);
 
-  // ── Actions ──────────────────────────────────────────────────────
+  // Which currency is "active" — either from grid or custom
+  const activeCurr = curr;
+  const activeCurrTotal = totalIn(activeCurr);
+
+  // Is the active currency one of the grid currencies?
+  const isCustomActive = customCurr !== null && !GRID_CURRENCIES.includes(activeCurr as CurrCode);
 
   function requireAuth(action: () => void) {
     if (user) {
@@ -201,7 +196,6 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   }
 
   function handleAuthSuccess() {
-    // Re-fetch user, then run pending action
     fetch('/api/auth/me')
       .then(r => r.ok ? r.json() : null)
       .then(data => {
@@ -218,8 +212,18 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   function handleCalculate() {
     setShowResults(true);
     setTimeout(() => {
-      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      currCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 150);
+  }
+
+  function handlePickerSelect(code: CurrCode) {
+    setCurr(code);
+    if (!GRID_CURRENCIES.includes(code)) {
+      setCustomCurr(code);
+    } else {
+      setCustomCurr(null);
+    }
+    setShowPicker(false);
   }
 
   // ── Render ────────────────────────────────────────────────────────
@@ -249,7 +253,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         </button>
       </div>
 
-      {/* ── Dimensions ─────────────────────────────────── */}
+      {/* ── Dimensions card ────────────────────────────── */}
       <div className="fx-card">
         <div className="fx-card-head">
           <div className="fx-card-head-label">
@@ -278,67 +282,117 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           </div>
         </div>
 
-        <DimInput label="Length"   value={length} onChange={setLength}
+        <DimInput label="Length"    value={length} onChange={setLength}
           onFocus={() => setInteracted(true)}
           onBlur={v => setLength(String(clampInt(v, 1, 100000, 2500)))} />
-        <DimInput label="Width"    value={width}  onChange={setWidth}
+        <DimInput label="Width"     value={width}  onChange={setWidth}
           onFocus={() => setInteracted(true)}
           onBlur={v => setWidth(String(clampInt(v, 1, 100000, 100)))} />
         <DimInput label="Thickness" value={thick}  onChange={setThick}
           onFocus={() => setInteracted(true)}
           onBlur={v => setThick(String(clampInt(v, 1, 100000, 10)))} />
 
-        {/* Currency + Calculate Now — appear after user starts entering numbers */}
+        {/* Calculate Now button — Figma: bg-#d80027, rounded-12, text-24px */}
         {interacted && (
-          <>
-            {/* Quick currency selector */}
-            <div className="fx-inline-curr">
-              {([...GRID_CURRENCIES, 'OTHER'] as const).map(code => {
-                if (code === 'OTHER') {
-                  return (
-                    <button
-                      key="other"
-                      type="button"
-                      className="fx-inline-curr-btn"
-                      onClick={() => { setShowPicker(true); setPickerSearch(''); }}
-                    >
-                      <span className="fx-currency-other-plus">+</span>
-                      <span>Other</span>
-                    </button>
-                  );
-                }
-                const Flag = FLAGS[code as keyof typeof FLAGS];
-                const isActive = curr === code;
-                return (
-                  <button
-                    key={code}
-                    type="button"
-                    className={`fx-inline-curr-btn${isActive ? ' active' : ''}`}
-                    onClick={() => setCurr(code as CurrCode)}
-                    aria-pressed={isActive}
-                  >
-                    {Flag && <Flag width={18} height={18} />}
-                    <span>{CURR_META[code as CurrCode].label}</span>
-                  </button>
-                );
-              })}
-            </div>
-            <button type="button" className="fx-calc-now-btn" onClick={handleCalculate}>
-              Calculate Now
-            </button>
-          </>
+          <button type="button" className="fx-calc-now-btn" onClick={handleCalculate}>
+            Calculate Now
+          </button>
         )}
       </div>
 
-      {/* After Calculate Now: Results then Chart — no render card, no currency card */}
+      {/* ── Currency Conversion card — Figma 2×2 grid ── */}
+      {interacted && (
+        <div className="fx-curr-card" ref={currCardRef}>
+          <div className="fx-curr-card-head">
+            <div className="fx-curr-card-head-inner">
+              <DollarIcon className="fx-curr-card-icon" width={24} height={24} />
+              <span className="fx-curr-card-title">Currency Conversion</span>
+            </div>
+          </div>
 
-      {/* ── Results ────────────────────────────────────── */}
+          {/* Row 1: USD + EUR */}
+          <div className="fx-curr-grid-row">
+            {GRID_CURRENCIES.slice(0, 2).map(code => {
+              const Flag = FLAGS[code as keyof typeof FLAGS];
+              const isActive = activeCurr === code && !isCustomActive;
+              return (
+                <button
+                  key={code}
+                  type="button"
+                  className={`fx-curr-cell${isActive ? ' active' : ''}`}
+                  onClick={() => { setCurr(code as CurrCode); setCustomCurr(null); }}
+                  aria-pressed={isActive}
+                >
+                  {Flag && <Flag className="fx-curr-cell-flag" width={30} height={30} />}
+                  <div className="fx-curr-cell-text">
+                    <span className="fx-curr-cell-code">{CURR_META[code as CurrCode].label}</span>
+                    <span className="fx-curr-cell-value">{fmtResultPrice(totalIn(code as CurrCode))}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Row 2: GBP + Other */}
+          <div className="fx-curr-grid-row">
+            {/* GBP cell */}
+            {(() => {
+              const code = GRID_CURRENCIES[2]; // 'GBP'
+              const Flag = FLAGS[code as keyof typeof FLAGS];
+              const isActive = activeCurr === code && !isCustomActive;
+              return (
+                <button
+                  type="button"
+                  className={`fx-curr-cell${isActive ? ' active' : ''}`}
+                  onClick={() => { setCurr(code as CurrCode); setCustomCurr(null); }}
+                  aria-pressed={isActive}
+                >
+                  {Flag && <Flag className="fx-curr-cell-flag" width={30} height={30} />}
+                  <div className="fx-curr-cell-text">
+                    <span className="fx-curr-cell-code">{CURR_META[code as CurrCode].label}</span>
+                    <span className="fx-curr-cell-value">{fmtResultPrice(totalIn(code as CurrCode))}</span>
+                  </div>
+                </button>
+              );
+            })()}
+
+            {/* Other / custom currency cell */}
+            {isCustomActive && customCurr ? (
+              <button
+                type="button"
+                className="fx-curr-cell active"
+                onClick={() => { setShowPicker(true); setPickerSearch(''); }}
+              >
+                {(() => {
+                  const Flag = FLAGS[customCurr as keyof typeof FLAGS];
+                  return Flag ? <Flag className="fx-curr-cell-flag" width={30} height={30} /> : (
+                    <span className="fx-curr-other-icon">
+                      <PlusSvg />
+                    </span>
+                  );
+                })()}
+                <div className="fx-curr-cell-text">
+                  <span className="fx-curr-cell-code">{CURR_META[customCurr].label}</span>
+                  <span className="fx-curr-cell-value">{fmtResultPrice(totalIn(customCurr))}</span>
+                </div>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="fx-curr-cell-other"
+                onClick={() => { setShowPicker(true); setPickerSearch(''); }}
+              >
+                <span className="fx-curr-other-icon"><PlusSvg /></span>
+                <span className="fx-curr-other-label">Other</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Results — stats + actions ───────────────────── */}
       {showResults && (
         <div className="fx-results" ref={resultsRef}>
-          {/* Title */}
-          <h3 className="fx-results-title">Results</h3>
-          <div className="fx-results-divider" />
-
           {/* Estimate Price + Live badge */}
           <div className="fx-results-price-row">
             <span className="fx-results-price-label">Estimate Price</span>
@@ -348,17 +402,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             </span>
           </div>
 
-          {/* Currency row — flag + code + value */}
-          <div className="fx-results-curr-row">
-            {(() => {
-              const Flag = FLAGS[curr as keyof typeof FLAGS];
-              return Flag ? <Flag className="fx-results-curr-flag" width={30} height={30} /> : null;
-            })()}
-            <span className="fx-results-curr-code">{CURR_META[curr].label}</span>
-            <span className="fx-results-curr-value">{fmtResultPrice(activeCurrTotal)}</span>
-          </div>
-
-          {/* Stats rows — WEIGHT / MATERIAL / Rated Current */}
+          {/* Stats rows */}
           <div className="fx-results-stat-row fx-results-stat-border">
             <span className="fx-results-stat-label">WEIGHT</span>
             <span className="fx-results-stat-value">
@@ -385,7 +429,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
               aria-label="Compare result"
             >
               <CompareIcon width={20} height={20} />
-              Compare result
+              Compare
             </button>
             <button
               type="button"
@@ -395,26 +439,25 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
               aria-pressed={bookmarked}
             >
               <BookmarkIcon width={20} height={20} />
-              Bookmark result
+              Bookmark
+            </button>
+            <button
+              type="button"
+              className="fx-results-btn"
+              onClick={() => {
+                const txt = `Busbar — ${metal} ${w}×${t}×${L}mm → ${fmtResultPrice(activeCurrTotal)} ${CURR_META[activeCurr].label}`;
+                if (navigator.share) {
+                  navigator.share({ title: 'Busbar Calculator', text: txt }).catch(() => {});
+                } else {
+                  navigator.clipboard?.writeText(txt).catch(() => {});
+                }
+              }}
+              aria-label="Share result"
+            >
+              <ShareIcon width={20} height={20} />
+              Share
             </button>
           </div>
-
-          {/* Share button */}
-          <button
-            type="button"
-            className="fx-results-share-btn"
-            onClick={() => {
-              const txt = `Busbar Calculator — ${metal} ${w}×${t}×${L}mm → ${fmtResultPrice(activeCurrTotal)} ${CURR_META[curr].label}`;
-              if (navigator.share) {
-                navigator.share({ title: 'Busbar Calculator', text: txt }).catch(() => {});
-              } else {
-                navigator.clipboard?.writeText(txt).catch(() => {});
-              }
-            }}
-          >
-            <ShareIcon width={20} height={20} />
-            Share result
-          </button>
         </div>
       )}
 
@@ -423,8 +466,8 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         <FxBusbarChart
           metal={metal}
           weightKg={weightKg}
-          fxRate={fxRate(curr)}
-          currLabel={CURR_META[curr].label}
+          fxRate={fxRate(activeCurr)}
+          currLabel={CURR_META[activeCurr].label}
           pricePerKgUSD={pricePerKgUSD}
           updatedLabel={updatedLabel}
         />
@@ -464,13 +507,13 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
                 .map(code => {
                   const Flag = FLAGS[code as keyof typeof FLAGS];
                   const m = CURR_META[code];
-                  const isActive = curr === code;
+                  const isActive = activeCurr === code;
                   return (
                     <button
                       key={code}
                       type="button"
                       className={`fx-picker-row${isActive ? ' active' : ''}`}
-                      onClick={() => { setCurr(code); setShowPicker(false); }}
+                      onClick={() => handlePickerSelect(code)}
                     >
                       {Flag && <Flag className="fx-picker-flag" width={32} height={32} />}
                       <span className="fx-picker-name">{m.name}</span>
@@ -484,7 +527,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         </div>
       )}
 
-      {/* ── Auth sheet (triggered by compare/bookmark) ── */}
+      {/* ── Auth sheet ────────────────────────────────── */}
       <FxAuthSheet
         open={authOpen}
         mode={authMode}
@@ -493,6 +536,16 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         onSuccess={handleAuthSuccess}
       />
     </div>
+  );
+}
+
+/* ── Inline + SVG icon ────────────────────────────────────── */
+function PlusSvg() {
+  return (
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true">
+      <rect x="14" y="7"  width="2" height="16" rx="1" fill="currentColor" />
+      <rect x="7"  y="14" width="16" height="2" rx="1" fill="currentColor" />
+    </svg>
   );
 }
 
@@ -528,4 +581,3 @@ function DimInput({
     </div>
   );
 }
-
