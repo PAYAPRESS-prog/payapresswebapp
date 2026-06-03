@@ -18,19 +18,16 @@ type CurrCode =
   | 'SAR' | 'CAD' | 'AUD' | 'CHF' | 'JPY' | 'INR' | 'RUB'
   | 'KWD' | 'QAR' | 'SGD';
 
-// IEC standard flat busbar cross-sections (width × thickness, mm)
+// Suggestion presets (width × thickness, mm) — exactly matching the Figma
+// "Dimensions" card pills: 100x10, 200x20, … 700x70.
 const PRESETS: Array<{ w: string; t: string }> = [
-  { w: '25',  t: '3'  },
-  { w: '30',  t: '5'  },
-  { w: '40',  t: '5'  },
-  { w: '50',  t: '5'  },
-  { w: '60',  t: '6'  },
-  { w: '80',  t: '8'  },
-  { w: '80',  t: '10' },
   { w: '100', t: '10' },
-  { w: '120', t: '10' },
-  { w: '160', t: '10' },
-  { w: '200', t: '10' },
+  { w: '200', t: '20' },
+  { w: '300', t: '30' },
+  { w: '400', t: '40' },
+  { w: '500', t: '50' },
+  { w: '600', t: '60' },
+  { w: '700', t: '70' },
 ];
 
 // Currencies shown in the main 2×2 grid
@@ -331,7 +328,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
                   className={`fx-suggestion-pill${isActive ? ' active' : ''}`}
                   onClick={() => { setWidth(p.w); setThick(p.t); setInteracted(true); }}
                 >
-                  {p.w}×{p.t}
+                  {p.w}x{p.t}
                 </button>
               );
             })}

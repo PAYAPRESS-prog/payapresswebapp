@@ -939,13 +939,17 @@ body {
 }
 .fx-suggestions-scroll {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   overflow-x: auto;
   padding-bottom: 2px;
 }
 .fx-suggestion-pill {
   flex-shrink: 0;
-  padding: 8px 14px;
+  min-width: 64.4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
   border-radius: 50px;
   font-size: 12px;
   font-weight: 510;
