@@ -3327,3 +3327,110 @@ body {
 .fx-cmp-bottom-space {
   height: max(20px, env(safe-area-inset-bottom));
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Material Grade Selector
+   ══════════════════════════════════════════════════════════════ */
+
+.fx-grade-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 0 4px;
+}
+
+/* Three grade pills in a row */
+.fx-grade-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.fx-grade-pill {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 9px 6px;
+  background: rgba(245, 247, 250, 0.04);
+  border: 1.5px solid rgba(245, 247, 250, 0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+  min-height: 52px;
+}
+
+/* Copper active (default) */
+.fx-grade-pill.active {
+  border-color: var(--fx-copper-bright);
+  background: rgba(184, 115, 51, 0.12);
+  box-shadow: 0 0 0 3px rgba(184, 115, 51, 0.18);
+}
+
+/* Aluminum active */
+.fx-grade-pills.al .fx-grade-pill.active {
+  border-color: #6fb3e0;
+  background: rgba(111, 179, 224, 0.12);
+  box-shadow: 0 0 0 3px rgba(111, 179, 224, 0.15);
+}
+
+.fx-grade-pill:hover:not(.active) {
+  background: rgba(245, 247, 250, 0.07);
+  border-color: rgba(245, 247, 250, 0.14);
+}
+
+.fx-grade-pill-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fx-text-1);
+  letter-spacing: 0.02em;
+}
+
+.fx-grade-pill-purity {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fx-text-3);
+}
+
+.fx-grade-pill.active .fx-grade-pill-label { color: var(--fx-copper-bright); }
+.fx-grade-pill.active .fx-grade-pill-purity { color: var(--fx-copper-bright); opacity: 0.75; }
+.fx-grade-pills.al .fx-grade-pill.active .fx-grade-pill-label { color: #6fb3e0; }
+.fx-grade-pills.al .fx-grade-pill.active .fx-grade-pill-purity { color: #6fb3e0; opacity: 0.75; }
+
+/* Info line below pills */
+.fx-grade-info {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 0 2px;
+  font-size: 11.5px;
+  color: var(--fx-text-3);
+  line-height: 1.4;
+  min-height: 18px;
+}
+
+.fx-grade-info-std {
+  font-weight: 600;
+  color: var(--fx-text-2);
+}
+
+.fx-grade-info-sep { opacity: 0.4; }
+
+.fx-grade-info-desc { font-style: italic; }
+
+/* Grade badge in results row */
+.fx-results-grade-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(184, 115, 51, 0.15);
+  color: var(--fx-copper-bright);
+  border: 1px solid rgba(184, 115, 51, 0.28);
+  vertical-align: middle;
+  letter-spacing: 0.03em;
+}

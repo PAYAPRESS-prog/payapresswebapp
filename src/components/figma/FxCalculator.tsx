@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { DEFAULT_GRADE } from '@/lib/copperData';
-import { DEFAULT_ALUMINUM_GRADE } from '@/lib/aluminumData';
+import { MATERIAL_GRADES, DEFAULT_GRADE } from '@/lib/copperData';
+import { ALUMINUM_GRADES, DEFAULT_ALUMINUM_GRADE } from '@/lib/aluminumData';
 import type { CopperPriceData, FxRates, InitialPriceData } from '@/types/calculator';
 import {
   BusbarMock, RulerAngularIcon, RulerIcon, DollarIcon,
@@ -109,6 +109,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const [saveToast,      setSaveToast]      = useState<string | null>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
+  const [gradeIdx,    setGradeIdx]    = useState(0);
   const [showCompare, setShowCompare] = useState(false);
 
   const [authOpen,  setAuthOpen]  = useState(false);
@@ -146,8 +147,9 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
       .catch(() => setUser(null));
   }, []);
 
-  const grade = metal === 'copper' ? DEFAULT_GRADE : DEFAULT_ALUMINUM_GRADE;
-  const live  = metal === 'copper' ? copper        : aluminum;
+  const grades = metal === 'copper' ? MATERIAL_GRADES : ALUMINUM_GRADES;
+  const grade  = grades[gradeIdx] ?? (metal === 'copper' ? DEFAULT_GRADE : DEFAULT_ALUMINUM_GRADE);
+  const live   = metal === 'copper' ? copper : aluminum;
 
   useEffect(() => {
     function relativeTime(iso?: string | null): string {
@@ -170,6 +172,9 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const w = clampInt(width,  1, 100000, 100);
   const t = clampInt(thick,  1, 100000, 10);
   const L = clampInt(length, 1, 100000, 2500);
+
+  // Reset grade to default when metal changes
+  useEffect(() => { setGradeIdx(0); }, [metal]);
 
   // A new dimension/metal combination is a new, unsaved result
   useEffect(() => { setBookmarked(false); }, [w, t, L, metal]);
@@ -310,6 +315,28 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             <span className="fx-card-head-title">Dimensions</span>
           </div>
           <div className="fx-card-head-badge">mm</div>
+        </div>
+
+        {/* ── Material Grade selector ── */}
+        <div className="fx-grade-section">
+          <div className={`fx-grade-pills${metal === 'aluminum' ? ' al' : ''}`}>
+            {grades.map((g, i) => (
+              <button
+                key={g.id}
+                type="button"
+                className={`fx-grade-pill${gradeIdx === i ? ' active' : ''}`}
+                onClick={() => { setGradeIdx(i); setInteracted(true); }}
+              >
+                <span className="fx-grade-pill-label">{g.label}</span>
+                <span className="fx-grade-pill-purity">{(g.purity * 100).toFixed(2)}%</span>
+              </button>
+            ))}
+          </div>
+          <div className="fx-grade-info">
+            <span className="fx-grade-info-std">{grade.standard}</span>
+            <span className="fx-grade-info-sep">·</span>
+            <span className="fx-grade-info-desc">{grade.description.split('—')[1]?.trim() ?? grade.description}</span>
+          </div>
         </div>
 
         <div className="fx-suggestions">
@@ -460,7 +487,10 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           </div>
           <div className="fx-results-stat-row fx-results-stat-border">
             <span className="fx-results-stat-label">MATERIAL</span>
-            <span className="fx-results-stat-value">{metal}</span>
+            <span className="fx-results-stat-value">
+              {metal === 'copper' ? 'Copper' : 'Aluminum'}
+              <span className="fx-results-grade-badge">{grade.label}</span>
+            </span>
           </div>
           <div className="fx-results-stat-row">
             <span className="fx-results-stat-label">Rated Current</span>
