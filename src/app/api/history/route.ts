@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifySessionToken, SESSION_COOKIE } from '@/lib/auth';
-import { listHistory, saveHistory, deleteHistory } from '@/lib/history';
+import { listHistory, saveHistory, deleteHistory, reorderHistory } from '@/lib/history';
 
 async function getUser() {
   const jar = await cookies();
@@ -21,13 +21,30 @@ export async function POST(req: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const body = await req.json().catch(() => ({}));
-  const { name, metal, width, thickness, length } = body;
+  const { name, metal, width, thickness, length, price, currency } = body;
   if (!metal || !width || !thickness || !length) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
   const cleanName = String(name ?? '').trim().slice(0, 120) || 'Untitled';
-  const id = await saveHistory(user.uid, cleanName, metal, Number(width), Number(thickness), Number(length));
+  const cleanPrice = price != null && !Number.isNaN(Number(price)) ? Number(price) : null;
+  const cleanCurrency = currency ? String(currency).trim().slice(0, 10) : null;
+  const id = await saveHistory(
+    user.uid, cleanName, metal,
+    Number(width), Number(thickness), Number(length),
+    cleanPrice, cleanCurrency,
+  );
   return NextResponse.json({ id });
+}
+
+export async function PATCH(req: NextRequest) {
+  const user = await getUser();
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { order } = await req.json().catch(() => ({}));
+  if (!Array.isArray(order)) {
+    return NextResponse.json({ error: 'Missing order' }, { status: 400 });
+  }
+  await reorderHistory(user.uid, order.map(Number).filter(n => !Number.isNaN(n)));
+  return NextResponse.json({ ok: true });
 }
 
 export async function DELETE(req: NextRequest) {

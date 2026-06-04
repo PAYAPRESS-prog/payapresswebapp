@@ -2416,25 +2416,101 @@ body {
   transition: opacity 0.15s;
 }
 .fx-history-signin-btn:hover { opacity: 0.85; }
+.fx-history-hint {
+  font-size: 12px;
+  color: var(--fx-text-3);
+  margin: -2px 2px 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.fx-history-hint-grip { letter-spacing: -2px; opacity: 0.7; }
+
 .fx-history-card {
   background: rgba(245, 247, 250, 0.04);
   border: 1px solid rgba(245, 247, 250, 0.07);
   border-radius: 16px;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  touch-action: pan-y;
 }
-.fx-history-card-top {
+.fx-history-card.open {
+  border-color: rgba(245, 247, 250, 0.12);
+  background: rgba(245, 247, 250, 0.05);
+}
+.fx-history-card.dragging {
+  border-color: var(--fx-copper-bright);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  opacity: 0.96;
+  z-index: 2;
+  position: relative;
+}
+
+/* Preview (collapsed) row */
+.fx-history-preview {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  user-select: none;
 }
-.fx-history-meta {
+.fx-history-grip {
+  flex-shrink: 0;
+  width: 30px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--fx-text-3);
+  font-size: 18px;
+  letter-spacing: -2px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  border-radius: 8px;
+  transition: background 0.12s, color 0.12s;
+}
+.fx-history-grip:hover  { background: rgba(245,247,250,0.06); color: var(--fx-text-2); }
+.fx-history-grip:active { cursor: grabbing; }
+
+.fx-history-preview-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.fx-history-preview-sub {
   display: flex;
   align-items: center;
   gap: 8px;
 }
+.fx-history-preview-price {
+  flex-shrink: 0;
+  text-align: right;
+  margin-left: 4px;
+}
+.fx-history-price-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--fx-text-1);
+  white-space: nowrap;
+}
+.fx-history-price-value.cu { color: var(--fx-copper-bright); }
+.fx-history-price-value.al { color: #6fb3e0; }
+
+.fx-history-chevron {
+  flex-shrink: 0;
+  color: var(--fx-text-3);
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+.fx-history-chevron.open { transform: rotate(180deg); }
+
 .fx-history-metal-badge {
   font-size: 11px;
   font-weight: 700;
@@ -2446,27 +2522,49 @@ body {
 .fx-history-metal-badge.copper  { background: rgba(205,127,50,0.18); color: var(--fx-copper-bright); }
 .fx-history-metal-badge.aluminum { background: rgba(111,179,224,0.18); color: #6fb3e0; }
 .fx-history-time { font-size: 12px; color: var(--fx-text-3); }
+
+/* Expanded details */
+.fx-history-details {
+  padding: 0 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fx-history-expand 0.22s ease;
+}
+@keyframes fx-history-expand {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fx-history-details-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 2px;
+}
+.fx-history-saved-at { font-size: 12px; color: var(--fx-text-3); }
 .fx-history-delete-btn {
-  width: 28px; height: 28px;
-  border-radius: 50%;
+  padding: 7px 16px;
+  border-radius: 999px;
   background: rgba(245,247,250,0.06);
   border: none;
   color: var(--fx-text-3);
-  font-size: 18px;
+  font-size: 13px;
+  font-weight: 510;
+  font-family: inherit;
   line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: pointer;
   transition: background 0.12s, color 0.12s;
 }
 .fx-history-delete-btn:hover { background: rgba(220,38,38,0.15); color: #f87171; }
+.fx-history-delete-btn:disabled { opacity: 0.5; cursor: default; }
 .fx-history-name {
   font-size: 15px;
   font-weight: 600;
-  color: var(--fx-copper-bright);
-  margin-bottom: 4px;
+  color: var(--fx-text-1);
   word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .fx-history-dims {
   font-size: 18px;

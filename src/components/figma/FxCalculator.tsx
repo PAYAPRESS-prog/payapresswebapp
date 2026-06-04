@@ -243,7 +243,11 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
       const res = await fetch('/api/history', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, metal, width: w, thickness: t, length: L }),
+        body: JSON.stringify({
+          name, metal, width: w, thickness: t, length: L,
+          price: activeCurrTotal,
+          currency: CURR_META[activeCurr].label,
+        }),
       });
       if (!res.ok) throw new Error('save_failed');
       setBookmarked(true);
