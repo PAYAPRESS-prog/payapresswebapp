@@ -1554,9 +1554,9 @@ body {
 }
 .fx-auth-tab.active {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  background: rgba(184, 115, 51, 0.28);
+  border: 1px solid rgba(184, 115, 51, 0.55);
+  box-shadow: inset 0 1px 0 rgba(247, 148, 29, 0.15), 0 0 0 2px rgba(184,115,51,0.12);
 }
 
 .fx-sheet-divider {
@@ -1815,12 +1815,12 @@ body {
 }
 
 /* ══════════════════════════════════════════════════════
-   CALCULATE NOW BUTTON  — Figma: bg-#d80027, rounded-12, text-24px
+   CALCULATE NOW BUTTON  — Figma: bg-#d80027, pill shape, text-24px
    ══════════════════════════════════════════════════════ */
 .fx-calc-now-btn {
   width: 100%;
   padding: 12px 24px;
-  border-radius: 12px;
+  border-radius: 99px;
   border: none;
   background: #d80027;
   color: #ffffff;
@@ -2094,11 +2094,11 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Title — red per Figma */
+/* Title — green per Figma */
 .fx-results-title {
   font-size: 20px;
   font-weight: 590;
-  color: var(--fx-live);
+  color: var(--fx-success);
   text-align: center;
   margin: 0;
   padding: 10px;
@@ -3450,6 +3450,83 @@ body {
 
 .fx-grade-info-desc { font-style: italic; }
 
+/* ── Grade section header ───────────────────────── */
+.fx-grade-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fx-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 0 2px 2px;
+}
+.fx-grade-header-icon { color: var(--fx-copper-bright); flex-shrink: 0; }
+.fx-grade-header.al .fx-grade-header-icon { color: #6fb3e0; }
+
+/* ══════════════════════════════════════════════════════════════
+   3-COLUMN INLINE DIMENSIONS INPUT ROW (Figma match)
+   ══════════════════════════════════════════════════════════════ */
+.fx-dim-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: rgba(245, 247, 250, 0.04);
+  border: 1.5px solid rgba(245, 247, 250, 0.10);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.fx-dim-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 8px 10px;
+  position: relative;
+  transition: background 0.15s;
+}
+.fx-dim-col + .fx-dim-col::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 1px;
+  background: rgba(245, 247, 250, 0.09);
+}
+.fx-dim-col:focus-within {
+  background: rgba(247, 148, 29, 0.05);
+}
+.fx-dim-col-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--fx-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.fx-dim-col-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid rgba(245, 247, 250, 0.12);
+  outline: none;
+  font-size: 22px;
+  font-weight: 590;
+  color: var(--fx-text-1);
+  text-align: center;
+  font-family: inherit;
+  padding: 2px 0 6px;
+  transition: border-color 0.15s;
+  min-width: 0;
+}
+.fx-dim-col-input::placeholder { color: rgba(245, 247, 250, 0.18); }
+.fx-dim-col-input:focus { border-bottom-color: var(--fx-copper-bright); outline: none; }
+.fx-dim-col-unit {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--fx-text-3);
+}
+
 /* Grade badge in results row */
 .fx-results-grade-badge {
   display: inline-block;
@@ -3684,7 +3761,7 @@ body {
 
   /* On desktop the Calculate Now button moves below the card */
   .fx-calc-now-btn {
-    border-radius: 14px;
+    border-radius: 99px;
     font-size: 20px;
     padding: 14px 24px;
   }

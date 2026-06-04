@@ -322,6 +322,10 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
         {/* ── Material Grade selector ── */}
         <div className="fx-grade-section">
+          <div className={`fx-grade-header${metal === 'aluminum' ? ' al' : ''}`}>
+            <RulerIcon className="fx-grade-header-icon" width={13} height={13} />
+            <span>{metal === 'copper' ? 'Grade of Copper' : 'Grade of Aluminum'}</span>
+          </div>
           <div className={`fx-grade-pills${metal === 'aluminum' ? ' al' : ''}`}>
             {grades.map((g, i) => (
               <button
@@ -361,15 +365,45 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           </div>
         </div>
 
-        <DimInput label="Length"    value={length} placeholder="2500" onChange={setLength}
-          onFocus={() => setInteracted(true)}
-          onBlur={v => { if (v) setLength(String(clampInt(v, 1, 100000, 2500))); }} />
-        <DimInput label="Width"     value={width}  placeholder="100" onChange={setWidth}
-          onFocus={() => setInteracted(true)}
-          onBlur={v => { if (v) setWidth(String(clampInt(v, 1, 100000, 100))); }} />
-        <DimInput label="Thickness" value={thick}  placeholder="10" onChange={setThick}
-          onFocus={() => setInteracted(true)}
-          onBlur={v => { if (v) setThick(String(clampInt(v, 1, 100000, 10))); }} />
+        {/* ── Inline 3-column dimension inputs ── */}
+        <div className="fx-dim-row">
+          <div className="fx-dim-col">
+            <span className="fx-dim-col-label">Length</span>
+            <input
+              type="text" inputMode="numeric" pattern="[0-9]*"
+              className="fx-dim-col-input"
+              value={length} placeholder="2500"
+              onChange={e => { setLength(e.target.value.replace(/[^0-9]/g, '')); setInteracted(true); }}
+              onFocus={() => setInteracted(true)}
+              onBlur={e => { if (e.target.value) setLength(String(clampInt(e.target.value, 1, 100000, 2500))); }}
+            />
+            <span className="fx-dim-col-unit">mm</span>
+          </div>
+          <div className="fx-dim-col">
+            <span className="fx-dim-col-label">Width</span>
+            <input
+              type="text" inputMode="numeric" pattern="[0-9]*"
+              className="fx-dim-col-input"
+              value={width} placeholder="100"
+              onChange={e => { setWidth(e.target.value.replace(/[^0-9]/g, '')); setInteracted(true); }}
+              onFocus={() => setInteracted(true)}
+              onBlur={e => { if (e.target.value) setWidth(String(clampInt(e.target.value, 1, 100000, 100))); }}
+            />
+            <span className="fx-dim-col-unit">mm</span>
+          </div>
+          <div className="fx-dim-col">
+            <span className="fx-dim-col-label">Thickness</span>
+            <input
+              type="text" inputMode="numeric" pattern="[0-9]*"
+              className="fx-dim-col-input"
+              value={thick} placeholder="10"
+              onChange={e => { setThick(e.target.value.replace(/[^0-9]/g, '')); setInteracted(true); }}
+              onFocus={() => setInteracted(true)}
+              onBlur={e => { if (e.target.value) setThick(String(clampInt(e.target.value, 1, 100000, 10))); }}
+            />
+            <span className="fx-dim-col-unit">mm</span>
+          </div>
+        </div>
 
         {/* Calculate Now button — always visible so user knows to tap it */}
         <button type="button" className="fx-calc-now-btn" onClick={handleCalculate}>

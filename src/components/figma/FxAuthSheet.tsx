@@ -106,7 +106,9 @@ export function FxAuthSheet({
       onClick={onClose}
     >
       <div className="fx-sheet" onClick={e => e.stopPropagation()}>
-        <h2 className="fx-sheet-title">For more please login to your account</h2>
+        <h2 className="fx-sheet-title">
+          {isSignup ? 'Grow your business with Busbar calculator' : 'For more please login to your account'}
+        </h2>
 
         {/* Tab toggle */}
         <div className="fx-auth-tabs" role="tablist">

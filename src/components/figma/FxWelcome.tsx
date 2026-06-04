@@ -32,7 +32,7 @@ export function FxWelcome({ initialSheet }: { initialSheet?: Mode }) {
 
         <footer className="fx-welcome-actions">
           <Link href="/app" className="fx-welcome-guest">
-            Use as guest
+            Start Calculate
           </Link>
 
           <p className="fx-welcome-register">
