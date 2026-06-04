@@ -4219,14 +4219,12 @@ body {
    HEADER — Bell button & desktop actions group
    ══════════════════════════════════════════════════════ */
 
-/* Mobile bell — uses existing fx-icon-btn style, just enabled */
+/* Mobile bell — white to match Figma, spring press animation */
 .fx-header-bell {
-  position: relative;
-  color: var(--fx-text-2);
-  transition: color 0.18s, background 0.18s,
+  color: var(--fx-text-1); /* white, matches Figma design */
+  transition: background 0.15s,
               transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.fx-header-bell:hover  { color: var(--fx-text-1); }
 .fx-header-bell:active { transform: scale(0.84); }
 
 /* Desktop actions group (bell + user badge side by side) */
