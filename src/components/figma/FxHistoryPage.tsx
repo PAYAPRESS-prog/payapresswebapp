@@ -247,8 +247,8 @@ export function FxHistoryPage({
   return (
     <div className="fx-app">
       <FxHeader />
-      <main style={{ paddingBottom: 100 }}>
-        <div className="fx-content">
+      <main>
+        <div className="fx-content fx-content-single">
           <div className="fx-history-header">
             <h2 className="fx-history-title">History</h2>
             {items.length > 0 && (

@@ -141,9 +141,9 @@ export function FxProfilePage() {
   // ── Auth gate ──────────────────────────────────────────────────
   if (authed === null) {
     return (
-      <div className="fx-app-wrap">
+      <div className="fx-app">
         <FxHeader />
-        <main className="fx-app-page">
+        <main className="fx-content fx-content-single">
           <div className="fx-profile-loading">Loading…</div>
         </main>
         <FxBottomNav active="profile" />
@@ -153,9 +153,9 @@ export function FxProfilePage() {
 
   if (authed === false) {
     return (
-      <div className="fx-app-wrap">
+      <div className="fx-app">
         <FxHeader />
-        <main className="fx-app-page">
+        <main className="fx-content fx-content-single">
           <div className="fx-profile-auth-gate">
             <div className="fx-profile-auth-icon">
               <UserIcon width={48} height={48} />
@@ -180,9 +180,9 @@ export function FxProfilePage() {
   const displayName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || profile?.email?.split('@')[0] || 'User';
 
   return (
-    <div className="fx-app-wrap">
+    <div className="fx-app">
       <FxHeader />
-      <main className="fx-app-page">
+      <main className="fx-content fx-content-single">
         <div className="page-container fx-profile-page">
 
           {/* Avatar + name */}

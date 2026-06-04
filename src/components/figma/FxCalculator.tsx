@@ -285,6 +285,9 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   return (
     <div className="fx-content">
 
+      {/* ══════════ LEFT COLUMN — inputs ══════════ */}
+      <div className="fx-col-inputs">
+
       {/* ── Metal toggle ───────────────────────────────── */}
       <div className="fx-metal-toggle">
         <button
@@ -466,6 +469,28 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         </div>
       )}
 
+      </div>{/* end fx-col-inputs */}
+
+      {/* ══════════ RIGHT COLUMN — results ══════════ */}
+      <div className="fx-col-results">
+
+      {/* ── Desktop empty state ─────────────────────────── */}
+      {!showResults && (
+        <div className="fx-results-empty-desktop" aria-hidden="true">
+          <div className="fx-results-empty-icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+              <rect x="6" y="14" width="36" height="5" rx="2.5" fill="rgba(184,115,51,0.25)"/>
+              <rect x="6" y="23" width="36" height="5" rx="2.5" fill="rgba(184,115,51,0.18)"/>
+              <rect x="6" y="32" width="36" height="5" rx="2.5" fill="rgba(184,115,51,0.12)"/>
+            </svg>
+          </div>
+          <p className="fx-results-empty-title">Set dimensions &amp; calculate</p>
+          <p className="fx-results-empty-sub">
+            Choose a metal, select a grade, enter dimensions and press <strong>Calculate Now</strong> to see the live cost breakdown here.
+          </p>
+        </div>
+      )}
+
       {/* ── Results — stats + actions ───────────────────── */}
       {showResults && (
         <div className="fx-results" ref={resultsRef}>
@@ -551,6 +576,8 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           updatedLabel={updatedLabel}
         />
       )}
+
+      </div>{/* end fx-col-results */}
 
       {/* ── Currency Picker Sheet ─────────────────────── */}
       {showPicker && (

@@ -3434,3 +3434,349 @@ body {
   vertical-align: middle;
   letter-spacing: 0.03em;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   fx-app-wrap / fx-app-page — shared shell for History/Profile
+   (same visual rules as .fx-app but without the 480px cap)
+   ══════════════════════════════════════════════════════════════ */
+
+.fx-app-wrap {
+  background: var(--fx-bg);
+  color: var(--fx-text-1);
+  min-height: 100vh;
+  min-height: 100svh;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  -webkit-tap-highlight-color: transparent;
+}
+@media (min-width: 640px) {
+  .fx-app-wrap {
+    border-left:  1px solid var(--fx-divider);
+    border-right: 1px solid var(--fx-divider);
+    box-shadow: 0 0 80px rgba(0,0,0,0.5);
+  }
+}
+
+.fx-app-page {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DESKTOP LAYOUT  ≥ 1024px
+   ══════════════════════════════════════════════════════════════ */
+@media (min-width: 1024px) {
+
+  /* ── App shell — go full-viewport ── */
+  .fx-app,
+  .fx-app-wrap {
+    max-width: 100% !important;
+    padding-bottom: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    box-shadow: none !important;
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+  }
+
+  /* ── Hide bottom nav ── */
+  .fx-bottom-nav { display: none !important; }
+
+  /* ── Header — full-width nav bar ── */
+  .fx-header {
+    border-bottom: 1px solid rgba(245,247,250,0.07);
+  }
+  .fx-header-row {
+    height: 60px;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 32px;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 0;
+    align-items: center;
+  }
+
+  /* Hide mobile-only elements */
+  .fx-header-mobile-only { display: none !important; }
+
+  /* Brand / logo */
+  .fx-header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    margin-right: 32px;
+  }
+  .fx-header-logo-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(184,115,51,0.18);
+    border: 1px solid rgba(184,115,51,0.32);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: var(--fx-copper-bright);
+    flex-shrink: 0;
+  }
+  .fx-header-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--fx-text-1);
+    white-space: nowrap;
+  }
+
+  /* Nav links */
+  .fx-header-nav {
+    display: flex !important;
+    align-items: center;
+    gap: 2px;
+  }
+  .fx-header-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--fx-text-3);
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+  }
+  .fx-header-nav-link svg { opacity: 0.6; transition: opacity 0.15s; }
+  .fx-header-nav-link:hover {
+    background: rgba(245,247,250,0.06);
+    color: var(--fx-text-1);
+  }
+  .fx-header-nav-link:hover svg { opacity: 1; }
+  .fx-header-nav-link.active {
+    color: var(--fx-copper-bright);
+    background: rgba(184,115,51,0.10);
+    font-weight: 600;
+  }
+  .fx-header-nav-link.active svg { opacity: 1; }
+
+  /* User badge */
+  .fx-header-user {
+    display: flex !important;
+    align-items: center;
+    margin-left: 16px;
+  }
+  .fx-header-user-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--fx-text-2);
+    text-decoration: none;
+    background: rgba(245,247,250,0.05);
+    border: 1px solid rgba(245,247,250,0.08);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .fx-header-user-btn:hover {
+    background: rgba(245,247,250,0.09);
+    color: var(--fx-text-1);
+  }
+  .fx-header-user-btn.active {
+    border-color: rgba(184,115,51,0.30);
+    color: var(--fx-copper-bright);
+  }
+  .fx-header-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(184,115,51,0.20);
+    border: 1px solid rgba(184,115,51,0.35);
+    color: var(--fx-copper-bright);
+    font-size: 11px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .fx-header-user-email {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ── Calculator two-column grid ── */
+  .fx-content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    grid-template-areas: "inputs results";
+    gap: 28px;
+    align-items: start;
+    padding: 28px 40px 48px;
+    max-width: 1440px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .fx-col-inputs {
+    grid-area: inputs;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .fx-col-results {
+    grid-area: results;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: sticky;
+    top: 76px;
+    max-height: calc(100svh - 96px);
+    overflow-y: auto;
+    padding-bottom: 16px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(184,115,51,0.25) transparent;
+  }
+  .fx-col-results::-webkit-scrollbar { width: 4px; }
+  .fx-col-results::-webkit-scrollbar-thumb { background: rgba(184,115,51,0.20); border-radius: 2px; }
+
+  /* On desktop the Calculate Now button moves below the card */
+  .fx-calc-now-btn {
+    border-radius: 14px;
+    font-size: 20px;
+    padding: 14px 24px;
+  }
+
+  /* Results card gets slightly more padding on desktop */
+  .fx-results {
+    padding: 20px;
+  }
+
+  /* Larger price display on desktop */
+  .fx-results-curr-value {
+    font-size: 36px;
+  }
+
+  /* ── Desktop empty-state placeholder ── */
+  .fx-results-empty-desktop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 16px;
+    padding: 60px 32px;
+    border: 1px dashed rgba(245,247,250,0.10);
+    border-radius: 20px;
+    background: rgba(245,247,250,0.02);
+    min-height: 280px;
+  }
+  .fx-results-empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: rgba(184,115,51,0.08);
+    border: 1px solid rgba(184,115,51,0.14);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .fx-results-empty-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--fx-text-2);
+    margin: 0;
+  }
+  .fx-results-empty-sub {
+    font-size: 13px;
+    color: var(--fx-text-3);
+    margin: 0;
+    line-height: 1.6;
+    max-width: 280px;
+  }
+  .fx-results-empty-sub strong {
+    color: var(--fx-text-2);
+    font-weight: 600;
+  }
+
+  /* ── History page — wider layout ── */
+  .fx-app main {
+    flex: 1;
+  }
+  .fx-content.history-content,
+  .fx-app > main > .fx-content {
+    max-width: 800px;
+    grid-template-columns: 1fr;
+    grid-template-areas: none;
+    padding: 32px 40px 48px;
+  }
+
+  /* History list wider on desktop */
+  .fx-history-card {
+    border-radius: 14px;
+  }
+  .fx-history-preview {
+    padding: 14px 18px;
+  }
+
+  /* ── Profile page — wider centered card ── */
+  .fx-app-wrap > main.fx-app-page {
+    flex: 1;
+  }
+  .fx-profile-page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding-top: 32px;
+  }
+  .fx-profile-card {
+    border-radius: 18px;
+  }
+
+  /* ── fx-app-page reset ── */
+  .fx-app-page {
+    padding: 0;
+  }
+
+  /* ── Bigger grade pills on desktop ── */
+  .fx-grade-pill {
+    padding: 11px 8px;
+  }
+
+  /* ── Wider currency card grid ── */
+  .fx-curr-card {
+    border-radius: 18px;
+  }
+}
+
+/* ── Mobile: hide desktop-only elements ── */
+@media (max-width: 1023px) {
+  .fx-header-brand { display: none; }
+  .fx-header-nav   { display: none; }
+  .fx-header-user  { display: none; }
+  .fx-results-empty-desktop { display: none; }
+  .fx-col-inputs, .fx-col-results { display: contents; }
+  .fx-header-logo-mark { display: none; }
+}
+
+/* Single-column page override (History, Profile) on desktop */
+@media (min-width: 1024px) {
+  .fx-content-single {
+    grid-template-columns: 1fr !important;
+    grid-template-areas: none !important;
+    max-width: 760px !important;
+    padding: 32px 40px 48px !important;
+  }
+  .fx-content-single > * { grid-column: 1 !important; }
+}
