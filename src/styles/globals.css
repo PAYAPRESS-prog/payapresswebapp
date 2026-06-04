@@ -3526,7 +3526,7 @@ body {
     margin: 0 auto;
     padding: 0 32px;
     display: grid;
-    grid-template-columns: auto 1fr auto auto;
+    grid-template-columns: auto 1fr auto;
     gap: 0;
     align-items: center;
   }
@@ -4213,4 +4213,425 @@ body {
 :focus-visible {
   outline: 2px solid rgba(232, 115, 26, 0.7);
   outline-offset: 2px;
+}
+
+/* ══════════════════════════════════════════════════════
+   HEADER — Bell button & desktop actions group
+   ══════════════════════════════════════════════════════ */
+
+/* Mobile bell — uses existing fx-icon-btn style, just enabled */
+.fx-header-bell {
+  position: relative;
+  color: var(--fx-text-2);
+  transition: color 0.18s, background 0.18s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-header-bell:hover  { color: var(--fx-text-1); }
+.fx-header-bell:active { transform: scale(0.84); }
+
+/* Desktop actions group (bell + user badge side by side) */
+.fx-header-actions {
+  display: none; /* hidden on mobile; shown on desktop via @media below */
+  align-items: center;
+  gap: 8px;
+}
+
+/* Desktop bell button */
+.fx-header-bell-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  border: 1px solid rgba(245, 247, 250, 0.08);
+  background: rgba(245, 247, 250, 0.05);
+  color: var(--fx-text-2);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-header-bell-btn:hover {
+  background: rgba(245, 247, 250, 0.09);
+  color: var(--fx-text-1);
+  border-color: rgba(245, 247, 250, 0.14);
+}
+.fx-header-bell-btn:active { transform: scale(0.88); }
+
+@media (min-width: 1024px) {
+  .fx-header-actions { display: flex !important; }
+  /* On desktop the old fx-header-user is inside fx-header-actions — reset its margin */
+  .fx-header-actions .fx-header-user { margin-left: 0; }
+  /* Override grid: brand | nav | actions (replaces old solo user slot) */
+  .fx-header-row {
+    grid-template-columns: auto 1fr auto;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   NOTIFY SHEET  — Email subscription bottom sheet
+   Glass morphism, follows app design language
+   ══════════════════════════════════════════════════════ */
+
+/* Backdrop overlay */
+.fx-notify-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: blur(3px);
+          backdrop-filter: blur(3px);
+  animation: fx-sheet-fade 0.22s ease both;
+  overscroll-behavior: contain;
+}
+
+/* Sheet panel */
+.fx-notify-sheet {
+  width: 100%;
+  max-width: 520px;
+  /* Glass morphism */
+  background: rgba(14, 16, 22, 0.82);
+  -webkit-backdrop-filter: saturate(160%) blur(32px);
+          backdrop-filter: saturate(160%) blur(32px);
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  border-left:  1px solid rgba(255, 255, 255, 0.06);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 28px 28px 0 0;
+  box-shadow:
+    0 -24px 60px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  animation: fx-sheet-up 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  overflow: hidden;
+}
+
+/* Drag handle */
+.fx-notify-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.16);
+  margin: 12px auto 0;
+}
+
+/* Header row: icon + close */
+.fx-notify-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 0;
+}
+
+/* Animated bell icon wrapper */
+.fx-notify-bell-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(232, 115, 26, 0.12);
+  border: 1px solid rgba(232, 115, 26, 0.28);
+  color: var(--color-brand, #e8731a);
+  flex-shrink: 0;
+}
+
+/* Pulse ring behind the bell icon */
+.fx-notify-bell-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(232, 115, 26, 0.25);
+  animation: fx-notify-pulse 2.4s ease-in-out infinite;
+}
+@keyframes fx-notify-pulse {
+  0%, 100% { opacity: 0.8; transform: scale(1);    }
+  50%       { opacity: 0.2; transform: scale(1.14); }
+}
+
+/* Close button */
+.fx-notify-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(245, 247, 250, 0.10);
+  background: rgba(245, 247, 250, 0.06);
+  color: var(--fx-text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-notify-close:hover  { background: rgba(245,247,250,0.11); color: var(--fx-text-1); }
+.fx-notify-close:active { transform: scale(0.88); }
+
+/* Form body */
+.fx-notify-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 20px calc(28px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Title + Free badge */
+.fx-notify-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fx-notify-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--fx-text-1);
+  margin: 0;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.fx-notify-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 50px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-success, #22c55e);
+  background: rgba(34, 197, 94, 0.10);
+  border: 1px solid rgba(34, 197, 94, 0.22);
+  flex-shrink: 0;
+}
+
+/* Description */
+.fx-notify-desc {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--fx-text-2);
+  margin: 0;
+}
+
+/* Feature bullets */
+.fx-notify-features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.fx-notify-features li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fx-text-2);
+}
+.fx-notify-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  color: var(--color-success, #22c55e);
+  font-size: 10px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+/* Email input field */
+.fx-notify-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(245, 247, 250, 0.06);
+  border: 1.5px solid rgba(245, 247, 250, 0.10);
+  border-radius: 14px;
+  padding: 0 16px;
+  min-height: 54px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.fx-notify-field:focus-within {
+  border-color: rgba(232, 115, 26, 0.55);
+  box-shadow: 0 0 0 3px rgba(232, 115, 26, 0.12),
+              inset 0 0 16px rgba(232, 115, 26, 0.04);
+}
+.fx-notify-field.has-error {
+  border-color: rgba(239, 68, 68, 0.55);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10);
+}
+.fx-notify-field-icon {
+  color: var(--fx-text-3);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.fx-notify-field:focus-within .fx-notify-field-icon {
+  color: var(--color-brand, #e8731a);
+}
+.fx-notify-input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--fx-text-1);
+  padding: 0;
+}
+.fx-notify-input::placeholder { color: var(--fx-text-3); }
+
+/* Error message */
+.fx-notify-err {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(239, 68, 68, 0.9);
+  margin: -6px 0 0;
+  padding-left: 4px;
+}
+
+/* Submit button */
+.fx-notify-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 54px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #e8731a 0%, #d85a00 100%);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  box-shadow:
+    0 4px 20px rgba(232, 115, 26, 0.35),
+    0 2px 6px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  transition: opacity 0.15s, box-shadow 0.2s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-notify-submit:hover:not(:disabled) {
+  box-shadow:
+    0 6px 28px rgba(232, 115, 26, 0.48),
+    0 2px 6px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+.fx-notify-submit:active:not(:disabled) {
+  transform: scale(0.96);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+}
+.fx-notify-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Loading spinner inside button */
+.fx-notify-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: fx-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes fx-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Privacy note */
+.fx-notify-privacy {
+  text-align: center;
+  font-size: 12px;
+  color: var(--fx-text-3);
+  margin: -4px 0 0;
+  line-height: 1.5;
+}
+
+/* ── Success state ── */
+.fx-notify-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 28px 24px calc(40px + env(safe-area-inset-bottom, 0px));
+  gap: 12px;
+}
+.fx-notify-success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+  background: rgba(34, 197, 94, 0.10);
+  border: 1px solid rgba(34, 197, 94, 0.22);
+  color: var(--color-success, #22c55e);
+  margin-bottom: 8px;
+}
+.fx-notify-success-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--fx-text-1);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.fx-notify-success-sub {
+  font-size: 15px;
+  color: var(--fx-text-2);
+  line-height: 1.6;
+  margin: 0;
+}
+.fx-notify-success-sub strong {
+  color: var(--color-brand, #e8731a);
+  font-weight: 600;
+}
+.fx-notify-done-btn {
+  margin-top: 8px;
+  padding: 12px 40px;
+  border-radius: 50px;
+  border: 1.5px solid rgba(245, 247, 250, 0.14);
+  background: rgba(245, 247, 250, 0.07);
+  color: var(--fx-text-1);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-notify-done-btn:hover  { background: rgba(245,247,250,0.12); border-color: rgba(245,247,250,0.22); }
+.fx-notify-done-btn:active { transform: scale(0.95); }
+
+/* ── Desktop: sheet appears as centered modal ── */
+@media (min-width: 640px) {
+  .fx-notify-overlay {
+    align-items: center;
+  }
+  .fx-notify-sheet {
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    margin: 20px;
+    max-width: 480px;
+    animation: fx-notify-modal-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes fx-notify-modal-in {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to   { opacity: 1; transform: scale(1)    translateY(0);   }
+  }
+  .fx-notify-handle { display: none; }
 }
