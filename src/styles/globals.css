@@ -2970,3 +2970,360 @@ body {
   background: rgba(220,38,38,0.18);
   border-color: rgba(220,38,38,0.35);
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Compare Sheet
+   ══════════════════════════════════════════════════════════════ */
+
+.fx-cmp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 11, 14, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  animation: fx-overlay-in 0.22s ease;
+}
+
+.fx-cmp-sheet {
+  width: 100%;
+  max-height: 92svh;
+  overflow-y: auto;
+  background: var(--fx-surface);
+  border-radius: 24px 24px 0 0;
+  border-top: 1px solid rgba(245, 247, 250, 0.08);
+  animation: fx-sheet-up 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+@keyframes fx-sheet-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.fx-cmp-handle {
+  width: 40px;
+  height: 4px;
+  background: rgba(245, 247, 250, 0.18);
+  border-radius: 2px;
+  margin: 12px auto 0;
+}
+
+.fx-cmp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 8px;
+}
+
+.fx-cmp-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--fx-text-1);
+}
+
+.fx-cmp-close {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(245, 247, 250, 0.07);
+  border: 1px solid rgba(245, 247, 250, 0.10);
+  border-radius: 50%;
+  color: var(--fx-text-2);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s;
+}
+.fx-cmp-close:hover { background: rgba(245, 247, 250, 0.12); }
+
+/* A vs B config row */
+.fx-cmp-configs-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 20px;
+}
+
+.fx-cmp-config-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(245, 247, 250, 0.10);
+  border-radius: 14px;
+  padding: 10px 24px;
+  min-width: 100px;
+}
+.fx-cmp-config-badge.a {
+  border-color: rgba(184, 115, 51, 0.40);
+  background: rgba(184, 115, 51, 0.08);
+}
+.fx-cmp-config-badge.b {
+  border-color: rgba(111, 179, 224, 0.35);
+  background: rgba(111, 179, 224, 0.08);
+}
+
+.fx-cmp-badge-letter {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.fx-cmp-config-badge.a .fx-cmp-badge-letter { color: var(--fx-copper-bright); }
+.fx-cmp-config-badge.b .fx-cmp-badge-letter { color: #6fb3e0; }
+
+.fx-cmp-badge-sub {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fx-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fx-cmp-vs {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--fx-text-3);
+  letter-spacing: 0.1em;
+}
+
+/* Config B controls */
+.fx-cmp-b-controls {
+  padding: 4px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fx-cmp-b-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #6fb3e0;
+}
+
+/* Metal toggle for B */
+.fx-cmp-metal-row {
+  display: flex;
+  gap: 8px;
+}
+
+.fx-cmp-metal-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(245, 247, 250, 0.04);
+  border: 1.5px solid rgba(245, 247, 250, 0.08);
+  border-radius: 12px;
+  color: var(--fx-text-2);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  font-family: inherit;
+}
+.fx-cmp-metal-btn.active {
+  border-color: #6fb3e0;
+  background: rgba(111, 179, 224, 0.12);
+  color: #6fb3e0;
+}
+
+/* Dimension inputs for B */
+.fx-cmp-dim-row {
+  display: flex;
+  gap: 8px;
+}
+
+.fx-cmp-dim {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.fx-cmp-dim-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fx-text-3);
+  padding-left: 2px;
+}
+
+.fx-cmp-dim-field {
+  display: flex;
+  align-items: center;
+  background: rgba(245, 247, 250, 0.06);
+  border: 1px solid rgba(245, 247, 250, 0.10);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.fx-cmp-dim-field:focus-within {
+  border-color: rgba(111, 179, 224, 0.45);
+}
+
+.fx-cmp-dim-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  padding: 10px 6px 10px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fx-text-1);
+  font-family: inherit;
+  min-width: 0;
+}
+
+.fx-cmp-dim-unit {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fx-text-3);
+  padding-right: 8px;
+  white-space: nowrap;
+}
+
+/* Section divider */
+.fx-cmp-section-divider {
+  height: 1px;
+  background: rgba(245, 247, 250, 0.07);
+  margin: 0 20px;
+}
+
+/* Comparison table */
+.fx-cmp-table-wrap {
+  padding: 0 16px;
+  margin-top: 4px;
+}
+
+.fx-cmp-table-head {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 10px 8px 6px;
+}
+
+.fx-cmp-th-param { /* empty */ }
+
+.fx-cmp-th-val {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fx-cmp-th-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.fx-cmp-th-badge.a {
+  background: rgba(184, 115, 51, 0.18);
+  color: var(--fx-copper-bright);
+  border: 1px solid rgba(184, 115, 51, 0.30);
+}
+.fx-cmp-th-badge.b {
+  background: rgba(111, 179, 224, 0.16);
+  color: #6fb3e0;
+  border: 1px solid rgba(111, 179, 224, 0.28);
+}
+
+/* Table row */
+.fx-cmp-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  padding: 11px 8px;
+  border-radius: 10px;
+  gap: 4px;
+}
+.fx-cmp-row.even {
+  background: rgba(245, 247, 250, 0.025);
+}
+.fx-cmp-row.highlight {
+  background: rgba(245, 247, 250, 0.04);
+  border: 1px solid rgba(245, 247, 250, 0.06);
+  margin: 2px 0;
+}
+
+.fx-cmp-row-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fx-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+}
+
+.fx-cmp-row-a {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fx-text-2);
+}
+
+.fx-cmp-row-b {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.fx-cmp-row-bval {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fx-text-1);
+}
+
+/* Delta badge */
+.fx-cmp-delta {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 5px;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+.fx-cmp-delta.neutral {
+  background: rgba(245, 247, 250, 0.08);
+  color: var(--fx-text-3);
+}
+.fx-cmp-delta.positive {
+  background: rgba(34, 197, 94, 0.14);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.22);
+}
+.fx-cmp-delta.negative {
+  background: rgba(249, 115, 22, 0.13);
+  color: #fb923c;
+  border: 1px solid rgba(249, 115, 22, 0.22);
+}
+
+/* Same-config message */
+.fx-cmp-same-msg {
+  text-align: center;
+  padding: 16px 24px;
+  font-size: 13px;
+  color: var(--fx-text-3);
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.fx-cmp-bottom-space {
+  height: max(20px, env(safe-area-inset-bottom));
+}

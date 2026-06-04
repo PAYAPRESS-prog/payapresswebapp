@@ -11,6 +11,7 @@ import {
 import { FLAGS } from './FxFlags';
 import { FxAuthSheet } from './FxAuthSheet';
 import { FxBusbarChart } from './FxBusbarChart';
+import { FxCompareSheet } from './FxCompareSheet';
 
 type Metal = 'copper' | 'aluminum';
 type CurrCode =
@@ -107,6 +108,8 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const [savingBookmark, setSavingBookmark] = useState(false);
   const [saveToast,      setSaveToast]      = useState<string | null>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
+
+  const [showCompare, setShowCompare] = useState(false);
 
   const [authOpen,  setAuthOpen]  = useState(false);
   const [authMode,  setAuthMode]  = useState<'login' | 'signup'>('login');
@@ -470,8 +473,8 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           <div className="fx-results-actions">
             <button
               type="button"
-              className="fx-results-btn"
-              onClick={() => requireAuth(() => {})}
+              className={`fx-results-btn${showCompare ? ' active' : ''}`}
+              onClick={() => setShowCompare(true)}
               aria-label="Compare result"
             >
               <CompareIcon width={20} height={20} />
@@ -634,6 +637,23 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
       {/* ── Save toast ─────────────────────────────────── */}
       {saveToast && <div className="fx-save-toast">{saveToast}</div>}
+
+      {/* ── Compare sheet ─────────────────────────────── */}
+      <FxCompareSheet
+        open={showCompare}
+        onClose={() => setShowCompare(false)}
+        configA={{
+          metal, w, t, L,
+          weightKg, totalUSD,
+          pricePerKgUSD,
+          maxCurrentA,
+        }}
+        copper={copper}
+        aluminum={aluminum}
+        fxRate={fxRate}
+        activeCurr={activeCurr}
+        currLabel={CURR_META[activeCurr].label}
+      />
 
       {/* ── Auth sheet ────────────────────────────────── */}
       <FxAuthSheet
