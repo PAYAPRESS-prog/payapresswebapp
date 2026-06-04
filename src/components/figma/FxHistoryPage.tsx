@@ -7,6 +7,7 @@ import { FxBottomNav } from './FxBottomNav';
 
 interface HistoryItem {
   id: number;
+  name?: string;
   metal: 'copper' | 'aluminum';
   width: number;
   thickness: number;
@@ -138,6 +139,10 @@ export function FxHistoryPage({
                     ×
                   </button>
                 </div>
+
+                {item.name && item.name !== 'Untitled' && (
+                  <div className="fx-history-name">{item.name}</div>
+                )}
 
                 <div className="fx-history-dims">
                   {item.length} × {item.width} × {item.thickness} mm

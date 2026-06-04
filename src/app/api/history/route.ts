@@ -21,11 +21,12 @@ export async function POST(req: NextRequest) {
   const user = await getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const body = await req.json().catch(() => ({}));
-  const { metal, width, thickness, length } = body;
+  const { name, metal, width, thickness, length } = body;
   if (!metal || !width || !thickness || !length) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
-  const id = await saveHistory(user.uid, metal, Number(width), Number(thickness), Number(length));
+  const cleanName = String(name ?? '').trim().slice(0, 120) || 'Untitled';
+  const id = await saveHistory(user.uid, cleanName, metal, Number(width), Number(thickness), Number(length));
   return NextResponse.json({ id });
 }
 

@@ -101,6 +101,13 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   // Custom currency selected from picker (non-grid currency)
   const [customCurr,   setCustomCurr]   = useState<CurrCode | null>(null);
 
+  // Bookmark / save-to-history naming flow
+  const [showNameDialog, setShowNameDialog] = useState(false);
+  const [bookmarkName,   setBookmarkName]   = useState('');
+  const [savingBookmark, setSavingBookmark] = useState(false);
+  const [saveToast,      setSaveToast]      = useState<string | null>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
   const [authOpen,  setAuthOpen]  = useState(false);
   const [authMode,  setAuthMode]  = useState<'login' | 'signup'>('login');
   const pendingActionRef = useRef<(() => void) | null>(null);
@@ -161,6 +168,9 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const t = clampInt(thick,  1, 100000, 10);
   const L = clampInt(length, 1, 100000, 2500);
 
+  // A new dimension/metal combination is a new, unsaved result
+  useEffect(() => { setBookmarked(false); }, [w, t, L, metal]);
+
   const weightKg = useMemo(
     () => (w * t * L * grade.density) / 1_000_000,
     [w, t, L, grade.density],
@@ -214,6 +224,38 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
     setTimeout(() => {
       currCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 150);
+  }
+
+  // Open the "name your bookmark" dialog (after auth gate)
+  function openBookmarkDialog() {
+    requireAuth(() => {
+      setBookmarkName(`${metal === 'copper' ? 'Copper' : 'Aluminum'} ${w}×${t}×${L}mm`);
+      setShowNameDialog(true);
+      setTimeout(() => nameInputRef.current?.select(), 60);
+    });
+  }
+
+  // Persist the bookmark to history with the chosen name
+  async function handleSaveBookmark() {
+    const name = bookmarkName.trim() || 'Untitled';
+    setSavingBookmark(true);
+    try {
+      const res = await fetch('/api/history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, metal, width: w, thickness: t, length: L }),
+      });
+      if (!res.ok) throw new Error('save_failed');
+      setBookmarked(true);
+      setShowNameDialog(false);
+      setSaveToast('Saved to History');
+      setTimeout(() => setSaveToast(null), 2600);
+    } catch {
+      setSaveToast('Could not save — try again');
+      setTimeout(() => setSaveToast(null), 2600);
+    } finally {
+      setSavingBookmark(false);
+    }
   }
 
   function handlePickerSelect(code: CurrCode) {
@@ -434,12 +476,12 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             <button
               type="button"
               className={`fx-results-btn${bookmarked ? ' active' : ''}`}
-              onClick={() => requireAuth(() => setBookmarked(b => !b))}
+              onClick={openBookmarkDialog}
               aria-label="Bookmark result"
               aria-pressed={bookmarked}
             >
               <BookmarkIcon width={20} height={20} />
-              Bookmark
+              {bookmarked ? 'Saved' : 'Bookmark'}
             </button>
             <button
               type="button"
@@ -526,6 +568,68 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           </div>
         </div>
       )}
+
+      {/* ── Name-your-bookmark dialog ─────────────────── */}
+      {showNameDialog && (
+        <div
+          className="fx-name-overlay"
+          onClick={() => !savingBookmark && setShowNameDialog(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Name your bookmark"
+        >
+          <div className="fx-name-dialog" onClick={e => e.stopPropagation()}>
+            <div className="fx-name-dialog-head">
+              <span className="fx-name-dialog-icon"><BookmarkIcon width={22} height={22} /></span>
+              <div className="fx-name-dialog-titles">
+                <h3 className="fx-name-dialog-title">Save to History</h3>
+                <p className="fx-name-dialog-sub">Give this calculation a name</p>
+              </div>
+            </div>
+
+            <input
+              ref={nameInputRef}
+              type="text"
+              className="fx-name-input"
+              value={bookmarkName}
+              maxLength={120}
+              placeholder="e.g. Main panel busbar"
+              onChange={e => setBookmarkName(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && bookmarkName.trim() && !savingBookmark) handleSaveBookmark();
+                if (e.key === 'Escape' && !savingBookmark) setShowNameDialog(false);
+              }}
+              autoFocus
+            />
+
+            <div className="fx-name-preview">
+              {metal === 'copper' ? 'Copper' : 'Aluminum'} · {L}×{w}×{t} mm · {fmtResultPrice(activeCurrTotal)} {CURR_META[activeCurr].label}
+            </div>
+
+            <div className="fx-name-actions">
+              <button
+                type="button"
+                className="fx-name-btn fx-name-btn-cancel"
+                onClick={() => setShowNameDialog(false)}
+                disabled={savingBookmark}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="fx-name-btn fx-name-btn-save"
+                onClick={handleSaveBookmark}
+                disabled={savingBookmark || !bookmarkName.trim()}
+              >
+                {savingBookmark ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Save toast ─────────────────────────────────── */}
+      {saveToast && <div className="fx-save-toast">{saveToast}</div>}
 
       {/* ── Auth sheet ────────────────────────────────── */}
       <FxAuthSheet

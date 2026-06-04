@@ -3,6 +3,7 @@ import { getPool, isDbConfigured } from './db';
 export interface HistoryRow {
   id: number;
   user_id: number;
+  name: string;
   metal: 'copper' | 'aluminum';
   width: number;
   thickness: number;
@@ -16,6 +17,7 @@ async function ensureTable() {
     CREATE TABLE IF NOT EXISTS busbar_history (
       id         INT AUTO_INCREMENT PRIMARY KEY,
       user_id    INT NOT NULL,
+      name       VARCHAR(120) NOT NULL DEFAULT '',
       metal      VARCHAR(20) NOT NULL,
       width      INT NOT NULL,
       thickness  INT NOT NULL,
@@ -24,6 +26,11 @@ async function ensureTable() {
       INDEX (user_id, created_at)
     )
   `);
+  // Migrate older tables that predate the `name` column.
+  await pool.execute(`
+    ALTER TABLE busbar_history
+    ADD COLUMN IF NOT EXISTS name VARCHAR(120) NOT NULL DEFAULT ''
+  `).catch(() => { /* column already exists / engine without IF NOT EXISTS */ });
 }
 
 export async function listHistory(userId: number, limit = 50): Promise<HistoryRow[]> {
@@ -39,6 +46,7 @@ export async function listHistory(userId: number, limit = 50): Promise<HistoryRo
 
 export async function saveHistory(
   userId: number,
+  name: string,
   metal: string,
   width: number,
   thickness: number,
@@ -48,8 +56,8 @@ export async function saveHistory(
   await ensureTable();
   const pool = getPool();
   const [res] = await pool.execute(
-    'INSERT INTO busbar_history (user_id, metal, width, thickness, length) VALUES (?,?,?,?,?)',
-    [userId, metal, width, thickness, length],
+    'INSERT INTO busbar_history (user_id, name, metal, width, thickness, length) VALUES (?,?,?,?,?,?)',
+    [userId, name, metal, width, thickness, length],
   ) as [{ insertId: number }, unknown];
   return res.insertId;
 }
