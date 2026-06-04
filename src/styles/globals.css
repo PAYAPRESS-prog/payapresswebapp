@@ -3780,3 +3780,176 @@ body {
   }
   .fx-content-single > * { grid-column: 1 !important; }
 }
+
+/* ══════════════════════════════════════════════════════
+   UX POLISH — Press feedback, focus glows, View Transitions
+   ══════════════════════════════════════════════════════ */
+
+/* ── View Transitions API: smooth page navigation ─── */
+@view-transition { navigation: auto; }
+@keyframes fx-page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fx-content {
+  animation: fx-page-enter 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Disable iOS tap flash on all elements ─────────── */
+* { -webkit-tap-highlight-color: transparent; }
+
+/* ── Input card focus glow ─────────────────────────── */
+.fx-input-card {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.fx-input-card:focus-within {
+  border-color: rgba(232, 115, 26, 0.55);
+  box-shadow: 0 0 0 3px rgba(232, 115, 26, 0.13),
+              inset 0 0 20px rgba(232, 115, 26, 0.05);
+}
+
+/* ── Spring easing for all press animations ─────────
+   cubic-bezier(0.34, 1.56, 0.64, 1) = slight overshoot bounce
+   ─────────────────────────────────────────────────── */
+
+/* Calculate Now — primary CTA */
+.fx-calc-now-btn {
+  transition: opacity 0.15s, box-shadow 0.2s ease,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 20px rgba(216, 0, 39, 0.3), 0 2px 8px rgba(0,0,0,0.25);
+}
+.fx-calc-now-btn:hover  { box-shadow: 0 6px 28px rgba(216, 0, 39, 0.42); opacity: 1; }
+.fx-calc-now-btn:active { transform: scale(0.95); box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+
+/* Metal toggle */
+.fx-metal-btn {
+  transition: opacity 0.18s, background 0.25s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-metal-btn:active { transform: scale(0.93); }
+
+/* Suggestion / preset pills */
+.fx-suggestion-pill {
+  transition: background 0.15s, border-color 0.15s, color 0.15s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-suggestion-pill:active { transform: scale(0.90); }
+
+/* Grade pills */
+.fx-grade-pill {
+  transition: background 0.15s, border-color 0.15s, color 0.15s,
+              box-shadow 0.15s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-grade-pill:active { transform: scale(0.90); }
+
+/* Currency cells */
+.fx-curr-cell {
+  transition: background 0.15s, opacity 0.15s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-curr-cell:active { transform: scale(0.92); }
+
+/* Results action buttons */
+.fx-results-btn,
+.fx-results-share-btn {
+  transition: background 0.15s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-results-btn:active,
+.fx-results-share-btn:active { transform: scale(0.90); }
+
+/* Auth submit */
+.fx-auth-submit {
+  transition: opacity 0.15s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-auth-submit:active { transform: scale(0.95); }
+
+/* Auth tabs */
+.fx-auth-tab {
+  transition: background 0.18s, color 0.18s, border-color 0.18s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-auth-tab:not(.active):active { transform: scale(0.94); }
+
+/* Welcome guest pill */
+.fx-welcome-guest {
+  transition: background 0.18s, border-color 0.18s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-welcome-guest:active { transform: scale(0.95); }
+
+/* Bottom nav tabs */
+.fx-bottom-tab {
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s,
+              width 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-bottom-tab:not(:disabled):active { transform: scale(0.82); }
+
+/* Header nav links and user badge */
+.fx-header-nav-link,
+.fx-header-user-btn {
+  transition: color 0.18s, background 0.18s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-header-nav-link:active,
+.fx-header-user-btn:active { transform: scale(0.93); }
+
+/* Compare sheet metal buttons */
+.fx-cmp-metal-btn {
+  transition: background 0.15s, border-color 0.15s, color 0.15s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-cmp-metal-btn:active { transform: scale(0.92); }
+
+/* Profile action + name edit buttons */
+.fx-profile-action-btn,
+.fx-name-btn {
+  transition: background 0.15s, opacity 0.15s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-profile-action-btn:not(:disabled):active { transform: scale(0.94); }
+.fx-name-btn:not(:disabled):active           { transform: scale(0.94); }
+
+/* Logout button */
+.fx-profile-logout-btn {
+  transition: background 0.2s, color 0.2s, border-color 0.2s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-profile-logout-btn:active { transform: scale(0.95); }
+
+/* Icon buttons (back, close, bell, hamburger) */
+.fx-icon-btn {
+  transition: background 0.18s,
+              transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-icon-btn:not(:disabled):active { transform: scale(0.82); }
+
+/* Back / close buttons in sheets */
+.fx-menu-back {
+  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-menu-back:active { transform: scale(0.88); }
+
+/* Menu rows — light press */
+.fx-menu-row {
+  transition: background 0.12s, transform 0.1s;
+}
+.fx-menu-row:active {
+  background: rgba(245, 247, 250, 0.07);
+  transform: scale(0.985);
+}
+
+/* Picker rows (currency picker) */
+.fx-picker-row {
+  transition: background 0.12s, transform 0.1s;
+}
+.fx-picker-row:active { background: rgba(245, 247, 250, 0.08); }
+
+/* History card buttons (expand/collapse) */
+.fx-history-expand-btn {
+  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fx-history-expand-btn:active { transform: scale(0.88); }
