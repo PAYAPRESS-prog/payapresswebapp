@@ -902,6 +902,32 @@ body {
 }
 .fx-input-field::-webkit-outer-spin-button,
 .fx-input-field::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* Placeholder = muted grey so it's obvious it's an example, not a real value */
+.fx-input-field::placeholder {
+  color: rgba(245, 247, 250, 0.20);
+  font-weight: 400;
+}
+
+/* Empty card — dashed border to signal "needs input" */
+.fx-input-card--empty {
+  border-style: dashed;
+  border-color: rgba(245, 247, 250, 0.13);
+}
+.fx-input-card--empty:focus-within {
+  border-style: solid;
+}
+
+/* Hint label shown when empty */
+.fx-input-hint {
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: rgba(245, 247, 250, 0.28);
+  text-transform: uppercase;
+}
+
 .fx-input-unit {
   font-size: 12px;
   font-weight: 510;

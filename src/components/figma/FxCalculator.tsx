@@ -85,9 +85,9 @@ function fmtResultPrice(n: number): string {
 
 export function FxCalculator({ initialData }: { initialData?: InitialPriceData }) {
   const [metal,  setMetal]  = useState<Metal>('copper');
-  const [width,  setWidth]  = useState('100');
-  const [thick,  setThick]  = useState('10');
-  const [length, setLength] = useState('2500');
+  const [width,  setWidth]  = useState('');
+  const [thick,  setThick]  = useState('');
+  const [length, setLength] = useState('');
   const [curr,   setCurr]   = useState<CurrCode>('USD');
   const [copper,   setCopper]   = useState<CopperPriceData | null>(initialData?.copper   ?? null);
   const [aluminum, setAluminum] = useState<CopperPriceData | null>(initialData?.aluminum ?? null);
@@ -361,22 +361,20 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           </div>
         </div>
 
-        <DimInput label="Length"    value={length} onChange={setLength}
+        <DimInput label="Length"    value={length} placeholder="2500" onChange={setLength}
           onFocus={() => setInteracted(true)}
-          onBlur={v => setLength(String(clampInt(v, 1, 100000, 2500)))} />
-        <DimInput label="Width"     value={width}  onChange={setWidth}
+          onBlur={v => { if (v) setLength(String(clampInt(v, 1, 100000, 2500))); }} />
+        <DimInput label="Width"     value={width}  placeholder="100" onChange={setWidth}
           onFocus={() => setInteracted(true)}
-          onBlur={v => setWidth(String(clampInt(v, 1, 100000, 100)))} />
-        <DimInput label="Thickness" value={thick}  onChange={setThick}
+          onBlur={v => { if (v) setWidth(String(clampInt(v, 1, 100000, 100))); }} />
+        <DimInput label="Thickness" value={thick}  placeholder="10" onChange={setThick}
           onFocus={() => setInteracted(true)}
-          onBlur={v => setThick(String(clampInt(v, 1, 100000, 10)))} />
+          onBlur={v => { if (v) setThick(String(clampInt(v, 1, 100000, 10))); }} />
 
-        {/* Calculate Now button — Figma: bg-#d80027, rounded-12, text-24px */}
-        {interacted && (
-          <button type="button" className="fx-calc-now-btn" onClick={handleCalculate}>
-            Calculate Now
-          </button>
-        )}
+        {/* Calculate Now button — always visible so user knows to tap it */}
+        <button type="button" className="fx-calc-now-btn" onClick={handleCalculate}>
+          Calculate Now
+        </button>
       </div>
 
       {/* ── Currency Conversion card — Figma 2×2 grid ── */}
@@ -736,19 +734,22 @@ function PlusSvg() {
 
 /* ── Dimension input row ────────────────────────────────── */
 function DimInput({
-  label, value, onChange, onBlur, onFocus,
+  label, value, placeholder, onChange, onBlur, onFocus,
 }: {
   label: string;
   value: string;
+  placeholder: string;
   onChange: (v: string) => void;
   onBlur: (v: string) => void;
   onFocus?: () => void;
 }) {
+  const isEmpty = value === '';
   return (
-    <div className="fx-input-card">
+    <div className={`fx-input-card${isEmpty ? ' fx-input-card--empty' : ''}`}>
       <label className="fx-input-label">
         <RulerIcon className="fx-input-label-icon" />
         <span>{label}</span>
+        {isEmpty && <span className="fx-input-hint">tap to enter</span>}
       </label>
       <div className="fx-input-row">
         <input
@@ -757,6 +758,7 @@ function DimInput({
           pattern="[0-9]*"
           className="fx-input-field"
           value={value}
+          placeholder={placeholder}
           onChange={e => onChange(e.target.value.replace(/[^0-9]/g, ''))}
           onFocus={onFocus}
           onBlur={e => onBlur(e.target.value)}
