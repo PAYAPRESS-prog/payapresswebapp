@@ -2426,13 +2426,20 @@ body {
 }
 .fx-history-hint-grip { letter-spacing: -2px; opacity: 0.7; }
 
+.fx-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 .fx-history-card {
   background: rgba(245, 247, 250, 0.04);
   border: 1px solid rgba(245, 247, 250, 0.07);
   border-radius: 16px;
   overflow: hidden;
-  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s, opacity 0.2s ease;
   touch-action: pan-y;
+  will-change: transform;
+  position: relative;
 }
 .fx-history-card.open {
   border-color: rgba(245, 247, 250, 0.12);
@@ -2440,10 +2447,16 @@ body {
 }
 .fx-history-card.dragging {
   border-color: var(--fx-copper-bright);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
-  opacity: 0.96;
-  z-index: 2;
-  position: relative;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.55),
+    0 8px 20px rgba(0, 0, 0, 0.35),
+    0 0 0 1.5px var(--fx-copper-bright);
+  background: rgba(245, 247, 250, 0.08);
+  z-index: 10;
+  opacity: 1 !important;
+}
+.fx-history-list.drag-active .fx-history-card:not(.dragging) {
+  opacity: 0.6;
 }
 
 /* Preview (collapsed) row */
