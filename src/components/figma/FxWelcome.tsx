@@ -42,7 +42,7 @@ export function FxWelcome({ initialSheet }: { initialSheet?: Mode }) {
               className="fx-welcome-signup"
               onClick={() => openSheet('signup')}
             >
-              Sign Up
+              Sign Up &amp; Log In
             </button>
           </p>
         </footer>

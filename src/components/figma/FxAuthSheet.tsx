@@ -28,7 +28,9 @@ export function FxAuthSheet({
   const [showPw, setShowPw]     = useState(false);
   const [showRepeat, setShowRepeat] = useState(false);
   const [optIn, setOptIn]       = useState(true);
-  const [remember, setRemember] = useState(false);
+  // Default to "remember" so a logged-in user isn't asked to sign in again
+  // on their next visit — the session cookie persists for 30 days.
+  const [remember, setRemember] = useState(true);
   const [busy, setBusy]         = useState(false);
   const [error, setError]       = useState<string | null>(null);
 

@@ -180,13 +180,19 @@ export function FxHistoryPage({
     const fromIdx = current.findIndex(i => i.id === dragging);
     if (fromIdx === -1) return;
 
-    let target = current.length - 1;
+    // Count how many *other* cards have their midpoint above the pointer.
+    // The dragging card is excluded — its lifted transform would otherwise
+    // pollute the measurement and block downward reordering.
+    let target = 0;
     for (let idx = 0; idx < current.length; idx++) {
+      if (current[idx].id === dragging) continue;
       const el = cardRefs.current.get(current[idx].id);
       if (!el) continue;
       const r = el.getBoundingClientRect();
-      if (e.clientY < r.top + r.height / 2) { target = idx; break; }
+      if (r.top + r.height / 2 < latestPtrY.current) target++;
     }
+    // `target` is the insertion index within the list minus the dragging card.
+    // When it equals fromIdx the order is unchanged.
     if (target === fromIdx) return;
 
     // Slot changed → capture FLIP positions then reorder via React
@@ -197,9 +203,8 @@ export function FxHistoryPage({
     }
     needsFlip.current = true;
 
-    const next = [...current];
-    const [moved] = next.splice(fromIdx, 1);
-    next.splice(target, 0, moved);
+    const next = current.filter(i => i.id !== dragging);
+    next.splice(target, 0, current[fromIdx]);
     setItems(next);
   }
 
