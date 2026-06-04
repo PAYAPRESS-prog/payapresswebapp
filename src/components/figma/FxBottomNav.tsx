@@ -24,9 +24,13 @@ export function FxBottomNav({ active = 'calculator' }: { active?: Tab }) {
         <HistoryIcon className="fx-bottom-tab-icon" width={24} height={24} />
       </Link>
 
-      <button type="button" className="fx-bottom-tab" disabled title="Coming soon">
+      <Link
+        href="/app/profile"
+        className={`fx-bottom-tab${active === 'profile' ? ' active' : ''}`}
+        aria-current={active === 'profile' ? 'page' : undefined}
+      >
         <UserIcon className="fx-bottom-tab-icon" width={24} height={24} />
-      </button>
+      </Link>
     </nav>
   );
 }

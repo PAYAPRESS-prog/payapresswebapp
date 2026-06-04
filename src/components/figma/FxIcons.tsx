@@ -23,6 +23,13 @@ import {
   Bookmark,
   Share,
   RoundTransferHorizontal,
+  LockKeyhole,
+  Phone,
+  Buildings,
+  PenNewSquare,
+  Logout,
+  CheckCircle,
+  CloseCircle,
 } from '@solar-icons/react-perf/Linear';
 import type { ComponentProps } from 'react';
 
@@ -102,6 +109,34 @@ export function ShareIcon(props: IconProps) {
 
 export function CompareIcon(props: IconProps) {
   return <RoundTransferHorizontal {...props} />;
+}
+
+export function LockIcon(props: IconProps) {
+  return <LockKeyhole {...props} />;
+}
+
+export function PhoneIcon(props: IconProps) {
+  return <Phone {...props} />;
+}
+
+export function BuildingsIcon(props: IconProps) {
+  return <Buildings {...props} />;
+}
+
+export function EditIcon(props: IconProps) {
+  return <PenNewSquare {...props} />;
+}
+
+export function LogoutIcon(props: IconProps) {
+  return <Logout {...props} />;
+}
+
+export function CheckCircleIcon(props: IconProps) {
+  return <CheckCircle {...props} />;
+}
+
+export function CloseCircleIcon(props: IconProps) {
+  return <CloseCircle {...props} />;
 }
 
 /* ── PAYAPRESS Logo ────────────────────────────────────────── */

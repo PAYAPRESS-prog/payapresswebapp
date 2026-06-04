@@ -1,10 +1,12 @@
 {
   "version": 1,
   "functions": {
-    "/api/auth/logout": {},
-    "/api/auth/me": {},
     "/api/auth/login": {},
+    "/api/auth/me": {},
+    "/api/auth/logout": {},
     "/api/auth/signup": {},
-    "/api/price-history": {}
+    "/api/price-history": {},
+    "/api/profile/change-password": {},
+    "/api/profile": {}
   }
 }

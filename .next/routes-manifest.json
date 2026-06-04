@@ -170,6 +170,12 @@
       "namedRegex": "^/app/history(?:/)?$"
     },
     {
+      "page": "/app/profile",
+      "regex": "^/app/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/app/profile(?:/)?$"
+    },
+    {
       "page": "/apple-icon",
       "regex": "^/apple\\-icon(?:/)?$",
       "routeKeys": {},

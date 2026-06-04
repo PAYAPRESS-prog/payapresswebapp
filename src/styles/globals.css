@@ -2667,3 +2667,306 @@ body {
 
 .fx-chart-change.up   { color: #22c55e; }
 .fx-chart-change.down { color: #ef4444; }
+
+/* ══════════════════════════════════════════════════════════════
+   Profile Page
+   ══════════════════════════════════════════════════════════════ */
+
+.fx-profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 12px;
+  padding-bottom: 32px;
+}
+
+/* Loading state */
+.fx-profile-loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--fx-text-3);
+  font-size: 15px;
+}
+
+/* Auth gate (not logged in) */
+.fx-profile-auth-gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px 0 0;
+}
+.fx-profile-auth-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(245,247,250,0.06);
+  border: 1px solid rgba(245,247,250,0.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fx-text-3);
+  margin-bottom: 16px;
+}
+.fx-profile-auth-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--fx-text-1);
+  margin: 0 0 8px;
+}
+.fx-profile-auth-sub {
+  font-size: 14px;
+  color: var(--fx-text-3);
+  margin: 0;
+}
+
+/* Avatar + hero */
+.fx-profile-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0 4px;
+}
+.fx-profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(184,115,51,0.22) 0%, rgba(245,247,250,0.06) 100%);
+  border: 1.5px solid rgba(184,115,51,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fx-copper-bright);
+  margin-bottom: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+.fx-profile-hero-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--fx-text-1);
+  text-align: center;
+}
+.fx-profile-hero-email {
+  font-size: 13px;
+  color: var(--fx-text-3);
+  text-align: center;
+}
+
+/* Section wrapper */
+.fx-profile-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.fx-profile-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+.fx-profile-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fx-text-3);
+}
+
+/* Edit button */
+.fx-profile-edit-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(245,247,250,0.06);
+  border: 1px solid rgba(245,247,250,0.10);
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: var(--fx-text-2);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  min-height: 36px;
+}
+.fx-profile-edit-btn:hover {
+  background: rgba(245,247,250,0.10);
+  color: var(--fx-text-1);
+}
+
+/* Glassmorphic card */
+.fx-profile-card {
+  background: rgba(245,247,250,0.04);
+  border: 1px solid rgba(245,247,250,0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Row inside card */
+.fx-profile-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  min-height: 56px;
+}
+.fx-profile-row-icon {
+  color: var(--fx-text-3);
+  flex-shrink: 0;
+}
+.fx-profile-row-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.fx-profile-row-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fx-text-3);
+}
+.fx-profile-row-value {
+  font-size: 15px;
+  color: var(--fx-text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fx-profile-row-value.empty {
+  color: var(--fx-text-3);
+  font-style: italic;
+}
+
+/* Divider between rows */
+.fx-profile-divider {
+  height: 1px;
+  background: rgba(245,247,250,0.06);
+  margin: 0 16px;
+}
+
+/* Password change panel */
+.fx-profile-pw-panel {
+  padding: 0 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: fx-history-expand 0.2s ease;
+}
+.fx-profile-pw-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.fx-profile-input {
+  width: 100%;
+  background: rgba(245,247,250,0.06);
+  border: 1px solid rgba(245,247,250,0.10);
+  border-radius: 10px;
+  padding: 10px 40px 10px 14px;
+  font-size: 15px;
+  color: var(--fx-text-1);
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  font-family: inherit;
+}
+.fx-profile-input::placeholder { color: var(--fx-text-3); }
+.fx-profile-input:focus {
+  border-color: rgba(184,115,51,0.5);
+  background: rgba(245,247,250,0.08);
+}
+.fx-profile-eye {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--fx-text-3);
+  display: flex;
+  align-items: center;
+  line-height: 0;
+  transition: color 0.15s;
+}
+.fx-profile-eye:hover { color: var(--fx-text-2); }
+.fx-profile-pw-error {
+  font-size: 13px;
+  color: #f87171;
+  margin: 0;
+  padding: 0 2px;
+}
+
+/* Save / Cancel action buttons */
+.fx-profile-pw-actions {
+  display: flex;
+  gap: 10px;
+  padding: 4px 0;
+}
+.fx-profile-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: opacity 0.15s, background 0.15s;
+  font-family: inherit;
+  min-height: 42px;
+}
+.fx-profile-action-btn:disabled { opacity: 0.5; cursor: default; }
+.fx-profile-action-btn.cancel {
+  background: rgba(245,247,250,0.07);
+  border-color: rgba(245,247,250,0.10);
+  color: var(--fx-text-2);
+}
+.fx-profile-action-btn.cancel:hover:not(:disabled) { background: rgba(245,247,250,0.11); }
+.fx-profile-action-btn.save {
+  background: rgba(184,115,51,0.20);
+  border-color: rgba(184,115,51,0.40);
+  color: var(--fx-copper-bright);
+}
+.fx-profile-action-btn.save:hover:not(:disabled) { background: rgba(184,115,51,0.28); }
+
+/* Edit-mode field row (inside card) */
+.fx-profile-field-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+}
+.fx-profile-field-row .fx-profile-input {
+  padding-right: 14px;
+}
+
+/* Logout button */
+.fx-profile-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  background: rgba(220,38,38,0.10);
+  border: 1px solid rgba(220,38,38,0.22);
+  border-radius: 14px;
+  color: #f87171;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-family: inherit;
+  margin-top: 4px;
+}
+.fx-profile-logout-btn:hover {
+  background: rgba(220,38,38,0.18);
+  border-color: rgba(220,38,38,0.35);
+}
