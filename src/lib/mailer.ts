@@ -44,6 +44,12 @@ interface MailOptions {
   subject: string;
   html: string;
   text: string;
+  /**
+   * 'transactional' = user-triggered (welcome, confirm) — no bulk headers.
+   * 'bulk'          = newsletter / mass send — adds Precedence + unsubscribe.
+   * Default: 'transactional'
+   */
+  category?: 'transactional' | 'bulk';
   listUnsubscribe?: string;
 }
 
@@ -54,23 +60,35 @@ export async function sendMail(opts: MailOptions): Promise<void> {
     return;
   }
 
-  const domain = FROM_ADDR().split('@')[1] ?? 'calculator.payapress.com';
-  const msgId  = `<${crypto.randomUUID()}@${domain}>`;
+  const from    = FROM_ADDR();
+  const domain  = from.split('@')[1] ?? 'calculator.payapress.com';
+  const msgId   = `<${crypto.randomUUID()}@${domain}>`;
+  const isBulk  = opts.category === 'bulk';
+  const unsubUrl = opts.listUnsubscribe ?? `<mailto:${from}?subject=unsubscribe>`;
+
+  const extraHeaders: Record<string, string> = {
+    'X-Mailer':        'Busbar-Calculator-Mailer/1.0',
+    'List-Unsubscribe': unsubUrl,
+  };
+
+  if (isBulk) {
+    extraHeaders['Precedence']            = 'bulk';
+    extraHeaders['List-Unsubscribe-Post'] = 'List-Unsubscribe=One-Click';
+  } else {
+    // Transactional — triggered by user action.
+    // Precedence:bulk tells Gmail to route to Spam/Promotions, so we omit it.
+    extraHeaders['Auto-Submitted'] = 'auto-generated';
+  }
 
   await transport.sendMail({
-    from:       `"Busbar Calculator" <${FROM_ADDR()}>`,
-    replyTo:    FROM_ADDR(),
-    to:         opts.to,
-    subject:    opts.subject,
-    messageId:  msgId,
-    html:       opts.html,
-    text:       opts.text,
-    headers: {
-      'X-Mailer':        'Busbar-Calculator-Mailer/1.0',
-      'List-Unsubscribe': opts.listUnsubscribe ?? `<mailto:${FROM_ADDR()}?subject=unsubscribe>`,
-      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-      'Precedence': 'bulk',
-    },
+    from:      `"Busbar Calculator" <${from}>`,
+    replyTo:   from,
+    to:        opts.to,
+    subject:   opts.subject,
+    messageId: msgId,
+    html:      opts.html,
+    text:      opts.text,
+    headers:   extraHeaders,
   });
 }
 

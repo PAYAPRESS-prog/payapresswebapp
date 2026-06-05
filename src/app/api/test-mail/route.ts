@@ -24,6 +24,7 @@ export async function GET(req: Request) {
     await sendMail({
       to,
       subject: 'Delivery Test — Busbar Calculator',
+      category: 'transactional',
       html: `<div style="font-family:Arial,sans-serif;padding:20px">
                <h2 style="color:#cd7f32">Email delivery test</h2>
                <p>If you received this, SMTP is working correctly.</p>
