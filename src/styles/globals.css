@@ -705,7 +705,7 @@ body {
   background: rgba(11, 13, 16, 0.85);
   -webkit-backdrop-filter: blur(20px) saturate(1.5);
   backdrop-filter: blur(20px) saturate(1.5);
-  border-bottom: 1px solid var(--fx-divider);
+  border-bottom: 1px solid rgba(245, 247, 250, 0.12);
   padding-top: env(safe-area-inset-top);
 }
 .fx-header-row {
@@ -2425,13 +2425,13 @@ body {
 /* ══════════════════════════════════════════════════════
    RESULTS PANEL
    ══════════════════════════════════════════════════════ */
-/* ── Results card — Figma glassmorphism, rounded-top pill ── */
+/* ── Results card — Figma dark glassmorphism, rounded-top pill ── */
 .fx-results {
-  background: rgba(245, 247, 250, 0.08);
+  background: rgba(11, 13, 16, 0.20);
   -webkit-backdrop-filter: blur(30px);
           backdrop-filter: blur(30px);
   border-radius: 32px 32px 16px 16px;
-  border: 1px solid rgba(245, 247, 250, 0.12);
+  border: 1px solid rgba(245, 247, 250, 0.08);
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -2513,13 +2513,12 @@ body {
   animation: fx-pulse 1.6s ease-in-out infinite;
 }
 
-/* Currency row — orange-bordered pill per Figma */
+/* Currency row — subtle glass background, no border per Figma */
 .fx-results-curr-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(247, 148, 29, 0.05);
-  border: 1px solid rgba(247, 148, 29, 0.60);
+  background: rgba(245, 247, 250, 0.05);
   border-radius: 12px;
   padding: 10px 14px;
   margin: 0 0 4px;
@@ -2579,9 +2578,10 @@ body {
 .fx-results-stat-unit {
   font-size: 14px;
   font-weight: 510;
-  color: var(--fx-text-2);
+  color: var(--fx-copper-bright);
   margin-left: 2px;
 }
+.fx-results-stat-num.al + .fx-results-stat-unit { color: #6fb3e0; }
 
 /* Action buttons row — Compare + Bookmark */
 .fx-results-actions {
