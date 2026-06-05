@@ -276,7 +276,7 @@ export function FxHistoryPage({
           {!loading && !error && items.length === 0 && (
             <div className="fx-history-empty">
               <p>No saved calculations yet.</p>
-              <p style={{ marginTop: 6, fontSize: 13, color: 'var(--fx-text-3)' }}>
+              <p style={{ marginTop: '6px', fontSize: '13px', color: 'var(--fx-text-3)' }}>
                 Use the calculator and bookmark results to save them here.
               </p>
               <Link href="/busbar-calculator" className="fx-history-signin-btn" style={{ marginTop: 16 }}>

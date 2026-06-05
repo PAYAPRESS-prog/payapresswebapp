@@ -185,6 +185,13 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
     return () => { document.body.style.overflow = prev; };
   }, [showPicker, showNameDialog]);
 
+  // Delayed focus on picker search — avoids iOS keyboard shift before sheet animates in
+  useEffect(() => {
+    if (!showPicker) return;
+    const id = setTimeout(() => pickerInput.current?.focus(), 300);
+    return () => clearTimeout(id);
+  }, [showPicker]);
+
   // Reset grade to default when metal changes
   useEffect(() => { setGradeIdx(0); }, [metal]);
 
@@ -252,7 +259,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
     requireAuth(() => {
       setBookmarkName(`${metal === 'copper' ? 'Copper' : 'Aluminum'} ${w}×${t}×${L}mm`);
       setShowNameDialog(true);
-      setTimeout(() => nameInputRef.current?.select(), 60);
+      setTimeout(() => { nameInputRef.current?.focus(); nameInputRef.current?.select(); }, 300);
     });
   }
 
@@ -673,7 +680,6 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
                 placeholder="Search for other currency"
                 value={pickerSearch}
                 onChange={e => setPickerSearch(e.target.value)}
-                autoFocus
               />
             </div>
             <div className="fx-picker-list">
@@ -737,7 +743,6 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
                 if (e.key === 'Enter' && bookmarkName.trim() && !savingBookmark) handleSaveBookmark();
                 if (e.key === 'Escape' && !savingBookmark) setShowNameDialog(false);
               }}
-              autoFocus
             />
 
             <div className="fx-name-preview">

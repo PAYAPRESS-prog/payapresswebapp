@@ -96,14 +96,16 @@ export function FxSwipeApp({ initialData, copperPrice, aluminumPrice }: Props) {
       goTo(next);
     };
 
-    vp.addEventListener('touchstart', onStart,  { passive: true  });
-    vp.addEventListener('touchmove',  onMove,   { passive: false });
-    vp.addEventListener('touchend',   onEnd,    { passive: true  });
+    vp.addEventListener('touchstart',  onStart,  { passive: true  });
+    vp.addEventListener('touchmove',   onMove,   { passive: false });
+    vp.addEventListener('touchend',    onEnd,    { passive: true  });
+    vp.addEventListener('touchcancel', onEnd,    { passive: true  });
 
     return () => {
-      vp.removeEventListener('touchstart', onStart);
-      vp.removeEventListener('touchmove',  onMove);
-      vp.removeEventListener('touchend',   onEnd);
+      vp.removeEventListener('touchstart',  onStart);
+      vp.removeEventListener('touchmove',   onMove);
+      vp.removeEventListener('touchend',    onEnd);
+      vp.removeEventListener('touchcancel', onEnd);
     };
   }, [goTo]);
 

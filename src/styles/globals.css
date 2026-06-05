@@ -81,8 +81,8 @@ body {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;   /* fallback for browsers without svh */
   min-height: 100svh;
-  min-height: 100vh; /* fallback */
   /* overflow-x NOT on body — breaks position:sticky on iOS Safari */
   /* text-size-adjust prevents iOS from bumping font sizes */
   -webkit-text-size-adjust: 100%;
@@ -498,7 +498,7 @@ body {
   font-size: 0.6875rem;
   font-weight: 700;
   padding: 7px 12px;
-  min-height: 32px;
+  min-height: 44px;
   color: var(--color-text-3);
 }
 .pill.preset.active { color: var(--accent); }
@@ -605,8 +605,8 @@ body {
 .fx-swipe-root {
   background: var(--fx-bg);
   color: var(--fx-text-1);
+  height: 100vh;   /* fallback for browsers without svh */
   height: 100svh;
-  height: 100vh; /* fallback */
   max-width: 480px;
   margin: 0 auto;
   display: flex;
@@ -744,6 +744,9 @@ body {
   font-weight: 700;
   color: var(--fx-text-1);
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .fx-logo-wrap {
@@ -1063,7 +1066,7 @@ body {
 
 /* ── Busbar render — contained render area (Figma 200px frame) ── */
 .fx-render-card {
-  height: 200px;
+  height: clamp(120px, 30vh, 200px);
   border-radius: 16px;
   overflow: hidden;
   display: flex;
@@ -1229,7 +1232,7 @@ body {
   justify-content: space-between;
   padding: 10px;
   flex: 0 0 auto;
-  width: 110px;
+  width: clamp(90px, 28%, 110px);
 }
 .fx-chart-current-label {
   font-size: 10px;
@@ -1259,7 +1262,7 @@ body {
   flex: 1;
   background: #171b21;
   border-radius: 12px;
-  height: 200px;
+  height: clamp(120px, 30vh, 200px);
   position: relative;
   overflow: hidden;
   padding: 10px 8px;
@@ -1423,8 +1426,7 @@ body {
 .fx-welcome {
   position: relative;
   height: 100vh;               /* fallback */
-  height: 100svh;              /* small viewport — adapts when chrome hides */
-  height: 100dvh;              /* dynamic viewport — best on mobile */
+  height: 100svh;              /* small viewport — stable when keyboard opens */
   max-width: 480px;
   margin: 0 auto;
   overflow: hidden;
@@ -2052,8 +2054,8 @@ body {
 .pp-splash-glow {
   position: absolute;
   top: 32%;
-  width: 320px;
-  height: 320px;
+  width: min(320px, 80vw);
+  height: min(320px, 80vw);
   border-radius: 50%;
   background: radial-gradient(circle, rgba(247,148,29,0.22), transparent 65%);
   filter: blur(18px);
@@ -2435,12 +2437,30 @@ body {
   flex-direction: column;
   gap: 0;
   overflow: hidden;
-  animation: fx-results-in 0.3s cubic-bezier(0.16,1,0.3,1);
+  animation: fx-results-in 0.55s cubic-bezier(0.16,1,0.3,1) both;
 }
 @keyframes fx-results-in {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(32px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* Staggered child animations */
+@keyframes fx-result-row-in {
+  from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+.fx-results > * {
+  animation: fx-result-row-in 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+.fx-results > *:nth-child(1)  { animation-delay: 0.08s; }
+.fx-results > *:nth-child(2)  { animation-delay: 0.12s; }
+.fx-results > *:nth-child(3)  { animation-delay: 0.16s; }
+.fx-results > *:nth-child(4)  { animation-delay: 0.20s; }
+.fx-results > *:nth-child(5)  { animation-delay: 0.24s; }
+.fx-results > *:nth-child(6)  { animation-delay: 0.28s; }
+.fx-results > *:nth-child(7)  { animation-delay: 0.32s; }
+.fx-results > *:nth-child(8)  { animation-delay: 0.36s; }
+.fx-results > *:nth-child(9)  { animation-delay: 0.40s; }
 
 /* Title — green per Figma */
 .fx-results-title {
@@ -3250,7 +3270,8 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
-  min-height: 36px;
+  min-height: 44px;
+  min-width: 44px;
 }
 .fx-profile-edit-btn:hover {
   background: rgba(245,247,250,0.10);
@@ -3521,8 +3542,8 @@ body {
 }
 
 .fx-cmp-close {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3675,7 +3696,7 @@ body {
   border: none;
   outline: none;
   padding: 10px 6px 10px 10px;
-  font-size: 14px;
+  font-size: 16px; /* 16px min prevents iOS auto-zoom */
   font-weight: 600;
   color: var(--fx-text-1);
   font-family: inherit;
@@ -4202,7 +4223,7 @@ body {
   .fx-content {
     flex: 1;
     display: grid;
-    grid-template-columns: 420px 1fr;
+    grid-template-columns: minmax(300px, 420px) 1fr;
     grid-template-areas: "inputs results";
     gap: 28px;
     align-items: start;
@@ -4670,6 +4691,10 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
     padding: 24px 20px;
   }
   .fx-welcome-actions { gap: 10px; }
+  /* Tighter bottom-nav padding in landscape (saves screen real-estate) */
+  .fx-swipe-panel {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
+  }
 }
 
 /* ── 320–374px: very narrow phones (Galaxy A series, older iPhones) */
@@ -4903,6 +4928,8 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   justify-content: center;
   width: 36px;
   height: 36px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 9px;
   border: 1px solid rgba(245, 247, 250, 0.08);
   background: rgba(245, 247, 250, 0.05);
@@ -5015,8 +5042,8 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
 
 /* Close button */
 .fx-notify-close {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1px solid rgba(245, 247, 250, 0.10);
   background: rgba(245, 247, 250, 0.06);
