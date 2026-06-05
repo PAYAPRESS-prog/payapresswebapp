@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
+import SplashScreen from '@/components/SplashScreen';
 import '@/styles/globals.css';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://calculator.payapress.com';
@@ -95,6 +96,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         '*{box-sizing:border-box}'
       }} />
       <body style={{ background: '#0b0d10' }}>
+        <SplashScreen />
         {children}
         {/* Global error capture — shows error on screen even if React can't mount */}
         <Script id="err-capture" strategy="beforeInteractive">{`
