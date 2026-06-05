@@ -4197,6 +4197,77 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
 }
 
 
+/* ══════════════════════════════════════════════════════
+   GLASSMORPHISM POLISH — match the frosted depth + fine
+   noise grain of the Figma design. Late in the cascade so
+   it refines the base card/nav/toggle surfaces.
+   ══════════════════════════════════════════════════════ */
+
+/* Fine fractal-noise grain (Figma "NOISE" effect). Lives only in the
+   background layer, so it can never paint over text/content. */
+:root {
+  --fx-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+/* Primary frosted cards — gradient sheen + top highlight + depth + grain */
+.fx-card,
+.fx-curr-card,
+.fx-metal-toggle {
+  position: relative;
+  background:
+    var(--fx-grain),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.012) 62%),
+    rgba(20, 23, 28, 0.42);
+  background-size: 150px 150px, auto, auto;
+  background-blend-mode: soft-light, normal, normal;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  -webkit-backdrop-filter: blur(14px) saturate(135%);
+  backdrop-filter: blur(14px) saturate(135%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 30px -14px rgba(0, 0, 0, 0.7);
+}
+
+/* Floating bottom nav — deeper charcoal glass to match Figma */
+.fx-bottom-nav {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.028)),
+    rgba(22, 25, 30, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  backdrop-filter: blur(22px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 14px 38px -8px rgba(0, 0, 0, 0.62);
+}
+.fx-bottom-tab.active {
+  background: linear-gradient(150deg, #f7a531 0%, #e07d12 100%);
+  box-shadow: 0 4px 14px rgba(216, 90, 0, 0.45),
+              inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* Welcome "Start Calculate" — stronger frosted-glass pill */
+.fx-welcome-guest {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  backdrop-filter: blur(16px) saturate(130%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 10px 32px -10px rgba(0, 0, 0, 0.55);
+}
+.fx-welcome-guest:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08));
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* Glass fallback: where backdrop-filter is unsupported, lean on solid fills */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .fx-card, .fx-curr-card, .fx-metal-toggle { background: rgba(26, 29, 35, 0.96); }
+  .fx-welcome-guest { background: rgba(60, 62, 70, 0.92); }
+}
+
+
 /* ── Disable iOS tap flash on all elements ─────────── */
 * { -webkit-tap-highlight-color: transparent; }
 
