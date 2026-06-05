@@ -5396,25 +5396,25 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
   z-index: 9001;
   animation: fx-tour-pop 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: top 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+              left 0.3s cubic-bezier(0.32, 0.72, 0, 1);
 }
 @keyframes fx-tour-pop {
   from { opacity: 0; transform: translateY(8px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0)    scale(1);   }
 }
-/* When tooltip is placed above the target, the JS applies translateY(-100%);
-   keep the pop animation from fighting it by disabling transform animation. */
-.fx-tour-tip.arrow-down { animation: fx-tour-fade 0.3s ease both; }
 
-/* Little pointer triangle */
+/* Little pointer triangle — positioned at the target's center via --arrow-x */
 .fx-tour-tip::after {
   content: '';
   position: absolute;
-  left: 50%;
+  left: var(--arrow-x, 50%);
   transform: translateX(-50%);
   width: 0; height: 0;
   border-left: 9px solid transparent;
   border-right: 9px solid transparent;
 }
+.fx-tour-tip:not(.arrow-up):not(.arrow-down)::after { display: none; }
 .fx-tour-tip.arrow-up::after {
   top: -9px;
   border-bottom: 9px solid #14181e;

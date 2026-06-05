@@ -9,6 +9,10 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
  * backdrop, a cut-out highlight around the target, and a tooltip card with
  * Back / Next / Skip controls. Shown once per device (localStorage flag);
  * can be relaunched via the `pp:tour:start` window event.
+ *
+ * Positioning is fully measured at runtime (target rect + tooltip size) and
+ * clamped into the viewport, so it stays correct on every screen size,
+ * orientation, and safe-area inset.
  */
 
 const STORAGE_KEY = 'pp_tour_seen_v1';
@@ -61,25 +65,47 @@ const STEPS: Step[] = [
   },
 ];
 
-const PAD = 8;       // spotlight padding around the target
-const GAP = 14;      // gap between spotlight and tooltip
-const TOOLTIP_W = 300;
+const PAD = 8;            // spotlight padding around the target
+const GAP = 12;           // gap between spotlight and tooltip
+const EDGE = 12;          // min distance from any viewport edge
+const MAX_TIP_W = 320;    // tooltip max width
 
-interface Rect { top: number; left: number; width: number; height: number; }
+interface Spot { top: number; left: number; width: number; height: number; }
+interface Tip {
+  top: number; left: number; width: number;
+  arrow: 'up' | 'down' | null;
+  arrowX: number; // px from tooltip's left edge to the arrow tip
+}
+
+/** Reads an env(safe-area-inset-*) value in px via a one-off probe element. */
+function readSafeInsets(): { top: number; bottom: number } {
+  if (typeof window === 'undefined') return { top: 0, bottom: 0 };
+  const probe = document.createElement('div');
+  probe.style.cssText =
+    'position:fixed;top:0;left:0;visibility:hidden;pointer-events:none;' +
+    'padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);';
+  document.body.appendChild(probe);
+  const cs = getComputedStyle(probe);
+  const top = parseFloat(cs.paddingTop) || 0;
+  const bottom = parseFloat(cs.paddingBottom) || 0;
+  probe.remove();
+  return { top, bottom };
+}
 
 export function FxTour() {
   const [active, setActive] = useState(false);
   const [idx, setIdx] = useState(0);
-  const [rect, setRect] = useState<Rect | null>(null);
+  const [spot, setSpot] = useState<Spot | null>(null);
+  const [tip, setTip] = useState<Tip | null>(null);
+  const tipRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
 
-  // Decide whether to run on first mount
+  // Decide whether to run on first mount — wait until the open-splash is gone.
   useEffect(() => {
     let seen = false;
     try { seen = localStorage.getItem(STORAGE_KEY) === '1'; } catch { /* ignore */ }
     if (!seen) {
-      // Wait for the calculator panel to settle (swipe positioning, fonts)
-      const id = setTimeout(() => setActive(true), 650);
+      const id = setTimeout(() => setActive(true), 2300); // splash hides ~2100ms
       return () => clearTimeout(id);
     }
   }, []);
@@ -93,31 +119,93 @@ export function FxTour() {
 
   const finish = useCallback(() => {
     setActive(false);
+    setSpot(null);
+    setTip(null);
     try { localStorage.setItem(STORAGE_KEY, '1'); } catch { /* ignore */ }
   }, []);
 
+  const next = useCallback(() => {
+    setIdx(i => (i >= STEPS.length - 1 ? i : i + 1));
+  }, []);
+  const back = useCallback(() => setIdx(i => Math.max(0, i - 1)), []);
+
+  // Measure target + tooltip, then place the tooltip clamped into the viewport.
   const measure = useCallback(() => {
     if (!active) return;
     const step = STEPS[idx];
     const el = document.querySelector<HTMLElement>(`[data-tour="${step.target}"]`);
-    if (!el) { setRect(null); return; }
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const { top: insTop, bottom: insBot } = readSafeInsets();
+
+    if (!el) { setSpot(null); setTip(null); return; }
+
     const r = el.getBoundingClientRect();
-    setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
+    const s: Spot = {
+      top:    Math.max(EDGE, r.top - PAD),
+      left:   Math.max(EDGE, r.left - PAD),
+      width:  Math.min(vw - 2 * EDGE, r.width + 2 * PAD),
+      height: Math.min(vh - 2 * EDGE, r.height + 2 * PAD),
+    };
+
+    const tipW = Math.min(MAX_TIP_W, vw - 2 * EDGE);
+    const tipH = tipRef.current?.offsetHeight ?? 210; // estimate before first paint
+
+    const spaceBelow = vh - (s.top + s.height) - insBot;
+    const spaceAbove = s.top - insTop;
+    const need = tipH + GAP + EDGE;
+
+    // Honor preference, flip when the preferred side can't fit.
+    let placeBelow = step.prefer === 'top'
+      ? spaceAbove < need && spaceBelow >= spaceAbove
+      : !(spaceBelow < need && spaceAbove > spaceBelow);
+
+    let top: number;
+    let arrow: 'up' | 'down' | null;
+    if (placeBelow) {
+      top = s.top + s.height + GAP;
+      arrow = 'up';
+    } else {
+      top = s.top - GAP - tipH;
+      arrow = 'down';
+    }
+    // Vertical clamp — never let the card leave the safe viewport.
+    top = Math.max(EDGE + insTop, Math.min(vh - tipH - EDGE - insBot, top));
+
+    // Horizontal: center on the target, clamp to edges.
+    const targetCx = r.left + r.width / 2;
+    const left = Math.max(EDGE, Math.min(vw - tipW - EDGE, targetCx - tipW / 2));
+
+    // Arrow points at the target center within the (possibly clamped) card.
+    const arrowX = Math.max(16, Math.min(tipW - 16, targetCx - left));
+
+    // If the card ended up overlapping the spotlight (tight screens), drop the arrow.
+    const cardBottom = top + tipH;
+    const overlaps = cardBottom > s.top - 2 && top < s.top + s.height + 2;
+    if (overlaps) arrow = null;
+
+    setSpot(s);
+    setTip({ top, left, width: tipW, arrow, arrowX });
   }, [active, idx]);
 
-  // Scroll the current target into view, then measure (with settle delay)
+  // Scroll the target into view, then measure (with settle passes for animation)
   useLayoutEffect(() => {
     if (!active) return;
     const step = STEPS[idx];
     const el = document.querySelector<HTMLElement>(`[data-tour="${step.target}"]`);
-    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
     measure();
-    const t1 = setTimeout(measure, 220);
-    const t2 = setTimeout(measure, 480);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    const ids = [80, 240, 480].map(d => setTimeout(measure, d));
+    return () => ids.forEach(clearTimeout);
   }, [active, idx, measure]);
 
-  // Keep the spotlight glued to the target during scroll / resize
+  // Re-place once the tooltip's real height is known (two-pass refinement)
+  useLayoutEffect(() => {
+    if (active && tip) measure();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tip?.width]);
+
+  // Track scroll / resize / orientation
   useEffect(() => {
     if (!active) return;
     const onChange = () => {
@@ -125,87 +213,59 @@ export function FxTour() {
       rafRef.current = requestAnimationFrame(measure);
     };
     window.addEventListener('resize', onChange);
+    window.addEventListener('orientationchange', onChange);
     window.addEventListener('scroll', onChange, true);
     return () => {
       window.removeEventListener('resize', onChange);
+      window.removeEventListener('orientationchange', onChange);
       window.removeEventListener('scroll', onChange, true);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [active, measure]);
 
-  // Keyboard: arrows + escape
+  // Keyboard nav
   useEffect(() => {
     if (!active) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') finish();
-      else if (e.key === 'ArrowRight') setIdx(i => Math.min(STEPS.length - 1, i + 1));
-      else if (e.key === 'ArrowLeft')  setIdx(i => Math.max(0, i - 1));
+      else if (e.key === 'ArrowRight') next();
+      else if (e.key === 'ArrowLeft') back();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [active, finish]);
+  }, [active, finish, next, back]);
 
   if (!active) return null;
 
   const isLast = idx === STEPS.length - 1;
   const step = STEPS[idx];
-
-  // Spotlight box (clamped to viewport)
-  const vw = typeof window !== 'undefined' ? window.innerWidth : 480;
-  const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
-
-  const spot = rect ? {
-    top:    Math.max(PAD, rect.top - PAD),
-    left:   Math.max(PAD, rect.left - PAD),
-    width:  Math.min(vw - 2 * PAD, rect.width + 2 * PAD),
-    height: rect.height + 2 * PAD,
-  } : null;
-
-  // Tooltip placement — below if target sits in the top half, else above
-  let tipTop = vh / 2;
-  let tipLeft = (vw - TOOLTIP_W) / 2;
-  let arrow: 'up' | 'down' | null = null;
-
-  if (spot) {
-    const spaceBelow = vh - (spot.top + spot.height);
-    const placeBelow = step.prefer === 'bottom'
-      ? spaceBelow > 200
-      : spaceBelow > 320;
-
-    if (placeBelow) {
-      tipTop = spot.top + spot.height + GAP;
-      arrow = 'up';
-    } else {
-      tipTop = spot.top - GAP; // tooltip's bottom edge sits here (translateY -100%)
-      arrow = 'down';
-    }
-
-    const cx = spot.left + spot.width / 2;
-    tipLeft = Math.max(12, Math.min(vw - TOOLTIP_W - 12, cx - TOOLTIP_W / 2));
-  }
+  const advance = () => (isLast ? finish() : next());
 
   return (
     <div className="fx-tour" role="dialog" aria-modal="true" aria-label="Getting started tour">
       {/* Dimmed backdrop with a cut-out hole around the target.
-          A click on the backdrop advances to the next step. */}
+          Clicking the backdrop advances to the next step. */}
       {spot ? (
         <div
           className="fx-tour-spot"
           style={{ top: spot.top, left: spot.left, width: spot.width, height: spot.height }}
-          onClick={() => (isLast ? finish() : setIdx(i => i + 1))}
+          onClick={advance}
         />
       ) : (
-        <div className="fx-tour-dim" onClick={() => (isLast ? finish() : setIdx(i => i + 1))} />
+        <div className="fx-tour-dim" onClick={advance} />
       )}
 
       {/* Tooltip card */}
       <div
-        className={`fx-tour-tip${arrow ? ` arrow-${arrow}` : ''}`}
+        ref={tipRef}
+        className={`fx-tour-tip${tip?.arrow ? ` arrow-${tip.arrow}` : ''}`}
         style={{
-          top: tipTop,
-          left: tipLeft,
-          width: TOOLTIP_W,
-          transform: arrow === 'down' ? 'translateY(-100%)' : undefined,
+          top:  tip ? tip.top  : '50%',
+          left: tip ? tip.left : '50%',
+          width: tip ? tip.width : Math.min(MAX_TIP_W, 320),
+          transform: tip ? undefined : 'translate(-50%, -50%)',
+          ['--arrow-x' as string]: tip ? `${tip.arrowX}px` : '50%',
+          visibility: tip ? 'visible' : 'hidden',
         }}
       >
         <div className="fx-tour-tip-head">
@@ -223,15 +283,11 @@ export function FxTour() {
 
         <div className="fx-tour-actions">
           {idx > 0 ? (
-            <button type="button" className="fx-tour-btn fx-tour-btn-back" onClick={() => setIdx(i => i - 1)}>
+            <button type="button" className="fx-tour-btn fx-tour-btn-back" onClick={back}>
               Back
             </button>
           ) : <span />}
-          <button
-            type="button"
-            className="fx-tour-btn fx-tour-btn-next"
-            onClick={() => (isLast ? finish() : setIdx(i => i + 1))}
-          >
+          <button type="button" className="fx-tour-btn fx-tour-btn-next" onClick={advance}>
             {isLast ? 'Got it' : 'Next'}
           </button>
         </div>
