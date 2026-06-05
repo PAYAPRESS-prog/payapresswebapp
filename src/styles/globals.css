@@ -3368,12 +3368,15 @@ body {
   display: flex;
   align-items: flex-end;
   animation: fx-overlay-in 0.22s ease;
+  overflow: hidden; /* prevent any horizontal bleed from children */
 }
 
 .fx-cmp-sheet {
   width: 100%;
+  max-width: 100vw; /* never exceed viewport */
   max-height: min(92svh, calc(100svh - env(safe-area-inset-top, 0px)));
   overflow-y: auto;
+  overflow-x: hidden; /* prevent horizontal scroll — implicit from overflow-y:auto */
   background: var(--fx-surface);
   border-radius: 24px 24px 0 0;
   border-top: 1px solid rgba(245, 247, 250, 0.08);
@@ -3381,6 +3384,7 @@ body {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
 }
 
 @keyframes fx-sheet-up {
@@ -3530,6 +3534,7 @@ body {
 
 .fx-cmp-dim {
   flex: 1;
+  min-width: 0; /* allow flex item to shrink below content size */
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -3589,11 +3594,15 @@ body {
 .fx-cmp-table-wrap {
   padding: 0 16px;
   margin-top: 4px;
+  /* ensure table never bleeds wider than sheet */
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .fx-cmp-table-head {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  /* minmax(0,...) lets columns shrink below their content size */
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1.15fr);
   padding: 10px 8px 6px;
 }
 
@@ -3630,7 +3639,7 @@ body {
 /* Table row */
 .fx-cmp-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1.15fr);
   align-items: center;
   padding: 11px 8px;
   border-radius: 10px;
@@ -3646,19 +3655,24 @@ body {
 }
 
 .fx-cmp-row-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--fx-text-3);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   line-height: 1.3;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 .fx-cmp-row-a {
   text-align: center;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--fx-text-2);
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .fx-cmp-row-b {
@@ -3669,9 +3683,11 @@ body {
 }
 
 .fx-cmp-row-bval {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--fx-text-1);
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* Delta badge */
