@@ -702,10 +702,8 @@ body {
   position: sticky;
   top: 0;
   z-index: 30;
-  background: rgba(11, 13, 16, 0.85);
-  -webkit-backdrop-filter: blur(20px) saturate(1.5);
-  backdrop-filter: blur(20px) saturate(1.5);
-  border-bottom: 1px solid rgba(245, 247, 250, 0.12);
+  background: #0b0d10;
+  border-bottom: 1px solid #f5f7fa;
   padding-top: env(safe-area-inset-top);
 }
 .fx-header-row {
@@ -819,9 +817,10 @@ body {
 /* ── Generic card — Figma flat translucent surface ─ */
 .fx-card {
   background: rgba(245, 247, 250, 0.05);
-  border: 1px solid rgba(245, 247, 250, 0.1);
+  border: none;
   border-radius: 16px;
   padding: 10px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -2508,12 +2507,12 @@ body {
   background: rgba(11, 13, 16, 0.20);
   -webkit-backdrop-filter: blur(30px);
           backdrop-filter: blur(30px);
-  border-radius: 32px 32px 16px 16px;
-  border: 1px solid rgba(245, 247, 250, 0.08);
-  padding: 10px;
+  border-radius: 32px 32px 0 0;
+  border: none;
+  padding: 10px 10px 20px 10px;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 10px;
   overflow: hidden;
   animation: fx-results-in 0.55s cubic-bezier(0.16,1,0.3,1) both;
 }
@@ -2553,7 +2552,7 @@ body {
 /* Thin divider */
 .fx-results-divider {
   height: 1px;
-  background: rgba(245, 247, 250, 0.12);
+  background: rgba(245, 247, 250, 0.05);
   margin: 0 0 4px;
 }
 
@@ -2633,7 +2632,7 @@ body {
 /* 10px gap between consecutive stat rows, matching Figma */
 .fx-results-stat-row + .fx-results-stat-row { margin-top: 10px; }
 .fx-results-stat-border {
-  border-bottom: 1px solid rgba(245, 247, 250, 0.08);
+  border-bottom: 1px solid rgba(245, 247, 250, 0.05);
 }
 .fx-results-stat-label {
   flex: 1;
@@ -2675,9 +2674,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   padding: 10px;
-  border-radius: 999px;
+  border-radius: 12px;
   background: rgba(245, 247, 250, 0.05);
   border: none;
   color: #ffffff;
@@ -2695,20 +2694,20 @@ body {
   color: var(--fx-copper-bright);
 }
 
-/* Share button — same glassmorphism pill, full width */
+/* Share button — same glass button, full width */
 .fx-results-share-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   width: 100%;
-  margin-top: 10px;
+  margin-top: 0;
   padding: 10px;
-  border-radius: 999px;
+  border-radius: 12px;
   background: rgba(245, 247, 250, 0.05);
   border: none;
   color: #ffffff;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 510;
   font-family: inherit;
   cursor: pointer;
@@ -4102,33 +4101,32 @@ body {
   background: rgba(247, 148, 29, 0.05);
 }
 .fx-dim-col-label {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--fx-text-3);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 10px;
+  font-weight: 400;
+  color: rgba(245, 247, 250, 0.4);
+  text-align: center;
 }
 .fx-dim-col-input {
   width: 100%;
+  height: 40px;
   background: transparent;
   border: none;
-  border-bottom: 1.5px solid rgba(245, 247, 250, 0.12);
+  border-bottom: 1px solid rgba(245, 247, 250, 0.2);
   outline: none;
-  font-size: 22px;
-  font-weight: 590;
-  color: var(--fx-text-1);
+  font-size: 24px;
+  font-weight: 400;
+  color: #f5f7fa;
   text-align: center;
   font-family: inherit;
-  padding: 2px 0 6px;
+  padding: 0;
   transition: border-color 0.15s;
   min-width: 0;
+  box-sizing: border-box;
 }
 .fx-dim-col-input::placeholder { color: rgba(245, 247, 250, 0.18); }
 .fx-dim-col-input:focus { border-bottom-color: var(--fx-copper-bright); outline: none; }
 .fx-dim-col-unit {
-  font-size: 10.5px;
-  font-weight: 500;
-  color: var(--fx-text-3);
+  display: none;
 }
 
 /* Grade badge in results row */
@@ -4199,7 +4197,7 @@ body {
 
   /* ── Header — full-width nav bar ── */
   .fx-header {
-    border-bottom: 1px solid rgba(245,247,250,0.07);
+    border-bottom: 1px solid #f5f7fa;
   }
   .fx-header-row {
     height: 60px;
@@ -4540,18 +4538,14 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
    it refines the base card/nav/toggle surfaces.
    ══════════════════════════════════════════════════════ */
 
-/* Currency card keeps the deeper frosted-glass look */
+/* Currency card — Figma: flat glass, no border, no blur */
 .fx-curr-card {
   position: relative;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.012) 62%),
-    rgba(20, 23, 28, 0.52);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  backdrop-filter: blur(16px) saturate(140%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 10px 30px -14px rgba(0, 0, 0, 0.7);
+  background: rgba(245, 247, 250, 0.05);
+  border: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
 }
 
 /* Dimensions card — exact Figma: flat translucent fill, no border, no blur */
@@ -4561,22 +4555,17 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   box-shadow: none;
 }
 
-/* Floating bottom nav — deeper charcoal glass to match Figma */
+/* Floating bottom nav — Figma: rgba(245,247,250,0.2) with blur */
 .fx-bottom-nav {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.028)),
-    rgba(22, 25, 30, 0.62);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  -webkit-backdrop-filter: blur(22px) saturate(150%);
-  backdrop-filter: blur(22px) saturate(150%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.10),
-    0 14px 38px -8px rgba(0, 0, 0, 0.62);
+  background: rgba(245, 247, 250, 0.2);
+  border: none;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: none;
 }
 .fx-bottom-tab.active {
-  background: linear-gradient(150deg, #f7a531 0%, #e07d12 100%);
-  box-shadow: 0 4px 14px rgba(216, 90, 0, 0.45),
-              inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  background: rgba(247, 148, 29, 0.6);
+  box-shadow: 4px 4px 10px 0px rgba(0, 0, 0, 0.25);
 }
 
 /* Welcome "Start Calculate" — stronger frosted-glass pill */
@@ -4594,16 +4583,12 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   border-color: rgba(255, 255, 255, 0.45);
 }
 
-/* Results card — deeper glass matching Figma (desktop right-column) */
+/* Results card — Figma: rgba(11,13,16,0.2) with blur(30px) */
 .fx-results {
-  background:
-    linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.015) 60%),
-    rgba(18, 21, 27, 0.55);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  backdrop-filter: blur(20px) saturate(140%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.09),
-    0 14px 40px -12px rgba(0, 0, 0, 0.75);
+  background: rgba(11, 13, 16, 0.20);
+  -webkit-backdrop-filter: blur(30px);
+  backdrop-filter: blur(30px);
+  box-shadow: none;
 }
 
 /* ── Mobile Results Portal (bottom-sheet) ──────────────────── */
@@ -4793,12 +4778,12 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
 
 /* Calculate Now — primary CTA */
 .fx-calc-now-btn {
-  transition: opacity 0.15s, box-shadow 0.2s ease,
+  transition: opacity 0.15s,
               transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 4px 20px rgba(216, 0, 39, 0.3), 0 2px 8px rgba(0,0,0,0.25);
+  box-shadow: none;
 }
-.fx-calc-now-btn:hover  { box-shadow: 0 6px 28px rgba(216, 0, 39, 0.42); opacity: 1; }
-.fx-calc-now-btn:active { transform: scale(0.95); box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+.fx-calc-now-btn:hover  { opacity: 0.9; }
+.fx-calc-now-btn:active { transform: scale(0.95); }
 
 /* Metal toggle */
 .fx-metal-btn {
