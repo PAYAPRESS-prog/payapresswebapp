@@ -6,6 +6,7 @@ import { FxBottomNav } from './FxBottomNav';
 import { FxCalculator } from './FxCalculator';
 import { FxHistoryPage } from './FxHistoryPage';
 import { FxProfilePage } from './FxProfilePage';
+import { FxTour } from './FxTour';
 import type { InitialPriceData } from '@/types/calculator';
 
 type Tab = 'history' | 'calculator' | 'profile';
@@ -38,6 +39,14 @@ export function FxSwipeApp({ initialData, copperPrice, aluminumPrice }: Props) {
     setActiveIdx(next);
     activeIdxRef.current = next;
   }, []);
+
+  // When the tour is (re)launched, make sure the Calculator panel is in view —
+  // its elements are what the tour spotlights.
+  useEffect(() => {
+    const toCalc = () => { if (activeIdxRef.current !== 1) goTo(1); };
+    window.addEventListener('pp:tour:start', toCalc);
+    return () => window.removeEventListener('pp:tour:start', toCalc);
+  }, [goTo]);
 
   // Set initial position without animation on mount
   useEffect(() => {
@@ -139,6 +148,9 @@ export function FxSwipeApp({ initialData, copperPrice, aluminumPrice }: Props) {
       </div>
 
       <FxBottomNav active={TABS[activeIdx]} onTabChange={goTo} />
+
+      {/* First-run onboarding tour */}
+      <FxTour />
     </div>
   );
 }

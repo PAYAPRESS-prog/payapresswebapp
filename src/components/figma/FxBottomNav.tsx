@@ -21,7 +21,7 @@ export function FxBottomNav({
   onTabChange?: (idx: number) => void;
 }) {
   return (
-    <nav className="fx-bottom-nav" aria-label="Primary">
+    <nav className="fx-bottom-nav" aria-label="Primary" data-tour="nav">
       {TABS.map(({ tab, href, Icon }, idx) => {
         const isActive = active === tab;
         const cls = `fx-bottom-tab${isActive ? ' active' : ''}`;

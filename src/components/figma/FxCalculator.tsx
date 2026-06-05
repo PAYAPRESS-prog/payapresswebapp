@@ -309,7 +309,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
       <div className="fx-col-inputs">
 
       {/* ── Metal toggle ───────────────────────────────── */}
-      <div className="fx-metal-toggle">
+      <div className="fx-metal-toggle" data-tour="metal">
         <button
           type="button"
           className={`fx-metal-btn${metal === 'copper' ? ' active' : ''}`}
@@ -341,7 +341,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         </div>
 
         {/* ── Material Grade selector ── */}
-        <div className="fx-grade-section">
+        <div className="fx-grade-section" data-tour="grade">
           <div className={`fx-grade-header${metal === 'aluminum' ? ' al' : ''}`}>
             <RulerIcon className="fx-grade-header-icon" width={13} height={13} />
             <span>{metal === 'copper' ? 'Grade of Copper' : 'Grade of Aluminum'}</span>
@@ -366,7 +366,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           </div>
         </div>
 
-        <div className="fx-suggestions">
+        <div className="fx-suggestions" data-tour="suggestions">
           <span className="fx-suggestions-label">Suggestions</span>
           <div className="fx-suggestions-scroll no-scrollbar">
             {PRESETS.map(p => {
@@ -386,7 +386,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         </div>
 
         {/* ── Inline 3-column dimension inputs ── */}
-        <div className="fx-dim-row">
+        <div className="fx-dim-row" data-tour="dimensions">
           <div className="fx-dim-col">
             <span className="fx-dim-col-label">Length</span>
             <input
@@ -426,7 +426,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         </div>
 
         {/* Calculate Now button — always visible so user knows to tap it */}
-        <button type="button" className="fx-calc-now-btn" onClick={handleCalculate}>
+        <button type="button" className="fx-calc-now-btn" onClick={handleCalculate} data-tour="calculate">
           Calculate Now
         </button>
       </div>

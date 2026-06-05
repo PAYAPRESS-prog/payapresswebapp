@@ -8,7 +8,7 @@
     "/api/notify": {},
     "/api/price-history": {},
     "/api/profile/change-password": {},
-    "/api/profile": {},
-    "/api/test-mail": {}
+    "/api/test-mail": {},
+    "/api/profile": {}
   }
 }

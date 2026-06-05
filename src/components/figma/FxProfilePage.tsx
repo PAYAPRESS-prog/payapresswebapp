@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import {
   UserIcon, LetterIcon, LockIcon, PhoneIcon, BuildingsIcon,
   EditIcon, LogoutIcon, CheckCircleIcon, CloseCircleIcon,
-  EyeIcon, EyeClosedIcon,
+  EyeIcon, EyeClosedIcon, MagicStickIcon,
 } from './FxIcons';
 import { FxHeader } from './FxHeader';
 import { FxBottomNav } from './FxBottomNav';
@@ -381,6 +381,16 @@ export function FxProfilePage({ embedded }: { embedded?: boolean } = {}) {
               )}
             </div>
           </section>
+
+          {/* ── Replay onboarding tour ── */}
+          <button
+            type="button"
+            className="fx-profile-tour-btn"
+            onClick={() => window.dispatchEvent(new Event('pp:tour:start'))}
+          >
+            <MagicStickIcon width={20} height={20} />
+            Show app tour
+          </button>
 
           {/* ── Logout ── */}
           <button type="button" className="fx-profile-logout-btn" onClick={handleLogout}>
