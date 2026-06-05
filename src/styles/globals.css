@@ -5751,3 +5751,247 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   .fx-tour-tip,
   .fx-tour-spot { animation: none !important; transition: none !important; }
 }
+
+/* ══════════════════════════════════════════════════════
+   Waste Calculation button (in results panel)
+   ══════════════════════════════════════════════════════ */
+.fx-results-waste-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px 16px;
+  margin-top: 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(232, 115, 26, 0.30);
+  background: rgba(232, 115, 26, 0.08);
+  color: #e8731a;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  /* RTL text for Farsi label */
+  direction: rtl;
+}
+.fx-results-waste-btn:hover  { background: rgba(232, 115, 26, 0.14); border-color: rgba(232, 115, 26, 0.50); }
+.fx-results-waste-btn:active { background: rgba(232, 115, 26, 0.20); transform: scale(0.99); }
+
+/* Aluminum variant */
+.fx-results-waste-btn.al {
+  border-color: rgba(111, 179, 224, 0.30);
+  background: rgba(111, 179, 224, 0.08);
+  color: #6fb3e0;
+}
+.fx-results-waste-btn.al:hover  { background: rgba(111, 179, 224, 0.14); border-color: rgba(111, 179, 224, 0.50); }
+
+/* ══════════════════════════════════════════════════════
+   Waste Sheet — bottom-sheet portal
+   ══════════════════════════════════════════════════════ */
+.fx-waste-portal {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  pointer-events: auto;
+}
+
+.fx-waste-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 6, 9, 0.88);
+  animation: fx-sheet-bg-in 0.28s ease both;
+}
+
+.fx-waste-sheet {
+  position: relative;
+  z-index: 1;
+  background: rgba(11, 13, 16, 0.22);
+  -webkit-backdrop-filter: blur(32px) saturate(140%);
+          backdrop-filter: blur(32px) saturate(140%);
+  border-top: 1px solid rgba(245, 247, 250, 0.12);
+  border-left: 1px solid rgba(245, 247, 250, 0.06);
+  border-right: 1px solid rgba(245, 247, 250, 0.06);
+  border-radius: 32px 32px 0 0;
+  max-height: 88vh;
+  max-height: 88svh;
+  display: flex;
+  flex-direction: column;
+  padding-top: 22px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-shadow: 0 -12px 60px rgba(0, 0, 0, 0.60), inset 0 1px 0 rgba(255,255,255,0.08);
+  animation: fx-sheet-slide-in 0.44s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.fx-waste-portal.is-leaving .fx-waste-sheet {
+  animation: fx-sheet-slide-out 0.32s cubic-bezier(0.55, 0, 1, 0.45) both;
+}
+.fx-waste-portal.is-leaving .fx-waste-overlay {
+  animation: fx-sheet-bg-out 0.32s ease both;
+}
+
+.fx-waste-handle {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 4px;
+  background: rgba(245, 247, 250, 0.22);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.fx-waste-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(245, 247, 250, 0.08);
+  border: 1px solid rgba(245, 247, 250, 0.10);
+  color: rgba(245, 247, 250, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+  z-index: 2;
+}
+.fx-waste-close:hover  { background: rgba(245, 247, 250, 0.14); }
+.fx-waste-close:active { transform: scale(0.90); }
+
+.fx-waste-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding: 8px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fx-waste-header {
+  text-align: center;
+  padding-top: 4px;
+}
+.fx-waste-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #f5f7fa;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+  direction: rtl;
+}
+.fx-waste-meta {
+  font-size: 13px;
+  color: rgba(245, 247, 250, 0.50);
+  letter-spacing: 0.01em;
+}
+
+/* Waste sections */
+.fx-waste-section {
+  background: rgba(245, 247, 250, 0.04);
+  border: 1px solid rgba(245, 247, 250, 0.07);
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.fx-waste-section-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(245, 247, 250, 0.75);
+  letter-spacing: 0.01em;
+}
+
+/* Input row */
+.fx-waste-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.fx-waste-input-label {
+  flex: 1;
+  font-size: 13px;
+  color: rgba(245, 247, 250, 0.50);
+}
+.fx-waste-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245, 247, 250, 0.06);
+  border: 1px solid rgba(245, 247, 250, 0.10);
+  border-radius: 12px;
+  padding: 0 10px;
+  height: 40px;
+}
+.fx-waste-input {
+  width: 72px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f5f7fa;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: right;
+}
+.fx-waste-input::placeholder { color: rgba(245, 247, 250, 0.25); }
+.fx-waste-unit {
+  font-size: 12px;
+  color: rgba(245, 247, 250, 0.35);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* Result rows */
+.fx-waste-results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(245, 247, 250, 0.06);
+  animation: fx-result-row-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.fx-waste-result-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+.fx-waste-result-row.fx-waste-result-highlight {
+  border-top: 1px solid rgba(245, 247, 250, 0.06);
+  padding-top: 10px;
+  margin-top: 2px;
+}
+.fx-waste-result-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(245, 247, 250, 0.45);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.fx-waste-result-val {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f5f7fa;
+}
+.fx-waste-result-unit {
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(245, 247, 250, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-waste-portal,
+  .fx-waste-sheet { animation: none !important; transition: none !important; }
+}

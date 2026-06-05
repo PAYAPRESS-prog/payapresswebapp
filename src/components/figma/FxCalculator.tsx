@@ -14,6 +14,7 @@ import { FxAuthSheet } from './FxAuthSheet';
 import { FxBusbarChart } from './FxBusbarChart';
 import { FxBusbarRender } from './FxBusbarRender';
 import { FxCompareSheet } from './FxCompareSheet';
+import { FxWasteSheet } from './FxWasteSheet';
 
 type Metal = 'copper' | 'aluminum';
 type CurrCode =
@@ -113,6 +114,8 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
   const [gradeIdx,    setGradeIdx]    = useState(0);
   const [showCompare, setShowCompare] = useState(false);
+  const [showWaste,   setShowWaste]   = useState(false);
+  const saveForWasteRef = useRef(false);
 
   const [authOpen,  setAuthOpen]  = useState(false);
   const [authMode,  setAuthMode]  = useState<'login' | 'signup'>('login');
@@ -195,7 +198,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
   // Lock body scroll while any bottom sheet is open (prevents iOS background scroll)
   useEffect(() => {
-    const locked = showPicker || showNameDialog || (showResults && isMobile);
+    const locked = showPicker || showNameDialog || (showResults && isMobile) || showWaste;
     if (!locked) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -297,6 +300,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   async function handleSaveBookmark() {
     const name = bookmarkName.trim() || 'Untitled';
     setSavingBookmark(true);
+    const forWaste = saveForWasteRef.current;
     try {
       const res = await fetch('/api/history', {
         method: 'POST',
@@ -310,14 +314,30 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
       if (!res.ok) throw new Error('save_failed');
       setBookmarked(true);
       setShowNameDialog(false);
-      setSaveToast('Saved to History');
-      setTimeout(() => setSaveToast(null), 2600);
+      saveForWasteRef.current = false;
+      if (forWaste) {
+        setShowWaste(true);
+      } else {
+        setSaveToast('Saved to History');
+        setTimeout(() => setSaveToast(null), 2600);
+      }
     } catch {
+      saveForWasteRef.current = false;
       setSaveToast('Could not save — try again');
       setTimeout(() => setSaveToast(null), 2600);
     } finally {
       setSavingBookmark(false);
     }
+  }
+
+  // Opens waste sheet: auth gate → name dialog → waste popup
+  function openWasteSheet() {
+    requireAuth(() => {
+      saveForWasteRef.current = true;
+      setBookmarkName(`${metal === 'copper' ? 'Copper' : 'Aluminum'} ${w}×${t}×${L}mm`);
+      setShowNameDialog(true);
+      setTimeout(() => { nameInputRef.current?.focus(); nameInputRef.current?.select(); }, 300);
+    });
   }
 
   function handlePickerSelect(code: CurrCode) {
@@ -592,9 +612,11 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         fxRate={fxRate} totalIn={totalIn} showCompare={showCompare}
         bookmarked={bookmarked} w={w} t={t} L={L} pricePerKgUSD={pricePerKgUSD}
         busbarPremium={grade.busbarPremium} updatedLabel={updatedLabel}
+        density={grade.density}
         resultsRef={resultsRef}
         onCompare={() => setShowCompare(true)}
         onBookmark={openBookmarkDialog}
+        onWaste={openWasteSheet}
         onClose={() => setShowResults(false)}
         showCloseBtn={false}
       />}
@@ -629,9 +651,11 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
                 fxRate={fxRate} totalIn={totalIn} showCompare={showCompare}
                 bookmarked={bookmarked} w={w} t={t} L={L} pricePerKgUSD={pricePerKgUSD}
                 busbarPremium={grade.busbarPremium} updatedLabel={updatedLabel}
+                density={grade.density}
                 resultsRef={resultsRef}
                 onCompare={() => setShowCompare(true)}
                 onBookmark={openBookmarkDialog}
+                onWaste={openWasteSheet}
                 onClose={closeResults}
                 showCloseBtn={false}
               />
@@ -772,6 +796,18 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         currLabel={CURR_META[activeCurr].label}
       />
 
+      {/* ── Waste calculation sheet ───────────────────── */}
+      <FxWasteSheet
+        open={showWaste}
+        onClose={() => setShowWaste(false)}
+        metal={metal}
+        w={w} t={t} L={L}
+        pricePerKgUSD={pricePerKgUSD}
+        fxRate={fxRate(activeCurr)}
+        currLabel={CURR_META[activeCurr].label}
+        density={grade.density}
+      />
+
       {/* ── Auth sheet ────────────────────────────────── */}
       <FxAuthSheet
         open={authOpen}
@@ -800,9 +836,11 @@ type ResultsBodyProps = {
   pricePerKgUSD: number;
   busbarPremium: number;
   updatedLabel: string;
+  density: number;
   resultsRef: React.RefObject<HTMLDivElement | null>;
   onCompare: () => void;
   onBookmark: () => void;
+  onWaste: () => void;
   onClose: () => void;
   showCloseBtn: boolean;
 };
@@ -811,7 +849,7 @@ function ResultsBody({
   metal, activeCurr, activeCurrTotal, grade, weightKg, maxCurrentA,
   fxRate, totalIn, showCompare, bookmarked, w, t, L, pricePerKgUSD,
   busbarPremium, updatedLabel, resultsRef,
-  onCompare, onBookmark,
+  onCompare, onBookmark, onWaste,
 }: ResultsBodyProps) {
   return (
     <>
@@ -906,6 +944,17 @@ function ResultsBody({
           <ShareIcon width={20} height={20} />
           Share result
         </button>
+
+        {/* Waste calculation — auth-gated, saves to history first */}
+        <button
+          type="button"
+          className="fx-results-waste-btn"
+          onClick={onWaste}
+          aria-label="محاسبه ضایعات"
+        >
+          <WasteIcon width={20} height={20} metal={metal} />
+          محاسبه ضایعات
+        </button>
       </div>
 
       <FxBusbarChart
@@ -918,6 +967,20 @@ function ResultsBody({
         updatedLabel={updatedLabel}
       />
     </>
+  );
+}
+
+/* ── Waste icon — circular saw blade ─────────────────────── */
+function WasteIcon({ width = 20, height = 20, metal }: { width?: number; height?: number; metal: 'copper' | 'aluminum' }) {
+  const c = metal === 'copper' ? '#e8731a' : '#6fb3e0';
+  return (
+    <svg width={width} height={height} viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="1.4" strokeOpacity="0.5"/>
+      <path d="M10 2.5 A7.5 7.5 0 0 1 17.5 10" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+      <circle cx="10" cy="10" r="2.2" stroke={c} strokeWidth="1.4"/>
+      <line x1="7" y1="10" x2="13" y2="10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeOpacity="0.6"/>
+      <line x1="10" y1="7" x2="10" y2="13" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeOpacity="0.6"/>
+    </svg>
   );
 }
 
