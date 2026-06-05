@@ -33,6 +33,8 @@ export const MATERIAL_GRADES: MaterialGrade[] = [
     purity: 0.9990,
     density: 8.89,
     description: '99.90% — Electrolytic Tough Pitch, most common grade',
+    // LME cathode → rod rolling (~$350/t) + busbar drawing (~$200/t) + distribution (~$150/t) ≈ +12%
+    busbarPremium: 0.12,
   },
   {
     id: 'cu-of',
@@ -41,6 +43,8 @@ export const MATERIAL_GRADES: MaterialGrade[] = [
     purity: 0.9995,
     density: 8.92,
     description: '99.95% — Oxygen-Free, high electrical conductivity',
+    // Additional electrolytic refining step adds ~5% above ETP busbar
+    busbarPremium: 0.17,
   },
   {
     id: 'cu-ofe',
@@ -49,6 +53,8 @@ export const MATERIAL_GRADES: MaterialGrade[] = [
     purity: 0.9999,
     density: 8.94,
     description: '99.99% — Oxygen-Free Electronic, premium grade',
+    // Ultra-high purity vacuum processing adds ~8% above OF
+    busbarPremium: 0.25,
   },
 ];
 

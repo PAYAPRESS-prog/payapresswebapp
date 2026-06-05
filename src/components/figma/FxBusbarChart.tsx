@@ -16,6 +16,7 @@ interface Props {
   fxRate: number;
   currLabel: string;
   pricePerKgUSD: number;
+  busbarPremium: number;
   updatedLabel: string;
 }
 
@@ -104,7 +105,7 @@ function thin<T>(arr: T[], max: number): T[] {
   return Array.from({ length: max }, (_, i) => arr[Math.round(i * (arr.length - 1) / (max - 1))]);
 }
 
-export function FxBusbarChart({ metal, weightKg, fxRate, currLabel, pricePerKgUSD, updatedLabel }: Props) {
+export function FxBusbarChart({ metal, weightKg, fxRate, currLabel, pricePerKgUSD, busbarPremium, updatedLabel }: Props) {
   const [range,    setRange]    = useState<ChartRange>('1M');
   const [raw,      setRaw]      = useState<ChartData | null>(null);
   const [busy,     setBusy]     = useState(true);
@@ -128,7 +129,7 @@ export function FxBusbarChart({ metal, weightKg, fxRate, currLabel, pricePerKgUS
   const chart = useMemo(() => {
     if (!raw || raw.timestamps.length < 3) return null;
 
-    const busbarPrices = raw.pricesPerKg.map(p => p * weightKg * fxRate);
+    const busbarPrices = raw.pricesPerKg.map(p => p * (1 + busbarPremium) * weightKg * fxRate);
     const maxPts = 60;
     const ts  = thin(raw.timestamps, maxPts);
     const bps = thin(busbarPrices,   maxPts);
@@ -159,7 +160,7 @@ export function FxBusbarChart({ metal, weightKg, fxRate, currLabel, pricePerKgUS
     const absChg = lastP - firstP;
 
     return { pts, line, area, last, yTicks, xTicks, ts, bps, minIdx, maxIdx, firstP, lastP, pctChg, absChg, xOf, yOf };
-  }, [raw, weightKg, fxRate]);
+  }, [raw, weightKg, fxRate, busbarPremium]);
 
   // Convert a pointer/touch event X (in screen px) to the nearest chart index
   function nearestIdx(clientX: number): number | null {

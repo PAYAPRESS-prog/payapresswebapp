@@ -9,9 +9,10 @@ export interface MaterialGrade {
   id: string;
   label: string;
   standard: string;
-  purity: number;    // e.g. 0.999
-  density: number;   // g/cm³
+  purity: number;      // e.g. 0.999
+  density: number;     // g/cm³
   description: string;
+  busbarPremium: number; // fabrication + distribution premium over LME spot (decimal, e.g. 0.12 = 12%)
 }
 
 export interface CopperPriceData {

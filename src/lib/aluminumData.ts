@@ -29,6 +29,8 @@ export const ALUMINUM_GRADES: MaterialGrade[] = [
     purity: 0.9950,
     density: 2.703,
     description: '99.50% — EC Grade, most common electrical busbar alloy',
+    // P1020 → 1350 alloy conversion + rod rolling (~$400/t) + busbar extrusion (~$250/t) + distribution ≈ +28%
+    busbarPremium: 0.28,
   },
   {
     id: 'al-6101',
@@ -37,6 +39,8 @@ export const ALUMINUM_GRADES: MaterialGrade[] = [
     purity: 0.9890,
     density: 2.700,
     description: '98.9% — Heat-treatable, higher strength than 1350',
+    // Additional heat-treatment cycle + T6 temper processing ≈ +35%
+    busbarPremium: 0.35,
   },
   {
     id: 'al-6063',
@@ -45,6 +49,8 @@ export const ALUMINUM_GRADES: MaterialGrade[] = [
     purity: 0.9800,
     density: 2.690,
     description: '98.0% — General purpose, structural grade',
+    // Standard extrusion alloy, widely available ≈ +22%
+    busbarPremium: 0.22,
   },
 ];
 

@@ -187,7 +187,8 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
     [w, t, L, grade.density],
   );
 
-  const pricePerKgUSD   = live?.pricePerKg ?? 0;
+  const spotPerKgUSD    = live?.pricePerKg ?? 0;
+  const pricePerKgUSD   = spotPerKgUSD * (1 + grade.busbarPremium);
   const totalUSD        = weightKg * pricePerKgUSD;
   const maxCurrentA     = Math.round(w * t * CURRENT_DENSITY[metal]);
 
@@ -535,10 +536,10 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
           {/* Estimate Price + Live badge */}
           <div className="fx-results-price-row">
-            <span className="fx-results-price-label">Estimate Price</span>
+            <span className="fx-results-price-label">Busbar Price</span>
             <span className="fx-results-live-badge">
               <span className="fx-results-live-dot" />
-              Live COMEX
+              Live {metal === 'copper' ? 'COMEX' : 'LME'} +{Math.round(grade.busbarPremium * 100)}%
             </span>
           </div>
 
@@ -636,6 +637,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           fxRate={fxRate(activeCurr)}
           currLabel={CURR_META[activeCurr].label}
           pricePerKgUSD={pricePerKgUSD}
+          busbarPremium={grade.busbarPremium}
           updatedLabel={updatedLabel}
         />
       )}

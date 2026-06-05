@@ -76,7 +76,8 @@ function buildRows(
   const bGrade = bMetal === 'copper' ? DEFAULT_GRADE : DEFAULT_ALUMINUM_GRADE;
   const bLive  = bMetal === 'copper' ? copper : aluminum;
   const bWeightKg      = (bW * bT * bL * bGrade.density) / 1_000_000;
-  const bPricePerKgUSD = bLive?.pricePerKg ?? 0;
+  const bSpotPerKgUSD  = bLive?.pricePerKg ?? 0;
+  const bPricePerKgUSD = bSpotPerKgUSD * (1 + bGrade.busbarPremium);
   const bTotalUSD      = bWeightKg * bPricePerKgUSD;
   const bMaxCurrentA   = Math.round(bW * bT * CURRENT_DENSITY[bMetal]);
   const bCrossSection  = bW * bT;
