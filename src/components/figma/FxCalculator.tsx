@@ -606,17 +606,16 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             onClick={() => {
               const metalName = metal === 'copper' ? 'Copper' : 'Aluminum';
               const priceStr  = `${fmtResultPrice(activeCurrTotal)} ${CURR_META[activeCurr].label}`;
-              const appUrl    = 'https://calculator.payapress.com';
+              const appUrl = 'https://calculator.payapress.com';
               const txt = [
                 `📐 ${metalName} busbar ${w}×${t}×${L} mm`,
                 `💰 ${priceStr}`,
                 `⚡ ${maxCurrentA.toLocaleString()} A  •  ${fmtMoney(weightKg)} kg`,
                 ``,
-                `Calculated with PAYAPRESS Busbar Calculator`,
-                `Free busbar cost calculator — try it here 👇`,
+                `Free busbar cost calculator 👇`,
               ].join('\n');
               if (navigator.share) {
-                navigator.share({ title: 'PAYAPRESS Busbar Calculator', text: txt, url: appUrl }).catch(() => {});
+                navigator.share({ title: 'Busbar Calculator', text: txt, url: appUrl }).catch(() => {});
               } else {
                 navigator.clipboard?.writeText(`${txt}\n${appUrl}`).catch(() => {});
               }

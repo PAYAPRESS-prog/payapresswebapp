@@ -468,9 +468,8 @@ export default function RoadmapClient() {
               className="max-w-lg leading-relaxed mb-8"
               style={{ fontSize: '0.95rem', color: '#71717a' }}
             >
-              PAYAPRESS Industrial Tools Platform — from copper busbar calculator
-              to a full industrial intelligence suite for electrical professionals
-              across the UAE and MENA region. Built by the PAYAPRESS Digital Marketing Team.
+              From copper busbar calculator to a full industrial intelligence suite
+              for electrical professionals across the UAE and MENA region.
             </p>
 
             {/* Stats strip */}
@@ -572,11 +571,8 @@ export default function RoadmapClient() {
             style={{ borderTop: '1px solid rgba(184,115,51,0.12)' }}
           >
             <div>
-              <p className="text-sm font-semibold" style={{ color: '#71717a' }}>
-                Built by the PAYAPRESS Digital Marketing Team
-              </p>
               <p className="text-[0.72rem] mt-0.5" style={{ color: '#3f3f46' }}>
-                payapress.com · Industrial Tools Platform
+                © Busbar Calculator · Industrial Tools Platform
               </p>
             </div>
             <div className="flex gap-3 flex-wrap">

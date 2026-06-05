@@ -51,7 +51,6 @@ export default function SplashScreen() {
       <h1 className="pp-splash-title">
         Busbar <span className="pp-splash-accent">Calculator</span>
       </h1>
-      <p className="pp-splash-sub">PAYAPRESS</p>
 
       <div className="pp-splash-bar" aria-hidden="true" />
     </div>

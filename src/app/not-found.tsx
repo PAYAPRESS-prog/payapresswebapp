@@ -27,10 +27,6 @@ export default function NotFound() {
         <rect x="12" y="38" width="40" height="8" rx="2.5" fill="white" opacity="0.35"/>
       </svg>
 
-      <p style={{ color: '#cd7f32', fontWeight: 700, letterSpacing: '0.18em', fontSize: '0.75rem', textTransform: 'uppercase', margin: 0 }}>
-        PAYAPRESS
-      </p>
-
       <p style={{ color: '#f0f0f0', fontWeight: 700, fontSize: '1.5rem', margin: 0 }}>
         404
       </p>
