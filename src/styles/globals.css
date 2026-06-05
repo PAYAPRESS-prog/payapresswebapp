@@ -61,6 +61,11 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Prevent iOS double-tap zoom on all interactive elements */
+a, button, [role="button"], input, select, textarea, label {
+  touch-action: manipulation;
+}
+
 html {
   scroll-behavior: smooth;
   /* Prevent horizontal overflow without breaking iOS sticky */
@@ -2310,7 +2315,7 @@ body {
   background: transparent;
   border: none;
   outline: none;
-  font-size: 15px;
+  font-size: 16px;
   font-family: inherit;
   color: var(--fx-text-1);
   min-width: 0;

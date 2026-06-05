@@ -176,6 +176,15 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const t = clampInt(thick,  1, 100000, 10);
   const L = clampInt(length, 1, 100000, 2500);
 
+  // Lock body scroll while any bottom sheet is open (prevents iOS background scroll)
+  useEffect(() => {
+    const locked = showPicker || showNameDialog;
+    if (!locked) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [showPicker, showNameDialog]);
+
   // Reset grade to default when metal changes
   useEffect(() => { setGradeIdx(0); }, [metal]);
 
