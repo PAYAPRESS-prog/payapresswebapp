@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { ShareIcon } from './FxIcons';
 
 interface Props {
   open: boolean;
@@ -16,7 +17,7 @@ interface Props {
   density: number;
 }
 
-function fmtWaste(n: number): string {
+function fmtW(n: number): string {
   if (n === 0) return '0';
   if (n < 0.0001) return n.toExponential(2);
   if (n < 0.01) return n.toFixed(5);
@@ -36,18 +37,11 @@ export function FxWasteSheet({
 
   const close = useCallback(() => {
     setLeaving(true);
-    setTimeout(() => {
-      setLeaving(false);
-      onClose();
-    }, 320);
+    setTimeout(() => { setLeaving(false); onClose(); }, 320);
   }, [onClose]);
 
-  // Reset inputs when opened
-  useEffect(() => {
-    if (open) { setBladeDia(''); setPunchDia(''); }
-  }, [open]);
+  useEffect(() => { if (open) { setBladeDia(''); setPunchDia(''); } }, [open]);
 
-  // Body scroll lock
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -58,22 +52,48 @@ export function FxWasteSheet({
   if (!mounted || (!open && !leaving)) return null;
 
   const metalColor = metal === 'copper' ? '#e8731a' : '#6fb3e0';
+  const metalName  = metal === 'copper' ? 'Copper' : 'Aluminum';
   const totalKg    = w * t * L * density / 1_000_000;
 
-  // Blade kerf calculation
-  // Standard circular saw blades: kerf ≈ 1.5% of blade diameter
+  // ── Blade kerf ────────────────────────────────────────────────
+  // kerf ≈ 1.5% of blade diameter (typical cold-saw; min 0.5 mm)
   const bd       = parseFloat(bladeDia);
   const kerfMm   = (!isNaN(bd) && bd > 0) ? Math.max(0.5, bd * 0.015) : 0;
   const kerfVol  = kerfMm * w * t;          // mm³ per cut
   const kerfKg   = kerfVol * density / 1_000_000;
   const kerfCost = kerfKg * pricePerKgUSD * fxRate;
 
-  // Punch-out calculation
+  // ── Punch-out ─────────────────────────────────────────────────
   const pd         = parseFloat(punchDia);
   const punchArea  = (!isNaN(pd) && pd > 0) ? Math.PI * (pd / 2) ** 2 : 0; // mm²
-  const punchVol   = punchArea * t;         // mm³ per punch
+  const punchVol   = punchArea * t;          // mm³ per punch
   const punchKg    = punchVol * density / 1_000_000;
   const punchCost  = punchKg * pricePerKgUSD * fxRate;
+
+  const hasAnyResult = (bd > 0) || (pd > 0);
+
+  function handleShare() {
+    const parts: string[] = [
+      `✂️ ${metalName} Busbar Waste`,
+      `📐 ${L}×${w}×${t} mm — ${totalKg.toFixed(3)} kg total`,
+    ];
+    if (bd > 0) {
+      parts.push(`Blade Ø${bd} mm → kerf ${kerfMm.toFixed(1)} mm`);
+      parts.push(`  Waste/cut: ${fmtW(kerfKg)} kg · ${fmtW(kerfCost)} ${currLabel}`);
+    }
+    if (pd > 0) {
+      parts.push(`Punch Ø${pd} mm → area ${(punchArea / 100).toFixed(2)} cm²`);
+      parts.push(`  Waste/punch: ${fmtW(punchKg)} kg · ${fmtW(punchCost)} ${currLabel}`);
+    }
+    parts.push('', 'Calculated with PAYAPRESS Busbar Calculator');
+    const appUrl = 'https://calculator.payapress.com';
+    const txt = parts.join('\n');
+    if (navigator.share) {
+      navigator.share({ title: 'Busbar Waste Calculation', text: txt, url: appUrl }).catch(() => {});
+    } else {
+      navigator.clipboard?.writeText(`${txt}\n${appUrl}`).catch(() => {});
+    }
+  }
 
   return createPortal(
     <div className={`fx-waste-portal${leaving ? ' is-leaving' : ''}`}>
@@ -86,17 +106,19 @@ export function FxWasteSheet({
           </svg>
         </button>
 
+        {/* ── Scrollable body ─────────────────────────────── */}
         <div className="fx-waste-body">
+
           {/* Header */}
           <div className="fx-waste-header">
             <h2 className="fx-waste-title">محاسبه ضایعات</h2>
             <p className="fx-waste-meta">
-              <span style={{ color: metalColor }}>{metal === 'copper' ? 'Copper' : 'Aluminum'}</span>
+              <span style={{ color: metalColor }}>{metalName}</span>
               {' · '}{L}×{w}×{t} mm · {totalKg.toFixed(3)} kg
             </p>
           </div>
 
-          {/* ── Blade kerf section ─────────────────────── */}
+          {/* ── Blade kerf ─────────────────────────────── */}
           <div className="fx-waste-section">
             <div className="fx-waste-section-head">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -134,20 +156,20 @@ export function FxWasteSheet({
                 <div className="fx-waste-result-row">
                   <span className="fx-waste-result-label">Waste per cut</span>
                   <span className="fx-waste-result-val">
-                    {fmtWaste(kerfKg)}<span className="fx-waste-result-unit"> kg</span>
+                    {fmtW(kerfKg)}<span className="fx-waste-result-unit"> kg</span>
                   </span>
                 </div>
                 <div className="fx-waste-result-row fx-waste-result-highlight">
                   <span className="fx-waste-result-label">Waste cost / cut</span>
                   <span className="fx-waste-result-val" style={{ color: metalColor }}>
-                    {fmtWaste(kerfCost)}<span className="fx-waste-result-unit"> {currLabel}</span>
+                    {fmtW(kerfCost)}<span className="fx-waste-result-unit"> {currLabel}</span>
                   </span>
                 </div>
               </div>
             )}
           </div>
 
-          {/* ── Punch-out section ──────────────────────── */}
+          {/* ── Punch-out ──────────────────────────────── */}
           <div className="fx-waste-section">
             <div className="fx-waste-section-head">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -183,19 +205,35 @@ export function FxWasteSheet({
                 <div className="fx-waste-result-row">
                   <span className="fx-waste-result-label">Waste per punch</span>
                   <span className="fx-waste-result-val">
-                    {fmtWaste(punchKg)}<span className="fx-waste-result-unit"> kg</span>
+                    {fmtW(punchKg)}<span className="fx-waste-result-unit"> kg</span>
                   </span>
                 </div>
                 <div className="fx-waste-result-row fx-waste-result-highlight">
                   <span className="fx-waste-result-label">Waste cost / punch</span>
                   <span className="fx-waste-result-val" style={{ color: metalColor }}>
-                    {fmtWaste(punchCost)}<span className="fx-waste-result-unit"> {currLabel}</span>
+                    {fmtW(punchCost)}<span className="fx-waste-result-unit"> {currLabel}</span>
                   </span>
                 </div>
               </div>
             )}
           </div>
+
+        </div>{/* end fx-waste-body */}
+
+        {/* ── Sticky footer with Share ─────────────────────── */}
+        <div className="fx-waste-footer">
+          <button
+            type="button"
+            className="fx-results-share-btn"
+            onClick={handleShare}
+            disabled={!hasAnyResult}
+            aria-label="Share waste result"
+          >
+            <ShareIcon width={18} height={18} />
+            Share result
+          </button>
         </div>
+
       </div>
     </div>,
     document.body,

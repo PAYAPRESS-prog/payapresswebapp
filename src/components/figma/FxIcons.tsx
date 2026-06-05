@@ -139,6 +139,16 @@ export function CloseCircleIcon(props: IconProps) {
   return <CloseCircle {...props} />;
 }
 
+export function ScissorsIcon({ className, width = 24, height = 24 }: IconProps) {
+  return (
+    <svg width={width} height={height} viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <circle cx="6" cy="6" r="2.5" stroke="currentColor" strokeWidth="1.8"/>
+      <circle cx="6" cy="18" r="2.5" stroke="currentColor" strokeWidth="1.8"/>
+      <path d="M8.5 7.5L20 12M8.5 16.5L20 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
 /* ── PAYAPRESS Logo ────────────────────────────────────────── */
 
 export function PayapressLogo({ height = 28 }: { height?: number }) {

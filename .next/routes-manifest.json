@@ -176,6 +176,12 @@
       "namedRegex": "^/app/profile(?:/)?$"
     },
     {
+      "page": "/app/waste",
+      "regex": "^/app/waste(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/app/waste(?:/)?$"
+    },
+    {
       "page": "/apple-icon",
       "regex": "^/apple\\-icon(?:/)?$",
       "routeKeys": {},

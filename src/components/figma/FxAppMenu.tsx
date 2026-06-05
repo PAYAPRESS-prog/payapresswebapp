@@ -7,6 +7,7 @@ import {
   HistoryIcon,
   ChartUpIcon,
   MagicStickIcon,
+  ScissorsIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
 } from './FxIcons';
@@ -26,6 +27,7 @@ type Item = {
 const ITEMS: Item[] = [
   { key: 'calc',    label: 'Busbar Calculator',  sub: 'Live copper & aluminum cost', Icon: CalculatorIcon, action: 'route', href: '/busbar-calculator' },
   { key: 'history', label: 'History',            sub: 'Your saved calculations',     Icon: HistoryIcon,    action: 'auth',  href: '/app/history' },
+  { key: 'waste',   label: 'Waste Calculator',   sub: 'Kerf & punch-out loss',       Icon: ScissorsIcon,   action: 'auth',  href: '/app/waste' },
   { key: 'trends',  label: 'Current Trends',     sub: 'Market price movements',      Icon: ChartUpIcon,    action: 'soon' },
   { key: 'future',  label: 'Future Projections', sub: 'AI-assisted price forecast',  Icon: MagicStickIcon, action: 'soon' },
 ];
@@ -51,6 +53,7 @@ export function FxAppMenu() {
   useEffect(() => {
     router.prefetch('/busbar-calculator');
     router.prefetch('/app/history');
+    router.prefetch('/app/waste');
   }, [router]);
 
   // Close the coming-soon modal on Escape
