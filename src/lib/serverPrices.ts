@@ -1,6 +1,48 @@
 import { fetchWithRetry } from './fetchWithRetry';
 import type { CopperPriceData, FxRates } from '@/types/calculator';
 
+// ── In-process TTL cache + request coalescing ─────────────────────────────────
+// Prevents hammering Yahoo Finance / Frankfurter when multiple server renders
+// or API hits occur within the same TTL window. Critical on Hostinger (no CDN).
+
+interface CacheEntry<T> { data: T; expiry: number }
+const _cache  = new Map<string, CacheEntry<unknown>>();
+const _flight = new Map<string, Promise<unknown>>();
+
+function cacheGet<T>(key: string): T | null {
+  const e = _cache.get(key);
+  if (!e || Date.now() > e.expiry) { _cache.delete(key); return null; }
+  return e.data as T;
+}
+
+function cacheSet<T>(key: string, data: T, ttlMs: number): void {
+  _cache.set(key, { data, expiry: Date.now() + ttlMs });
+}
+
+async function once<T>(key: string, fetcher: () => Promise<T>, ttlMs: number): Promise<T> {
+  const cached = cacheGet<T>(key);
+  if (cached) return cached;
+
+  // Coalesce concurrent callers onto the same in-flight promise.
+  let pending = _flight.get(key) as Promise<T> | undefined;
+  if (pending) return pending;
+
+  pending = fetcher().then(data => {
+    cacheSet(key, data, ttlMs);
+    _flight.delete(key);
+    return data;
+  }).catch(err => {
+    _flight.delete(key);
+    throw err;
+  });
+  _flight.set(key, pending);
+  return pending;
+}
+
+// ── Cache TTLs ────────────────────────────────────────────────────────────────
+const TTL_PRICES_MS = 5  * 60 * 1000; // 5 min — matches Next.js revalidate:300
+const TTL_FX_MS     = 6  * 60 * 60 * 1000; // 6 h  — matches revalidate:21600
+
 const COPPER_URL   = 'https://query1.finance.yahoo.com/v8/finance/chart/HG=F?interval=1d&range=1d';
 const ALUMINUM_URL = 'https://query1.finance.yahoo.com/v8/finance/chart/ALI=F?interval=1d&range=1d';
 const FRANKFURTER_URL = 'https://api.frankfurter.app/latest?from=USD';
@@ -21,7 +63,11 @@ const WANTED_FX = [
   'EUR','GBP','CHF','JPY','CAD','AUD','CNY','INR','SGD','KRW','TRY','BRL','MXN','NOK','SEK','ZAR','RUB',
 ];
 
-export async function fetchCopperPrice(): Promise<CopperPriceData> {
+export function fetchCopperPrice(): Promise<CopperPriceData> {
+  return once('copper', _fetchCopperPrice, TTL_PRICES_MS);
+}
+
+async function _fetchCopperPrice(): Promise<CopperPriceData> {
   const FALLBACK_LB = 4.50;
   try {
     const res = await fetchWithRetry(COPPER_URL, {
@@ -51,7 +97,11 @@ export async function fetchCopperPrice(): Promise<CopperPriceData> {
   }
 }
 
-export async function fetchAluminumPrice(): Promise<CopperPriceData> {
+export function fetchAluminumPrice(): Promise<CopperPriceData> {
+  return once('aluminum', _fetchAluminumPrice, TTL_PRICES_MS);
+}
+
+async function _fetchAluminumPrice(): Promise<CopperPriceData> {
   const FALLBACK_MT = 2500;
   try {
     const res = await fetchWithRetry(ALUMINUM_URL, {
@@ -85,7 +135,11 @@ export async function fetchAluminumPrice(): Promise<CopperPriceData> {
   }
 }
 
-export async function fetchFxRates(): Promise<FxRates> {
+export function fetchFxRates(): Promise<FxRates> {
+  return once('fx', _fetchFxRates, TTL_FX_MS);
+}
+
+async function _fetchFxRates(): Promise<FxRates> {
   try {
     const res = await fetchWithRetry(FRANKFURTER_URL, { next: { revalidate: 21600 } });
     const data = await res.json() as { rates: Record<string, number>; date: string };

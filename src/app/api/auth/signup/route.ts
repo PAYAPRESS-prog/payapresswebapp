@@ -8,12 +8,21 @@ import {
   isValidEmail,
   SESSION_COOKIE,
 } from '@/lib/auth';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
-// Runs in Node.js runtime (custom server.js on Hostinger) — needs mysql2/bcrypt.
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
+  // Rate limit: 5 sign-up attempts per IP per 5 minutes.
+  const ip = getClientIp(req);
+  if (!checkRateLimit(`signup:${ip}`, 5, 5 * 60_000)) {
+    return NextResponse.json(
+      { error: 'Too many sign-up attempts. Please wait a few minutes.' },
+      { status: 429 },
+    );
+  }
+
   if (!isDbConfigured()) {
     return NextResponse.json(
       { error: 'Sign-up is not available yet. Database not configured.' },

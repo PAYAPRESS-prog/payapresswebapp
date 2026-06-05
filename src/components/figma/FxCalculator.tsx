@@ -122,13 +122,16 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const currCardRef = useRef<HTMLDivElement>(null);
   const pickerInput = useRef<HTMLInputElement>(null);
 
-  // Live price refresh every 5 min
+  // Live price refresh every 5 min — 5s timeout prevents hanging on slow APIs
   useEffect(() => {
+    const fetchJson = (url: string) =>
+      fetch(url, { signal: AbortSignal.timeout(5000) }).then(r => r.json()).catch(() => null);
+
     const tick = async () => {
       const [c, a, f] = await Promise.all([
-        fetch('/api/copper-price').then(r => r.json()).catch(() => null),
-        fetch('/api/aluminum-price').then(r => r.json()).catch(() => null),
-        fetch('/api/fx-rate').then(r => r.json()).catch(() => null),
+        fetchJson('/api/copper-price'),
+        fetchJson('/api/aluminum-price'),
+        fetchJson('/api/fx-rate'),
       ]);
       if (c) setCopper(c);
       if (a) setAluminum(a);
@@ -141,7 +144,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   }, []);
 
   useEffect(() => {
-    fetch('/api/auth/me')
+    fetch('/api/auth/me', { signal: AbortSignal.timeout(4000) })
       .then(r => r.ok ? r.json() : null)
       .then(data => setUser(data?.user ?? null))
       .catch(() => setUser(null));

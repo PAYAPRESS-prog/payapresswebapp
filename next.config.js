@@ -37,6 +37,8 @@ const CSP_EMBED = [
 ].join('; ');
 
 const nextConfig = {
+  poweredByHeader: false,  // Don't expose "X-Powered-By: Next.js"
+  compress: true,          // Enable gzip for HTML/JSON responses (Next.js built-in)
   images: {
     remotePatterns: [
       {

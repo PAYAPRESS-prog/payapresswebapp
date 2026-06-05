@@ -55,6 +55,35 @@
         "x-next-revalidate-tag-token"
       ]
     },
+    "/robots.txt": {
+      "initialHeaders": {
+        "cache-control": "public, max-age=0, must-revalidate",
+        "content-type": "text/plain",
+        "x-next-cache-tags": "_N_T_/layout,_N_T_/robots.txt/layout,_N_T_/robots.txt/route,_N_T_/robots.txt"
+      },
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/robots.txt",
+      "dataRoute": null,
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
     "/opengraph-image": {
       "initialHeaders": {
         "cache-control": "public, immutable, no-transform, max-age=31536000",
@@ -142,12 +171,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/robots.txt": {
-      "initialHeaders": {
-        "cache-control": "public, max-age=0, must-revalidate",
-        "content-type": "text/plain",
-        "x-next-cache-tags": "_N_T_/layout,_N_T_/robots.txt/layout,_N_T_/robots.txt/route,_N_T_/robots.txt"
-      },
+    "/app": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -160,8 +184,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/robots.txt",
-      "dataRoute": null,
+      "srcRoute": "/app",
+      "dataRoute": "/app.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -171,7 +195,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/app/history": {
+    "/busbar-calculator": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -185,32 +209,8 @@
       ],
       "initialRevalidateSeconds": 300,
       "initialExpireSeconds": 31536000,
-      "srcRoute": "/app/history",
-      "dataRoute": "/app/history.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/app/profile": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "next-action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/app/profile",
-      "dataRoute": "/app/profile.rsc",
+      "srcRoute": "/busbar-calculator",
+      "dataRoute": "/busbar-calculator.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -268,7 +268,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/app": {
+    "/app/history": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -281,32 +281,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/app",
-      "dataRoute": "/app.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/roadmap": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "next-action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/roadmap",
-      "dataRoute": "/roadmap.rsc",
+      "srcRoute": "/app/history",
+      "dataRoute": "/app/history.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -331,6 +307,54 @@
       "initialRevalidateSeconds": false,
       "srcRoute": "/privacy",
       "dataRoute": "/privacy.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+    "/app/profile": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/app/profile",
+      "dataRoute": "/app/profile.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+    "/roadmap": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/roadmap",
+      "dataRoute": "/roadmap.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -379,31 +403,6 @@
       "initialRevalidateSeconds": false,
       "srcRoute": "/whitepaper",
       "dataRoute": "/whitepaper.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/busbar-calculator": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "next-action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": 300,
-      "initialExpireSeconds": 31536000,
-      "srcRoute": "/busbar-calculator",
-      "dataRoute": "/busbar-calculator.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",

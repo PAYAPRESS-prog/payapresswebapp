@@ -5,6 +5,7 @@
     "/api/auth/logout": {},
     "/api/auth/me": {},
     "/api/auth/signup": {},
+    "/api/notify": {},
     "/api/price-history": {},
     "/api/profile/change-password": {},
     "/api/profile": {}

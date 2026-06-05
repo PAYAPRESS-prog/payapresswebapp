@@ -14,7 +14,11 @@ export interface HistoryRow {
   created_at: string;
 }
 
+// Run once per process lifetime — module-level flag prevents re-running on every request.
+let _tableReady = false;
+
 async function ensureTable() {
+  if (_tableReady) return;
   const pool = getPool();
   await pool.execute(`
     CREATE TABLE IF NOT EXISTS busbar_history (
@@ -29,18 +33,20 @@ async function ensureTable() {
       currency   VARCHAR(10) NULL,
       sort_order INT NOT NULL DEFAULT 0,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      INDEX (user_id, sort_order, created_at)
+      INDEX idx_history_user (user_id, sort_order, created_at)
     )
   `);
-  // Migrate older tables that predate these columns.
+  // One-time schema migration for existing tables that predate these columns.
+  // ALTER TABLE IF NOT EXISTS is safe to run on tables that already have the column.
   for (const ddl of [
     `ALTER TABLE busbar_history ADD COLUMN IF NOT EXISTS name VARCHAR(120) NOT NULL DEFAULT ''`,
     `ALTER TABLE busbar_history ADD COLUMN IF NOT EXISTS price DECIMAL(20,4) NULL`,
     `ALTER TABLE busbar_history ADD COLUMN IF NOT EXISTS currency VARCHAR(10) NULL`,
     `ALTER TABLE busbar_history ADD COLUMN IF NOT EXISTS sort_order INT NOT NULL DEFAULT 0`,
   ]) {
-    await pool.execute(ddl).catch(() => { /* column already exists / engine without IF NOT EXISTS */ });
+    await pool.execute(ddl).catch(() => {});
   }
+  _tableReady = true;
 }
 
 export async function listHistory(userId: number, limit = 50): Promise<HistoryRow[]> {
@@ -82,17 +88,18 @@ export async function saveHistory(
 
 // Persist a new manual ordering. `ids` is the full ordered list of the
 // user's history rows (top first). Rows not owned by the user are ignored.
+// Single UPDATE … CASE WHEN replaces N separate round-trips.
 export async function reorderHistory(userId: number, ids: number[]): Promise<void> {
-  if (!isDbConfigured()) return;
+  if (!isDbConfigured() || ids.length === 0) return;
   await ensureTable();
   const pool = getPool();
-  await Promise.all(
-    ids.map((id, idx) =>
-      pool.execute(
-        'UPDATE busbar_history SET sort_order = ? WHERE id = ? AND user_id = ?',
-        [idx, Number(id), userId],
-      ),
-    ),
+  const whenClauses  = ids.map((_, i) => `WHEN ? THEN ${i}`).join(' ');
+  const placeholders = ids.map(() => '?').join(',');
+  await pool.execute(
+    `UPDATE busbar_history
+     SET sort_order = CASE id ${whenClauses} ELSE sort_order END
+     WHERE user_id = ? AND id IN (${placeholders})`,
+    [...ids, userId, ...ids],
   );
 }
 

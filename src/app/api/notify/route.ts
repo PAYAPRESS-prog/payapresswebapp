@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPool } from '@/lib/db';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 let tableReady = false;
 
@@ -19,6 +23,12 @@ async function ensureTable() {
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 5 subscriptions per IP per 10 minutes.
+  const ip = getClientIp(req);
+  if (!checkRateLimit(`notify:${ip}`, 5, 10 * 60_000)) {
+    return NextResponse.json({ error: 'too_many_requests' }, { status: 429 });
+  }
+
   try {
     const { email } = await req.json();
     if (!email || typeof email !== 'string') {

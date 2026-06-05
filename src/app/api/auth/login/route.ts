@@ -8,11 +8,21 @@ import {
   isValidEmail,
   SESSION_COOKIE,
 } from '@/lib/auth';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
+  // Rate limit: 10 attempts per IP per minute to slow brute-force attacks.
+  const ip = getClientIp(req);
+  if (!checkRateLimit(`login:${ip}`, 10, 60_000)) {
+    return NextResponse.json(
+      { error: 'Too many attempts. Please wait a minute and try again.' },
+      { status: 429 },
+    );
+  }
+
   if (!isDbConfigured()) {
     return NextResponse.json(
       { error: 'Login is not available yet. Database not configured.' },
@@ -27,7 +37,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Invalid request.' }, { status: 400 });
   }
 
-  const email = (body.email ?? '').trim().toLowerCase();
+  const email    = (body.email ?? '').trim().toLowerCase();
   const password = body.password ?? '';
   const remember = Boolean(body.remember);
 
@@ -37,8 +47,8 @@ export async function POST(req: Request) {
 
   try {
     const user = await findUserByEmail(email);
-    // Same generic message whether the email is unknown or the password is
-    // wrong — avoids leaking which emails are registered.
+    // Same generic message whether the email is unknown or the password is wrong
+    // — avoids leaking which emails are registered.
     if (!user || !(await verifyPassword(password, user.password_hash))) {
       return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
     }
