@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPool } from '@/lib/db';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+import { sendMail, subscribeConfirmEmail } from '@/lib/mailer';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -40,10 +41,18 @@ export async function POST(req: NextRequest) {
     }
     await ensureTable();
     const pool = getPool();
-    await pool.query(
+    const [result] = await pool.query(
       'INSERT IGNORE INTO email_subscriptions (email) VALUES (?)',
       [trimmed],
-    );
+    ) as [{ affectedRows: number }, unknown];
+
+    // Send confirmation only on first subscription (affectedRows=0 means duplicate).
+    if (result.affectedRows > 0) {
+      const c = subscribeConfirmEmail(trimmed);
+      sendMail({ to: trimmed, subject: c.subject, html: c.html, text: c.text })
+        .catch(err => console.error('[notify] confirm email failed:', err));
+    }
+
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: 'server_error' }, { status: 500 });

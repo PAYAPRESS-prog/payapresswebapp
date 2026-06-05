@@ -9,6 +9,7 @@ import {
   SESSION_COOKIE,
 } from '@/lib/auth';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+import { sendMail, welcomeEmail } from '@/lib/mailer';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -63,6 +64,11 @@ export async function POST(req: Request) {
     const passwordHash = await hashPassword(password);
     const uid = await createUser(email, passwordHash, optIn);
     const token = await createSessionToken({ uid, email });
+
+    // Fire welcome email — non-blocking, failure doesn't affect signup.
+    const w = welcomeEmail(email);
+    sendMail({ to: email, subject: w.subject, html: w.html, text: w.text })
+      .catch(err => console.error('[signup] welcome email failed:', err));
 
     const res = NextResponse.json({ ok: true, user: { id: uid, email } });
     res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(true));
