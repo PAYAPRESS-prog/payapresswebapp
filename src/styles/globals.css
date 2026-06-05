@@ -4701,13 +4701,28 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  padding: 8px 10px 24px;
+  padding: 8px 10px 12px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   scrollbar-width: none;
+  min-height: 0;
 }
 .fx-results-sheet-body::-webkit-scrollbar { display: none; }
+
+/* Sticky action-buttons footer — never scrolls away */
+.fx-results-sheet-footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 14px;
+  padding-bottom: max(14px, env(safe-area-inset-bottom, 14px));
+  border-top: 1px solid rgba(245, 247, 250, 0.08);
+  background: rgba(11, 13, 16, 0.30);
+}
+/* In footer, give the action row same gap as standalone */
+.fx-results-sheet-footer .fx-results-actions { margin-top: 0; }
 
 /* Inside the sheet the .fx-results card should be transparent
    (the sheet itself is the glass container) */

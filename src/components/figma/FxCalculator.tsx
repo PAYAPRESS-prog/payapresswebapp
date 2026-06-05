@@ -658,6 +658,23 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
                 onWaste={openWasteSheet}
                 onClose={closeResults}
                 showCloseBtn={false}
+                showActions={false}
+              />
+            </div>
+            {/* Sticky footer — always visible, never scrolls away */}
+            <div className="fx-results-sheet-footer">
+              <ResultsActionButtons
+                metal={metal}
+                activeCurr={activeCurr}
+                activeCurrTotal={activeCurrTotal}
+                showCompare={showCompare}
+                bookmarked={bookmarked}
+                w={w} t={t} L={L}
+                weightKg={weightKg}
+                maxCurrentA={maxCurrentA}
+                onCompare={() => setShowCompare(true)}
+                onBookmark={openBookmarkDialog}
+                onWaste={openWasteSheet}
               />
             </div>
           </div>
@@ -843,13 +860,14 @@ type ResultsBodyProps = {
   onWaste: () => void;
   onClose: () => void;
   showCloseBtn: boolean;
+  showActions?: boolean;
 };
 
 function ResultsBody({
   metal, activeCurr, activeCurrTotal, grade, weightKg, maxCurrentA,
   fxRate, totalIn, showCompare, bookmarked, w, t, L, pricePerKgUSD,
   busbarPremium, updatedLabel, resultsRef,
-  onCompare, onBookmark, onWaste,
+  onCompare, onBookmark, onWaste, showActions = true,
 }: ResultsBodyProps) {
   return (
     <>
@@ -898,63 +916,21 @@ function ResultsBody({
           </span>
         </div>
 
-        <div className="fx-results-actions">
-          <button
-            type="button"
-            className={`fx-results-btn${showCompare ? ' active' : ''}`}
-            onClick={onCompare}
-            aria-label="Compare result"
-          >
-            <CompareIcon width={20} height={20} />
-            Compare result
-          </button>
-          <button
-            type="button"
-            className={`fx-results-btn${bookmarked ? ' active' : ''}`}
-            onClick={onBookmark}
-            aria-label="Bookmark result"
-            aria-pressed={bookmarked}
-          >
-            <BookmarkIcon width={20} height={20} />
-            {bookmarked ? 'Bookmarked' : 'Bookmark result'}
-          </button>
-        </div>
-        <button
-          type="button"
-          className="fx-results-share-btn"
-          onClick={() => {
-            const metalName = metal === 'copper' ? 'Copper' : 'Aluminum';
-            const priceStr  = `${fmtResultPrice(activeCurrTotal)} ${CURR_META[activeCurr].label}`;
-            const appUrl = 'https://calculator.payapress.com';
-            const txt = [
-              `📐 ${metalName} busbar ${w}×${t}×${L} mm`,
-              `💰 ${priceStr}`,
-              `⚡ ${maxCurrentA.toLocaleString()} A  •  ${fmtMoney(weightKg)} kg`,
-              ``,
-              `Free busbar cost calculator 👇`,
-            ].join('\n');
-            if (navigator.share) {
-              navigator.share({ title: 'Busbar Calculator', text: txt, url: appUrl }).catch(() => {});
-            } else {
-              navigator.clipboard?.writeText(`${txt}\n${appUrl}`).catch(() => {});
-            }
-          }}
-          aria-label="Share result"
-        >
-          <ShareIcon width={20} height={20} />
-          Share result
-        </button>
-
-        {/* Waste calculation — auth-gated, saves to history first */}
-        <button
-          type="button"
-          className="fx-results-waste-btn"
-          onClick={onWaste}
-          aria-label="محاسبه ضایعات"
-        >
-          <WasteIcon width={20} height={20} metal={metal} />
-          محاسبه ضایعات
-        </button>
+        {showActions && (
+          <ResultsActionButtons
+            metal={metal}
+            activeCurr={activeCurr}
+            activeCurrTotal={activeCurrTotal}
+            showCompare={showCompare}
+            bookmarked={bookmarked}
+            w={w} t={t} L={L}
+            weightKg={weightKg}
+            maxCurrentA={maxCurrentA}
+            onCompare={onCompare}
+            onBookmark={onBookmark}
+            onWaste={onWaste}
+          />
+        )}
       </div>
 
       <FxBusbarChart
@@ -966,6 +942,87 @@ function ResultsBody({
         busbarPremium={busbarPremium}
         updatedLabel={updatedLabel}
       />
+    </>
+  );
+}
+
+/* ── Action buttons — Compare, Bookmark, Share, Waste ─────── */
+type ResultsActionButtonsProps = {
+  metal: 'copper' | 'aluminum';
+  activeCurr: CurrCode;
+  activeCurrTotal: number;
+  showCompare: boolean;
+  bookmarked: boolean;
+  w: number; t: number; L: number;
+  weightKg: number;
+  maxCurrentA: number;
+  onCompare: () => void;
+  onBookmark: () => void;
+  onWaste: () => void;
+};
+
+function ResultsActionButtons({
+  metal, activeCurr, activeCurrTotal, showCompare, bookmarked,
+  w, t, L, weightKg, maxCurrentA,
+  onCompare, onBookmark, onWaste,
+}: ResultsActionButtonsProps) {
+  return (
+    <>
+      <div className="fx-results-actions">
+        <button
+          type="button"
+          className={`fx-results-btn${showCompare ? ' active' : ''}`}
+          onClick={onCompare}
+          aria-label="Compare result"
+        >
+          <CompareIcon width={20} height={20} />
+          Compare result
+        </button>
+        <button
+          type="button"
+          className={`fx-results-btn${bookmarked ? ' active' : ''}`}
+          onClick={onBookmark}
+          aria-label="Bookmark result"
+          aria-pressed={bookmarked}
+        >
+          <BookmarkIcon width={20} height={20} />
+          {bookmarked ? 'Bookmarked' : 'Bookmark result'}
+        </button>
+      </div>
+      <button
+        type="button"
+        className="fx-results-share-btn"
+        onClick={() => {
+          const metalName = metal === 'copper' ? 'Copper' : 'Aluminum';
+          const priceStr  = `${fmtResultPrice(activeCurrTotal)} ${CURR_META[activeCurr].label}`;
+          const appUrl = 'https://calculator.payapress.com';
+          const txt = [
+            `📐 ${metalName} busbar ${w}×${t}×${L} mm`,
+            `💰 ${priceStr}`,
+            `⚡ ${maxCurrentA.toLocaleString()} A  •  ${fmtMoney(weightKg)} kg`,
+            ``,
+            `Free busbar cost calculator 👇`,
+          ].join('\n');
+          if (navigator.share) {
+            navigator.share({ title: 'Busbar Calculator', text: txt, url: appUrl }).catch(() => {});
+          } else {
+            navigator.clipboard?.writeText(`${txt}\n${appUrl}`).catch(() => {});
+          }
+        }}
+        aria-label="Share result"
+      >
+        <ShareIcon width={20} height={20} />
+        Share result
+      </button>
+      <button
+        type="button"
+        className={`fx-results-waste-btn${metal === 'aluminum' ? ' al' : ''}`}
+        onClick={onWaste}
+        aria-label="محاسبه ضایعات"
+      >
+        <WasteIcon width={20} height={20} metal={metal} />
+        محاسبه ضایعات
+      </button>
     </>
   );
 }
