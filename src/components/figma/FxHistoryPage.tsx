@@ -4,6 +4,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { FxHeader } from './FxHeader';
 import { FxBottomNav } from './FxBottomNav';
+import { BusbarMock } from './FxIcons';
+import { FLAGS } from './FxFlags';
 
 interface HistoryItem {
   id: number;
@@ -357,37 +359,49 @@ export function FxHistoryPage({
                     </span>
                   </div>
 
-                  {/* ── Expanded details ── */}
+                  {/* ── Expanded details — Figma layout ── */}
                   {isOpen && (
                     <div className="fx-history-details">
-                      <div className="fx-history-dims">
-                        {item.length} × {item.width} × {item.thickness} mm
+                      {/* Metal header */}
+                      <div className="fx-history-detail-metal">
+                        <BusbarMock metal={item.metal} width={36} height={26} />
+                        <span className={`fx-history-detail-metal-name${isCu ? '' : ' al'}`}>
+                          {isCu ? 'Copper' : 'Aluminum'}
+                        </span>
                       </div>
 
-                      <div className="fx-history-stats">
-                        <div className="fx-history-stat">
-                          <div className="fx-history-stat-label">WEIGHT</div>
-                          <div className="fx-history-stat-value">{fmt(weight)} kg</div>
+                      {/* 3-column dimensions */}
+                      <div className="fx-history-detail-dims-row">
+                        <div className="fx-history-detail-dim">
+                          <span className="fx-history-detail-dim-label">Length</span>
+                          <span className="fx-history-detail-dim-val">{item.length}</span>
                         </div>
-                        <div className="fx-history-stat-divider" />
-                        <div className="fx-history-stat">
-                          <div className="fx-history-stat-label">LIVE PRICE</div>
-                          <div className={`fx-history-stat-value live ${isCu ? 'cu' : 'al'}`}>
-                            {livePrice > 0 ? `$${fmt(livePrice)}` : '—'}
+                        <div className="fx-history-detail-dim">
+                          <span className="fx-history-detail-dim-label">Width</span>
+                          <span className="fx-history-detail-dim-val">{item.width}</span>
+                        </div>
+                        <div className="fx-history-detail-dim">
+                          <span className="fx-history-detail-dim-label">Thickness</span>
+                          <span className="fx-history-detail-dim-val">{item.thickness}</span>
+                        </div>
+                      </div>
+
+                      {/* Currency row — orange border, like results card */}
+                      {(() => {
+                        const code = (item.currency ?? 'USD').toUpperCase();
+                        const Flag = FLAGS[code as keyof typeof FLAGS];
+                        const p = item.price != null ? Number(item.price) : (livePrice > 0 ? livePrice : null);
+                        if (p == null) return null;
+                        return (
+                          <div className="fx-history-curr-row">
+                            {Flag && <Flag className="fx-history-curr-flag" width={28} height={28} />}
+                            <span className="fx-history-curr-code">{code}</span>
+                            <span className="fx-history-curr-value">{fmtPrice(p)}</span>
                           </div>
-                        </div>
-                        <div className="fx-history-stat-divider" />
-                        <div className="fx-history-stat">
-                          <div className="fx-history-stat-label">AREA</div>
-                          <div className="fx-history-stat-value">{(item.width * item.thickness).toLocaleString()} mm²</div>
-                        </div>
-                        <div className="fx-history-stat-divider" />
-                        <div className="fx-history-stat">
-                          <div className="fx-history-stat-label">CURRENT</div>
-                          <div className="fx-history-stat-value">{ratedCurrent.toLocaleString()} A</div>
-                        </div>
-                      </div>
+                        );
+                      })()}
 
+                      {/* Footer */}
                       <div className="fx-history-details-foot">
                         <span className="fx-history-saved-at">Saved {relTime(item.created_at)}</span>
                         <button

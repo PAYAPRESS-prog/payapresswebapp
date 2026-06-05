@@ -526,6 +526,10 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
       {/* ── Results — stats + actions ───────────────────── */}
       {showResults && (
         <div className="fx-results" ref={resultsRef}>
+          {/* Green "Results" title — Figma spec */}
+          <h2 className="fx-results-title">Results</h2>
+          <div className="fx-results-divider" />
+
           {/* Estimate Price + Live badge */}
           <div className="fx-results-price-row">
             <span className="fx-results-price-label">Estimate Price</span>
@@ -535,28 +539,42 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             </span>
           </div>
 
-          {/* Stats rows */}
+          {/* Active currency row — orange-bordered pill */}
+          <div className="fx-results-curr-row">
+            {(() => {
+              const Flag = FLAGS[activeCurr as keyof typeof FLAGS];
+              return Flag ? <Flag className="fx-results-curr-flag" width={30} height={30} /> : null;
+            })()}
+            <span className="fx-results-curr-code">{CURR_META[activeCurr].label}</span>
+            <span className="fx-results-curr-value">{fmtResultPrice(activeCurrTotal)}</span>
+          </div>
+
+          {/* Stats rows — numeric values orange, units lighter */}
           <div className="fx-results-stat-row fx-results-stat-border">
             <span className="fx-results-stat-label">WEIGHT</span>
             <span className="fx-results-stat-value">
-              {fmtMoney(weightKg)} <span className="fx-results-stat-unit">kg</span>
+              <span className="fx-results-stat-num">{fmtMoney(weightKg)}</span>
+              {' '}<span className="fx-results-stat-unit">kg</span>
             </span>
           </div>
           <div className="fx-results-stat-row fx-results-stat-border">
             <span className="fx-results-stat-label">MATERIAL</span>
             <span className="fx-results-stat-value">
-              {metal === 'copper' ? 'Copper' : 'Aluminum'}
+              <span className={`fx-results-stat-num${metal === 'aluminum' ? ' al' : ''}`}>
+                {metal === 'copper' ? 'copper' : 'aluminum'}
+              </span>
               <span className="fx-results-grade-badge">{grade.label}</span>
             </span>
           </div>
           <div className="fx-results-stat-row">
             <span className="fx-results-stat-label">Rated Current</span>
             <span className="fx-results-stat-value">
-              {maxCurrentA.toLocaleString()} <span className="fx-results-stat-unit">A</span>
+              <span className="fx-results-stat-num">{maxCurrentA.toLocaleString()}</span>
+              {' '}<span className="fx-results-stat-unit">A</span>
             </span>
           </div>
 
-          {/* Action buttons — Compare + Bookmark */}
+          {/* Action buttons — Compare + Bookmark on first row */}
           <div className="fx-results-actions">
             <button
               type="button"
@@ -565,7 +583,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
               aria-label="Compare result"
             >
               <CompareIcon width={20} height={20} />
-              Compare
+              Compare result
             </button>
             <button
               type="button"
@@ -575,25 +593,26 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
               aria-pressed={bookmarked}
             >
               <BookmarkIcon width={20} height={20} />
-              {bookmarked ? 'Saved' : 'Bookmark'}
-            </button>
-            <button
-              type="button"
-              className="fx-results-btn"
-              onClick={() => {
-                const txt = `Busbar — ${metal} ${w}×${t}×${L}mm → ${fmtResultPrice(activeCurrTotal)} ${CURR_META[activeCurr].label}`;
-                if (navigator.share) {
-                  navigator.share({ title: 'Busbar Calculator', text: txt }).catch(() => {});
-                } else {
-                  navigator.clipboard?.writeText(txt).catch(() => {});
-                }
-              }}
-              aria-label="Share result"
-            >
-              <ShareIcon width={20} height={20} />
-              Share
+              {bookmarked ? 'Bookmarked' : 'Bookmark result'}
             </button>
           </div>
+          {/* Share — full-width row below */}
+          <button
+            type="button"
+            className="fx-results-share-btn"
+            onClick={() => {
+              const txt = `Busbar — ${metal} ${w}×${t}×${L}mm → ${fmtResultPrice(activeCurrTotal)} ${CURR_META[activeCurr].label}`;
+              if (navigator.share) {
+                navigator.share({ title: 'Busbar Calculator', text: txt }).catch(() => {});
+              } else {
+                navigator.clipboard?.writeText(txt).catch(() => {});
+              }
+            }}
+            aria-label="Share result"
+          >
+            <ShareIcon width={20} height={20} />
+            Share result
+          </button>
         </div>
       )}
 

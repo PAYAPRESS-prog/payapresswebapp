@@ -2412,14 +2412,15 @@ body {
   animation: fx-pulse 1.6s ease-in-out infinite;
 }
 
-/* Currency row — flag + code + value */
+/* Currency row — orange-bordered pill per Figma */
 .fx-results-curr-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(245, 247, 250, 0.05);
+  background: rgba(247, 148, 29, 0.05);
+  border: 1px solid rgba(247, 148, 29, 0.60);
   border-radius: 12px;
-  padding: 10px;
+  padding: 10px 14px;
   margin: 0 0 4px;
 }
 .fx-results-curr-flag {
@@ -2467,10 +2468,17 @@ body {
   color: var(--fx-text-1);
   text-align: center;
 }
+/* Orange-colored numeric part of a stat value (Figma spec) */
+.fx-results-stat-num {
+  color: var(--fx-copper-bright);
+  font-size: 20px;
+  font-weight: 510;
+}
+.fx-results-stat-num.al { color: #6fb3e0; }
 .fx-results-stat-unit {
   font-size: 14px;
   font-weight: 510;
-  color: var(--fx-text-1);
+  color: var(--fx-text-2);
   margin-left: 2px;
 }
 
@@ -2906,6 +2914,85 @@ body {
   height: 32px;
   background: rgba(245,247,250,0.08);
   flex-shrink: 0;
+}
+
+/* ── History expanded — Figma-style card layout ── */
+.fx-history-detail-metal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 4px 0 6px;
+}
+.fx-history-detail-metal-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--fx-copper-bright);
+  letter-spacing: -0.01em;
+}
+.fx-history-detail-metal-name.al { color: #6fb3e0; }
+
+.fx-history-detail-dims-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: rgba(245, 247, 250, 0.04);
+  border: 1px solid rgba(245, 247, 250, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.fx-history-detail-dim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 8px;
+  position: relative;
+}
+.fx-history-detail-dim + .fx-history-detail-dim::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 1px;
+  background: rgba(245, 247, 250, 0.08);
+}
+.fx-history-detail-dim-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--fx-text-3);
+}
+.fx-history-detail-dim-val {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--fx-text-1);
+  letter-spacing: -0.02em;
+}
+
+/* Currency row in history expanded — orange border matching results card */
+.fx-history-curr-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(247, 148, 29, 0.05);
+  border: 1px solid rgba(247, 148, 29, 0.60);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.fx-history-curr-flag { border-radius: 50%; flex-shrink: 0; }
+.fx-history-curr-code {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fx-text-1);
+}
+.fx-history-curr-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fx-text-1);
+  white-space: nowrap;
 }
 
 /* ── Busbar Chart ───────────────────────────────────────── */
@@ -4261,9 +4348,37 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   border-color: rgba(255, 255, 255, 0.45);
 }
 
+/* Results card — deeper glass matching Figma */
+.fx-results {
+  background:
+    var(--fx-grain),
+    linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.015) 60%),
+    rgba(18, 21, 27, 0.55);
+  background-size: 150px 150px, auto, auto;
+  background-blend-mode: soft-light, normal, normal;
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  backdrop-filter: blur(20px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 14px 40px -12px rgba(0, 0, 0, 0.75);
+}
+
+/* History cards — subtle glass surface */
+.fx-history-card {
+  background:
+    var(--fx-grain),
+    rgba(18, 21, 27, 0.38);
+  background-size: 150px 150px, auto;
+  background-blend-mode: soft-light, normal;
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  backdrop-filter: blur(10px) saturate(120%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 16px -6px rgba(0,0,0,0.5);
+}
+
 /* Glass fallback: where backdrop-filter is unsupported, lean on solid fills */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .fx-card, .fx-curr-card, .fx-metal-toggle { background: rgba(26, 29, 35, 0.96); }
+  .fx-results, .fx-history-card { background: rgba(22, 25, 31, 0.96); }
   .fx-welcome-guest { background: rgba(60, 62, 70, 0.92); }
 }
 
