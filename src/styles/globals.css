@@ -1674,10 +1674,28 @@ body {
 }
 .fx-auth-forgot:hover { text-decoration: underline; }
 
+.fx-auth-error-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .fx-auth-error {
   color: #fca5a5;
   font-size: 14px;
   margin: 0;
+}
+
+.fx-auth-error-switch {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  color: #cd7f32;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 .fx-auth-submit {

@@ -28,9 +28,12 @@ export function FxAuthSheet({
   const [showPw, setShowPw]     = useState(false);
   const [showRepeat, setShowRepeat] = useState(false);
   const [optIn, setOptIn]       = useState(true);
-  const [remember, setRemember] = useState(false);
+  // Default to "remember" so a logged-in user isn't asked to sign in again
+  // on their next visit — the session cookie persists for 30 days.
+  const [remember, setRemember] = useState(true);
   const [busy, setBusy]         = useState(false);
   const [error, setError]       = useState<string | null>(null);
+  const [errorSwitch, setErrorSwitch] = useState<'login' | 'signup' | null>(null);
 
   // Lock body scroll while the sheet is open
   useEffect(() => {
@@ -79,6 +82,9 @@ export function FxAuthSheet({
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data?.error || 'Something went wrong. Please try again.');
+        if (res.status === 409) setErrorSwitch('login');
+        else if (res.status === 404) setErrorSwitch('signup');
+        else setErrorSwitch(null);
         return;
       }
       // Success
@@ -104,7 +110,9 @@ export function FxAuthSheet({
       onClick={onClose}
     >
       <div className="fx-sheet" onClick={e => e.stopPropagation()}>
-        <h2 className="fx-sheet-title">For more please login to your account</h2>
+        <h2 className="fx-sheet-title">
+          {isSignup ? 'Grow your business with Busbar calculator' : 'For more please login to your account'}
+        </h2>
 
         {/* Tab toggle */}
         <div className="fx-auth-tabs" role="tablist">
@@ -113,7 +121,7 @@ export function FxAuthSheet({
             role="tab"
             aria-selected={mode === 'login'}
             className={`fx-auth-tab${mode === 'login' ? ' active' : ''}`}
-            onClick={() => { onModeChange('login'); setError(null); }}
+            onClick={() => { onModeChange('login'); setError(null); setErrorSwitch(null); }}
           >
             Log In
           </button>
@@ -122,7 +130,7 @@ export function FxAuthSheet({
             role="tab"
             aria-selected={mode === 'signup'}
             className={`fx-auth-tab${mode === 'signup' ? ' active' : ''}`}
-            onClick={() => { onModeChange('signup'); setError(null); }}
+            onClick={() => { onModeChange('signup'); setError(null); setErrorSwitch(null); }}
           >
             Sign Up
           </button>
@@ -223,7 +231,20 @@ export function FxAuthSheet({
             </div>
           )}
 
-          {error && <p className="fx-auth-error" role="alert">{error}</p>}
+          {error && (
+            <div className="fx-auth-error-wrap" role="alert">
+              <p className="fx-auth-error">{error}</p>
+              {errorSwitch && (
+                <button
+                  type="button"
+                  className="fx-auth-error-switch"
+                  onClick={() => { onModeChange(errorSwitch); setError(null); setErrorSwitch(null); }}
+                >
+                  {errorSwitch === 'login' ? 'Go to Log In →' : 'Go to Sign Up →'}
+                </button>
+              )}
+            </div>
+          )}
 
           <button type="submit" className="fx-auth-submit" disabled={busy}>
             {busy ? 'Please wait…' : isSignup ? 'Sign Up' : 'Log In'}

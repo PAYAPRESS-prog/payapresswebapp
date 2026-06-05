@@ -8,12 +8,22 @@ import {
   isValidEmail,
   SESSION_COOKIE,
 } from '@/lib/auth';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+import { sendMail, welcomeEmail } from '@/lib/mailer';
 
 // Runs in Node.js runtime (custom server.js on Hostinger) — needs mysql2/bcrypt.
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
+  const ip = getClientIp(req);
+  if (!checkRateLimit(`signup:${ip}`, 5, 60_000)) {
+    return NextResponse.json(
+      { error: 'Too many attempts. Please wait a minute and try again.' },
+      { status: 429 },
+    );
+  }
+
   if (!isDbConfigured()) {
     return NextResponse.json(
       { error: 'Sign-up is not available yet. Database not configured.' },
@@ -54,6 +64,11 @@ export async function POST(req: Request) {
     const passwordHash = await hashPassword(password);
     const uid = await createUser(email, passwordHash, optIn);
     const token = await createSessionToken({ uid, email });
+
+    // Fire-and-forget welcome email — don't block the signup response.
+    const w = welcomeEmail(email);
+    sendMail({ to: email, subject: w.subject, html: w.html, text: w.text, category: 'transactional' })
+      .catch(err => console.error('[signup] welcome email failed:', err));
 
     const res = NextResponse.json({ ok: true, user: { id: uid, email } });
     res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(true));

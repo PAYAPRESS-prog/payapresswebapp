@@ -5,6 +5,8 @@
     "/api/auth/logout": {},
     "/api/auth/me": {},
     "/api/auth/signup": {},
-    "/api/price-history": {}
+    "/api/notify": {},
+    "/api/price-history": {},
+    "/api/test-mail": {}
   }
 }
