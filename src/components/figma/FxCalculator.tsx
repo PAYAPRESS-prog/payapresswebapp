@@ -12,6 +12,7 @@ import {
 import { FLAGS } from './FxFlags';
 import { FxAuthSheet } from './FxAuthSheet';
 import { FxBusbarChart } from './FxBusbarChart';
+import { FxBusbarRender } from './FxBusbarRender';
 import { FxCompareSheet } from './FxCompareSheet';
 
 type Metal = 'copper' | 'aluminum';
@@ -453,6 +454,18 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             <span className="fx-dim-col-unit">mm</span>
           </div>
         </div>
+
+        {/* ── Live 3D busbar render — drag to resize ── */}
+        <FxBusbarRender
+          width={w}
+          thick={t}
+          metal={metal}
+          onResize={(nw, nt) => {
+            setWidth(String(nw));
+            setThick(String(nt));
+            setInteracted(true);
+          }}
+        />
 
         {/* Calculate Now button — always visible so user knows to tap it */}
         <button type="button" className="fx-calc-now-btn" onClick={handleCalculate} data-tour="calculate">

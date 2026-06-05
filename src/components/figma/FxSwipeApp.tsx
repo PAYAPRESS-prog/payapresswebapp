@@ -65,8 +65,11 @@ export function FxSwipeApp({ initialData, copperPrice, aluminumPrice }: Props) {
     let startY = 0;
     let dir: 'h' | 'v' | null = null;
     let liveOffset = 0;
+    let blocked = false; // touch started on a no-swipe element (e.g. busbar drag)
 
     const onStart = (e: TouchEvent) => {
+      const target = e.target as HTMLElement | null;
+      blocked = !!target?.closest('[data-no-swipe]');
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
       dir = null;
@@ -75,6 +78,7 @@ export function FxSwipeApp({ initialData, copperPrice, aluminumPrice }: Props) {
     };
 
     const onMove = (e: TouchEvent) => {
+      if (blocked) return;
       const dx = e.touches[0].clientX - startX;
       const dy = e.touches[0].clientY - startY;
 
@@ -97,7 +101,7 @@ export function FxSwipeApp({ initialData, copperPrice, aluminumPrice }: Props) {
     };
 
     const onEnd = () => {
-      if (dir !== 'h') return;
+      if (blocked || dir !== 'h') return;
       const cur  = activeIdxRef.current;
       const next = liveOffset < -SNAP_PX && cur < 2 ? cur + 1
                  : liveOffset >  SNAP_PX && cur > 0 ? cur - 1

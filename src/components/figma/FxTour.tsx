@@ -52,6 +52,12 @@ const STEPS: Step[] = [
     prefer: 'top',
   },
   {
+    target: 'busbar',
+    title: 'Drag to resize',
+    body: 'Drag on the 3D busbar to change width and thickness — it reshapes live as you go.',
+    prefer: 'top',
+  },
+  {
     target: 'calculate',
     title: 'Calculate the cost',
     body: 'Press Calculate Now to see the price, weight, rated current and currency conversions.',
