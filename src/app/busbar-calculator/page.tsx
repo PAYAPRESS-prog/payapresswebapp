@@ -1,6 +1,4 @@
-import { FxHeader } from '@/components/figma/FxHeader';
-import { FxBottomNav } from '@/components/figma/FxBottomNav';
-import { FxCalculator } from '@/components/figma/FxCalculator';
+import { FxSwipeApp } from '@/components/figma/FxSwipeApp';
 import { SectionErrorBoundary } from '@/components/SectionErrorBoundary';
 import { fetchCopperPrice, fetchAluminumPrice, fetchFxRates } from '@/lib/serverPrices';
 
@@ -11,27 +9,22 @@ export default async function CalculatorPage() {
     fetchFxRates(),
   ]);
 
+  const copperVal   = copper.status   === 'fulfilled' ? copper.value   : null;
+  const aluminumVal = aluminum.status === 'fulfilled' ? aluminum.value : null;
+
   const initialData = {
-    copper:   copper.status   === 'fulfilled' ? copper.value   : null,
-    aluminum: aluminum.status === 'fulfilled' ? aluminum.value : null,
-    fx:       fx.status       === 'fulfilled' ? fx.value       : null,
+    copper:   copperVal,
+    aluminum: aluminumVal,
+    fx:       fx.status === 'fulfilled' ? fx.value : null,
   };
 
   return (
-    <div className="fx-app">
-      <SectionErrorBoundary>
-        <FxHeader />
-      </SectionErrorBoundary>
-
-      <main>
-        <SectionErrorBoundary>
-          <FxCalculator initialData={initialData} />
-        </SectionErrorBoundary>
-      </main>
-
-      <SectionErrorBoundary>
-        <FxBottomNav />
-      </SectionErrorBoundary>
-    </div>
+    <SectionErrorBoundary>
+      <FxSwipeApp
+        initialData={initialData}
+        copperPrice={copperVal?.pricePerKg ?? null}
+        aluminumPrice={aluminumVal?.pricePerKg ?? null}
+      />
+    </SectionErrorBoundary>
   );
 }

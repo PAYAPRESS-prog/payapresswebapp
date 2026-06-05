@@ -49,9 +49,11 @@ const SPRING_MS = 300;
 export function FxHistoryPage({
   copperPrice,
   aluminumPrice,
+  embedded,
 }: {
   copperPrice: number | null;
   aluminumPrice: number | null;
+  embedded?: boolean;
 }) {
   const [items, setItems] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -247,8 +249,8 @@ export function FxHistoryPage({
   }
 
   return (
-    <div className="fx-app">
-      <FxHeader />
+    <div className={embedded ? 'fx-embed-wrap' : 'fx-app'}>
+      {!embedded && <FxHeader />}
       <main>
         <div className="fx-content fx-content-single">
           <div className="fx-history-header">
@@ -422,7 +424,7 @@ export function FxHistoryPage({
           </div>
         </div>
       </main>
-      <FxBottomNav active="history" />
+      {!embedded && <FxBottomNav active="history" />}
     </div>
   );
 }

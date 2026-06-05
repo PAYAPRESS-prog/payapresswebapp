@@ -600,7 +600,65 @@ body {
   --fx-success:      #22c55e;
 }
 
-/* App shell — phone-like layout, centered on wider screens */
+/* ── Swipe Navigation Layout ─────────────────────────────────── */
+
+.fx-swipe-root {
+  background: var(--fx-bg);
+  color: var(--fx-text-1);
+  height: 100svh;
+  height: 100vh; /* fallback */
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (min-width: 640px) {
+  .fx-swipe-root {
+    border-left:  1px solid var(--fx-divider);
+    border-right: 1px solid var(--fx-divider);
+    box-shadow: 0 0 80px rgba(0,0,0,0.5);
+  }
+}
+
+.fx-swipe-viewport {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  min-height: 0;
+}
+
+.fx-swipe-track {
+  display: flex;
+  width: 300%;
+  height: 100%;
+  will-change: transform;
+  /* Initial position is set imperatively via ref to avoid animation on mount */
+}
+
+.fx-swipe-panel {
+  width: calc(100% / 3);
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  /* Space for floating bottom nav */
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+}
+
+/* Embedded wrapper — used when History/Profile are inside the swipe layout */
+.fx-embed-wrap {
+  background: var(--fx-bg);
+  color: var(--fx-text-1);
+  min-height: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', sans-serif;
+}
+
+/* ── App shell — phone-like layout, centered on wider screens */
 .fx-app {
   background: var(--fx-bg);
   color: var(--fx-text-1);
