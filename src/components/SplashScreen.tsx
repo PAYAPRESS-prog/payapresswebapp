@@ -7,26 +7,18 @@ type Phase = 'showing' | 'leaving' | 'hidden';
 /**
  * App-open splash — Instagram-style.
  *
- * Shows once per browser session (sessionStorage gate). Starts in the same
- * 'showing' state on both server and client so there is no hydration mismatch
- * (this previously caused React #418). The overlay uses pointer-events:none so
- * it can NEVER block interaction with the app underneath — even while it is
- * fading out the page below is fully usable.
+ * Shows on every cold page load (each real "app open"). Because the root
+ * layout persists across client-side navigation, the splash mounts only once
+ * per document load — internal route changes never re-trigger it. Starts in the
+ * same 'showing' state on both server and client so there is no hydration
+ * mismatch (this previously caused React #418). The overlay uses
+ * pointer-events:none so it can NEVER block interaction with the app
+ * underneath — even while fading out the page below is fully usable.
  */
 export default function SplashScreen() {
   const [phase, setPhase] = useState<Phase>('showing');
 
   useEffect(() => {
-    let seen = false;
-    try { seen = !!sessionStorage.getItem('pp_splash_seen'); } catch { /* private mode */ }
-
-    if (seen) {
-      setPhase('hidden');
-      return;
-    }
-
-    try { sessionStorage.setItem('pp_splash_seen', '1'); } catch { /* ignore */ }
-
     // Hold ~1.5s, then play the exit motion (~0.55s) and unmount.
     const t1 = setTimeout(() => setPhase('leaving'), 1500);
     const t2 = setTimeout(() => setPhase('hidden'),  2100);
