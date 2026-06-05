@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { MATERIAL_GRADES, DEFAULT_GRADE } from '@/lib/copperData';
 import { ALUMINUM_GRADES, DEFAULT_ALUMINUM_GRADE } from '@/lib/aluminumData';
 import type { CopperPriceData, FxRates, InitialPriceData } from '@/types/calculator';
@@ -118,9 +119,24 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
   const [user, setUser] = useState<{ id: number; email: string } | null | undefined>(undefined);
 
+  // Portal / mobile bottom-sheet state
+  const [isMobile,       setIsMobile]       = useState(false);
+  const [mounted,        setMounted]        = useState(false);
+  const [resultsLeaving, setResultsLeaving] = useState(false);
+
   const resultsRef = useRef<HTMLDivElement>(null);
   const currCardRef = useRef<HTMLDivElement>(null);
   const pickerInput = useRef<HTMLInputElement>(null);
+
+  // Detect mobile breakpoint — results render as portal bottom-sheet on mobile
+  useEffect(() => {
+    setMounted(true);
+    const mq = window.matchMedia('(max-width: 639px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   // Live price refresh every 5 min — 5s timeout prevents hanging on slow APIs
   useEffect(() => {
@@ -178,12 +194,12 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
   // Lock body scroll while any bottom sheet is open (prevents iOS background scroll)
   useEffect(() => {
-    const locked = showPicker || showNameDialog;
+    const locked = showPicker || showNameDialog || (showResults && isMobile);
     if (!locked) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = prev; };
-  }, [showPicker, showNameDialog]);
+  }, [showPicker, showNameDialog, showResults, isMobile]);
 
   // Delayed focus on picker search — avoids iOS keyboard shift before sheet animates in
   useEffect(() => {
@@ -249,9 +265,22 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
   function handleCalculate() {
     setShowResults(true);
+    // On desktop: scroll results into view; on mobile the sheet pops up
+    if (!isMobile) {
+      setTimeout(() => {
+        currCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 150);
+    }
+  }
+
+  // Close the results sheet with slide-out animation on mobile
+  function closeResults() {
+    if (!isMobile) { setShowResults(false); return; }
+    setResultsLeaving(true);
     setTimeout(() => {
-      currCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 150);
+      setShowResults(false);
+      setResultsLeaving(false);
+    }, 340);
   }
 
   // Open the "name your bookmark" dialog (after auth gate)
@@ -523,7 +552,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
       </div>{/* end fx-col-inputs */}
 
-      {/* ══════════ RIGHT COLUMN — results ══════════ */}
+      {/* ══════════ RIGHT COLUMN — results (desktop only) ══════════ */}
       <div className="fx-col-results">
 
       {/* ── Desktop empty state ─────────────────────────── */}
@@ -543,122 +572,61 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         </div>
       )}
 
-      {/* ── Results — stats + actions ───────────────────── */}
-      {showResults && (
-        <div className="fx-results" ref={resultsRef}>
-          {/* Green "Results" title — Figma spec */}
-          <h2 className="fx-results-title">Results</h2>
-          <div className="fx-results-divider" />
-
-          {/* Estimate Price + Live badge */}
-          <div className="fx-results-price-row">
-            <span className="fx-results-price-label">Busbar Price</span>
-            <span className="fx-results-live-badge">
-              <span className="fx-results-live-dot" />
-              Live {metal === 'copper' ? 'COMEX' : 'LME'}{grade.busbarPremium > 0 ? ` +${Math.round(grade.busbarPremium * 100)}%` : ''}
-            </span>
-          </div>
-
-          {/* Active currency row — orange-bordered pill */}
-          <div className="fx-results-curr-row">
-            {(() => {
-              const Flag = FLAGS[activeCurr as keyof typeof FLAGS];
-              return Flag ? <Flag className="fx-results-curr-flag" width={30} height={30} /> : null;
-            })()}
-            <span className="fx-results-curr-code">{CURR_META[activeCurr].label}</span>
-            <span className="fx-results-curr-value">{fmtResultPrice(activeCurrTotal)}</span>
-          </div>
-
-          {/* Stats rows — numeric values orange, units lighter */}
-          <div className="fx-results-stat-row fx-results-stat-border">
-            <span className="fx-results-stat-label">WEIGHT</span>
-            <span className="fx-results-stat-value">
-              <span className="fx-results-stat-num">{fmtMoney(weightKg)}</span>
-              {' '}<span className="fx-results-stat-unit">kg</span>
-            </span>
-          </div>
-          <div className="fx-results-stat-row fx-results-stat-border">
-            <span className="fx-results-stat-label">MATERIAL</span>
-            <span className="fx-results-stat-value">
-              <span className={`fx-results-stat-num${metal === 'aluminum' ? ' al' : ''}`}>
-                {metal === 'copper' ? 'copper' : 'aluminum'}
-              </span>
-              <span className="fx-results-grade-badge">{grade.label}</span>
-            </span>
-          </div>
-          <div className="fx-results-stat-row">
-            <span className="fx-results-stat-label">Rated Current</span>
-            <span className="fx-results-stat-value">
-              <span className="fx-results-stat-num">{maxCurrentA.toLocaleString()}</span>
-              {' '}<span className="fx-results-stat-unit">A</span>
-            </span>
-          </div>
-
-          {/* Action buttons — Compare + Bookmark on first row */}
-          <div className="fx-results-actions">
-            <button
-              type="button"
-              className={`fx-results-btn${showCompare ? ' active' : ''}`}
-              onClick={() => setShowCompare(true)}
-              aria-label="Compare result"
-            >
-              <CompareIcon width={20} height={20} />
-              Compare result
-            </button>
-            <button
-              type="button"
-              className={`fx-results-btn${bookmarked ? ' active' : ''}`}
-              onClick={openBookmarkDialog}
-              aria-label="Bookmark result"
-              aria-pressed={bookmarked}
-            >
-              <BookmarkIcon width={20} height={20} />
-              {bookmarked ? 'Bookmarked' : 'Bookmark result'}
-            </button>
-          </div>
-          {/* Share — full-width row below */}
-          <button
-            type="button"
-            className="fx-results-share-btn"
-            onClick={() => {
-              const metalName = metal === 'copper' ? 'Copper' : 'Aluminum';
-              const priceStr  = `${fmtResultPrice(activeCurrTotal)} ${CURR_META[activeCurr].label}`;
-              const appUrl = 'https://calculator.payapress.com';
-              const txt = [
-                `📐 ${metalName} busbar ${w}×${t}×${L} mm`,
-                `💰 ${priceStr}`,
-                `⚡ ${maxCurrentA.toLocaleString()} A  •  ${fmtMoney(weightKg)} kg`,
-                ``,
-                `Free busbar cost calculator 👇`,
-              ].join('\n');
-              if (navigator.share) {
-                navigator.share({ title: 'Busbar Calculator', text: txt, url: appUrl }).catch(() => {});
-              } else {
-                navigator.clipboard?.writeText(`${txt}\n${appUrl}`).catch(() => {});
-              }
-            }}
-            aria-label="Share result"
-          >
-            <ShareIcon width={20} height={20} />
-            Share result
-          </button>
-        </div>
-      )}
-
-      {/* ── Price Trend chart ──────────────────────────── */}
-      {showResults && (
-        <FxBusbarChart
-          metal={metal}
-          weightKg={weightKg}
-          fxRate={fxRate(activeCurr)}
-          currLabel={CURR_META[activeCurr].label}
-          pricePerKgUSD={pricePerKgUSD}
-          busbarPremium={grade.busbarPremium}
-          updatedLabel={updatedLabel}
-        />
-      )}
+      {/* Desktop only: inline results in right column */}
+      {showResults && !isMobile && <ResultsBody
+        metal={metal} activeCurr={activeCurr} activeCurrTotal={activeCurrTotal}
+        grade={grade} weightKg={weightKg} maxCurrentA={maxCurrentA}
+        fxRate={fxRate} totalIn={totalIn} showCompare={showCompare}
+        bookmarked={bookmarked} w={w} t={t} L={L} pricePerKgUSD={pricePerKgUSD}
+        busbarPremium={grade.busbarPremium} updatedLabel={updatedLabel}
+        resultsRef={resultsRef}
+        onCompare={() => setShowCompare(true)}
+        onBookmark={openBookmarkDialog}
+        onClose={() => setShowResults(false)}
+        showCloseBtn={false}
+      />}
 
       </div>{/* end fx-col-results */}
+
+      {/* Mobile only: portal bottom-sheet results */}
+      {mounted && isMobile && showResults && createPortal(
+        <div className={`fx-results-portal${resultsLeaving ? ' is-leaving' : ''}`}>
+          <div className="fx-results-overlay" onClick={closeResults} />
+          <div
+            className="fx-results-sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Calculation results"
+          >
+            <div className="fx-results-sheet-handle" />
+            <button
+              type="button"
+              className="fx-results-sheet-close"
+              onClick={closeResults}
+              aria-label="Close results"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 3L13 13M13 3L3 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </button>
+            <div className="fx-results-sheet-body">
+              <ResultsBody
+                metal={metal} activeCurr={activeCurr} activeCurrTotal={activeCurrTotal}
+                grade={grade} weightKg={weightKg} maxCurrentA={maxCurrentA}
+                fxRate={fxRate} totalIn={totalIn} showCompare={showCompare}
+                bookmarked={bookmarked} w={w} t={t} L={L} pricePerKgUSD={pricePerKgUSD}
+                busbarPremium={grade.busbarPremium} updatedLabel={updatedLabel}
+                resultsRef={resultsRef}
+                onCompare={() => setShowCompare(true)}
+                onBookmark={openBookmarkDialog}
+                onClose={closeResults}
+                showCloseBtn={false}
+              />
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
 
       {/* ── Currency Picker Sheet ─────────────────────── */}
       {showPicker && (
@@ -800,6 +768,143 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         onSuccess={handleAuthSuccess}
       />
     </div>
+  );
+}
+
+/* ── Results body — shared between desktop column and mobile portal ── */
+type ResultsBodyProps = {
+  metal: 'copper' | 'aluminum';
+  activeCurr: CurrCode;
+  activeCurrTotal: number;
+  grade: { label: string; busbarPremium: number };
+  weightKg: number;
+  maxCurrentA: number;
+  fxRate: (c: CurrCode) => number;
+  totalIn: (c: CurrCode) => number;
+  showCompare: boolean;
+  bookmarked: boolean;
+  w: number; t: number; L: number;
+  pricePerKgUSD: number;
+  busbarPremium: number;
+  updatedLabel: string;
+  resultsRef: React.RefObject<HTMLDivElement | null>;
+  onCompare: () => void;
+  onBookmark: () => void;
+  onClose: () => void;
+  showCloseBtn: boolean;
+};
+
+function ResultsBody({
+  metal, activeCurr, activeCurrTotal, grade, weightKg, maxCurrentA,
+  fxRate, totalIn, showCompare, bookmarked, w, t, L, pricePerKgUSD,
+  busbarPremium, updatedLabel, resultsRef,
+  onCompare, onBookmark,
+}: ResultsBodyProps) {
+  return (
+    <>
+      <div className="fx-results" ref={resultsRef}>
+        <h2 className="fx-results-title">Results</h2>
+        <div className="fx-results-divider" />
+
+        <div className="fx-results-price-row">
+          <span className="fx-results-price-label">Busbar Price</span>
+          <span className="fx-results-live-badge">
+            <span className="fx-results-live-dot" />
+            Live {metal === 'copper' ? 'COMEX' : 'LME'}{grade.busbarPremium > 0 ? ` +${Math.round(grade.busbarPremium * 100)}%` : ''}
+          </span>
+        </div>
+
+        <div className="fx-results-curr-row">
+          {(() => {
+            const Flag = FLAGS[activeCurr as keyof typeof FLAGS];
+            return Flag ? <Flag className="fx-results-curr-flag" width={30} height={30} /> : null;
+          })()}
+          <span className="fx-results-curr-code">{CURR_META[activeCurr].label}</span>
+          <span className="fx-results-curr-value">{fmtResultPrice(activeCurrTotal)}</span>
+        </div>
+
+        <div className="fx-results-stat-row fx-results-stat-border">
+          <span className="fx-results-stat-label">WEIGHT</span>
+          <span className="fx-results-stat-value">
+            <span className="fx-results-stat-num">{fmtMoney(weightKg)}</span>
+            {' '}<span className="fx-results-stat-unit">kg</span>
+          </span>
+        </div>
+        <div className="fx-results-stat-row fx-results-stat-border">
+          <span className="fx-results-stat-label">MATERIAL</span>
+          <span className="fx-results-stat-value">
+            <span className={`fx-results-stat-num${metal === 'aluminum' ? ' al' : ''}`}>
+              {metal === 'copper' ? 'copper' : 'aluminum'}
+            </span>
+            <span className="fx-results-grade-badge">{grade.label}</span>
+          </span>
+        </div>
+        <div className="fx-results-stat-row">
+          <span className="fx-results-stat-label">Rated Current</span>
+          <span className="fx-results-stat-value">
+            <span className="fx-results-stat-num">{maxCurrentA.toLocaleString()}</span>
+            {' '}<span className="fx-results-stat-unit">A</span>
+          </span>
+        </div>
+
+        <div className="fx-results-actions">
+          <button
+            type="button"
+            className={`fx-results-btn${showCompare ? ' active' : ''}`}
+            onClick={onCompare}
+            aria-label="Compare result"
+          >
+            <CompareIcon width={20} height={20} />
+            Compare result
+          </button>
+          <button
+            type="button"
+            className={`fx-results-btn${bookmarked ? ' active' : ''}`}
+            onClick={onBookmark}
+            aria-label="Bookmark result"
+            aria-pressed={bookmarked}
+          >
+            <BookmarkIcon width={20} height={20} />
+            {bookmarked ? 'Bookmarked' : 'Bookmark result'}
+          </button>
+        </div>
+        <button
+          type="button"
+          className="fx-results-share-btn"
+          onClick={() => {
+            const metalName = metal === 'copper' ? 'Copper' : 'Aluminum';
+            const priceStr  = `${fmtResultPrice(activeCurrTotal)} ${CURR_META[activeCurr].label}`;
+            const appUrl = 'https://calculator.payapress.com';
+            const txt = [
+              `📐 ${metalName} busbar ${w}×${t}×${L} mm`,
+              `💰 ${priceStr}`,
+              `⚡ ${maxCurrentA.toLocaleString()} A  •  ${fmtMoney(weightKg)} kg`,
+              ``,
+              `Free busbar cost calculator 👇`,
+            ].join('\n');
+            if (navigator.share) {
+              navigator.share({ title: 'Busbar Calculator', text: txt, url: appUrl }).catch(() => {});
+            } else {
+              navigator.clipboard?.writeText(`${txt}\n${appUrl}`).catch(() => {});
+            }
+          }}
+          aria-label="Share result"
+        >
+          <ShareIcon width={20} height={20} />
+          Share result
+        </button>
+      </div>
+
+      <FxBusbarChart
+        metal={metal}
+        weightKg={weightKg}
+        fxRate={fxRate(activeCurr)}
+        currLabel={CURR_META[activeCurr].label}
+        pricePerKgUSD={pricePerKgUSD}
+        busbarPremium={busbarPremium}
+        updatedLabel={updatedLabel}
+      />
+    </>
   );
 }
 
