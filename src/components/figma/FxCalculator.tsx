@@ -548,7 +548,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             <span className="fx-results-price-label">Busbar Price</span>
             <span className="fx-results-live-badge">
               <span className="fx-results-live-dot" />
-              Live {metal === 'copper' ? 'COMEX' : 'LME'} +{Math.round(grade.busbarPremium * 100)}%
+              Live {metal === 'copper' ? 'COMEX' : 'LME'}{grade.busbarPremium > 0 ? ` +${Math.round(grade.busbarPremium * 100)}%` : ''}
             </span>
           </div>
 
