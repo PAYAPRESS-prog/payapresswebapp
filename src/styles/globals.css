@@ -3354,6 +3354,32 @@ body {
   border-color: rgba(220,38,38,0.35);
 }
 
+/* Legal footer */
+.fx-profile-legal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  padding: 12px 16px 4px;
+}
+.fx-profile-legal-link {
+  font-size: 11px;
+  color: var(--fx-text-3);
+  text-decoration: none;
+}
+.fx-profile-legal-link:hover { color: var(--fx-text-2); text-decoration: underline; }
+.fx-profile-legal-sep {
+  font-size: 11px;
+  color: var(--fx-text-3);
+  opacity: 0.5;
+}
+.fx-profile-legal-copy {
+  font-size: 11px;
+  color: var(--fx-text-3);
+  opacity: 0.6;
+}
+
 /* ══════════════════════════════════════════════════════════════
    Compare Sheet
    ══════════════════════════════════════════════════════════════ */

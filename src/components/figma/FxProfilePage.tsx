@@ -391,6 +391,16 @@ export function FxProfilePage() {
       </main>
 
       {toast && <div className="fx-save-toast" role="status">{toast}</div>}
+
+      {/* Legal footer */}
+      <div className="fx-profile-legal">
+        <a href="/terms" className="fx-profile-legal-link">Terms of Use</a>
+        <span className="fx-profile-legal-sep">·</span>
+        <a href="/privacy" className="fx-profile-legal-link">Privacy Policy</a>
+        <span className="fx-profile-legal-sep">·</span>
+        <span className="fx-profile-legal-copy">© 2025 PAYAP MACHINERY</span>
+      </div>
+
       <FxBottomNav active="profile" />
     </div>
   );

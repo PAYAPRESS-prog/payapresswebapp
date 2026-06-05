@@ -242,6 +242,12 @@
       "namedRegex": "^/sitemap\\.xml(?:/)?$"
     },
     {
+      "page": "/terms",
+      "regex": "^/terms(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/terms(?:/)?$"
+    },
+    {
       "page": "/whitepaper",
       "regex": "^/whitepaper(?:/)?$",
       "routeKeys": {},

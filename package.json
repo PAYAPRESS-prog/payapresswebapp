@@ -2,7 +2,7 @@
   "name": "payapress-webapp",
   "version": "1.0.0",
   "private": true,
-  "license": "MIT",
+  "license": "UNLICENSED",
   "author": "PAYAP MACHINERY <info@payapress.com>",
   "homepage": "https://www.payapress.com",
   "scripts": {
