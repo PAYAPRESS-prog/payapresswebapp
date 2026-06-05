@@ -4159,15 +4159,43 @@ body {
    UX POLISH — Press feedback, focus glows, View Transitions
    ══════════════════════════════════════════════════════ */
 
-/* ── View Transitions API: smooth page navigation ─── */
+/* ── View Transitions API: smooth cross-document nav ── */
 @view-transition { navigation: auto; }
+::view-transition-old(root) {
+  animation: fx-vt-out 0.26s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+::view-transition-new(root) {
+  animation: fx-vt-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes fx-vt-out {
+  to { opacity: 0; transform: translateY(-8px) scale(0.994); }
+}
+@keyframes fx-vt-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.99); }
+}
+
+/* ── SPA route entrance (component remount) ── */
 @keyframes fx-page-enter {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(14px) scale(0.99); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-.fx-content {
-  animation: fx-page-enter 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+.fx-content,
+.fx-welcome-content {
+  animation: fx-page-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+/* ── Smooth, momentum scrolling polish ─────────────── */
+html { scroll-padding-top: 84px; }          /* anchored jumps clear the header */
+.fx-app,
+.fx-menu,
+.fx-col-results,
+.fx-picker-list,
+.fx-history {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;         /* iOS momentum */
+  overscroll-behavior-y: contain;            /* no scroll-chaining / rubber-band leak */
+}
+
 
 /* ── Disable iOS tap flash on all elements ─────────── */
 * { -webkit-tap-highlight-color: transparent; }
