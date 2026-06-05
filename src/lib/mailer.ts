@@ -1,18 +1,14 @@
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 
 // ── SMTP transport (Hostinger) ────────────────────────────────────────────────
-// Reads from env vars set in .env.production / Hostinger process environment.
-// Required: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS
-// Optional: SMTP_FROM  (defaults to SMTP_USER)
 
 function createTransport() {
   const host = process.env.SMTP_HOST;
   const port = Number(process.env.SMTP_PORT ?? 465);
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
-
   if (!host || !user || !pass) return null;
-
   return nodemailer.createTransport({
     host,
     port,
@@ -21,15 +17,12 @@ function createTransport() {
     tls: { rejectUnauthorized: true },
     pool: true,
     maxConnections: 3,
-    socketTimeout: 10_000,
+    socketTimeout: 12_000,
   });
 }
 
-// Singleton — reuse connection pool across API calls.
-// Type widened because nodemailer pool vs. non-pool transporter types differ.
 // eslint-disable-next-line
 let _transport: nodemailer.Transporter<unknown> | null = null;
-
 function getTransport() {
   if (!_transport) _transport = createTransport();
   return _transport;
@@ -39,8 +32,10 @@ export function isMailerConfigured(): boolean {
   return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 }
 
-const FROM = () =>
-  process.env.SMTP_FROM ?? process.env.SMTP_USER ?? 'noreply@calculator.payapress.com';
+const FROM_ADDR = () =>
+  process.env.SMTP_FROM ?? process.env.SMTP_USER ?? 'info@calculator.payapress.com';
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://calculator.payapress.com';
 
 // ── Send helper ───────────────────────────────────────────────────────────────
 
@@ -48,7 +43,8 @@ interface MailOptions {
   to: string;
   subject: string;
   html: string;
-  text?: string;
+  text: string;
+  listUnsubscribe?: string;
 }
 
 export async function sendMail(opts: MailOptions): Promise<void> {
@@ -57,79 +53,115 @@ export async function sendMail(opts: MailOptions): Promise<void> {
     console.warn('[mailer] SMTP not configured — skipping email to', opts.to);
     return;
   }
+
+  const domain = FROM_ADDR().split('@')[1] ?? 'calculator.payapress.com';
+  const msgId  = `<${crypto.randomUUID()}@${domain}>`;
+
   await transport.sendMail({
-    from: `"Busbar Calculator" <${FROM()}>`,
-    to: opts.to,
-    subject: opts.subject,
-    html: opts.html,
-    text: opts.text,
+    from:       `"Busbar Calculator" <${FROM_ADDR()}>`,
+    replyTo:    FROM_ADDR(),
+    to:         opts.to,
+    subject:    opts.subject,
+    messageId:  msgId,
+    html:       opts.html,
+    text:       opts.text,
+    headers: {
+      'X-Mailer':        'Busbar-Calculator-Mailer/1.0',
+      'List-Unsubscribe': opts.listUnsubscribe ?? `<mailto:${FROM_ADDR()}?subject=unsubscribe>`,
+      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      'Precedence': 'bulk',
+    },
   });
 }
 
-// ── Email templates ───────────────────────────────────────────────────────────
+// ── Templates ─────────────────────────────────────────────────────────────────
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://calculator.payapress.com';
-
-function baseLayout(content: string): string {
+function baseLayout(content: string, unsubLine: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Busbar Calculator</title>
 <style>
-  body { margin:0; padding:0; background:#060608; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; }
-  .wrap { max-width:520px; margin:0 auto; padding:40px 24px; }
-  .logo { font-size:13px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase;
-          color:#cd7f32; margin-bottom:32px; }
-  .card { background:#12151f; border:1px solid rgba(255,255,255,0.07); border-radius:16px;
-          padding:32px 28px; }
-  h1 { margin:0 0 16px; font-size:22px; font-weight:800; color:#f5f7fa; }
-  p  { margin:0 0 14px; font-size:14px; line-height:1.75; color:#a1a1aa; }
-  .btn { display:inline-block; margin-top:8px; padding:12px 28px;
-         background:linear-gradient(135deg,#cd7f32,#b87333);
-         color:#fff; font-size:14px; font-weight:700; border-radius:10px;
-         text-decoration:none; }
-  .footer { margin-top:28px; font-size:11px; color:#3f3f46; text-align:center; }
-  .footer a { color:#cd7f32; text-decoration:none; }
+  body{margin:0;padding:0;background:#f4f4f5;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;}
+  .outer{background:#f4f4f5;padding:32px 16px;}
+  .wrap{max-width:480px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;
+        box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+  .header{background:#0c0c0f;padding:24px 28px 20px;}
+  .header-logo{font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
+               color:#cd7f32;}
+  .body{padding:28px 28px 24px;}
+  h1{margin:0 0 14px;font-size:20px;font-weight:700;color:#111;}
+  p{margin:0 0 12px;font-size:14px;line-height:1.7;color:#555;}
+  .btn{display:inline-block;margin:8px 0 4px;padding:12px 28px;background:#cd7f32;
+       color:#fff;font-size:14px;font-weight:700;border-radius:8px;text-decoration:none;}
+  .footer{background:#f9f9f9;border-top:1px solid #e5e5e5;padding:16px 28px;
+          font-size:11px;color:#888;text-align:center;line-height:1.6;}
+  .footer a{color:#cd7f32;text-decoration:none;}
 </style>
 </head>
 <body>
+<div class="outer">
 <div class="wrap">
-  <div class="logo">⚡ Busbar Calculator</div>
-  <div class="card">${content}</div>
-  <div class="footer">
-    © 2025 PAYAP MACHINERY · Trading as PAYAPRESS · All Rights Reserved<br/>
-    <a href="${BASE_URL}/terms">Terms of Use</a> &nbsp;·&nbsp;
-    <a href="${BASE_URL}/privacy">Privacy Policy</a>
+  <div class="header">
+    <div class="header-logo">⚡ Busbar Calculator</div>
   </div>
+  <div class="body">
+    ${content}
+  </div>
+  <div class="footer">
+    © 2025 PAYAP MACHINERY · All Rights Reserved<br/>
+    <a href="${BASE_URL}/terms">Terms</a> &nbsp;·&nbsp;
+    <a href="${BASE_URL}/privacy">Privacy</a>
+    &nbsp;·&nbsp; ${unsubLine}
+  </div>
+</div>
 </div>
 </body>
 </html>`;
 }
 
 export function welcomeEmail(email: string): { subject: string; html: string; text: string } {
+  const unsubLine = `<a href="mailto:${FROM_ADDR()}?subject=unsubscribe">Unsubscribe</a>`;
   const html = baseLayout(`
-    <h1>Welcome to Busbar Calculator 👋</h1>
+    <h1>Welcome to Busbar Calculator</h1>
     <p>Your account is ready. You can now save calculation history, bookmark results, and compare busbars across sessions.</p>
-    <a class="btn" href="${BASE_URL}/busbar-calculator">Open Calculator →</a>
-    <p style="margin-top:24px;font-size:12px;color:#52525b;">
-      Signed in as <strong style="color:#f5f7fa;">${email}</strong>
-    </p>
-  `);
-  const text = `Welcome to Busbar Calculator!\n\nYour account is ready.\nOpen the app: ${BASE_URL}/busbar-calculator\n\n© 2025 PAYAP MACHINERY`;
+    <a class="btn" href="${BASE_URL}/busbar-calculator">Open Calculator</a>
+    <p style="margin-top:20px;font-size:12px;color:#aaa;">Account: ${email}</p>
+  `, unsubLine);
+  const text = [
+    'Welcome to Busbar Calculator',
+    '',
+    'Your account is ready.',
+    `Open the app: ${BASE_URL}/busbar-calculator`,
+    '',
+    '---',
+    `Account: ${email}`,
+    `© 2025 PAYAP MACHINERY`,
+    `Unsubscribe: mailto:${FROM_ADDR()}?subject=unsubscribe`,
+  ].join('\n');
   return { subject: 'Welcome to Busbar Calculator', html, text };
 }
 
 export function subscribeConfirmEmail(email: string): { subject: string; html: string; text: string } {
+  const unsubLine = `<a href="mailto:${FROM_ADDR()}?subject=unsubscribe">Unsubscribe</a>`;
   const html = baseLayout(`
-    <h1>You're on the list ✅</h1>
-    <p>We'll notify you when new features land — price alerts, export options, and more.</p>
-    <p>Meanwhile, the calculator is live and ready to use:</p>
-    <a class="btn" href="${BASE_URL}/busbar-calculator">Open Calculator →</a>
-    <p style="margin-top:24px;font-size:12px;color:#52525b;">
-      Subscribed as <strong style="color:#f5f7fa;">${email}</strong>
-    </p>
-  `);
-  const text = `You're subscribed to Busbar Calculator updates.\nOpen the app: ${BASE_URL}/busbar-calculator\n\n© 2025 PAYAP MACHINERY`;
-  return { subject: "You're on the list — Busbar Calculator", html, text };
+    <h1>You're subscribed!</h1>
+    <p>Thank you for subscribing to Busbar Calculator updates. We'll notify you about new features including price alerts and daily reports.</p>
+    <a class="btn" href="${BASE_URL}/busbar-calculator">Open Calculator</a>
+    <p style="margin-top:20px;font-size:12px;color:#aaa;">Subscribed as: ${email}</p>
+  `, unsubLine);
+  const text = [
+    "You're subscribed to Busbar Calculator",
+    '',
+    'Thank you for subscribing. We will notify you about new features.',
+    `Open the app: ${BASE_URL}/busbar-calculator`,
+    '',
+    '---',
+    `Subscribed as: ${email}`,
+    `© 2025 PAYAP MACHINERY`,
+    `Unsubscribe: mailto:${FROM_ADDR()}?subject=unsubscribe`,
+  ].join('\n');
+  return { subject: 'Subscribed to Busbar Calculator', html, text };
 }
