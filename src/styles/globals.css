@@ -938,14 +938,15 @@ body {
 .fx-card-head-badge .accent { color: var(--fx-copper); }
 
 /* ── Metal toggle — Figma flat, flush gradient fill ─ */
+/* Metal toggle — exact Figma: flat translucent container, inset floating pill */
 .fx-metal-toggle {
   display: flex;
   gap: 0;
   background: rgba(245, 247, 250, 0.05);
-  border: 1px solid rgba(245, 247, 250, 0.1);
+  border: none;
   border-radius: 16px;
-  padding: 0;
-  min-height: 58px;
+  padding: 6px;            /* Figma: 6px inset so active pill floats */
+  height: 60px;
   overflow: hidden;
   align-items: stretch;
 }
@@ -955,34 +956,39 @@ body {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 15px 10px;
-  border-radius: 0;
+  padding: 10px;
+  border-radius: 12px;     /* Figma: pill radius 12 */
   border: none;
   background: transparent;
-  color: var(--fx-text-3);
+  color: #6b7280;          /* Figma inactive text */
   font-weight: 590;
   font-size: 16px;
   cursor: pointer;
-  opacity: 0.4;
-  transition: opacity 0.18s, background 0.25s;
+  opacity: 0.4;            /* Figma inactive opacity */
+  transition: opacity 0.2s, background 0.25s, color 0.2s;
   overflow: hidden;
 }
 .fx-metal-btn .fx-metal-img {
-  width: 56px;
-  height: 44px;
+  width: 36px;             /* Figma image 36×28 */
+  height: 28px;
   flex-shrink: 0;
   object-fit: contain;
   filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
 }
 .fx-metal-btn.active {
   opacity: 1;
-  color: var(--fx-text-1);
+  color: #f5f7fa;          /* Figma active label white */
 }
+/* Copper active — orange → red (Figma) */
 .fx-metal-btn.active[data-metal="copper"] {
-  background: linear-gradient(90deg, #f7941d 0%, #f7941d 55%, #d80027 100%);
+  background: linear-gradient(90deg, #f7941d 0%, #d80027 100%);
 }
+/* Aluminum active — metallic silver diagonal (Figma -63deg) */
 .fx-metal-btn.active[data-metal="aluminum"] {
-  background: linear-gradient(90deg, #c8d4dc 0%, #9aacb6 55%, #6b8492 100%);
+  background: linear-gradient(-63deg,
+    rgba(107, 114, 128, 0.5) 0%,
+    rgba(201, 206, 214, 0.8) 50%,
+    #eef2f5 100%);
 }
 
 /* Busbar mock image — pure SVG gradient (no external asset) */
@@ -4534,10 +4540,8 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
    it refines the base card/nav/toggle surfaces.
    ══════════════════════════════════════════════════════ */
 
-/* Primary frosted cards — gradient sheen + top highlight + depth */
-.fx-card,
-.fx-curr-card,
-.fx-metal-toggle {
+/* Currency card keeps the deeper frosted-glass look */
+.fx-curr-card {
   position: relative;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.012) 62%),
@@ -4548,6 +4552,13 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     0 10px 30px -14px rgba(0, 0, 0, 0.7);
+}
+
+/* Dimensions card — exact Figma: flat translucent fill, no border, no blur */
+.fx-card {
+  background: rgba(245, 247, 250, 0.05);
+  border: none;
+  box-shadow: none;
 }
 
 /* Floating bottom nav — deeper charcoal glass to match Figma */
@@ -4757,7 +4768,7 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
 
 /* Glass fallback: where backdrop-filter is unsupported, lean on solid fills */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .fx-card, .fx-curr-card, .fx-metal-toggle { background: rgba(26, 29, 35, 0.96); }
+  .fx-curr-card { background: rgba(26, 29, 35, 0.96); }
   .fx-results, .fx-history-card { background: rgba(22, 25, 31, 0.96); }
   .fx-welcome-guest { background: rgba(60, 62, 70, 0.92); }
 }

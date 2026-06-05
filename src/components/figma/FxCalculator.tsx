@@ -346,7 +346,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           data-metal="copper"
           onClick={() => setMetal('copper')}
         >
-          <BusbarMock metal="copper" />
+          <BusbarMock metal="copper" width={36} height={28} />
           <span>Copper</span>
         </button>
         <button
@@ -355,7 +355,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           data-metal="aluminum"
           onClick={() => setMetal('aluminum')}
         >
-          <BusbarMock metal="aluminum" />
+          <BusbarMock metal="aluminum" width={36} height={28} />
           <span>Aluminum</span>
         </button>
       </div>
