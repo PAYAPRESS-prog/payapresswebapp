@@ -820,7 +820,7 @@ function ResultsBody({
         <div className="fx-results-divider" />
 
         <div className="fx-results-price-row">
-          <span className="fx-results-price-label">Busbar Price</span>
+          <span className="fx-results-price-label">Estimate Price</span>
           <span className="fx-results-live-badge">
             <span className="fx-results-live-dot" />
             Live {metal === 'copper' ? 'COMEX' : 'LME'}{grade.busbarPremium > 0 ? ` +${Math.round(grade.busbarPremium * 100)}%` : ''}
