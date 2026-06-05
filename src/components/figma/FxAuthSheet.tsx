@@ -33,6 +33,7 @@ export function FxAuthSheet({
   const [remember, setRemember] = useState(true);
   const [busy, setBusy]         = useState(false);
   const [error, setError]       = useState<string | null>(null);
+  const [errorSwitch, setErrorSwitch] = useState<'login' | 'signup' | null>(null);
 
   // Lock body scroll while the sheet is open
   useEffect(() => {
@@ -81,6 +82,9 @@ export function FxAuthSheet({
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data?.error || 'Something went wrong. Please try again.');
+        if (res.status === 409) setErrorSwitch('login');
+        else if (res.status === 404) setErrorSwitch('signup');
+        else setErrorSwitch(null);
         return;
       }
       // Success
@@ -117,7 +121,7 @@ export function FxAuthSheet({
             role="tab"
             aria-selected={mode === 'login'}
             className={`fx-auth-tab${mode === 'login' ? ' active' : ''}`}
-            onClick={() => { onModeChange('login'); setError(null); }}
+            onClick={() => { onModeChange('login'); setError(null); setErrorSwitch(null); }}
           >
             Log In
           </button>
@@ -126,7 +130,7 @@ export function FxAuthSheet({
             role="tab"
             aria-selected={mode === 'signup'}
             className={`fx-auth-tab${mode === 'signup' ? ' active' : ''}`}
-            onClick={() => { onModeChange('signup'); setError(null); }}
+            onClick={() => { onModeChange('signup'); setError(null); setErrorSwitch(null); }}
           >
             Sign Up
           </button>
@@ -227,7 +231,20 @@ export function FxAuthSheet({
             </div>
           )}
 
-          {error && <p className="fx-auth-error" role="alert">{error}</p>}
+          {error && (
+            <div className="fx-auth-error-wrap" role="alert">
+              <p className="fx-auth-error">{error}</p>
+              {errorSwitch && (
+                <button
+                  type="button"
+                  className="fx-auth-error-switch"
+                  onClick={() => { onModeChange(errorSwitch); setError(null); setErrorSwitch(null); }}
+                >
+                  {errorSwitch === 'login' ? 'Go to Log In →' : 'Go to Sign Up →'}
+                </button>
+              )}
+            </div>
+          )}
 
           <button type="submit" className="fx-auth-submit" disabled={busy}>
             {busy ? 'Please wait…' : isSignup ? 'Sign Up' : 'Log In'}

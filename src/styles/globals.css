@@ -1682,11 +1682,29 @@ body {
 }
 .fx-auth-forgot:hover { text-decoration: underline; }
 
+.fx-auth-error-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 .fx-auth-error {
   color: #fca5a5;
   font-size: 14px;
   margin: 0;
 }
+.fx-auth-error-switch {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fx-copper-bright);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.fx-auth-error-switch:hover { opacity: 0.8; }
 
 .fx-auth-submit {
   margin-top: 8px;

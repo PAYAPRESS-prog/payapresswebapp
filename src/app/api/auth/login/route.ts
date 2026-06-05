@@ -47,10 +47,14 @@ export async function POST(req: Request) {
 
   try {
     const user = await findUserByEmail(email);
-    // Same generic message whether the email is unknown or the password is wrong
-    // — avoids leaking which emails are registered.
-    if (!user || !(await verifyPassword(password, user.password_hash))) {
-      return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 });
+    if (!user) {
+      return NextResponse.json(
+        { error: 'No account found with this email.', code: 'not_found' },
+        { status: 404 },
+      );
+    }
+    if (!(await verifyPassword(password, user.password_hash))) {
+      return NextResponse.json({ error: 'Incorrect password.' }, { status: 401 });
     }
 
     const token = await createSessionToken({ uid: user.id, email: user.email });
