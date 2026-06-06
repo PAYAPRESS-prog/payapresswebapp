@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useId, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { LetterIcon, EyeIcon, EyeClosedIcon } from './FxIcons';
 
@@ -34,6 +35,9 @@ export function FxAuthSheet({
   const [busy, setBusy]         = useState(false);
   const [error, setError]       = useState<string | null>(null);
   const [errorSwitch, setErrorSwitch] = useState<'login' | 'signup' | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   // Lock body scroll while the sheet is open
   useEffect(() => {
@@ -51,7 +55,7 @@ export function FxAuthSheet({
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
   const isSignup = mode === 'signup';
 
@@ -101,7 +105,7 @@ export function FxAuthSheet({
     }
   }
 
-  return (
+  return createPortal(
     <div
       className="fx-sheet-overlay"
       role="dialog"
@@ -251,6 +255,7 @@ export function FxAuthSheet({
           </button>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

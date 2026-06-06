@@ -1637,7 +1637,9 @@ body {
 .fx-sheet-overlay {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  /* Above results (500) and waste (600) sheets so the auth gate is reachable
+     when triggered from inside the results popup. */
+  z-index: 820;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -2722,7 +2724,9 @@ body {
 .fx-name-overlay {
   position: fixed;
   inset: 0;
-  z-index: 90;
+  /* Above the results sheet (500) and waste sheet (600) — the name dialog
+     is the topmost step in the save / waste flow. */
+  z-index: 800;
   background: rgba(0, 0, 0, 0.55);
   -webkit-backdrop-filter: blur(3px);
           backdrop-filter: blur(3px);
@@ -5772,8 +5776,6 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   letter-spacing: 0.01em;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
-  /* RTL text for Farsi label */
-  direction: rtl;
 }
 .fx-results-waste-btn:hover  { background: rgba(232, 115, 26, 0.14); border-color: rgba(232, 115, 26, 0.50); }
 .fx-results-waste-btn:active { background: rgba(232, 115, 26, 0.20); transform: scale(0.99); }
@@ -5903,7 +5905,6 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   color: #f5f7fa;
   letter-spacing: -0.02em;
   margin-bottom: 6px;
-  direction: rtl;
 }
 .fx-waste-meta {
   font-size: 13px;

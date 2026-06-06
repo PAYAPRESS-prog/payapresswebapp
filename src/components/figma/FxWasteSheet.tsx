@@ -98,7 +98,7 @@ export function FxWasteSheet({
   return createPortal(
     <div className={`fx-waste-portal${leaving ? ' is-leaving' : ''}`}>
       <div className="fx-waste-overlay" onClick={close} />
-      <div className="fx-waste-sheet" role="dialog" aria-modal="true" aria-label="محاسبه ضایعات">
+      <div className="fx-waste-sheet" role="dialog" aria-modal="true" aria-label="Waste calculation">
         <div className="fx-waste-handle" />
         <button type="button" className="fx-waste-close" onClick={close} aria-label="Close">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -111,7 +111,7 @@ export function FxWasteSheet({
 
           {/* Header */}
           <div className="fx-waste-header">
-            <h2 className="fx-waste-title">محاسبه ضایعات</h2>
+            <h2 className="fx-waste-title">Waste Calculation</h2>
             <p className="fx-waste-meta">
               <span style={{ color: metalColor }}>{metalName}</span>
               {' · '}{L}×{w}×{t} mm · {totalKg.toFixed(3)} kg

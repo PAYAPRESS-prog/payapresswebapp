@@ -736,7 +736,9 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
       )}
 
       {/* ── Name-your-bookmark dialog ─────────────────── */}
-      {showNameDialog && (
+      {/* Portaled to body so it escapes the transformed swipe-track and
+          stacks above the results sheet (z-index 500). */}
+      {mounted && showNameDialog && createPortal(
         <div
           className="fx-name-overlay"
           onClick={() => !savingBookmark && setShowNameDialog(false)}
@@ -790,7 +792,8 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* ── Save toast ─────────────────────────────────── */}
@@ -1018,10 +1021,10 @@ function ResultsActionButtons({
         type="button"
         className={`fx-results-waste-btn${metal === 'aluminum' ? ' al' : ''}`}
         onClick={onWaste}
-        aria-label="محاسبه ضایعات"
+        aria-label="Waste calculation"
       >
         <WasteIcon width={20} height={20} metal={metal} />
-        محاسبه ضایعات
+        Waste calculation
       </button>
     </>
   );
