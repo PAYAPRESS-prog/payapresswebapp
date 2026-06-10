@@ -22,13 +22,24 @@ async function ensureTable(): Promise<void> {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
   // Migrate older tables that predate profile columns.
-  for (const ddl of [
-    `ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name VARCHAR(100) NULL`,
-    `ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name  VARCHAR(100) NULL`,
-    `ALTER TABLE users ADD COLUMN IF NOT EXISTS company    VARCHAR(150) NULL`,
-    `ALTER TABLE users ADD COLUMN IF NOT EXISTS phone      VARCHAR(30)  NULL`,
-  ]) {
-    await pool.query(ddl).catch(() => {});
+  // `ADD COLUMN IF NOT EXISTS` is MariaDB-only, so check information_schema
+  // first to stay portable across plain MySQL.
+  const profileColumns: Array<[string, string]> = [
+    ['first_name', 'VARCHAR(100) NULL'],
+    ['last_name',  'VARCHAR(100) NULL'],
+    ['company',    'VARCHAR(150) NULL'],
+    ['phone',      'VARCHAR(30)  NULL'],
+  ];
+  const [existing] = await pool.query<RowDataPacket[]>(
+    `SELECT COLUMN_NAME FROM information_schema.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users'`,
+  );
+  const have = new Set(existing.map(r => String(r.COLUMN_NAME).toLowerCase()));
+  for (const [col, type] of profileColumns) {
+    if (have.has(col)) continue;
+    await pool.query(`ALTER TABLE users ADD COLUMN ${col} ${type}`).catch(err => {
+      console.error(`[users] failed to add column ${col}:`, err);
+    });
   }
   tableReady = true;
 }

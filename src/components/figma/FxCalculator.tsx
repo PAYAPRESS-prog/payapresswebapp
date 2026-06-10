@@ -683,7 +683,8 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
       )}
 
       {/* ── Currency Picker Sheet ─────────────────────── */}
-      {showPicker && (
+      {/* Portaled to body so it escapes the transformed swipe-track. */}
+      {mounted && showPicker && createPortal(
         <div
           className="fx-picker-overlay"
           onClick={() => setShowPicker(false)}
@@ -732,7 +733,8 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
               }
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
       {/* ── Name-your-bookmark dialog ─────────────────── */}

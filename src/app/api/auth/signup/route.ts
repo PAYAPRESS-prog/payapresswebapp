@@ -6,6 +6,7 @@ import {
   createSessionToken,
   sessionCookieOptions,
   isValidEmail,
+  isAuthConfigured,
   SESSION_COOKIE,
 } from '@/lib/auth';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
@@ -27,6 +28,12 @@ export async function POST(req: Request) {
   if (!isDbConfigured()) {
     return NextResponse.json(
       { error: 'Sign-up is not available yet. Database not configured.' },
+      { status: 503 },
+    );
+  }
+  if (!isAuthConfigured()) {
+    return NextResponse.json(
+      { error: 'Sign-up is not available yet. Server auth secret not configured.' },
       { status: 503 },
     );
   }

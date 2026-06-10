@@ -2405,7 +2405,9 @@ body {
 .fx-picker-overlay {
   position: fixed;
   inset: 0;
-  z-index: 80;
+  /* Portaled to body; sits below the results sheet (500) since it is only
+     opened from the main calculator screen. */
+  z-index: 480;
   background: rgba(0, 0, 0, 0.5);
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
@@ -3629,6 +3631,28 @@ body {
   to   { transform: translateY(0); }
 }
 
+/* Leaving: fade overlay + slide sheet back down (mirrors results sheet) */
+.fx-cmp-overlay.is-leaving {
+  animation: fx-sheet-bg-out 0.3s ease both;
+}
+.fx-cmp-overlay.is-leaving .fx-cmp-sheet {
+  animation: fx-sheet-slide-out 0.3s cubic-bezier(0.55, 0, 1, 0.45) both;
+}
+
+/* Desktop / tablet: center the sheet instead of full-bleed bottom sheet */
+@media (min-width: 640px) {
+  .fx-cmp-overlay {
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .fx-cmp-sheet {
+    max-width: 520px;
+    border-radius: 24px;
+    border: 1px solid rgba(245, 247, 250, 0.08);
+  }
+}
+
 .fx-cmp-handle {
   width: 40px;
   height: 4px;
@@ -4757,6 +4781,9 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   min-height: 0;
 }
 .fx-results-sheet-body::-webkit-scrollbar { display: none; }
+/* Children keep their natural height — the body scrolls instead of
+   squashing the chart card to fit the constrained sheet height. */
+.fx-results-sheet-body > * { flex-shrink: 0; }
 
 /* Sticky action-buttons footer — never scrolls away */
 .fx-results-sheet-footer {
@@ -5872,6 +5899,21 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   animation: fx-sheet-slide-in 0.44s cubic-bezier(0.32, 0.72, 0, 1) both;
 }
 
+/* Desktop / tablet: center the waste sheet instead of full-bleed */
+@media (min-width: 640px) {
+  .fx-waste-portal {
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+  }
+  .fx-waste-sheet {
+    width: 100%;
+    max-width: 520px;
+    border-radius: 28px;
+    border: 1px solid rgba(245, 247, 250, 0.10);
+  }
+}
+
 .fx-waste-portal.is-leaving .fx-waste-sheet {
   animation: fx-sheet-slide-out 0.32s cubic-bezier(0.55, 0, 1, 0.45) both;
 }
@@ -5925,6 +5967,7 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   scrollbar-width: none;
 }
 .fx-waste-body::-webkit-scrollbar { display: none; }
+.fx-waste-body > * { flex-shrink: 0; }
 
 /* Sticky share footer */
 .fx-waste-footer {

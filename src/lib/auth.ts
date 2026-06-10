@@ -16,6 +16,13 @@ function getSecret(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
+// Routes call this before doing any work so a missing JWT_SECRET surfaces as
+// a clear 503 instead of a generic 500 after the DB round-trip.
+export function isAuthConfigured(): boolean {
+  const secret = process.env.JWT_SECRET;
+  return Boolean(secret && secret.length >= 16);
+}
+
 export async function hashPassword(plain: string): Promise<string> {
   return bcrypt.hash(plain, 10);
 }
