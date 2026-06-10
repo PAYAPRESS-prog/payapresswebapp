@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ShareIcon } from './FxIcons';
+import { lockBodyScroll, unlockBodyScroll } from '@/lib/scrollLock';
 
 interface Props {
   open: boolean;
@@ -44,9 +45,8 @@ export function FxWasteSheet({
 
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
+    lockBodyScroll();
+    return () => { unlockBodyScroll(); };
   }, [open]);
 
   if (!mounted || (!open && !leaving)) return null;

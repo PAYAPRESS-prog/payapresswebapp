@@ -6,6 +6,7 @@ import { DEFAULT_GRADE } from '@/lib/copperData';
 import { DEFAULT_ALUMINUM_GRADE } from '@/lib/aluminumData';
 import type { CopperPriceData, FxRates } from '@/types/calculator';
 import { BusbarMock, ShareIcon } from './FxIcons';
+import { lockBodyScroll, unlockBodyScroll } from '@/lib/scrollLock';
 
 type Metal = 'copper' | 'aluminum';
 type CurrCode =
@@ -183,9 +184,8 @@ export function FxCompareSheet({
 
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
+    lockBodyScroll();
+    return () => { unlockBodyScroll(); };
   }, [open]);
 
   const sheetRef = useRef<HTMLDivElement>(null);

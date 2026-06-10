@@ -4,6 +4,7 @@ import { useEffect, useId, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { LetterIcon, EyeIcon, EyeClosedIcon } from './FxIcons';
+import { lockBodyScroll, unlockBodyScroll } from '@/lib/scrollLock';
 
 type Mode = 'login' | 'signup';
 
@@ -42,9 +43,8 @@ export function FxAuthSheet({
   // Lock body scroll while the sheet is open
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
+    lockBodyScroll();
+    return () => { unlockBodyScroll(); };
   }, [open]);
 
   // Close on Escape

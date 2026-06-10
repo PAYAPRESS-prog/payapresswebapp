@@ -118,7 +118,18 @@ export function FxBusbarChart({ metal, weightKg, fxRate, currLabel, pricePerKgUS
     setBusy(true); setErr(false); setHoverIdx(null);
     fetch(`/api/price-history?metal=${metal}&range=${range}`)
       .then(r => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then(d  => { if (alive) { setRaw(d); setBusy(false); } })
+      .then(d  => {
+        if (!alive) return;
+        // Validate the shape — a 200 with an unexpected body (proxy error
+        // page, offline JSON, captive portal) must NEVER crash the render:
+        // a throw here unmounts the whole app, not just the chart.
+        if (d && Array.isArray(d.timestamps) && Array.isArray(d.pricesPerKg)
+              && d.timestamps.length === d.pricesPerKg.length) {
+          setRaw(d); setBusy(false);
+        } else {
+          setErr(true); setBusy(false);
+        }
+      })
       .catch(() => { if (alive) { setErr(true); setBusy(false); } });
     return () => { alive = false; };
   }, [metal, range]);
@@ -127,7 +138,8 @@ export function FxBusbarChart({ metal, weightKg, fxRate, currLabel, pricePerKgUS
   const uid   = `bch_${metal}`;
 
   const chart = useMemo(() => {
-    if (!raw || raw.timestamps.length < 3) return null;
+    if (!raw || !Array.isArray(raw.timestamps) || !Array.isArray(raw.pricesPerKg)
+             || raw.timestamps.length < 3) return null;
 
     const busbarPrices = raw.pricesPerKg.map(p => p * (1 + busbarPremium) * weightKg * fxRate);
     const maxPts = 60;

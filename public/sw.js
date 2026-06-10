@@ -1,6 +1,6 @@
-/* PAYAPRESS Service Worker — v29 */
+/* PAYAPRESS Service Worker — v31 */
 
-const CACHE_VERSION = 'v30';
+const CACHE_VERSION = 'v31';
 const SHELL_CACHE   = `payapress-shell-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `payapress-dynamic-${CACHE_VERSION}`;
 
@@ -13,10 +13,14 @@ const PRECACHE_ASSETS = [
 ];
 
 // Synthetic offline JSON response for API calls that fail when offline.
-const OFFLINE_API = new Response(
-  JSON.stringify({ offline: true, error: 'No internet connection.' }),
-  { status: 503, headers: { 'Content-Type': 'application/json' } }
-);
+// Built fresh per request — cloning a shared Response throws once its
+// body stream is locked, which would break ALL api fallbacks after the first.
+function offlineApiResponse() {
+  return new Response(
+    JSON.stringify({ offline: true, error: 'No internet connection.' }),
+    { status: 503, headers: { 'Content-Type': 'application/json' } }
+  );
+}
 
 // ── Install: precache only static assets ─────────────────────────────────────
 self.addEventListener('install', event => {
@@ -53,7 +57,7 @@ self.addEventListener('fetch', event => {
   // so the client can handle it gracefully rather than seeing a network error.
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(
-      fetch(request).catch(() => OFFLINE_API.clone())
+      fetch(request).catch(() => offlineApiResponse())
     );
     return;
   }

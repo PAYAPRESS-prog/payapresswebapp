@@ -119,9 +119,15 @@ export function FxHistoryPage({
     fetch('/api/history')
       .then(r => {
         if (r.status === 401) throw new Error('not_logged_in');
+        if (!r.ok) throw new Error('error');
         return r.json();
       })
-      .then(data => { setItems(data); setLoading(false); })
+      .then(data => {
+        // Guard: a non-array body (offline JSON, proxy error page) would
+        // crash items.map() and take the page down with it.
+        if (!Array.isArray(data)) throw new Error('error');
+        setItems(data); setLoading(false);
+      })
       .catch(err => {
         setError(err.message === 'not_logged_in' ? 'not_logged_in' : 'error');
         setLoading(false);

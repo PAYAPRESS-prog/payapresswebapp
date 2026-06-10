@@ -10,6 +10,7 @@ import {
   BookmarkIcon, ShareIcon, CompareIcon,
 } from './FxIcons';
 import { FLAGS } from './FxFlags';
+import { lockBodyScroll, unlockBodyScroll } from '@/lib/scrollLock';
 import { FxAuthSheet } from './FxAuthSheet';
 import { FxBusbarChart } from './FxBusbarChart';
 import { FxBusbarRender } from './FxBusbarRender';
@@ -144,8 +145,14 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
   // Live price refresh every 5 min — 5s timeout prevents hanging on slow APIs
   useEffect(() => {
+    // r.ok check is critical: the Service Worker answers failed API calls
+    // with a 503 `{offline:true}` JSON body. Without the check that object
+    // reaches setCopper/setFx, pricePerKg becomes undefined and the next
+    // render crashes the whole app (every button stops working).
     const fetchJson = (url: string) =>
-      fetch(url, { signal: AbortSignal.timeout(5000) }).then(r => r.json()).catch(() => null);
+      fetch(url, { signal: AbortSignal.timeout(5000) })
+        .then(r => (r.ok ? r.json() : null))
+        .catch(() => null);
 
     const tick = async () => {
       const [c, a, f] = await Promise.all([
@@ -153,9 +160,9 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         fetchJson('/api/aluminum-price'),
         fetchJson('/api/fx-rate'),
       ]);
-      if (c) setCopper(c);
-      if (a) setAluminum(a);
-      if (f) setFx(f);
+      if (c && typeof c.pricePerKg === 'number') setCopper(c);
+      if (a && typeof a.pricePerKg === 'number') setAluminum(a);
+      if (f && f.rates && typeof f.rates === 'object') setFx(f);
     };
     if (initialData?.copper == null) tick();
     const id = setInterval(tick, 300_000);
@@ -200,10 +207,9 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   useEffect(() => {
     const locked = showPicker || showNameDialog || (showResults && isMobile) || showWaste;
     if (!locked) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = prev; };
-  }, [showPicker, showNameDialog, showResults, isMobile]);
+    lockBodyScroll();
+    return () => { unlockBodyScroll(); };
+  }, [showPicker, showNameDialog, showResults, isMobile, showWaste]);
 
   // Delayed focus on picker search — avoids iOS keyboard shift before sheet animates in
   useEffect(() => {
