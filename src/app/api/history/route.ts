@@ -25,6 +25,13 @@ export async function POST(req: NextRequest) {
   if (!metal || !width || !thickness || !length) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
+  // Reject non-numeric dimensions — NaN would fail the INT columns with a 500.
+  if (![width, thickness, length].every(v => Number.isFinite(Number(v)) && Number(v) > 0)) {
+    return NextResponse.json({ error: 'Invalid dimensions' }, { status: 400 });
+  }
+  if (metal !== 'copper' && metal !== 'aluminum') {
+    return NextResponse.json({ error: 'Invalid metal' }, { status: 400 });
+  }
   const cleanName = String(name ?? '').trim().slice(0, 120) || 'Untitled';
   const cleanPrice = price != null && !Number.isNaN(Number(price)) ? Number(price) : null;
   const cleanCurrency = currency ? String(currency).trim().slice(0, 10) : null;

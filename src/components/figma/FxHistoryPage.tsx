@@ -136,13 +136,18 @@ export function FxHistoryPage({
 
   async function handleDelete(id: number) {
     setDeleting(id);
-    await fetch('/api/history', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    });
-    setItems(prev => prev.filter(i => i.id !== id));
-    setDeleting(null);
+    try {
+      const res = await fetch('/api/history', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      // Only remove locally when the server actually deleted it —
+      // otherwise the row reappears on next load and the user is confused.
+      if (res.ok) setItems(prev => prev.filter(i => i.id !== id));
+    } catch { /* network error — keep the row */ } finally {
+      setDeleting(null);
+    }
   }
 
   // ── Pointer drag handlers ──────────────────────────────────────

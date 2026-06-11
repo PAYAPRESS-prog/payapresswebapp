@@ -56,10 +56,13 @@ export function FxProfilePage({ embedded }: { embedded?: boolean } = {}) {
     fetch('/api/profile')
       .then(r => {
         if (r.status === 401) { setAuthed(false); return null; }
+        if (!r.ok) throw new Error(`profile ${r.status}`);
         return r.json();
       })
       .then(data => {
-        if (!data) return;
+        // Shape check: an error body must not be treated as a profile —
+        // undefined fields would flow into the controlled edit inputs.
+        if (!data || typeof data.email !== 'string') return;
         setAuthed(true);
         setProfile(data);
       })
@@ -83,18 +86,24 @@ export function FxProfilePage({ embedded }: { embedded?: boolean } = {}) {
 
   async function saveInfo() {
     setSaving(true);
-    const res = await fetch('/api/profile', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ first_name: firstName, last_name: lastName, company, phone }),
-    });
-    setSaving(false);
-    if (res.ok) {
-      setProfile(p => p ? { ...p, first_name: firstName, last_name: lastName, company, phone } : p);
-      setEditMode('none');
-      showToast('Profile saved');
-    } else {
-      showToast('Failed to save');
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ first_name: firstName, last_name: lastName, company, phone }),
+      });
+      if (res.ok) {
+        setProfile(p => p ? { ...p, first_name: firstName, last_name: lastName, company, phone } : p);
+        setEditMode('none');
+        showToast('Profile saved');
+      } else {
+        showToast('Failed to save');
+      }
+    } catch {
+      showToast('Network error — try again');
+    } finally {
+      // Without this a network failure leaves the Save button disabled forever.
+      setSaving(false);
     }
   }
 
@@ -118,23 +127,30 @@ export function FxProfilePage({ embedded }: { embedded?: boolean } = {}) {
       return;
     }
     setSaving(true);
-    const res = await fetch('/api/profile/change-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ current_password: currPw, new_password: newPw }),
-    });
-    const data = await res.json().catch(() => ({}));
-    setSaving(false);
-    if (res.ok) {
-      setEditMode('none');
-      showToast('Password changed');
-    } else {
-      setPwError(data?.error ?? 'Failed to change password.');
+    try {
+      const res = await fetch('/api/profile/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ current_password: currPw, new_password: newPw }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setEditMode('none');
+        showToast('Password changed');
+      } else {
+        setPwError(data?.error ?? 'Failed to change password.');
+      }
+    } catch {
+      setPwError('Network error — try again.');
+    } finally {
+      setSaving(false);
     }
   }
 
   async function handleLogout() {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    // Navigate even if the logout call fails — the cookie check on the next
+    // page load is authoritative; a dead button is worse than a retried call.
+    try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* ignore */ }
     router.push('/');
   }
 

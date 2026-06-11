@@ -162,7 +162,9 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
       ]);
       if (c && typeof c.pricePerKg === 'number') setCopper(c);
       if (a && typeof a.pricePerKg === 'number') setAluminum(a);
-      if (f && f.rates && typeof f.rates === 'object') setFx(f);
+      // FxRates is flat: rates live at the top level ({EUR: 0.9, ...}),
+      // so validate by probing a known rate key — NOT a nested .rates object.
+      if (f && typeof f.EUR === 'number') setFx(f);
     };
     if (initialData?.copper == null) tick();
     const id = setInterval(tick, 300_000);

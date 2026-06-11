@@ -37,14 +37,24 @@ async function ensureTable() {
     )
   `);
   // One-time schema migration for existing tables that predate these columns.
-  // ALTER TABLE IF NOT EXISTS is safe to run on tables that already have the column.
-  for (const ddl of [
-    `ALTER TABLE busbar_history ADD COLUMN IF NOT EXISTS name VARCHAR(120) NOT NULL DEFAULT ''`,
-    `ALTER TABLE busbar_history ADD COLUMN IF NOT EXISTS price DECIMAL(20,4) NULL`,
-    `ALTER TABLE busbar_history ADD COLUMN IF NOT EXISTS currency VARCHAR(10) NULL`,
-    `ALTER TABLE busbar_history ADD COLUMN IF NOT EXISTS sort_order INT NOT NULL DEFAULT 0`,
-  ]) {
-    await pool.execute(ddl).catch(() => {});
+  // `ADD COLUMN IF NOT EXISTS` is MariaDB-only, so check information_schema
+  // first to stay portable across plain MySQL.
+  const migrations: Array<[string, string]> = [
+    ['name',       `VARCHAR(120) NOT NULL DEFAULT ''`],
+    ['price',      'DECIMAL(20,4) NULL'],
+    ['currency',   'VARCHAR(10) NULL'],
+    ['sort_order', 'INT NOT NULL DEFAULT 0'],
+  ];
+  const [existing] = await pool.execute(
+    `SELECT COLUMN_NAME FROM information_schema.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'busbar_history'`,
+  ) as [Array<{ COLUMN_NAME: string }>, unknown];
+  const have = new Set(existing.map(r => String(r.COLUMN_NAME).toLowerCase()));
+  for (const [col, type] of migrations) {
+    if (have.has(col)) continue;
+    await pool.execute(`ALTER TABLE busbar_history ADD COLUMN ${col} ${type}`).catch(err => {
+      console.error(`[history] failed to add column ${col}:`, err);
+    });
   }
   _tableReady = true;
 }
@@ -53,9 +63,12 @@ export async function listHistory(userId: number, limit = 50): Promise<HistoryRo
   if (!isDbConfigured()) return [];
   await ensureTable();
   const pool = getPool();
+  // LIMIT ? breaks in mysql2 prepared statements on many MySQL versions
+  // (ER_WRONG_ARGUMENTS) — inline the sanitized integer instead.
+  const safeLimit = Math.max(1, Math.min(500, Math.trunc(limit) || 50));
   const [rows] = await pool.execute(
-    'SELECT * FROM busbar_history WHERE user_id = ? ORDER BY sort_order ASC, created_at DESC LIMIT ?',
-    [userId, limit],
+    `SELECT * FROM busbar_history WHERE user_id = ? ORDER BY sort_order ASC, created_at DESC LIMIT ${safeLimit}`,
+    [userId],
   );
   return rows as HistoryRow[];
 }

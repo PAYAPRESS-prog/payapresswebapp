@@ -2,11 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifySessionToken, SESSION_COOKIE, verifyPassword, hashPassword } from '@/lib/auth';
 import { findUserById, updatePasswordHash } from '@/lib/users';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
+  // Without this an authenticated session could brute-force the current
+  // password through unlimited attempts.
+  const ip = getClientIp(req);
+  if (!checkRateLimit(`chpw:${ip}`, 10, 60_000)) {
+    return NextResponse.json(
+      { error: 'Too many attempts. Please wait a minute.' },
+      { status: 429 },
+    );
+  }
+
   const jar = await cookies();
   const token = jar.get(SESSION_COOKIE)?.value;
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

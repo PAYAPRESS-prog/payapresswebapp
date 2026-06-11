@@ -302,14 +302,17 @@ export function CopperCalculator({ initialData }: { initialData?: InitialPriceDa
 
   useEffect(() => {
     const fetchAll = async (isInitial: boolean) => {
+      // r.ok + shape checks: the Service Worker answers failed API calls with
+      // a 503 {offline:true} JSON body — letting it into state crashes render.
+      const safeJson = (r: Response) => (r.ok ? r.json() : null);
       const [p, al, f] = await Promise.all([
-        fetch('/api/copper-price').then(r => r.json()).catch(() => null),
-        fetch('/api/aluminum-price').then(r => r.json()).catch(() => null),
-        fetch('/api/fx-rate').then(r => r.json()).catch(() => null),
+        fetch('/api/copper-price').then(safeJson).catch(() => null),
+        fetch('/api/aluminum-price').then(safeJson).catch(() => null),
+        fetch('/api/fx-rate').then(safeJson).catch(() => null),
       ]);
-      if (p)  setLive(p);
-      if (al) setAlLive(al);
-      if (f)  setFx(f);
+      if (p  && typeof p.pricePerKg  === 'number') setLive(p);
+      if (al && typeof al.pricePerKg === 'number') setAlLive(al);
+      if (f  && typeof f.EUR === 'number') setFx(f);
       if (isInitial) { setLoading(false); setAlLoad(false); }
     };
     fetchAll(initialData?.copper == null);

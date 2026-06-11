@@ -39,7 +39,8 @@ const baseFetchImpl = async (url: RequestInfo | URL) => {
   if (u.includes('price-history')) return json({ points: [] });
   if (u.includes('copper'))   return json({ pricePerKg: 9.5,  updatedAt: new Date().toISOString(), source: 'test' });
   if (u.includes('aluminum')) return json({ pricePerKg: 2.4,  updatedAt: new Date().toISOString(), source: 'test' });
-  if (u.includes('fx'))       return json({ rates: { EUR: 0.9, GBP: 0.78, IRR: 920000, TRY: 38 }, updatedAt: new Date().toISOString() });
+  // Real /api/fx-rate shape is FLAT: rates at the top level, not under .rates
+  if (u.includes('fx'))       return json({ EUR: 0.9, GBP: 0.78, TRY: 38, isFallback: false, source: 'test', updatedAt: new Date().toISOString() });
   return json({});
 };
 
@@ -130,7 +131,7 @@ describe('FxCalculator critical flow (desktop)', () => {
       if (u.includes('history'))  return json({ ok: true });
       if (u.includes('copper'))   return json({ pricePerKg: 9.5, updatedAt: new Date().toISOString(), source: 'test' });
       if (u.includes('aluminum')) return json({ pricePerKg: 2.4, updatedAt: new Date().toISOString(), source: 'test' });
-      if (u.includes('fx'))       return json({ rates: { EUR: 0.9 }, updatedAt: new Date().toISOString() });
+      if (u.includes('fx'))       return json({ EUR: 0.9, isFallback: false, source: 'test', updatedAt: new Date().toISOString() });
       return json({});
     });
 

@@ -52,7 +52,11 @@ export async function GET(req: NextRequest) {
     try {
       const r    = await fetch(new URL('/api/copper-price', req.nextUrl.origin).toString(),
                                { next: { revalidate: 300 } });
+      if (!r.ok) throw new Error(`copper-price ${r.status}`);
       const data = await r.json() as { pricePerKg: number; source: string };
+      if (typeof data.pricePerKg !== 'number' || data.pricePerKg <= 0) {
+        throw new Error('bad copper-price payload');
+      }
       copperUSD   = data.pricePerKg;
       priceSource = data.source;
     } catch {

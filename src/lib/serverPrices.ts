@@ -81,7 +81,7 @@ async function _fetchCopperPrice(): Promise<CopperPriceData> {
     return {
       pricePerLb: +pricePerLb.toFixed(4),
       pricePerKg: +pricePerKg.toFixed(3),
-      pricePerMT: +pricePerKg.toFixed(0) * 1000,
+      pricePerMT: Math.round(pricePerKg * 1000),
       currency: 'USD', source: 'COMEX HG=F', isFallback: false,
       updatedAt: new Date().toISOString(),
     };
@@ -90,7 +90,7 @@ async function _fetchCopperPrice(): Promise<CopperPriceData> {
     return {
       pricePerLb: FALLBACK_LB,
       pricePerKg: +pricePerKg.toFixed(3),
-      pricePerMT: +pricePerKg.toFixed(0) * 1000,
+      pricePerMT: Math.round(pricePerKg * 1000),
       currency: 'USD', source: 'estimated', isFallback: true,
       updatedAt: new Date().toISOString(),
     };

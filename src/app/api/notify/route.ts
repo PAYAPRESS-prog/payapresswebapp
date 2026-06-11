@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPool } from '@/lib/db';
+import { getPool, isDbConfigured } from '@/lib/db';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 import { sendMail, subscribeConfirmEmail } from '@/lib/mailer';
 
@@ -28,6 +28,10 @@ export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
   if (!checkRateLimit(`notify:${ip}`, 5, 10 * 60_000)) {
     return NextResponse.json({ error: 'too_many_requests' }, { status: 429 });
+  }
+
+  if (!isDbConfigured()) {
+    return NextResponse.json({ error: 'server_error' }, { status: 503 });
   }
 
   try {
