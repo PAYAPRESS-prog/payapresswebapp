@@ -57,8 +57,11 @@ export const metadata: Metadata = {
   },
 
   icons: {
-    icon:    [{ url: '/favicon.svg', type: 'image/svg+xml' }],
-    shortcut: '/favicon.svg',
+    icon: [
+      { url: '/icon', type: 'image/png', sizes: '512x512' }, // Mr Busbar
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/icon',
     apple:   [{ url: '/apple-icon', sizes: '180x180', type: 'image/png' }],
     other:   [
       { rel: 'mask-icon', url: '/favicon.svg', color: '#cd7f32' },

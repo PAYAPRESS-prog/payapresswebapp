@@ -2176,7 +2176,15 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(135% 135% at 50% 32%, #15181e 0%, #0a0b0e 55%, #050506 100%);
+  gap: 22px;
+  /* Figma Start-page palette: red field into the orange dome */
+  background:
+    radial-gradient(ellipse 120% 82% at 50% 88%,
+      #f9a63a 0%, #f7941d 42%, rgba(247, 148, 29, 0.85) 60%,
+      rgba(247, 148, 29, 0) 78%),
+    radial-gradient(ellipse 140% 90% at 50% -8%,
+      #e51c24 0%, #d71920 55%, rgba(215, 25, 32, 0) 100%),
+    #c4151c;
   pointer-events: none;       /* never blocks the app underneath */
   opacity: 1;
   transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2185,34 +2193,15 @@ body {
   opacity: 0;
   transform: scale(1.07);
 }
-.pp-splash-glow {
-  position: absolute;
-  top: 32%;
-  width: min(320px, 80vw);
-  height: min(320px, 80vw);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(247,148,29,0.22), transparent 65%);
-  filter: blur(18px);
-  animation: pp-splash-glow 2.4s ease-in-out infinite;
-}
-@keyframes pp-splash-glow {
-  0%, 100% { opacity: 0.55; transform: scale(0.92); }
-  50%      { opacity: 1;    transform: scale(1.06); }
-}
-.pp-splash-logo {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  filter: drop-shadow(0 16px 36px rgba(232, 149, 58, 0.4));
+.pp-splash-mascot {
+  height: min(46svh, 380px);
   animation: pp-splash-pop 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  filter: drop-shadow(0 22px 48px rgba(90, 30, 0, 0.35));
 }
-.pp-splash-logo .pp-bar { animation: pp-bar-in 0.55s cubic-bezier(0.34,1.56,0.64,1) both; }
-.pp-splash-logo .pp-bar-1 { animation-delay: 0.18s; }
-.pp-splash-logo .pp-bar-2 { animation-delay: 0.28s; }
-.pp-splash-logo .pp-bar-3 { animation-delay: 0.38s; }
-@keyframes pp-bar-in {
-  from { transform: translateX(-10px); opacity: 0; }
-  to   { transform: translateX(0); }
+.pp-splash-mascot img {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
 }
 @keyframes pp-splash-pop {
   0%   { opacity: 0; transform: scale(0.5) translateY(10px); }
@@ -2228,7 +2217,8 @@ body {
   font-family: 'Inter', system-ui, sans-serif;
   animation: pp-splash-rise 0.6s 0.14s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
-.pp-splash-accent { color: var(--fx-copper-bright, #f7941d); }
+/* On the orange dome the copper accent would vanish — keep it white */
+.pp-splash-accent { color: #ffffff; opacity: 0.92; }
 .pp-splash-sub {
   position: relative;
   margin: 9px 0 0;
@@ -2246,7 +2236,7 @@ body {
   width: 124px;
   height: 3px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.25);
   overflow: hidden;
   animation: pp-splash-rise 0.6s 0.32s ease both;
 }

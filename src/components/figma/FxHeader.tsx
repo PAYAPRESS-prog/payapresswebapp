@@ -88,15 +88,14 @@ export function FxHeader() {
             </div>
           </div>
 
-          {/* Mobile: hamburger placeholder */}
-          <button type="button" className="fx-icon-btn fx-header-mobile-only"
-            aria-label="Menu (coming soon)" title="Coming soon" disabled>
+          {/* Mobile: hamburger — opens the app menu hub */}
+          <Link href="/app" className="fx-icon-btn fx-header-mobile-only" aria-label="Open menu">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
               strokeWidth="2" strokeLinecap="round">
               <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/>
               <line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
-          </button>
+          </Link>
         </div>
       </header>
 

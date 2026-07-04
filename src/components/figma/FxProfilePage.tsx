@@ -25,6 +25,9 @@ type EditMode = 'none' | 'info' | 'password';
 export function FxProfilePage({ embedded }: { embedded?: boolean } = {}) {
   const router = useRouter();
   const [authed, setAuthed]     = useState<boolean | null>(null);
+  // Auth-gate sheet tab — a hardcoded mode with a no-op onModeChange made
+  // the Sign Up tab completely dead (production bug).
+  const [gateMode, setGateMode] = useState<'login' | 'signup'>('login');
   const [profile, setProfile]   = useState<Profile | null>(null);
   const [editMode, setEditMode] = useState<EditMode>('none');
   const [saving, setSaving]     = useState(false);
@@ -180,9 +183,9 @@ export function FxProfilePage({ embedded }: { embedded?: boolean } = {}) {
             <p className="fx-profile-auth-sub">Sign in to view and manage your account.</p>
             <FxAuthSheet
               open={true}
-              mode="login"
+              mode={gateMode}
               onClose={() => {}}
-              onModeChange={() => {}}
+              onModeChange={setGateMode}
               onSuccess={() => { loadProfile(); }}
             />
           </div>

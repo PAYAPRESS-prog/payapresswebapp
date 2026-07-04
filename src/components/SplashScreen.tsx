@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react';
 type Phase = 'showing' | 'leaving' | 'hidden';
 
 /**
- * App-open splash — Instagram-style.
+ * App-open splash — matches the Figma Start-page look: red→orange
+ * gradient with Mr Busbar front and center.
  *
  * Shows on every cold page load (each real "app open"). Because the root
  * layout persists across client-side navigation, the splash mounts only once
@@ -29,23 +30,9 @@ export default function SplashScreen() {
 
   return (
     <div className={`pp-splash${phase === 'leaving' ? ' is-leaving' : ''}`} aria-hidden="true">
-      <div className="pp-splash-glow" />
-
-      <div className="pp-splash-logo">
-        <svg viewBox="0 0 64 64" width="100%" height="100%" aria-hidden="true">
-          <defs>
-            <linearGradient id="pp_splash_g" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%"   stopColor="#f7b34a" />
-              <stop offset="55%"  stopColor="#e8953a" />
-              <stop offset="100%" stopColor="#a85c18" />
-            </linearGradient>
-          </defs>
-          <rect width="64" height="64" rx="16" fill="url(#pp_splash_g)" />
-          {/* stacked busbar plates */}
-          <rect className="pp-bar pp-bar-1" x="12" y="18" width="40" height="8" rx="2.5" fill="#fff" opacity="0.55" />
-          <rect className="pp-bar pp-bar-2" x="12" y="28" width="40" height="8" rx="2.5" fill="#fff" opacity="0.95" />
-          <rect className="pp-bar pp-bar-3" x="12" y="38" width="40" height="8" rx="2.5" fill="#fff" opacity="0.35" />
-        </svg>
+      <div className="pp-splash-mascot">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/mr-busbar.png" alt="" width={256} height={731} />
       </div>
 
       <h1 className="pp-splash-title">
