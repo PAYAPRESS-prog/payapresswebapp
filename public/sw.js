@@ -1,8 +1,8 @@
-/* PAYAPRESS Service Worker — v43 */
+/* Busbar Calculator Service Worker — v44 */
 
-const CACHE_VERSION = 'v43';
-const SHELL_CACHE   = `payapress-shell-${CACHE_VERSION}`;
-const DYNAMIC_CACHE = `payapress-dynamic-${CACHE_VERSION}`;
+const CACHE_VERSION = 'v44';
+const SHELL_CACHE   = `busbar-shell-${CACHE_VERSION}`;
+const DYNAMIC_CACHE = `busbar-dynamic-${CACHE_VERSION}`;
 
 /* Only precache static assets with content-hashed filenames.
    HTML navigation pages are NEVER precached — they change on every deploy

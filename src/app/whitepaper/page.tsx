@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   alternates: { canonical: '/whitepaper' },
   title: 'Whitepaper',
   description:
-    'Technical whitepaper for the PAYAPRESS Industrial Tools Platform — ' +
+    'Technical whitepaper for the Busbar Calculator Industrial Tools Platform — ' +
     'architecture, formula methodology, platform roadmap, and technology stack.',
 };
 
@@ -23,15 +23,15 @@ export default function WhitepaperPage() {
           {/* Document header */}
           <header style={{ marginBottom: '2.5rem', paddingBottom: '2rem', borderBottom: '1px solid #1c1c23' }}>
             <p style={{ ...mono, color: '#3f3f46', fontSize: '0.72rem', marginBottom: '0.75rem' }}>
-              PAYAPRESS · Technical Document · v1.0 · May 2026
+              Busbar Calculator · Technical Document · v1.0 · May 2026
             </p>
             <h1 style={{ fontSize: 'clamp(1.6rem, 5vw, 2.4rem)', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: '0.75rem', background: 'linear-gradient(90deg,#b87333,#cd7f32,#e8a855,#cd7f32,#b87333)', backgroundSize: '250% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              PAYAPRESS Industrial<br />Tools Platform
+              Busbar Calculator Industrial<br />Tools Platform
             </h1>
             <p style={{ ...body, color: '#71717a', marginBottom: 0 }}>
               A professional digital tools platform for industrial electrical engineers and
-              panel fabricators, developed and maintained by the PAYAPRESS Digital Marketing
-              Team at PAYAP MACHINERY.
+              panel fabricators, developed and maintained by the Busbar Calculator Digital Marketing
+              Team at Busbar Calculator.
             </p>
           </header>
 
@@ -39,12 +39,12 @@ export default function WhitepaperPage() {
           <section style={section}>
             <h2 style={h2}>1. Executive Summary</h2>
             <p style={body}>
-              PAYAPRESS Industrial Tools Platform is a web-first Progressive Web Application
+              Busbar Calculator Industrial Tools Platform is a web-first Progressive Web Application
               (PWA) delivering practical, data-driven tools to electrical panel fabricators,
               procurement engineers, and industrial electricians across the UAE and the broader
               MENA region. The platform is developed and maintained by the digital marketing
-              team of <strong style={{ color: '#f0f0f0' }}>PAYAP MACHINERY</strong> (trading
-              as PAYAPRESS), a manufacturer and distributor of electrical machinery and press
+              team of <strong style={{ color: '#f0f0f0' }}>Busbar Calculator</strong> (trading
+              as Busbar Calculator), a manufacturer and distributor of electrical machinery and press
               equipment.
             </p>
             <p style={body}>
@@ -83,7 +83,7 @@ export default function WhitepaperPage() {
           <section style={section}>
             <h2 style={h2}>3. Solution</h2>
             <p style={body}>
-              The PAYAPRESS platform addresses these pain points with a web-native application
+              The Busbar Calculator platform addresses these pain points with a web-native application
               requiring no installation. As a PWA, it installs to the home screen on Android
               and iOS and continues to function offline via a service worker cache. The
               architecture is deliberately simple: all calculation logic runs client-side,
@@ -287,11 +287,9 @@ export default function WhitepaperPage() {
             <h2 style={h2}>8. About the Development Team</h2>
             <p style={body}>
               This platform is designed, built, and maintained by the{' '}
-              <strong style={{ color: '#f0f0f0' }}>PAYAPRESS Digital Marketing Team</strong>{' '}
-              at <strong style={{ color: '#f0f0f0' }}>PAYAP MACHINERY</strong>. PAYAP
-              MACHINERY (trading as PAYAPRESS) is a manufacturer and distributor of
-              electrical machinery and press equipment serving the industrial sector across
-              the UAE and the MENA region.
+              <strong style={{ color: '#f0f0f0' }}>Busbar Calculator team</strong> —
+              engineering-grade tooling for busbar sizing and live metal pricing,
+              serving electrical engineers across the industrial sector.
             </p>
             <p style={body}>
               The platform is a direct response to the day-to-day needs observed in the

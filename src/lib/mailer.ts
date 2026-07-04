@@ -149,12 +149,12 @@ function baseLayout(content: string, unsubLine: string, preheader = ''): string 
     ${content}
   </div>
   <div class="footer">
-    <span class="footer-brand">PAYAP MACHINERY</span><br/>
+    <span class="footer-brand">Busbar Calculator</span><br/>
     Precision busbar tools for electrical engineers<br/>
     <a href="${BASE_URL}/busbar-calculator">Calculator</a> &nbsp;·&nbsp;
     <a href="${BASE_URL}/terms">Terms</a> &nbsp;·&nbsp;
     <a href="${BASE_URL}/privacy">Privacy</a> &nbsp;·&nbsp; ${unsubLine}<br/>
-    © 2026 PAYAP MACHINERY · All Rights Reserved
+    © 2026 Busbar Calculator · All Rights Reserved
   </div>
 </div>
 </div>
@@ -190,7 +190,7 @@ export function welcomeEmail(email: string): { subject: string; html: string; te
     '',
     '---',
     `Signed up as: ${email}`,
-    '© 2026 PAYAP MACHINERY',
+    '© 2026 Busbar Calculator',
     `Unsubscribe: mailto:${FROM_ADDR()}?subject=unsubscribe`,
   ].join('\n');
   return { subject: 'Welcome to Busbar Calculator — your account is ready', html, text };
@@ -215,7 +215,7 @@ export function resetPasswordEmail(email: string, resetUrl: string): { subject: 
     '',
     '---',
     `Account: ${email}`,
-    `© 2025 PAYAP MACHINERY`,
+    `© 2025 Busbar Calculator`,
   ].join('\n');
   return { subject: 'Reset your Busbar Calculator password', html, text };
 }
@@ -245,7 +245,7 @@ export function subscribeConfirmEmail(email: string): { subject: string; html: s
     '',
     '---',
     `Subscribed as: ${email}`,
-    '© 2026 PAYAP MACHINERY',
+    '© 2026 Busbar Calculator',
     `Unsubscribe: mailto:${FROM_ADDR()}?subject=unsubscribe`,
   ].join('\n');
   return { subject: '🔔 Price alerts activated — Busbar Calculator', html, text };

@@ -4,7 +4,7 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   alternates: { canonical: '/privacy' },
   title: 'Privacy Policy',
-  description: 'Privacy policy for PAYAPRESS Copper Busbar Cost Calculator.',
+  description: 'Privacy policy for Busbar Calculator Copper Busbar Cost Calculator.',
 };
 
 export default function PrivacyPage() {
@@ -50,7 +50,7 @@ export default function PrivacyPage() {
         <section style={{ marginBottom: '2rem' }}>
           <h2 style={h2Style}>1. Overview</h2>
           <p style={pStyle}>
-            PAYAPRESS (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;) operates the PAYAPRESS
+            Busbar Calculator (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;) operates the Busbar Calculator
             Copper Busbar Cost Calculator web application and its associated Progressive Web App
             (PWA). We are committed to protecting your privacy. This policy explains what information
             is collected and how it is used.
@@ -140,7 +140,7 @@ export default function PrivacyPage() {
             For privacy-related questions, please contact us at:
           </p>
           <p style={{ ...pStyle, marginTop: '0.5rem' }}>
-            <strong style={{ color: '#f0f0f0' }}>PAYAP MACHINERY</strong> (trading as PAYAPRESS)
+            <strong style={{ color: '#f0f0f0' }}>Busbar Calculator</strong> (trading as Busbar Calculator)
             <br />
             Website:{' '}
             <a href="https://www.payapress.com" style={{ color: '#cd7f32' }}>
@@ -152,7 +152,7 @@ export default function PrivacyPage() {
         <hr style={{ border: 'none', borderTop: '1px solid #1c1c23', margin: '2.5rem 0 1.5rem' }} />
 
         <p style={{ color: '#3f3f46', fontSize: '0.75rem' }}>
-          © 2025 PAYAP MACHINERY · Trading as PAYAPRESS
+          © 2025 Busbar Calculator · Trading as Busbar Calculator
         </p>
       </div>
     </div>

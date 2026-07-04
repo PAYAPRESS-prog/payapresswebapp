@@ -74,8 +74,8 @@ export default function TermsPage() {
             This platform — including all source code, algorithms, calculation methodologies,
             user interface designs, visual assets, database schemas, API structures, and all
             associated materials — is the exclusive proprietary property of{' '}
-            <strong style={{ color: '#f0f0f0' }}>PAYAP MACHINERY</strong> (trading as{' '}
-            <strong style={{ color: '#f0f0f0' }}>PAYAPRESS</strong>). All intellectual property
+            <strong style={{ color: '#f0f0f0' }}>Busbar Calculator</strong> (trading as{' '}
+            <strong style={{ color: '#f0f0f0' }}>Busbar Calculator</strong>). All intellectual property
             rights are reserved. No ownership rights are transferred to you through your use
             of this platform.
           </p>
@@ -85,7 +85,7 @@ export default function TermsPage() {
         <section style={{ marginBottom: '2rem' }}>
           <h2 style={h2Style}>2. License to Use</h2>
           <p style={pStyle}>
-            Subject to these Terms, PAYAP MACHINERY grants you a limited, non-exclusive,
+            Subject to these Terms, Busbar Calculator grants you a limited, non-exclusive,
             non-transferable, revocable license to access and use this platform solely for
             your personal or internal professional purposes. This license does not include
             the right to:
@@ -116,12 +116,12 @@ export default function TermsPage() {
           <p style={pStyle}>
             All intellectual property on this platform — including but not limited to copyrights,
             trademarks, trade secrets, patents, design rights, and know-how — is owned exclusively
-            by PAYAP MACHINERY. The busbar cost calculation methodology, pricing algorithms,
+            by Busbar Calculator. The busbar cost calculation methodology, pricing algorithms,
             currency conversion processes, and all associated business logic are proprietary and
             constitute protected trade secrets.
           </p>
           <p style={{ ...pStyle, marginTop: '0.75rem' }}>
-            You may not challenge or contest PAYAP MACHINERY&rsquo;s ownership of any intellectual
+            You may not challenge or contest Busbar Calculator&rsquo;s ownership of any intellectual
             property rights in this platform.
           </p>
         </section>
@@ -154,7 +154,7 @@ export default function TermsPage() {
           <p style={pStyle}>
             All price calculations are provided for informational purposes only, based on live
             market data (COMEX, ECB) fetched at the time of the request. Prices may vary.
-            PAYAP MACHINERY makes no warranty as to the accuracy, completeness, or fitness
+            Busbar Calculator makes no warranty as to the accuracy, completeness, or fitness
             for purpose of any calculation. You assume sole responsibility for any decisions
             made based on information provided by this platform.
           </p>
@@ -166,7 +166,7 @@ export default function TermsPage() {
           <p style={pStyle}>
             This platform is provided &ldquo;as is&rdquo; without warranty of any kind, express or
             implied, including but not limited to warranties of merchantability, fitness for a
-            particular purpose, or non-infringement. PAYAP MACHINERY does not warrant that the
+            particular purpose, or non-infringement. Busbar Calculator does not warrant that the
             platform will be uninterrupted, error-free, or free of viruses or other harmful components.
           </p>
         </section>
@@ -175,7 +175,7 @@ export default function TermsPage() {
         <section style={{ marginBottom: '2rem' }}>
           <h2 style={h2Style}>7. Limitation of Liability</h2>
           <p style={pStyle}>
-            To the maximum extent permitted by applicable law, PAYAP MACHINERY shall not be
+            To the maximum extent permitted by applicable law, Busbar Calculator shall not be
             liable for any indirect, incidental, special, consequential, or punitive damages
             arising out of or relating to your use of this platform, even if advised of the
             possibility of such damages.
@@ -188,7 +188,7 @@ export default function TermsPage() {
           <p style={pStyle}>
             These Terms are governed by and construed in accordance with applicable law.
             Any disputes arising under these Terms shall be subject to the exclusive jurisdiction
-            of the competent courts. PAYAP MACHINERY reserves the right to seek injunctive or
+            of the competent courts. Busbar Calculator reserves the right to seek injunctive or
             other equitable relief in any jurisdiction to protect its intellectual property rights.
           </p>
         </section>
@@ -210,11 +210,11 @@ export default function TermsPage() {
             For legal inquiries, licensing requests, or intellectual property matters:
           </p>
           <p style={{ ...pStyle, marginTop: '0.5rem' }}>
-            <strong style={{ color: '#f0f0f0' }}>PAYAP MACHINERY</strong> (trading as PAYAPRESS)
+            <strong style={{ color: '#f0f0f0' }}>Busbar Calculator</strong> (trading as Busbar Calculator)
             <br />
             Email:{' '}
-            <a href="mailto:info@payapress.com" style={{ color: '#cd7f32' }}>
-              info@payapress.com
+            <a href="mailto:info@calculator.payapress.com" style={{ color: '#cd7f32' }}>
+              info@calculator.payapress.com
             </a>
             <br />
             Website:{' '}
@@ -227,7 +227,7 @@ export default function TermsPage() {
         <hr style={{ border: 'none', borderTop: '1px solid #1c1c23', margin: '2.5rem 0 1.5rem' }} />
 
         <p style={{ color: '#3f3f46', fontSize: '0.75rem' }}>
-          © 2025 PAYAP MACHINERY · Trading as PAYAPRESS · All Rights Reserved
+          © 2025 Busbar Calculator · Trading as Busbar Calculator · All Rights Reserved
         </p>
       </div>
     </div>

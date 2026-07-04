@@ -85,7 +85,7 @@ export function FxWasteSheet({
       parts.push(`Punch Ø${pd} mm → area ${(punchArea / 100).toFixed(2)} cm²`);
       parts.push(`  Waste/punch: ${fmtW(punchKg)} kg · ${fmtW(punchCost)} ${currLabel}`);
     }
-    parts.push('', 'Calculated with PAYAPRESS Busbar Calculator');
+    parts.push('', 'Calculated with Busbar Calculator');
     const appUrl = 'https://calculator.payapress.com';
     const txt = parts.join('\n');
     if (navigator.share) {

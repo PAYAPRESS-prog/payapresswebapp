@@ -59,12 +59,12 @@ Sent at ${new Date().toISOString()}`}),u.NextResponse.json({ok:!0,config:f,sent_
     ${a}
   </div>
   <div class="footer">
-    <span class="footer-brand">PAYAP MACHINERY</span><br/>
+    <span class="footer-brand">Busbar Calculator</span><br/>
     Precision busbar tools for electrical engineers<br/>
     <a href="${k}/busbar-calculator">Calculator</a> &nbsp;\xb7&nbsp;
     <a href="${k}/terms">Terms</a> &nbsp;\xb7&nbsp;
     <a href="${k}/privacy">Privacy</a> &nbsp;\xb7&nbsp; ${b}<br/>
-    \xa9 2026 PAYAP MACHINERY \xb7 All Rights Reserved
+    \xa9 2026 Busbar Calculator \xb7 All Rights Reserved
   </div>
 </div>
 </div>
@@ -93,7 +93,7 @@ Open the app: ${k}/busbar-calculator
 
 ---
 Signed up as: ${a}
-\xa9 2026 PAYAP MACHINERY
+\xa9 2026 Busbar Calculator
 Unsubscribe: mailto:${j()}?subject=unsubscribe`}}function o(a,b){return{subject:"Reset your Busbar Calculator password",html:m(`
     <h1>Reset your password</h1>
     <p>We received a request to reset the password for your Busbar Calculator account. Click the button below to choose a new password. This link expires in 30 minutes.</p>
@@ -109,7 +109,7 @@ If you didn't request this, ignore this email — your password will not change.
 
 ---
 Account: ${a}
-\xa9 2025 PAYAP MACHINERY`}}function p(a){return{subject:"\uD83D\uDD14 Price alerts activated — Busbar Calculator",html:m(`
+\xa9 2025 Busbar Calculator`}}function p(a){return{subject:"\uD83D\uDD14 Price alerts activated — Busbar Calculator",html:m(`
     <h1>🔔 Price alerts activated</h1>
     <p>You're all set! From now on we'll keep you posted on the metal market:</p>
     <div class="feature">📈 <b>Daily digest</b> — live COMEX copper &amp; LME aluminum prices for your saved configurations</div>
@@ -130,7 +130,7 @@ Open the app: ${k}/busbar-calculator
 
 ---
 Subscribed as: ${a}
-\xa9 2026 PAYAP MACHINERY
+\xa9 2026 Busbar Calculator
 Unsubscribe: mailto:${j()}?subject=unsubscribe`}}function q(a,b,c,d){let e=`<a href="mailto:${j()}?subject=unsubscribe">Unsubscribe</a>`,f=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}),g=d.length?d.map(a=>`
       <div class="price-row">
         <span class="price-val">${a.price}</span>

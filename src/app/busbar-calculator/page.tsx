@@ -49,16 +49,14 @@ const JSON_LD = {
     {
       '@type': 'Organization',
       '@id': `${BASE_URL}/#organization`,
-      name: 'PAYAP MACHINERY',
-      alternateName: 'PAYAPRESS',
-      url: 'https://www.payapress.com',
+      name: 'Busbar Calculator',
+      url: BASE_URL,
       logo: {
         '@type': 'ImageObject',
         url: `${BASE_URL}/icon`,
         width: 512,
         height: 512,
       },
-      sameAs: ['https://www.payapress.com'],
       contactPoint: {
         '@type': 'ContactPoint',
         email: 'info@calculator.payapress.com',
@@ -71,7 +69,7 @@ const JSON_LD = {
       '@id': `${BASE_URL}/#website`,
       url: BASE_URL,
       name: 'Busbar Calculator',
-      alternateName: 'PAYAPRESS Busbar Calculator',
+      alternateName: 'Busbar Calculator',
       publisher: { '@id': `${BASE_URL}/#organization` },
       inLanguage: 'en',
     },

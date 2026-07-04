@@ -18,17 +18,17 @@ const buildIdFile = path.join(__dirname, '.next', 'BUILD_ID');
 // .next/ is committed to git — it must always be present.
 // If somehow missing, fail fast with a clear message.
 if (!fs.existsSync(buildIdFile)) {
-  console.error('[PAYAPRESS] FATAL: .next/BUILD_ID not found.');
-  console.error('[PAYAPRESS] The build artifacts are missing from the repository.');
-  console.error('[PAYAPRESS] Run "npm run build" locally and commit the .next/ directory.');
+  console.error('[BusbarCalc] FATAL: .next/BUILD_ID not found.');
+  console.error('[BusbarCalc] The build artifacts are missing from the repository.');
+  console.error('[BusbarCalc] Run "npm run build" locally and commit the .next/ directory.');
   process.exit(1);
 }
 
 // ── Startup diagnostics ───────────────────────────────────────────────────────
-console.log('[PAYAPRESS] Starting server...');
-console.log('[PAYAPRESS] NODE_ENV =', process.env.NODE_ENV);
-console.log('[PAYAPRESS] PORT =', PORT);
-console.log('[PAYAPRESS] BUILD_ID =', fs.readFileSync(buildIdFile, 'utf8').trim());
+console.log('[BusbarCalc] Starting server...');
+console.log('[BusbarCalc] NODE_ENV =', process.env.NODE_ENV);
+console.log('[BusbarCalc] PORT =', PORT);
+console.log('[BusbarCalc] BUILD_ID =', fs.readFileSync(buildIdFile, 'utf8').trim());
 
 // Always production — development mode breaks static file serving
 const dev = false;
@@ -40,14 +40,14 @@ app.prepare().then(() => {
     try {
       await handle(req, res, parse(req.url, true));
     } catch (err) {
-      console.error('[PAYAPRESS] Error handling', req.url, err);
+      console.error('[BusbarCalc] Error handling', req.url, err);
       res.statusCode = 500;
       res.end('Internal Server Error');
     }
   }).listen(PORT, '0.0.0.0', () => {
-    console.log(`[PAYAPRESS] Ready on http://0.0.0.0:${PORT} (production mode)`);
+    console.log(`[BusbarCalc] Ready on http://0.0.0.0:${PORT} (production mode)`);
   });
 }).catch(err => {
-  console.error('[PAYAPRESS] FATAL: app.prepare() failed:', err);
+  console.error('[BusbarCalc] FATAL: app.prepare() failed:', err);
   process.exit(1);
 });

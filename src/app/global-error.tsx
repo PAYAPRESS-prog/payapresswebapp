@@ -10,7 +10,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
       const errs: string[] = (window as unknown as { __pp_errs?: string[] }).__pp_errs ?? [];
       if (errs.length) setExtraDetails(errs.join('\n'));
     } catch { /* ignore */ }
-    console.error('[PAYAPRESS GlobalError]', error);
+    console.error('[Busbar Calculator GlobalError]', error);
   }, [error]);
 
   const details = [error?.message, error?.stack, extraDetails].filter(Boolean).join('\n\n');

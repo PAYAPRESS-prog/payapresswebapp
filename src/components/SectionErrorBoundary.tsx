@@ -13,7 +13,7 @@ export class SectionErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error) {
-    console.error('[PAYAPRESS] Section render error:', error);
+    console.error('[BusbarCalc] Section render error:', error);
   }
 
   render() {

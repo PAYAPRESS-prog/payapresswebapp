@@ -76,7 +76,7 @@ export function Footer() {
               Industrial Tools for Electrical Panel Fabricators
             </p>
             <p className="text-[0.68rem] text-zinc-700">
-              A PAYAP MACHINERY initiative
+              A Busbar Calculator initiative
             </p>
           </div>
 

@@ -210,7 +210,7 @@ export function FxCompareSheet({
 
   function handleShare() {
     const lines = [
-      '📊 Busbar Comparison — PAYAPRESS',
+      '📊 Busbar Comparison — Busbar Calculator',
       '',
       `A: ${configA.metal === 'copper' ? 'Copper' : 'Aluminum'} ${configA.w}×${configA.t}×${configA.L} mm`,
       `B: ${bMetal === 'copper' ? 'Copper' : 'Aluminum'} ${bW}×${bT}×${bL} mm`,

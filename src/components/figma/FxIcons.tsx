@@ -149,9 +149,9 @@ export function ScissorsIcon({ className, width = 24, height = 24 }: IconProps) 
   );
 }
 
-/* ── PAYAPRESS Logo ────────────────────────────────────────── */
+/* ── Busbar Calculator Logo ────────────────────────────────────────── */
 
-export function PayapressLogo({ height = 28 }: { height?: number }) {
+export function BusbarLogo({ height = 28 }: { height?: number }) {
   return (
     <div className="fx-logo-wrap" aria-label="Busbar Calculator">
       <span className="fx-logo-mark" style={{ width: height, height, fontSize: height * 0.42 }}>

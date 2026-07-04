@@ -439,7 +439,7 @@ export function FxProfilePage({ embedded }: { embedded?: boolean } = {}) {
         <span className="fx-profile-legal-sep">·</span>
         <a href="/privacy" className="fx-profile-legal-link">Privacy Policy</a>
         <span className="fx-profile-legal-sep">·</span>
-        <span className="fx-profile-legal-copy">© 2025 PAYAP MACHINERY</span>
+        <span className="fx-profile-legal-copy">© 2025 Busbar Calculator</span>
       </div>
 
       {!embedded && <FxBottomNav active="profile" />}

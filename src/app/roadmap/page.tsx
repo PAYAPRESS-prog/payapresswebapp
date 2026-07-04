@@ -4,7 +4,7 @@ import { RoadmapClient } from '@/components/DynamicRoadmap';
 export const metadata: Metadata = {
   alternates: { canonical: '/roadmap' },
   title: 'Roadmap',
-  description: 'PAYAPRESS development roadmap — from copper busbar calculator to a full industrial intelligence suite.',
+  description: 'Busbar Calculator development roadmap — from copper busbar calculator to a full industrial intelligence suite.',
 };
 
 export default function RoadmapPage() {

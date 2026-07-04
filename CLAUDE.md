@@ -1,4 +1,4 @@
-# CLAUDE.md — PAYAPRESS Busbar Calculator
+# CLAUDE.md — Busbar Calculator
 
 Project-level instructions and checkpoints for Claude Code sessions.
 
@@ -6,12 +6,12 @@ Project-level instructions and checkpoints for Claude Code sessions.
 
 ## Project Overview
 
-- **App:** PAYAPRESS Copper & Aluminum Busbar Cost Calculator
+- **App:** Busbar Calculator Copper & Aluminum Busbar Cost Calculator
 - **URL:** https://calculator.payapress.com
 - **Stack:** Next.js 15 · React 19 · TypeScript · Tailwind CSS v4
 - **Hosting:** Hostinger shared hosting + Node.js (custom server.js)
 - **Deployment:** `.next/` artifacts committed to git; Hostinger auto-deploys on push
-- **Branch:** `claude/payapress-webapp-setup-0bjxA`
+- **Branch:** `claude/busbar-calculator-webapp-setup-0bjxA`
 
 ---
 
@@ -40,12 +40,12 @@ When the user says **`savex`**, restore the project to the last known stable sta
 
 ```bash
 git fetch origin
-git checkout claude/payapress-webapp-setup-0bjxA
+git checkout claude/busbar-calculator-webapp-setup-0bjxA
 git reset --hard 2999c6bbf272ab034ddf2ca597500256a77a93fb
 npm run build
 git add -A
 git commit -m "restore: savex/stable-v1"
-git push -u origin claude/payapress-webapp-setup-0bjxA
+git push -u origin claude/busbar-calculator-webapp-setup-0bjxA
 ```
 
 ### How to update the checkpoint (when user says "savex save" or "ذخیره savex")
@@ -84,12 +84,12 @@ When the user says **`savealfa`**, restore the project to this fully styled Figm
 
 ```bash
 git fetch origin
-git checkout claude/payapress-webapp-setup-0bjxA
+git checkout claude/busbar-calculator-webapp-setup-0bjxA
 git reset --hard 8f29a1106e4f2a35d633885f3d8565b78967b0b7
 npm run build
 git add -A
 git commit -m "restore: savealfa/stable"
-git push -u origin claude/payapress-webapp-setup-0bjxA
+git push -u origin claude/busbar-calculator-webapp-setup-0bjxA
 ```
 
 ### How to update the checkpoint (when user says "savealfa save" or "ذخیره savealfa")
@@ -155,7 +155,7 @@ git push -u origin claude/payapress-webapp-setup-0bjxA
 npm run build
 git add -A
 git commit -m "feat/fix: description"
-git push -u origin claude/payapress-webapp-setup-0bjxA
+git push -u origin claude/busbar-calculator-webapp-setup-0bjxA
 ```
 
 ### Check for errors

@@ -1,9 +1,9 @@
 {
-  "name": "payapress-webapp",
+  "name": "busbar-calculator",
   "version": "1.0.0",
   "private": true,
   "license": "UNLICENSED",
-  "author": "PAYAP MACHINERY <info@payapress.com>",
+  "author": "Busbar Calculator <info@calculator.payapress.com>",
   "homepage": "https://www.payapress.com",
   "scripts": {
     "dev": "next dev",

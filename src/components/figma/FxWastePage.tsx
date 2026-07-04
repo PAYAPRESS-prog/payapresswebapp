@@ -73,7 +73,7 @@ export function FxWastePage({ copperPricePerKg, aluminumPricePerKg }: Props) {
       parts.push(`Punch Ø${pd} mm → area ${(punchArea / 100).toFixed(2)} cm²`);
       parts.push(`  Waste/punch: ${fmtW(punchKg)} kg · $${fmtW(punchCost)} USD`);
     }
-    parts.push('', 'Calculated with PAYAPRESS Waste Calculator');
+    parts.push('', 'Calculated with Busbar Calculator Waste Calculator');
     const appUrl = 'https://calculator.payapress.com';
     const txt = parts.join('\n');
     if (navigator.share) {
