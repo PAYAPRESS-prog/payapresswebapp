@@ -280,6 +280,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   }
 
   function handleCalculate() {
+    if (typeof window !== 'undefined') window.bcTrack?.('calculate');
     setShowResults(true);
     // On desktop: scroll results into view; on mobile the sheet pops up
     if (!isMobile) {

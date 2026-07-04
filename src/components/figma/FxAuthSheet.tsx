@@ -86,6 +86,7 @@ export function FxAuthSheet({
         setError(data?.error || 'Something went wrong. Please try again.');
         return;
       }
+      if (typeof window !== 'undefined') window.bcTrack?.('signup');
       if (onSuccess) { onSuccess(); onClose(); }
       else router.push('/app');
     } catch {
@@ -184,6 +185,7 @@ export function FxAuthSheet({
         return;
       }
       // Success
+      if (typeof window !== 'undefined') window.bcTrack?.(isSignup ? 'signup' : 'login');
       if (onSuccess) {
         onSuccess();
         onClose();

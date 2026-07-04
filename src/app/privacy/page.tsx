@@ -112,6 +112,12 @@ export default function PrivacyPage() {
         <section style={{ marginBottom: '2rem' }}>
           <h2 style={h2Style}>5. Analytics</h2>
           <p style={pStyle}>
+            We use our own first-party, cookieless analytics to understand
+            aggregate usage. It does not use third-party trackers or share data
+            with advertisers. For measurement we store two random identifiers in
+            your browser&rsquo;s local/session storage (not cookies) to count
+            returning visitors and sessions; these never leave our domain and are
+            not linked to your identity. 
             We do not use any analytics or telemetry service (no Google Analytics, no Mixpanel,
             no similar tools).
           </p>

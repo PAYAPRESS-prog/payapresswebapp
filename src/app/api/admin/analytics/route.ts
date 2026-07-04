@@ -40,48 +40,73 @@ export async function GET(req: NextRequest) {
 
 function renderHtml(s: Awaited<ReturnType<typeof getSummary>>): string {
   const esc = (v: string) => v.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c] as string));
+  const fmt = (n: number) => n.toLocaleString('en');
+  const dur = (sec: number) => sec >= 60 ? `${Math.floor(sec / 60)}m ${sec % 60}s` : `${sec}s`;
   const maxDay = Math.max(1, ...s.byDay.map(d => d.views));
   const bars = s.byDay.map(d =>
-    `<div class="bar" title="${d.day}: ${d.views} views, ${d.visitors} visitors">
-       <span style="height:${Math.round((d.views / maxDay) * 100)}%"></span>
-       <em>${d.day.slice(5)}</em>
-     </div>`).join('');
-  const rows = (arr: Array<Record<string, unknown>>, k: string, v: string) =>
-    arr.map(r => `<tr><td>${esc(String(r[k]))}</td><td>${r[v]}</td></tr>`).join('') || '<tr><td colspan="2">No data yet</td></tr>';
+    `<div class="bar" title="${d.day} — ${d.views} views · ${d.visitors} visitors · ${d.sessions} sessions">
+       <span style="height:${Math.round((d.views / maxDay) * 100)}%"></span><em>${d.day.slice(5)}</em></div>`).join('');
+  const tbl = (title: string, arr: Array<Record<string, unknown>>, k: string, v: string, unit = '') => {
+    const max = Math.max(1, ...arr.map(r => Number(r[v])));
+    const rows = arr.map(r => {
+      const val = Number(r[v]);
+      return `<tr><td><span class="track" style="width:${Math.round((val / max) * 100)}%"></span>${esc(String(r[k]))}</td><td>${fmt(val)}${unit}</td></tr>`;
+    }).join('') || '<tr><td colspan="2" class="empty">No data yet</td></tr>';
+    return `<div class="card"><h2>${title}</h2><table>${rows}</table></div>`;
+  };
 
   return `<!doctype html><html><head><meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<meta name="robots" content="noindex"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="robots" content="noindex"/>
 <title>Analytics — Busbar Calculator</title>
 <style>
-  body{margin:0;background:#0d0e10;color:#f5f7fa;font:14px/1.5 -apple-system,system-ui,sans-serif;padding:24px;}
-  h1{font-size:20px;margin:0 0 4px}.sub{color:#8b909a;margin:0 0 24px;font-size:13px}
-  .kpis{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px}
-  .kpi{background:#16181d;border:1px solid #24262c;border-radius:12px;padding:16px 20px;min-width:130px}
-  .kpi b{display:block;font-size:28px;color:#f7941d}.kpi span{color:#8b909a;font-size:12px}
-  .chart{display:flex;align-items:flex-end;gap:3px;height:130px;background:#16181d;border:1px solid #24262c;border-radius:12px;padding:14px;margin-bottom:28px;overflow-x:auto}
-  .bar{flex:1;min-width:8px;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end}
-  .bar span{width:70%;background:linear-gradient(#f7941d,#e8531f);border-radius:3px 3px 0 0;min-height:2px}
+  *{box-sizing:border-box}
+  body{margin:0;background:#0b0c0e;color:#f5f7fa;font:14px/1.5 -apple-system,system-ui,sans-serif;padding:22px;max-width:1100px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 2px}.sub{color:#8b909a;margin:0 0 20px;font-size:13px}
+  .rt{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.14);color:#4ade80;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:600;margin-left:8px}
+  .rt i{width:7px;height:7px;border-radius:50%;background:#4ade80;display:inline-block;animation:p 1.4s infinite}
+  @keyframes p{0%,100%{opacity:.4}50%{opacity:1}}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+  .kpi{background:#15171b;border:1px solid #24262c;border-radius:12px;padding:14px 16px}
+  .kpi b{display:block;font-size:26px;color:#f7941d;line-height:1.1}.kpi span{color:#8b909a;font-size:12px}
+  .chart{display:flex;align-items:flex-end;gap:3px;height:140px;background:#15171b;border:1px solid #24262c;border-radius:12px;padding:14px;margin-bottom:24px;overflow-x:auto}
+  .bar{flex:1;min-width:9px;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end}
+  .bar span{width:72%;background:linear-gradient(#f7941d,#e8531f);border-radius:3px 3px 0 0;min-height:2px}
   .bar em{font-size:8px;color:#6b7280;margin-top:4px;font-style:normal;white-space:nowrap}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-  @media(max-width:640px){.grid{grid-template-columns:1fr}}
-  table{width:100%;border-collapse:collapse;background:#16181d;border:1px solid #24262c;border-radius:12px;overflow:hidden}
-  th{text-align:left;color:#8b909a;font-size:12px;padding:10px 14px;border-bottom:1px solid #24262c}
-  td{padding:9px 14px;border-bottom:1px solid #1d1f24;word-break:break-all}
-  td:last-child{text-align:right;color:#f7941d;font-weight:600;white-space:nowrap}
-  h2{font-size:13px;color:#8b909a;text-transform:uppercase;letter-spacing:0.05em;margin:0 0 8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+  .card{background:#15171b;border:1px solid #24262c;border-radius:12px;padding:14px 16px}
+  h2{font-size:12px;color:#8b909a;text-transform:uppercase;letter-spacing:.05em;margin:0 0 10px}
+  table{width:100%;border-collapse:collapse}
+  td{padding:7px 0;border-bottom:1px solid #1c1e23;position:relative;font-size:13px}
+  td:first-child{padding-left:8px;overflow:hidden;text-overflow:ellipsis;max-width:230px;white-space:nowrap}
+  td:last-child{text-align:right;color:#f7941d;font-weight:600;white-space:nowrap;width:70px}
+  tr:last-child td{border-bottom:none}
+  .track{position:absolute;left:0;top:4px;bottom:4px;background:rgba(247,148,29,.10);border-radius:4px;z-index:0}
+  .empty{color:#6b7280;text-align:center}
 </style></head><body>
-<h1>📊 Busbar Calculator — Analytics</h1>
-<p class="sub">Last ${s.rangeDays} days · cookieless, first-party</p>
+<h1>📊 Busbar Calculator — Analytics <span class="rt"><i></i>${s.realtimeActive} active now</span></h1>
+<p class="sub">Last ${s.rangeDays} days · first-party · cookieless · unsampled</p>
 <div class="kpis">
-  <div class="kpi"><b>${s.totalViews.toLocaleString()}</b><span>Page views</span></div>
-  <div class="kpi"><b>${s.uniqueVisitors.toLocaleString()}</b><span>Unique visitors</span></div>
+  <div class="kpi"><b>${fmt(s.totalViews)}</b><span>Page views</span></div>
+  <div class="kpi"><b>${fmt(s.uniqueVisitors)}</b><span>Unique visitors</span></div>
+  <div class="kpi"><b>${fmt(s.sessions)}</b><span>Sessions</span></div>
+  <div class="kpi"><b>${s.bounceRate}%</b><span>Bounce rate</span></div>
+  <div class="kpi"><b>${dur(s.avgSessionSec)}</b><span>Avg. session</span></div>
+  <div class="kpi"><b>${s.viewsPerSession}</b><span>Views / session</span></div>
+  <div class="kpi"><b>${fmt(s.newVisitors)} / ${fmt(s.returningVisitors)}</b><span>New / returning</span></div>
 </div>
-<h2>Daily views</h2><div class="chart">${bars || '<span style="color:#6b7280">No data yet</span>'}</div>
+<div class="chart">${bars || '<span style="color:#6b7280">No data yet</span>'}</div>
 <div class="grid">
-  <div><h2>Top pages</h2><table><tr><th>Path</th><th>Views</th></tr>${rows(s.topPages, 'path', 'views')}</table></div>
-  <div><h2>Top referrers</h2><table><tr><th>Source</th><th>Views</th></tr>${rows(s.topReferrers, 'referrer', 'views')}</table></div>
-  <div><h2>By device</h2><table><tr><th>Device</th><th>Views</th></tr>${rows(s.byDevice, 'device', 'views')}</table></div>
+  ${tbl('Top pages', s.topPages, 'path', 'views')}
+  ${tbl('Entry pages', s.entryPages, 'path', 'sessions')}
+  ${tbl('Referrers', s.topReferrers, 'referrer', 'views')}
+  ${tbl('Channels', s.byChannel, 'channel', 'sessions')}
+  ${tbl('Countries', s.byCountry, 'country', 'visitors')}
+  ${tbl('Conversions & events', s.events, 'event', 'count')}
+  ${tbl('Browsers', s.byBrowser, 'browser', 'views')}
+  ${tbl('Operating systems', s.byOS, 'os', 'views')}
+  ${tbl('Devices', s.byDevice, 'device', 'views')}
 </div>
+<p class="sub" style="margin-top:20px">Auto-refreshes every 60s.</p>
+<script>setTimeout(()=>location.reload(),60000)</script>
 </body></html>`;
 }
