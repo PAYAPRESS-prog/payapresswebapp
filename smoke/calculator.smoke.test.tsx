@@ -89,6 +89,11 @@ describe('FxCalculator critical flow (desktop)', () => {
   });
 
   it('opens the Compare sheet ABOVE everything and closes it cleanly', async () => {
+    (global.fetch as jest.Mock).mockImplementation(async (url: RequestInfo | URL) => {
+      const u = String(url);
+      if (u.includes('auth/me')) return { ok: true, status: 200, json: async () => ({ user: { id: 1, email: 't@p.com' } }) } as Response;
+      return baseFetchImpl(url);
+    });
     await mountAndCalculate();
     const compareBtn = screen.getByRole('button', { name: /compare result/i });
     await act(async () => { fireEvent.click(compareBtn); });
@@ -192,14 +197,21 @@ describe('FxCalculator critical flow (desktop)', () => {
     const calcBtn = screen.getByRole('button', { name: /calculate/i });
     await act(async () => { fireEvent.click(calcBtn); });
 
-    // App must still be alive: results visible, buttons clickable
+    // App must still be alive: results visible, buttons clickable.
+    // Compare is auth-gated and auth/me is failing offline, so the tap
+    // opens the login sheet — which proves the UI still responds.
     expect(screen.getAllByText(/results/i).length).toBeGreaterThan(0);
     const compareBtn = screen.getByRole('button', { name: /compare result/i });
     await act(async () => { fireEvent.click(compareBtn); });
-    expect(await screen.findByRole('dialog', { name: /compare configurations/i })).toBeTruthy();
+    expect(await screen.findByRole('dialog', { name: /log in/i })).toBeTruthy();
   });
 
   it('leaves NO full-screen element that blocks clicks after closing everything', async () => {
+    (global.fetch as jest.Mock).mockImplementation(async (url: RequestInfo | URL) => {
+      const u = String(url);
+      if (u.includes('auth/me')) return { ok: true, status: 200, json: async () => ({ user: { id: 1, email: 't@p.com' } }) } as Response;
+      return baseFetchImpl(url);
+    });
     await mountAndCalculate();
     // Open + close compare
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: /compare result/i })); });

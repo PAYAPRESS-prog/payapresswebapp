@@ -5,11 +5,32 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BellIcon, CalculatorIcon, HistoryIcon, UserIcon } from './FxIcons';
 import { FxNotifySheet } from './FxNotifySheet';
+import { FxAuthSheet } from './FxAuthSheet';
 
 export function FxHeader() {
   const path = usePathname();
   const [email,       setEmail]       = useState<string | null>(null);
   const [notifyOpen,  setNotifyOpen]  = useState(false);
+  const [authOpen,    setAuthOpen]    = useState(false);
+  const [authMode,    setAuthMode]    = useState<'login' | 'signup'>('login');
+
+  // Bell = an account feature: signing up is required exactly here (the
+  // explore-first policy gates at actions, never at app entry).
+  function openBell() {
+    if (email) setNotifyOpen(true);
+    else { setAuthMode('signup'); setAuthOpen(true); }
+  }
+
+  function handleAuthSuccess() {
+    fetch('/api/auth/me')
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        setEmail(d?.user?.email ?? null);
+        setAuthOpen(false);
+        setNotifyOpen(true); // continue what the user came for
+      })
+      .catch(() => setAuthOpen(false));
+  }
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -31,7 +52,7 @@ export function FxHeader() {
             type="button"
             className="fx-icon-btn fx-header-mobile-only fx-header-bell"
             aria-label="Email notifications"
-            onClick={() => setNotifyOpen(true)}
+            onClick={openBell}
           >
             <BellIcon width={24} height={24} />
           </button>
@@ -65,7 +86,7 @@ export function FxHeader() {
               type="button"
               className="fx-header-bell-btn"
               aria-label="Email notifications"
-              onClick={() => setNotifyOpen(true)}
+              onClick={openBell}
             >
               <BellIcon width={20} height={20} />
             </button>
@@ -100,6 +121,13 @@ export function FxHeader() {
       </header>
 
       <FxNotifySheet open={notifyOpen} onClose={() => setNotifyOpen(false)} />
+      <FxAuthSheet
+        open={authOpen}
+        mode={authMode}
+        onClose={() => setAuthOpen(false)}
+        onModeChange={setAuthMode}
+        onSuccess={handleAuthSuccess}
+      />
     </>
   );
 }

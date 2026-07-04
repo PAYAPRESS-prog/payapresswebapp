@@ -28,6 +28,7 @@ export function FxProfilePage({ embedded }: { embedded?: boolean } = {}) {
   // Auth-gate sheet tab — a hardcoded mode with a no-op onModeChange made
   // the Sign Up tab completely dead (production bug).
   const [gateMode, setGateMode] = useState<'login' | 'signup'>('login');
+  const [gateOpen, setGateOpen] = useState(false);
   const [profile, setProfile]   = useState<Profile | null>(null);
   const [editMode, setEditMode] = useState<EditMode>('none');
   const [saving, setSaving]     = useState(false);
@@ -181,12 +182,23 @@ export function FxProfilePage({ embedded }: { embedded?: boolean } = {}) {
             </div>
             <h2 className="fx-profile-auth-title">Your Profile</h2>
             <p className="fx-profile-auth-sub">Sign in to view and manage your account.</p>
+            {/* Explore-first: the sheet must never auto-open (this panel is
+                always mounted in the swipe shell — an always-open portaled
+                sheet used to hijack the whole app for logged-out users).
+                It opens only when the user asks, and it can be dismissed. */}
+            <button
+              type="button"
+              className="fx-auth-submit fx-profile-gate-btn"
+              onClick={() => setGateOpen(true)}
+            >
+              Log In / Sign Up
+            </button>
             <FxAuthSheet
-              open={true}
+              open={gateOpen}
               mode={gateMode}
-              onClose={() => {}}
+              onClose={() => setGateOpen(false)}
               onModeChange={setGateMode}
-              onSuccess={() => { loadProfile(); }}
+              onSuccess={() => { setGateOpen(false); loadProfile(); }}
             />
           </div>
         </main>

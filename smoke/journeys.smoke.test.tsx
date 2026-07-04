@@ -136,6 +136,12 @@ describe('Journey: chart interaction (TradingView behaviors)', () => {
 
 describe('Journey: compare configurations', () => {
   it('changing config B shows deltas and enables Share', async () => {
+    // Compare is auth-gated — journey runs as a logged-in user
+    (global.fetch as jest.Mock).mockImplementation(async (url: RequestInfo | URL) => {
+      const u = String(url);
+      if (u.includes('auth/me')) return json({ user: { id: 1, email: 't@p.com' } });
+      return baseFetch(url);
+    });
     await calculate();
     await act(async () => { fireEvent.click(screen.getByRole('button', { name: /compare result/i })); });
     const dlg = await screen.findByRole('dialog', { name: /compare/i });

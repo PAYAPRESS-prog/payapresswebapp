@@ -627,7 +627,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         priceIsFallback={Boolean(live?.isFallback)}
         density={grade.density}
         resultsRef={resultsRef}
-        onCompare={() => setShowCompare(true)}
+        onCompare={() => requireAuth(() => setShowCompare(true))}
         onBookmark={openBookmarkDialog}
         onWaste={openWasteSheet}
         onClose={() => setShowResults(false)}
@@ -667,7 +667,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         priceIsFallback={Boolean(live?.isFallback)}
                 density={grade.density}
                 resultsRef={resultsRef}
-                onCompare={() => setShowCompare(true)}
+                onCompare={() => requireAuth(() => setShowCompare(true))}
                 onBookmark={openBookmarkDialog}
                 onWaste={openWasteSheet}
                 onClose={closeResults}
@@ -686,7 +686,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
                 w={w} t={t} L={L}
                 weightKg={weightKg}
                 maxCurrentA={maxCurrentA}
-                onCompare={() => setShowCompare(true)}
+                onCompare={() => requireAuth(() => setShowCompare(true))}
                 onBookmark={openBookmarkDialog}
                 onWaste={openWasteSheet}
               />
