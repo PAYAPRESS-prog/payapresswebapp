@@ -132,8 +132,8 @@ export function FxProfilePage({ embedded }: { embedded?: boolean } = {}) {
       setPwError('New passwords do not match.');
       return;
     }
-    if (newPw.length < 6) {
-      setPwError('Password must be at least 6 characters.');
+    if (newPw.length < 8) {
+      setPwError('Password must be at least 8 characters.');
       return;
     }
     setSaving(true);

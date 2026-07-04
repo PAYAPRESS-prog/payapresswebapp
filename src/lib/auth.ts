@@ -24,7 +24,7 @@ export function isAuthConfigured(): boolean {
 }
 
 export async function hashPassword(plain: string): Promise<string> {
-  return bcrypt.hash(plain, 10);
+  return bcrypt.hash(plain, 12);
 }
 
 export async function verifyPassword(plain: string, hash: string): Promise<boolean> {
@@ -44,8 +44,10 @@ export async function createSessionToken(payload: SessionPayload): Promise<strin
 
 export async function verifySessionToken(token: string): Promise<SessionPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, getSecret());
-    return { uid: Number(payload.sub), email: String(payload.email) };
+    const { payload } = await jwtVerify(token, getSecret(), { algorithms: ['HS256'] });
+    const uid = Number(payload.sub);
+    if (!Number.isInteger(uid) || uid <= 0) return null;
+    return { uid, email: String(payload.email) };
   } catch {
     return null;
   }
@@ -96,7 +98,7 @@ export async function createSignupToken(p: SignupPendingPayload): Promise<string
 
 export async function verifySignupToken(token: string): Promise<SignupPendingPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, getSecret());
+    const { payload } = await jwtVerify(token, getSecret(), { algorithms: ['HS256'] });
     if (payload.purpose !== 'signup-otp') return null;
     return {
       email: String(payload.email),

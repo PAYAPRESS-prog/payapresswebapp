@@ -30,8 +30,8 @@ export async function POST(req: NextRequest) {
   if (!current_password || !new_password) {
     return NextResponse.json({ error: 'Missing fields.' }, { status: 400 });
   }
-  if (String(new_password).length < 6) {
-    return NextResponse.json({ error: 'New password must be at least 6 characters.' }, { status: 400 });
+  if (String(new_password).length < 8) {
+    return NextResponse.json({ error: 'New password must be at least 8 characters.' }, { status: 400 });
   }
 
   const user = await findUserById(session.uid);
