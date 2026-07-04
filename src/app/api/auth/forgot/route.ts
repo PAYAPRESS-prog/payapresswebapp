@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { SITE_URL } from '@/lib/siteUrl';
 import { isDbConfigured } from '@/lib/db';
 import { findUserByEmail } from '@/lib/users';
 import { createResetToken, isValidEmail, isAuthConfigured } from '@/lib/auth';
@@ -8,7 +9,7 @@ import { sendMail, resetPasswordEmail, isMailerConfigured } from '@/lib/mailer';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://calculator.payapress.com';
+const BASE_URL = SITE_URL;
 
 export async function POST(req: Request) {
   // 3 reset requests per IP per 15 minutes — stops both abuse and

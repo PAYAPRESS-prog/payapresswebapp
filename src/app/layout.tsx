@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from 'next';
+import { SITE_URL } from '@/lib/siteUrl';
 import Script from 'next/script';
 import SplashScreen from '@/components/SplashScreen';
 import '@/styles/globals.css';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://calculator.payapress.com';
+const BASE_URL = SITE_URL;
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),

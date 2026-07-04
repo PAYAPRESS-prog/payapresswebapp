@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
+import { SITE_URL } from '@/lib/siteUrl';
 import { FxSwipeApp } from '@/components/figma/FxSwipeApp';
 import { FxDesktopLanding } from '@/components/figma/FxDesktopLanding';
 import { SectionErrorBoundary } from '@/components/SectionErrorBoundary';
 import { fetchCopperPrice, fetchAluminumPrice, fetchFxRates } from '@/lib/serverPrices';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://calculator.payapress.com';
+const BASE_URL = SITE_URL;
 
 // ── Primary SEO target ────────────────────────────────────────────
 // Keywords: "busbar calculator" · "busbar sizing calculator" ·
@@ -49,14 +50,28 @@ const JSON_LD = {
       '@type': 'Organization',
       '@id': `${BASE_URL}/#organization`,
       name: 'PAYAP MACHINERY',
+      alternateName: 'PAYAPRESS',
       url: 'https://www.payapress.com',
-      logo: `${BASE_URL}/apple-icon`,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${BASE_URL}/icon`,
+        width: 512,
+        height: 512,
+      },
+      sameAs: ['https://www.payapress.com'],
+      contactPoint: {
+        '@type': 'ContactPoint',
+        email: 'info@calculator.payapress.com',
+        contactType: 'customer support',
+        availableLanguage: ['en'],
+      },
     },
     {
       '@type': 'WebSite',
       '@id': `${BASE_URL}/#website`,
       url: BASE_URL,
       name: 'Busbar Calculator',
+      alternateName: 'PAYAPRESS Busbar Calculator',
       publisher: { '@id': `${BASE_URL}/#organization` },
       inLanguage: 'en',
     },
@@ -73,6 +88,8 @@ const JSON_LD = {
       operatingSystem: 'Any (web browser)',
       browserRequirements: 'Requires JavaScript',
       isAccessibleForFree: true,
+      image: `${BASE_URL}/opengraph-image`,
+      screenshot: `${BASE_URL}/opengraph-image`,
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
       featureList: [
         'Copper & aluminum busbar sizing (IEC cross-sections)',

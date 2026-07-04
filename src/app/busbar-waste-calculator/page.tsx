@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
+import { SITE_URL } from '@/lib/siteUrl';
 import Link from 'next/link';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://calculator.payapress.com';
+const BASE_URL = SITE_URL;
 
 // Public SEO landing for the (account-gated) waste calculator.
 // Target keywords: busbar waste calculator, kerf calculator, punch-out waste.

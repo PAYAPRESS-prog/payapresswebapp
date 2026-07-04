@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
+import { SITE_URL } from '@/lib/siteUrl';
 
-const BASE = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://calculator.payapress.com';
+const BASE = SITE_URL;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

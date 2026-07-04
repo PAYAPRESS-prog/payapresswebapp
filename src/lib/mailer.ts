@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { SITE_URL } from '@/lib/siteUrl';
 import crypto from 'crypto';
 
 // ── SMTP transport (Hostinger) ────────────────────────────────────────────────
@@ -35,7 +36,7 @@ export function isMailerConfigured(): boolean {
 const FROM_ADDR = () =>
   process.env.SMTP_FROM ?? process.env.SMTP_USER ?? 'info@calculator.payapress.com';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://calculator.payapress.com';
+const BASE_URL = SITE_URL;
 
 // ── Send helper ───────────────────────────────────────────────────────────────
 

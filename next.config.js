@@ -73,7 +73,9 @@ const nextConfig = {
           { key: 'X-XSS-Protection',           value: '1; mode=block' },
           { key: 'Referrer-Policy',            value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy',         value: 'camera=(), microphone=(), geolocation=(), payment=()' },
-          { key: 'X-Robots-Tag',               value: 'noindex, nofollow' },
+          // X-Robots-Tag noindex REMOVED at public launch — this header
+          // overrides all page metadata; private pages opt out via their
+          // own metadata + robots.txt instead.
           { key: 'Strict-Transport-Security',  value: 'max-age=63072000; includeSubDomains; preload' },
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
           { key: 'Cross-Origin-Resource-Policy', value: 'same-origin' },
