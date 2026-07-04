@@ -3,6 +3,7 @@ import { FxWelcome } from '@/components/figma/FxWelcome';
 
 export const metadata: Metadata = {
   title: 'Sign Up',
+  robots: { index: false, follow: false },
 };
 
 // Deep-link to the welcome gate with the auth sheet pre-opened on Sign Up.

@@ -24,11 +24,18 @@ export const metadata: Metadata = {
   creator:   'PAYAP MACHINERY',
   publisher: 'PAYAPRESS',
 
-  // Indexing disabled until launch — update to index:true when ready
+  // Public launch: indexing ENABLED (launch checklist item #1 — done).
+  // Private/app pages opt out individually (src/app/app/layout.tsx etc.).
   robots: {
-    index:    false,
-    follow:   false,
-    googleBot: { index: false, follow: false },
+    index:  true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
   },
 
   openGraph: {

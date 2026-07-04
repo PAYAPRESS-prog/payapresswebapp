@@ -1,3 +1,10 @@
 User-Agent: *
-Disallow: /
+Allow: /
+Disallow: /api/
+Disallow: /app/
+Disallow: /app
+Disallow: /reset-password
+Disallow: /offline
+Disallow: /embed
 
+Sitemap: https://calculator.payapress.com/sitemap.xml

@@ -102,9 +102,10 @@ git push -u origin claude/payapress-webapp-setup-0bjxA
 
 ## 🚀 Launch Checklist (do these when going public)
 
-1. **Enable SEO indexing** — intentionally OFF today:
-   - `src/app/robots.ts`: change `disallow: '/'` to allow crawling
-   - `src/app/layout.tsx`: flip `index: false` / `googleBot { index: false }` to `true`
+1. ~~Enable SEO indexing~~ ✅ DONE — site is indexed; /busbar-calculator is
+   the primary SEO target (title/description/JSON-LD schema live there).
+   Private surfaces stay noindex: /app/* (src/app/app/layout.tsx),
+   /reset-password, /signup + robots.txt disallow.
 2. Verify all Hostinger env vars are set: `DB_HOST`, `DB_PORT`, `DB_USER`,
    `DB_PASSWORD`, `DB_NAME`, `JWT_SECRET` (≥16 chars), `SMTP_HOST`,
    `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`.
