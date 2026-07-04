@@ -9,8 +9,52 @@ import {
   SESSION_COOKIE,
 } from '@/lib/auth';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
-import { sendMail, welcomeEmail } from '@/lib/mailer';
+import { sendMail, welcomeEmail, adminSignupNotificationEmail } from '@/lib/mailer';
+import { getPool } from '@/lib/db';
+import type { RowDataPacket } from 'mysql2';
 import { createHash, timingSafeEqual } from 'crypto';
+
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'web3.payapress@gmail.com';
+
+// Best-effort IP → location lookup (free, keyless). Never blocks signup.
+async function lookupLocation(ip: string): Promise<string> {
+  if (!ip || ip === 'unknown' || ip.startsWith('127.') || ip.startsWith('::1')) {
+    return 'Unknown (local/proxy IP)';
+  }
+  try {
+    const r = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`, {
+      signal: AbortSignal.timeout(4000),
+    });
+    if (!r.ok) return 'Unknown';
+    const d = await r.json();
+    if (!d?.success) return 'Unknown';
+    const parts = [d.city, d.region, d.country].filter(Boolean).join(', ');
+    const isp = d.connection?.isp ? ` · ${d.connection.isp}` : '';
+    return parts ? `${parts}${isp}` : 'Unknown';
+  } catch {
+    return 'Unknown';
+  }
+}
+
+// Fire-and-forget admin notification — a failure here must never
+// affect the user's signup.
+function notifyAdmin(info: {
+  email: string; uid: number; ip: string; userAgent: string;
+  page: string; optIn: boolean;
+}) {
+  (async () => {
+    let userNumber: number | null = null;
+    try {
+      const [rows] = await getPool().query<RowDataPacket[]>('SELECT COUNT(*) AS c FROM users');
+      userNumber = Number(rows[0]?.c) || null;
+    } catch { /* count is optional */ }
+    const location = await lookupLocation(info.ip);
+    const mail = adminSignupNotificationEmail({
+      ...info, userNumber, location, time: new Date().toISOString(),
+    });
+    await sendMail({ to: ADMIN_EMAIL, subject: mail.subject, html: mail.html, text: mail.text });
+  })().catch(err => console.error('[signup/verify] admin notification failed:', err));
+}
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -77,6 +121,16 @@ export async function POST(req: Request) {
     const w = welcomeEmail(pending.email);
     sendMail({ to: pending.email, subject: w.subject, html: w.html, text: w.text })
       .catch(err => console.error('[signup/verify] welcome email failed:', err));
+
+    // Admin gets a signup notification with location & device details.
+    notifyAdmin({
+      email: pending.email,
+      uid,
+      ip,
+      userAgent: req.headers.get('user-agent') ?? '',
+      page: req.headers.get('referer') ?? '',
+      optIn: pending.optIn,
+    });
 
     const res = NextResponse.json({ ok: true, user: { id: uid, email: pending.email } });
     res.cookies.set(SESSION_COOKIE, session, sessionCookieOptions(true));

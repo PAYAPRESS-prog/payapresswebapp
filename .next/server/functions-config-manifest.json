@@ -4,16 +4,16 @@
     "/api/admin/users": {},
     "/api/auth/forgot": {},
     "/api/auth/login": {},
-    "/api/auth/logout": {},
     "/api/auth/me": {},
     "/api/auth/reset": {},
     "/api/auth/signup": {},
     "/api/auth/signup/verify": {},
+    "/api/auth/logout": {},
     "/api/cron/daily-digest": {
       "maxDuration": 300
     },
-    "/api/price-history": {},
     "/api/notify": {},
+    "/api/price-history": {},
     "/api/profile/change-password": {},
     "/api/profile": {},
     "/api/test-mail": {}

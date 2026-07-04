@@ -220,6 +220,52 @@ export function resetPasswordEmail(email: string, resetUrl: string): { subject: 
   return { subject: 'Reset your Busbar Calculator password', html, text };
 }
 
+export interface AdminSignupInfo {
+  email: string;
+  uid: number;
+  userNumber: number | null;   // total users after this signup
+  ip: string;
+  location: string;            // "City, Region, Country · ISP" or "Unknown"
+  userAgent: string;
+  page: string;                // referer the signup came from
+  optIn: boolean;
+  time: string;                // ISO
+}
+
+export function adminSignupNotificationEmail(info: AdminSignupInfo): { subject: string; html: string; text: string } {
+  const unsubLine = `<a href="mailto:${FROM_ADDR()}?subject=unsubscribe">Notifications</a>`;
+  const row = (k: string, v: string) =>
+    `<div class="price-row"><span class="price-val" style="max-width:60%;text-align:right;word-break:break-all;">${v}</span><b>${k}</b></div>`;
+  const html = baseLayout(`
+    <h1>🆕 New user signed up</h1>
+    <p class="muted" style="margin-top:-8px;">${new Date(info.time).toUTCString()}</p>
+    ${row('Email', info.email)}
+    ${row('User', info.userNumber ? `#${info.userNumber}` : `id ${info.uid}`)}
+    ${row('Location', info.location)}
+    ${row('IP', info.ip)}
+    ${row('Signed up from', info.page || '—')}
+    ${row('Newsletter opt-in', info.optIn ? 'Yes' : 'No')}
+    ${row('Device', info.userAgent || '—')}
+    <div class="divider"></div>
+    <div style="text-align:center;">
+      <a class="btn" href="${BASE_URL}/busbar-calculator">Open App</a>
+    </div>
+  `, unsubLine, `New signup: ${info.email} — ${info.location}`);
+  const text = [
+    'New user signed up — Busbar Calculator',
+    '',
+    `Email:      ${info.email}`,
+    `User:       ${info.userNumber ? '#' + info.userNumber : 'id ' + info.uid}`,
+    `Location:   ${info.location}`,
+    `IP:         ${info.ip}`,
+    `From page:  ${info.page || '-'}`,
+    `Opt-in:     ${info.optIn ? 'Yes' : 'No'}`,
+    `Device:     ${info.userAgent || '-'}`,
+    `Time (UTC): ${new Date(info.time).toUTCString()}`,
+  ].join('\n');
+  return { subject: `🆕 New signup: ${info.email}`, html, text };
+}
+
 export function verifyCodeEmail(email: string, code: string): { subject: string; html: string; text: string } {
   const unsubLine = `<a href="mailto:${FROM_ADDR()}?subject=unsubscribe">Unsubscribe</a>`;
   const html = baseLayout(`
