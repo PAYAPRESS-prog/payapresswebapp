@@ -162,6 +162,30 @@ export function welcomeEmail(email: string): { subject: string; html: string; te
   return { subject: 'Welcome to Busbar Calculator', html, text };
 }
 
+export function resetPasswordEmail(email: string, resetUrl: string): { subject: string; html: string; text: string } {
+  const unsubLine = `<a href="mailto:${FROM_ADDR()}?subject=unsubscribe">Unsubscribe</a>`;
+  const html = baseLayout(`
+    <h1>Reset your password</h1>
+    <p>We received a request to reset the password for your Busbar Calculator account. Click the button below to choose a new password. This link expires in 30 minutes.</p>
+    <a class="btn" href="${resetUrl}">Reset Password</a>
+    <p style="margin-top:20px;font-size:12px;color:#aaa;">If you didn't request this, you can safely ignore this email — your password will not change.</p>
+    <p style="margin-top:8px;font-size:12px;color:#aaa;">Account: ${email}</p>
+  `, unsubLine);
+  const text = [
+    'Reset your Busbar Calculator password',
+    '',
+    'We received a request to reset your password.',
+    `Reset link (expires in 30 minutes): ${resetUrl}`,
+    '',
+    "If you didn't request this, ignore this email — your password will not change.",
+    '',
+    '---',
+    `Account: ${email}`,
+    `© 2025 PAYAP MACHINERY`,
+  ].join('\n');
+  return { subject: 'Reset your Busbar Calculator password', html, text };
+}
+
 export function subscribeConfirmEmail(email: string): { subject: string; html: string; text: string } {
   const unsubLine = `<a href="mailto:${FROM_ADDR()}?subject=unsubscribe">Unsubscribe</a>`;
   const html = baseLayout(`

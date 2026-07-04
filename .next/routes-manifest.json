@@ -224,6 +224,12 @@
       "namedRegex": "^/privacy(?:/)?$"
     },
     {
+      "page": "/reset-password",
+      "regex": "^/reset\\-password(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/reset\\-password(?:/)?$"
+    },
+    {
       "page": "/roadmap",
       "regex": "^/roadmap(?:/)?$",
       "routeKeys": {},

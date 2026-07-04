@@ -100,6 +100,34 @@ git push -u origin claude/payapress-webapp-setup-0bjxA
 
 ---
 
+## 🚀 Launch Checklist (do these when going public)
+
+1. **Enable SEO indexing** — intentionally OFF today:
+   - `src/app/robots.ts`: change `disallow: '/'` to allow crawling
+   - `src/app/layout.tsx`: flip `index: false` / `googleBot { index: false }` to `true`
+2. Verify all Hostinger env vars are set: `DB_HOST`, `DB_PORT`, `DB_USER`,
+   `DB_PASSWORD`, `DB_NAME`, `JWT_SECRET` (≥16 chars), `SMTP_HOST`,
+   `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`.
+   Keep a copy of the VALUES in a password manager — they exist nowhere else.
+3. Confirm password-reset works end-to-end (auth sheet → Forgot Password →
+   email link → /reset-password → auto login).
+
+## 🛡 Ops Guardrails
+
+- **Uptime monitoring:** add https://calculator.payapress.com/api/copper-price
+  to UptimeRobot (free) — alerts when the site or price feed dies.
+- **DB backups:** in Hostinger hPanel set a weekly cron:
+  `mysqldump -u $DB_USER -p"$DB_PASSWORD" $DB_NAME > ~/backups/busbar_$(date +\%F).sql`
+  and download a copy monthly.
+- **CI:** `.github/workflows/ci.yml` runs lint + types + unit tests +
+  smoke tests + build on every push. A red run = the deployed commit is
+  broken; fix forward or revert.
+- **Price fallback:** when Yahoo Finance is down the app shows an amber
+  "Estimated price" badge (`isFallback` from /api/copper-price). If it stays
+  on for hours the feed shape may have changed — check `src/lib/serverPrices.ts`.
+
+---
+
 ## Key Files
 
 | File | Purpose |

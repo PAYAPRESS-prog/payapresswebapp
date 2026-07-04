@@ -51,6 +51,29 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
   }
 }
 
+// ── Password-reset tokens ─────────────────────────────────────────
+// Short-lived JWT with an explicit purpose claim so a reset token can
+// never be replayed as a session token (and vice versa).
+
+export async function createResetToken(payload: SessionPayload): Promise<string> {
+  return new SignJWT({ email: payload.email, purpose: 'pwreset' })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setSubject(String(payload.uid))
+    .setIssuedAt()
+    .setExpirationTime('30m')
+    .sign(getSecret());
+}
+
+export async function verifyResetToken(token: string): Promise<SessionPayload | null> {
+  try {
+    const { payload } = await jwtVerify(token, getSecret());
+    if (payload.purpose !== 'pwreset') return null;
+    return { uid: Number(payload.sub), email: String(payload.email) };
+  } catch {
+    return null;
+  }
+}
+
 // Cookie options for the session token.
 export function sessionCookieOptions(remember: boolean) {
   return {

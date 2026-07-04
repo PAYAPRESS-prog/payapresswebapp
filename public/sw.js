@@ -1,6 +1,6 @@
-/* PAYAPRESS Service Worker — v33 */
+/* PAYAPRESS Service Worker — v34 */
 
-const CACHE_VERSION = 'v33';
+const CACHE_VERSION = 'v34';
 const SHELL_CACHE   = `payapress-shell-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `payapress-dynamic-${CACHE_VERSION}`;
 

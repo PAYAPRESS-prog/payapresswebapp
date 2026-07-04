@@ -37,6 +37,8 @@ export function FxAuthSheet({
   const [error, setError]       = useState<string | null>(null);
   const [errorSwitch, setErrorSwitch] = useState<'login' | 'signup' | null>(null);
   const [mounted, setMounted] = useState(false);
+  // 'form' = normal login/signup · 'forgot' = ask email · 'sent' = confirmation
+  const [view, setView] = useState<'form' | 'forgot' | 'sent'>('form');
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -55,9 +57,36 @@ export function FxAuthSheet({
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
+  // Reset to the normal form whenever the sheet is (re)opened
+  useEffect(() => { if (open) setView('form'); }, [open]);
+
   if (!open || !mounted) return null;
 
   const isSignup = mode === 'signup';
+
+  async function handleForgot(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (!email.trim()) { setError('Please enter your email.'); return; }
+    setBusy(true);
+    try {
+      const res = await fetch('/api/auth/forgot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data?.error || 'Something went wrong. Please try again.');
+        return;
+      }
+      setView('sent');
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -114,6 +143,63 @@ export function FxAuthSheet({
       onClick={onClose}
     >
       <div className="fx-sheet" onClick={e => e.stopPropagation()}>
+        {view === 'forgot' ? (
+          <>
+            <h2 className="fx-sheet-title">Reset your password</h2>
+            <p className="fx-auth-forgot-sub">
+              Enter your account email and we&apos;ll send you a reset link.
+            </p>
+            <form onSubmit={handleForgot} className="fx-auth-form">
+              <div className="fx-auth-field">
+                <input
+                  id={`${formId}-femail`}
+                  type="email"
+                  autoComplete="email"
+                  inputMode="email"
+                  placeholder=" "
+                  className={`fx-auth-input${email ? ' has-value' : ''}`}
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                />
+                <label htmlFor={`${formId}-femail`} className="fx-auth-label">Email</label>
+                <LetterIcon className="fx-auth-icon" width={22} height={22} />
+              </div>
+
+              {error && (
+                <div className="fx-auth-error-wrap" role="alert">
+                  <p className="fx-auth-error">{error}</p>
+                </div>
+              )}
+
+              <button type="submit" className="fx-auth-submit" disabled={busy}>
+                {busy ? 'Please wait…' : 'Send Reset Link'}
+              </button>
+              <button
+                type="button"
+                className="fx-auth-forgot fx-auth-back"
+                onClick={() => { setError(null); setView('form'); }}
+              >
+                ← Back to Log In
+              </button>
+            </form>
+          </>
+        ) : view === 'sent' ? (
+          <>
+            <h2 className="fx-sheet-title">Check your inbox</h2>
+            <p className="fx-auth-forgot-sub">
+              If an account exists for <strong>{email.trim()}</strong>, a password-reset
+              link is on its way. The link expires in 30 minutes.
+            </p>
+            <button
+              type="button"
+              className="fx-auth-submit"
+              onClick={() => setView('form')}
+            >
+              Back to Log In
+            </button>
+          </>
+        ) : (
+        <>
         <h2 className="fx-sheet-title">
           {isSignup ? 'Grow your business with Busbar calculator' : 'For more please login to your account'}
         </h2>
@@ -231,7 +317,13 @@ export function FxAuthSheet({
                 <span className="fx-auth-checkbox" aria-hidden="true" />
                 <span>Remember me</span>
               </label>
-              <button type="button" className="fx-auth-forgot">Forgot Password?</button>
+              <button
+                type="button"
+                className="fx-auth-forgot"
+                onClick={() => { setError(null); setView('forgot'); }}
+              >
+                Forgot Password?
+              </button>
             </div>
           )}
 
@@ -254,6 +346,8 @@ export function FxAuthSheet({
             {busy ? 'Please wait…' : isSignup ? 'Sign Up' : 'Log In'}
           </button>
         </form>
+        </>
+        )}
       </div>
     </div>,
     document.body,

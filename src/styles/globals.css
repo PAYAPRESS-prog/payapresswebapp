@@ -1845,6 +1845,42 @@ body {
 }
 .fx-auth-forgot:hover { text-decoration: underline; }
 
+/* Forgot-password view inside the auth sheet */
+.fx-auth-forgot-sub {
+  margin: -6px 0 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(245, 247, 250, 0.65);
+}
+.fx-auth-back {
+  align-self: center;
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+/* Reset-password page (/reset-password) — auth card centered on the
+   welcome gradient */
+.fx-reset-wrap {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
+}
+.fx-reset-card {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 24px;
+}
+.fx-reset-done {
+  margin: 0 0 8px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(245, 247, 250, 0.8);
+}
+
 .fx-auth-error-wrap {
   display: flex;
   flex-direction: column;
@@ -2611,6 +2647,26 @@ body {
   background: #22c55e;
   flex-shrink: 0;
   animation: fx-pulse 1.6s ease-in-out infinite;
+}
+
+/* Fallback price — amber warning state when the live feed is down */
+.fx-results-live-badge.is-estimated {
+  background: rgba(245, 158, 11, 0.28);
+  color: #fbbf24;
+}
+.fx-results-live-badge.is-estimated .fx-results-live-dot {
+  background: #fbbf24;
+  animation: none;
+}
+.fx-results-fallback-note {
+  margin: 6px 0 2px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  color: #fcd34d;
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 /* Currency row — subtle glass background, no border per Figma */

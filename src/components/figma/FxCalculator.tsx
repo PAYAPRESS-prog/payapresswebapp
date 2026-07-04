@@ -620,6 +620,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         fxRate={fxRate} totalIn={totalIn} showCompare={showCompare}
         bookmarked={bookmarked} w={w} t={t} L={L} pricePerKgUSD={pricePerKgUSD}
         busbarPremium={grade.busbarPremium} updatedLabel={updatedLabel}
+        priceIsFallback={Boolean(live?.isFallback)}
         density={grade.density}
         resultsRef={resultsRef}
         onCompare={() => setShowCompare(true)}
@@ -659,6 +660,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
                 fxRate={fxRate} totalIn={totalIn} showCompare={showCompare}
                 bookmarked={bookmarked} w={w} t={t} L={L} pricePerKgUSD={pricePerKgUSD}
                 busbarPremium={grade.busbarPremium} updatedLabel={updatedLabel}
+        priceIsFallback={Boolean(live?.isFallback)}
                 density={grade.density}
                 resultsRef={resultsRef}
                 onCompare={() => setShowCompare(true)}
@@ -867,6 +869,7 @@ type ResultsBodyProps = {
   busbarPremium: number;
   updatedLabel: string;
   density: number;
+  priceIsFallback?: boolean;
   resultsRef: React.RefObject<HTMLDivElement | null>;
   onCompare: () => void;
   onBookmark: () => void;
@@ -879,7 +882,7 @@ type ResultsBodyProps = {
 function ResultsBody({
   metal, activeCurr, activeCurrTotal, grade, weightKg, maxCurrentA,
   fxRate, totalIn, showCompare, bookmarked, w, t, L, pricePerKgUSD,
-  busbarPremium, updatedLabel, resultsRef,
+  busbarPremium, updatedLabel, resultsRef, priceIsFallback = false,
   onCompare, onBookmark, onWaste, showActions = true,
 }: ResultsBodyProps) {
   return (
@@ -890,11 +893,25 @@ function ResultsBody({
 
         <div className="fx-results-price-row">
           <span className="fx-results-price-label">Estimate Price</span>
-          <span className="fx-results-live-badge">
-            <span className="fx-results-live-dot" />
-            Live {metal === 'copper' ? 'COMEX' : 'LME'}{grade.busbarPremium > 0 ? ` +${Math.round(grade.busbarPremium * 100)}%` : ''}
-          </span>
+          {priceIsFallback ? (
+            <span className="fx-results-live-badge is-estimated">
+              <span className="fx-results-live-dot" />
+              Estimated price
+            </span>
+          ) : (
+            <span className="fx-results-live-badge">
+              <span className="fx-results-live-dot" />
+              Live {metal === 'copper' ? 'COMEX' : 'LME'}{grade.busbarPremium > 0 ? ` +${Math.round(grade.busbarPremium * 100)}%` : ''}
+            </span>
+          )}
         </div>
+
+        {priceIsFallback && (
+          <p className="fx-results-fallback-note" role="status">
+            Live metal feed is unavailable — this uses an estimated price.
+            Don&apos;t quote it commercially.
+          </p>
+        )}
 
         <div className="fx-results-curr-row">
           {(() => {
