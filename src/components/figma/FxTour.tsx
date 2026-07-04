@@ -100,31 +100,65 @@ function readSafeInsets(): { top: number; bottom: number } {
 
 export function FxTour() {
   const [active, setActive] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [idx, setIdx] = useState(0);
   const [spot, setSpot] = useState<Spot | null>(null);
   const [tip, setTip] = useState<Tip | null>(null);
   const tipRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
 
-  // Decide whether to run on first mount — wait until the open-splash is gone.
+  // A sheet/dialog being open locks body scroll (src/lib/scrollLock.ts).
+  // The tour sits at z-9000 — starting it over an open sheet would cover
+  // the sheet and swallow its clicks (e.g. the Sign Up tab). So the tour
+  // only ever starts when the app is idle, and steps aside if a sheet
+  // opens mid-tour.
+  const sheetIsOpen = () =>
+    typeof document !== 'undefined' && document.body.style.overflow === 'hidden';
+
+  // Decide whether to run on first mount — wait until the open-splash is
+  // gone AND no sheet is open (keeps polling until the app is idle).
   useEffect(() => {
     let seen = false;
     try { seen = localStorage.getItem(STORAGE_KEY) === '1'; } catch { /* ignore */ }
-    if (!seen) {
-      const id = setTimeout(() => setActive(true), 2300); // splash hides ~2100ms
-      return () => clearTimeout(id);
-    }
+    if (seen) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const tryStart = () => {
+      if (sheetIsOpen()) { timer = setTimeout(tryStart, 900); return; }
+      setActive(true);
+    };
+    timer = setTimeout(tryStart, 2300); // splash hides ~2100ms
+    return () => clearTimeout(timer);
   }, []);
 
-  // Allow relaunching from elsewhere (e.g. a "Show tutorial" button)
+  // Allow relaunching from elsewhere (e.g. a "Show tutorial" button) —
+  // same idle gate as the auto-start.
   useEffect(() => {
-    const start = () => { setIdx(0); setActive(true); };
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const start = () => {
+      if (sheetIsOpen()) { timer = setTimeout(start, 900); return; }
+      setIdx(0); setActive(true);
+    };
     window.addEventListener('pp:tour:start', start);
-    return () => window.removeEventListener('pp:tour:start', start);
+    return () => {
+      window.removeEventListener('pp:tour:start', start);
+      if (timer) clearTimeout(timer);
+    };
   }, []);
+
+  // If a sheet opens while the tour is showing, pause the tour (keeping
+  // the current step) and resume once the sheet closes.
+  useEffect(() => {
+    if (!active && !paused) return;
+    const iv = setInterval(() => {
+      if (active && sheetIsOpen()) { setActive(false); setPaused(true); }
+      else if (paused && !sheetIsOpen()) { setPaused(false); setActive(true); }
+    }, 700);
+    return () => clearInterval(iv);
+  }, [active, paused]);
 
   const finish = useCallback(() => {
     setActive(false);
+    setPaused(false); // a finished tour must never auto-resume
     setSpot(null);
     setTip(null);
     try { localStorage.setItem(STORAGE_KEY, '1'); } catch { /* ignore */ }
