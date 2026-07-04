@@ -4,13 +4,15 @@ import { findUserByEmail, createUser } from '@/lib/users';
 import {
   hashPassword,
   createSessionToken,
+  createSignupToken,
   sessionCookieOptions,
   isValidEmail,
   isAuthConfigured,
   SESSION_COOKIE,
 } from '@/lib/auth';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
-import { sendMail, welcomeEmail } from '@/lib/mailer';
+import { sendMail, welcomeEmail, verifyCodeEmail, isMailerConfigured } from '@/lib/mailer';
+import { createHash, randomInt } from 'crypto';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -69,14 +71,27 @@ export async function POST(req: Request) {
     }
 
     const passwordHash = await hashPassword(password);
+
+    // ── Email verification step ──────────────────────────────────
+    // The account is only created after the user proves inbox
+    // ownership with a 6-digit code (see signup/verify). If SMTP is
+    // not configured (local dev), fall back to direct creation so
+    // signup never hard-blocks on mail infrastructure.
+    if (isMailerConfigured()) {
+      const code = String(randomInt(100000, 1000000)); // 6 digits
+      const codeHash = createHash('sha256').update(code).digest('hex');
+      const pendingToken = await createSignupToken({
+        email, ph: passwordHash, optIn, codeHash,
+      });
+
+      const v = verifyCodeEmail(email, code);
+      await sendMail({ to: email, subject: v.subject, html: v.html, text: v.text });
+
+      return NextResponse.json({ pending: true, token: pendingToken });
+    }
+
     const uid = await createUser(email, passwordHash, optIn);
     const token = await createSessionToken({ uid, email });
-
-    // Fire welcome email — non-blocking, failure doesn't affect signup.
-    const w = welcomeEmail(email);
-    sendMail({ to: email, subject: w.subject, html: w.html, text: w.text })
-      .catch(err => console.error('[signup] welcome email failed:', err));
-
     const res = NextResponse.json({ ok: true, user: { id: uid, email } });
     res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(true));
     return res;

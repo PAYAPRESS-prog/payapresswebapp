@@ -74,6 +74,41 @@ export async function verifyResetToken(token: string): Promise<SessionPayload | 
   }
 }
 
+// ── Signup email-verification tokens ─────────────────────────────
+// The pending signup (email + bcrypt hash + code hash) travels in a
+// signed short-lived JWT so no server-side OTP table is needed. The
+// purpose claim keeps it unusable as a session or reset token.
+
+export type SignupPendingPayload = {
+  email: string;
+  ph: string;       // bcrypt password hash
+  optIn: boolean;
+  codeHash: string; // sha256 of the 6-digit code
+};
+
+export async function createSignupToken(p: SignupPendingPayload): Promise<string> {
+  return new SignJWT({ ...p, purpose: 'signup-otp' })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('15m')
+    .sign(getSecret());
+}
+
+export async function verifySignupToken(token: string): Promise<SignupPendingPayload | null> {
+  try {
+    const { payload } = await jwtVerify(token, getSecret());
+    if (payload.purpose !== 'signup-otp') return null;
+    return {
+      email: String(payload.email),
+      ph: String(payload.ph),
+      optIn: Boolean(payload.optIn),
+      codeHash: String(payload.codeHash),
+    };
+  } catch {
+    return null;
+  }
+}
+
 // Cookie options for the session token.
 export function sessionCookieOptions(remember: boolean) {
   return {

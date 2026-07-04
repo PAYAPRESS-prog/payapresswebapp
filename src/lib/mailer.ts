@@ -220,6 +220,29 @@ export function resetPasswordEmail(email: string, resetUrl: string): { subject: 
   return { subject: 'Reset your Busbar Calculator password', html, text };
 }
 
+export function verifyCodeEmail(email: string, code: string): { subject: string; html: string; text: string } {
+  const unsubLine = `<a href="mailto:${FROM_ADDR()}?subject=unsubscribe">Unsubscribe</a>`;
+  const html = baseLayout(`
+    <h1>Confirm your email</h1>
+    <p>Enter this code in the app to finish creating your account. It expires in 15 minutes.</p>
+    <div style="text-align:center;margin:22px 0;">
+      <span style="display:inline-block;padding:16px 28px;background:#faf7f2;border:1px solid #f0e6d8;
+                   border-radius:12px;font-size:34px;font-weight:800;letter-spacing:0.35em;
+                   color:#b45309;font-family:'Courier New',monospace;">${code}</span>
+    </div>
+    <p class="muted">If you didn't try to sign up for Busbar Calculator, you can safely ignore this email.</p>
+  `, unsubLine, `Your Busbar Calculator verification code is ${code}`);
+  const text = [
+    'Confirm your email — Busbar Calculator',
+    '',
+    `Your verification code: ${code}`,
+    'It expires in 15 minutes.',
+    '',
+    "If you didn't try to sign up, ignore this email.",
+  ].join('\n');
+  return { subject: `${code} is your Busbar Calculator verification code`, html, text };
+}
+
 export function subscribeConfirmEmail(email: string): { subject: string; html: string; text: string } {
   const unsubLine = `<a href="mailto:${FROM_ADDR()}?subject=unsubscribe">Unsubscribe</a>`;
   const html = baseLayout(`

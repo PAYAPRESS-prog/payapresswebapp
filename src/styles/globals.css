@@ -6693,3 +6693,45 @@ h3.fx-suggestions-label {
   font-size: 15px;
   text-decoration: none;
 }
+
+/* ══════════════════════════════════════════════════════
+   SIGNUP EMAIL VERIFICATION (OTP) + focus-ring cleanup
+   ══════════════════════════════════════════════════════ */
+
+/* 6-digit code entry — large, letter-spaced, centered */
+.fx-otp-input {
+  width: 100%;
+  min-height: 64px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+  color: #ffffff;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.45em;
+  text-align: center;
+  text-indent: 0.45em; /* visually re-center letter-spaced text */
+  font-family: 'Roboto Mono', 'Courier New', monospace;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.fx-otp-input:focus { border-color: rgba(255, 255, 255, 0.38); }
+.fx-otp-input::placeholder { color: rgba(245, 247, 250, 0.25); letter-spacing: 0.3em; }
+
+/* ── Focus-ring cleanup (Figma has no outline ring on fields) ──
+   The global :focus-visible ring is meant for buttons/links; on text
+   fields it draws a second box around the pill (the reported visual
+   bug). Fields communicate focus via their container border instead. */
+.fx-auth-input:focus-visible,
+.fx-otp-input:focus-visible,
+.fx-name-input:focus-visible,
+.fx-picker-search:focus-visible,
+.fx-dim-col-input:focus-visible,
+.fx-waste-input:focus-visible,
+.fx-cmp-dim-input:focus-visible {
+  outline: none;
+}
+.fx-auth-field:focus-within {
+  border-color: rgba(255, 255, 255, 0.38);
+  background: rgba(255, 255, 255, 0.05);
+}

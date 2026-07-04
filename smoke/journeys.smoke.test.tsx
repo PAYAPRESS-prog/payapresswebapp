@@ -163,6 +163,50 @@ describe('Journey: compare configurations', () => {
   });
 });
 
+describe('Journey: signup with email verification (OTP)', () => {
+  it('signup → code view → wrong code error → correct code succeeds', async () => {
+    (global.fetch as jest.Mock).mockImplementation(async (url: RequestInfo | URL, init?: RequestInit) => {
+      const u = String(url);
+      if (u.includes('auth/signup/verify')) {
+        const body = JSON.parse(String(init?.body ?? '{}'));
+        return body.code === '123456'
+          ? json({ ok: true, user: { id: 9, email: 'new@x.com' } })
+          : json({ error: 'Incorrect code. Please try again.' }, 401);
+      }
+      if (u.includes('auth/signup')) return json({ pending: true, token: 'tok123' });
+      return baseFetch(url);
+    });
+
+    await act(async () => { render(<FxWelcome />); });
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: /sign up/i })); });
+    const dlg = await screen.findByRole('dialog', { name: /sign up/i });
+
+    const inputs = dlg.querySelectorAll('input');
+    fireEvent.change(inputs[0], { target: { value: 'new@x.com' } });
+    fireEvent.change(inputs[1], { target: { value: 'secret1' } });
+    fireEvent.change(inputs[2], { target: { value: 'secret1' } });
+    await act(async () => { fireEvent.click(within(dlg).getByRole('button', { name: /^sign up$/i })); });
+
+    // OTP view appears
+    expect(within(dlg).getByText(/check your email/i)).toBeTruthy();
+    const otp = dlg.querySelector('.fx-otp-input') as HTMLInputElement;
+    expect(otp).toBeTruthy();
+
+    // Wrong code → inline error, still on OTP view
+    fireEvent.change(otp, { target: { value: '000000' } });
+    await act(async () => { fireEvent.click(within(dlg).getByRole('button', { name: /verify/i })); });
+    expect(within(dlg).getByText(/incorrect code/i)).toBeTruthy();
+
+    // Correct code → account created, app navigates to /app
+    fireEvent.change(otp, { target: { value: '123456' } });
+    await act(async () => { fireEvent.click(within(dlg).getByRole('button', { name: /verify/i })); });
+    expect(within(dlg).queryByText(/incorrect code/i)).toBeNull();
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { useRouter } = require('next/navigation');
+    expect(useRouter().push).toHaveBeenCalledWith('/app');
+  });
+});
+
 describe('Journey: login failure paths', () => {
   it('surfaces the server 503 message and the forgot-password flow works', async () => {
     (global.fetch as jest.Mock).mockImplementation(async (url: RequestInfo | URL, init?: RequestInit) => {

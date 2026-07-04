@@ -37,8 +37,11 @@ export function FxAuthSheet({
   const [error, setError]       = useState<string | null>(null);
   const [errorSwitch, setErrorSwitch] = useState<'login' | 'signup' | null>(null);
   const [mounted, setMounted] = useState(false);
-  // 'form' = normal login/signup · 'forgot' = ask email · 'sent' = confirmation
-  const [view, setView] = useState<'form' | 'forgot' | 'sent'>('form');
+  // 'form' = login/signup · 'forgot'/'sent' = password reset ·
+  // 'otp' = signup email-verification code entry
+  const [view, setView] = useState<'form' | 'forgot' | 'sent' | 'otp'>('form');
+  const [otpToken, setOtpToken] = useState('');
+  const [otpCode,  setOtpCode]  = useState('');
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -63,6 +66,58 @@ export function FxAuthSheet({
   if (!open || !mounted) return null;
 
   const isSignup = mode === 'signup';
+
+  async function handleOtpVerify(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (!/^\d{6}$/.test(otpCode.trim())) {
+      setError('Enter the 6-digit code from your email.');
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await fetch('/api/auth/signup/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: otpToken, code: otpCode.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data?.error || 'Something went wrong. Please try again.');
+        return;
+      }
+      if (onSuccess) { onSuccess(); onClose(); }
+      else router.push('/app');
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleOtpResend() {
+    setError(null);
+    setBusy(true);
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, optIn }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data?.pending && data?.token) {
+        setOtpToken(data.token);
+        setOtpCode('');
+        setError(null);
+      } else {
+        setError(data?.error || 'Could not resend the code.');
+      }
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function handleForgot(e: React.FormEvent) {
     e.preventDefault();
@@ -120,6 +175,14 @@ export function FxAuthSheet({
         else setErrorSwitch(null);
         return;
       }
+      // Signup now requires the emailed 6-digit code before the
+      // account exists — switch to the code-entry view.
+      if (data?.pending && data?.token) {
+        setOtpToken(data.token);
+        setOtpCode('');
+        setView('otp');
+        return;
+      }
       // Success
       if (onSuccess) {
         onSuccess();
@@ -143,7 +206,51 @@ export function FxAuthSheet({
       onClick={onClose}
     >
       <div className="fx-sheet" onClick={e => e.stopPropagation()}>
-        {view === 'forgot' ? (
+        {view === 'otp' ? (
+          <>
+            <h2 className="fx-sheet-title">Check your email</h2>
+            <p className="fx-auth-forgot-sub">
+              We sent a 6-digit code to <strong>{email.trim()}</strong>.
+              Enter it below to finish creating your account.
+            </p>
+            <form onSubmit={handleOtpVerify} className="fx-auth-form">
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={6}
+                placeholder="······"
+                className="fx-otp-input"
+                value={otpCode}
+                onChange={e => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))}
+                autoFocus
+              />
+              {error && (
+                <div className="fx-auth-error-wrap" role="alert">
+                  <p className="fx-auth-error">{error}</p>
+                </div>
+              )}
+              <button type="submit" className="fx-auth-submit" disabled={busy}>
+                {busy ? 'Please wait…' : 'Verify & Create Account'}
+              </button>
+              <button
+                type="button"
+                className="fx-auth-forgot fx-auth-back"
+                onClick={handleOtpResend}
+                disabled={busy}
+              >
+                Resend code
+              </button>
+              <button
+                type="button"
+                className="fx-auth-forgot fx-auth-back"
+                onClick={() => { setError(null); setView('form'); }}
+              >
+                ← Change email
+              </button>
+            </form>
+          </>
+        ) : view === 'forgot' ? (
           <>
             <h2 className="fx-sheet-title">Reset your password</h2>
             <p className="fx-auth-forgot-sub">
