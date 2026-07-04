@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { SITE_URL } from '@/lib/siteUrl';
 import Script from 'next/script';
 import SplashScreen from '@/components/SplashScreen';
+import { FxAnalytics } from '@/components/FxAnalytics';
 import '@/styles/globals.css';
 
 const BASE_URL = SITE_URL;
@@ -109,6 +110,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       }} />
       <body style={{ background: '#0b0d10' }}>
         <SplashScreen />
+        <FxAnalytics />
         {children}
         {/* Global error capture — shows error on screen even if React can't mount */}
         <Script id="err-capture" strategy="beforeInteractive">{`

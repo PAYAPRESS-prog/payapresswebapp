@@ -127,6 +127,9 @@ git push -u origin claude/busbar-calculator-webapp-setup-0bjxA
 - **CI:** `.github/workflows/ci.yml` runs lint + types + unit tests +
   smoke tests + build on every push. A red run = the deployed commit is
   broken; fix forward or revert.
+- **Analytics:** first-party, cookieless. Dashboard (owner):
+  `https://calculator.payapress.com/api/admin/analytics?key=$ADMIN_KEY&format=html`
+  (drop &format=html for JSON; &days=7 to change range).
 - **Price fallback:** when Yahoo Finance is down the app shows an amber
   "Estimated price" badge (`isFallback` from /api/copper-price). If it stays
   on for hours the feed shape may have changed — check `src/lib/serverPrices.ts`.
