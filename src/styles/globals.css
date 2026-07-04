@@ -1522,32 +1522,25 @@ body {
   }
 }
 
-/* Blurred mesh-gradient backdrop — exactly matching Figma "Start page" frame.
-   Figma has 4 vector blobs: top-right amber, bottom-left maroon, bottom-right
-   ember, and a left-center neutral (creates the grayish mid-screen area).
-   inset:-100px extends the div so filter:blur(52px) edge-fade happens outside
-   the visible viewport. Gradient origins are repositioned to the visible
-   corners using calc(). */
+/* Red → orange backdrop — matches the completed Figma "Start page" (545:616):
+   a vivid red field on top blending into a huge soft orange dome that fills
+   the lower two thirds. Rebuilt as two radial gradients over a red base;
+   inset:-100px + blur keeps the dome edge soft past the viewport. */
 .fx-welcome-bg {
   position: absolute;
   inset: -100px;
   z-index: 0;
   pointer-events: none;
   background:
-    /* top-right: warm amber/copper glow (Figma Vector 1, top-right area) */
-    radial-gradient(60% 55% at calc(100% - 100px) 100px,
-      rgba(195, 108, 22, 0.90) 0%, transparent 70%),
-    /* bottom-left: deep maroon/red — widened to cover bottom-center */
-    radial-gradient(85% 60% at 100px calc(100% - 100px),
-      rgba(130,  16, 18, 0.88) 0%, transparent 70%),
-    /* left-center: neutral grayish blob that creates the center haze */
-    radial-gradient(55% 50% at 100px calc(50% + 100px),
-      rgba( 60,  40, 40, 0.55) 0%, transparent 65%),
-    /* bottom-right: dark warm ember — widened to fill bottom-right corner */
-    radial-gradient(65% 50% at calc(100% - 100px) calc(100% - 100px),
-      rgba(110,  45, 14, 0.55) 0%, transparent 65%),
-    #0b0d10;
-  filter: blur(52px);
+    /* orange dome — centered below the middle, soft top edge */
+    radial-gradient(ellipse 120% 82% at 50% 88%,
+      #f9a63a 0%, #f7941d 42%, rgba(247, 148, 29, 0.85) 60%,
+      rgba(247, 148, 29, 0) 78%),
+    /* red glow strengthening toward the top */
+    radial-gradient(ellipse 140% 90% at 50% -8%,
+      #e51c24 0%, #d71920 55%, rgba(215, 25, 32, 0) 100%),
+    #c4151c;
+  filter: blur(28px);
   transform: translateZ(0);
 }
 
@@ -1557,26 +1550,50 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: space-between;
-  padding: clamp(40px, 9vh, 88px) 28px calc(40px + env(safe-area-inset-bottom));
-  padding-top: calc(clamp(40px, 9vh, 88px) + env(safe-area-inset-top));
+  text-align: center;
+  padding: clamp(72px, 11vh, 100px) 28px calc(34px + env(safe-area-inset-bottom));
+  padding-top: calc(clamp(72px, 11vh, 100px) + env(safe-area-inset-top));
 }
 
 .fx-welcome-head { max-width: 100%; }
 .fx-welcome-title {
-  font-size: clamp(32px, 9vw, 42px);
+  /* Figma 545:617 — 36px semibold, centered, #f5f7fa */
+  font-size: clamp(30px, 8.6vw, 36px);
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1.18;
   letter-spacing: -0.01em;
   color: #f5f7fa;
-  margin: 0 0 16px;
+  margin: 0 0 6px;
 }
 .fx-welcome-sub {
-  font-size: clamp(15px, 4.2vw, 18px);
-  line-height: 1.45;
-  font-weight: 510;
-  color: rgba(245, 247, 250, 0.5);
-  margin: 0;
+  /* Figma 545:618 — 16px semibold, centered, #f5f5f5 */
+  font-size: clamp(14px, 4vw, 16px);
+  line-height: 1.2;
+  font-weight: 590;
+  color: #f5f5f5;
+  margin: 0 auto;
+  max-width: 340px;
+}
+
+/* Mr Busbar mascot — Figma 1667:593: 262×450, dead-center */
+.fx-welcome-mascot {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 12px 0;
+}
+.fx-welcome-mascot img,
+.fx-welcome-mascot svg {
+  width: auto;
+  height: 100%;
+  max-height: min(450px, 48svh);
+  max-width: min(262px, 60vw);
+  object-fit: contain;
+  filter: drop-shadow(0 18px 40px rgba(90, 30, 0, 0.30));
 }
 
 .fx-welcome-actions {
@@ -1586,39 +1603,41 @@ body {
   gap: 22px;
 }
 .fx-welcome-guest {
+  /* Figma 545:619 — 300×60 pill, rgba(245,247,250,0.2), 18px medium */
   width: 100%;
-  max-width: 360px;
-  min-height: 64px;
+  max-width: 300px;
+  min-height: 60px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
+  border-radius: 50px;
   border: 1px solid rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(245, 247, 250, 0.2);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
-  color: #ffffff;
-  font-size: 19px;
-  font-weight: 600;
+  color: #f5f7fa;
+  font-size: 18px;
+  font-weight: 510;
   text-decoration: none;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12),
-              0 8px 28px -8px rgba(0,0,0,0.5);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18),
+              0 8px 28px -8px rgba(120, 40, 0, 0.45);
   transition: background 0.18s, border-color 0.18s, transform 0.12s;
 }
 .fx-welcome-guest:hover {
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(245, 247, 250, 0.28);
   border-color: rgba(255, 255, 255, 0.4);
 }
 .fx-welcome-guest:active { transform: scale(0.985); }
 
 .fx-welcome-register {
+  /* Figma 545:623 — 14px semibold, "Sign Up" in brand red */
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
-  color: #ffffff;
+  color: #f5f7fa;
 }
 .fx-welcome-signup {
-  color: var(--fx-live);
+  color: #d71920;
   text-decoration: none;
   font-weight: 700;
   background: none;
@@ -4640,18 +4659,19 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   box-shadow: 4px 4px 10px 0px rgba(0, 0, 0, 0.25);
 }
 
-/* Welcome "Start Calculate" — stronger frosted-glass pill */
+/* Welcome "Start Calculate" — frosted-glass pill on the orange dome
+   (Figma 545:619: flat rgba(245,247,250,0.2) fill) */
 .fx-welcome-guest {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05));
-  border: 1px solid rgba(255, 255, 255, 0.32);
-  -webkit-backdrop-filter: blur(16px) saturate(130%);
-  backdrop-filter: blur(16px) saturate(130%);
+  background: rgba(245, 247, 250, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.30);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  backdrop-filter: blur(14px) saturate(130%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.24),
-    0 10px 32px -10px rgba(0, 0, 0, 0.55);
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 10px 32px -10px rgba(120, 40, 0, 0.5);
 }
 .fx-welcome-guest:hover {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08));
+  background: rgba(245, 247, 250, 0.3);
   border-color: rgba(255, 255, 255, 0.45);
 }
 
@@ -4845,7 +4865,8 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .fx-curr-card { background: rgba(26, 29, 35, 0.96); }
   .fx-results, .fx-history-card { background: rgba(22, 25, 31, 0.96); }
-  .fx-welcome-guest { background: rgba(60, 62, 70, 0.92); }
+  /* On the orange dome a warm translucent fill reads correctly without blur */
+  .fx-welcome-guest { background: rgba(250, 240, 230, 0.32); }
 }
 
 
