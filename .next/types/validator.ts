@@ -335,6 +335,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../src/app/busbar-calculator/googlee26e9f9d29e8ef08.html/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/busbar-calculator/googlee26e9f9d29e8ef08.html">> = Specific
+  const handler = {} as typeof import("../../src/app/busbar-calculator/googlee26e9f9d29e8ef08.html/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 
 
 

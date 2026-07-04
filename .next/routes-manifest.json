@@ -194,6 +194,12 @@
       "namedRegex": "^/busbar\\-calculator(?:/)?$"
     },
     {
+      "page": "/busbar-calculator/googlee26e9f9d29e8ef08.html",
+      "regex": "^/busbar\\-calculator/googlee26e9f9d29e8ef08\\.html(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/busbar\\-calculator/googlee26e9f9d29e8ef08\\.html(?:/)?$"
+    },
+    {
       "page": "/embed",
       "regex": "^/embed(?:/)?$",
       "routeKeys": {},
