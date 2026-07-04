@@ -182,6 +182,7 @@ export function FxBusbarChart({ metal, weightKg, fxRate, currLabel, pricePerKgUS
     if (!chart || !svgRef.current) return null;
     const rect   = svgRef.current.getBoundingClientRect();
     const svgW   = rect.width;
+    if (!svgW) return null; // zero-size rect (hidden/mid-layout) → NaN math
     const svgX   = clientX - rect.left;
     // Map screen X → viewBox X
     const vbX    = (svgX / svgW) * 340;

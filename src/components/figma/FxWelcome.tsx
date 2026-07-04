@@ -34,7 +34,8 @@ export function FxWelcome({ initialSheet }: { initialSheet?: Mode }) {
         <MrBusbarMascot className="fx-welcome-mascot" />
 
         <footer className="fx-welcome-actions">
-          <Link href="/app" className="fx-welcome-guest">
+          {/* Figma flow: Start page → calculator directly (not the hub menu) */}
+          <Link href="/busbar-calculator" className="fx-welcome-guest">
             Start Calculate
           </Link>
 

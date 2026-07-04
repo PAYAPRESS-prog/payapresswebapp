@@ -8,6 +8,7 @@ module.exports = {
   moduleNameMapper: {
     '^@solar-icons/react-perf(/.*)?$': '<rootDir>/smoke/__mocks__/solarIcons.js',
     '^next/navigation$': '<rootDir>/smoke/__mocks__/nextNavigation.js',
+    '^next/link$': '<rootDir>/smoke/__mocks__/nextLink.js',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testMatch: ['<rootDir>/smoke/**/*.test.tsx'],
