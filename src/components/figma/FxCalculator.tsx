@@ -23,8 +23,10 @@ type CurrCode =
   | 'SAR' | 'CAD' | 'AUD' | 'CHF' | 'JPY' | 'INR' | 'RUB'
   | 'KWD' | 'QAR' | 'SGD';
 
-// Suggestion presets (width × thickness, mm) — exactly matching the Figma
-const PRESETS: Array<{ w: string; t: string }> = [
+// Suggestion presets (width × thickness, mm) — exactly matching the Figma.
+// Mobile page 0:1 shows 7; desktop page 114:299 shows 9 (800x80, 900x90
+// are hidden below 1024px via .fx-preset-desktop-only).
+const PRESETS: Array<{ w: string; t: string; desktopOnly?: boolean }> = [
   { w: '100', t: '10' },
   { w: '200', t: '20' },
   { w: '300', t: '30' },
@@ -32,6 +34,8 @@ const PRESETS: Array<{ w: string; t: string }> = [
   { w: '500', t: '50' },
   { w: '600', t: '60' },
   { w: '700', t: '70' },
+  { w: '800', t: '80', desktopOnly: true },
+  { w: '900', t: '90', desktopOnly: true },
 ];
 
 // The 3 fixed currencies in the 2×2 grid (4th cell is "Other")
@@ -433,7 +437,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
                 <button
                   key={`${p.w}x${p.t}`}
                   type="button"
-                  className={`fx-suggestion-pill${isActive ? ' active' : ''}`}
+                  className={`fx-suggestion-pill${isActive ? ' active' : ''}${p.desktopOnly ? ' fx-preset-desktop-only' : ''}`}
                   onClick={() => { setWidth(p.w); setThick(p.t); setInteracted(true); }}
                 >
                   {p.w}x{p.t}

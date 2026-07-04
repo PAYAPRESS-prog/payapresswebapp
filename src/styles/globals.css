@@ -6311,3 +6311,221 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
 }
 .fx-waste-page-note strong { color: rgba(245, 247, 250, 0.55); }
 .fx-waste-page-note em { color: rgba(245, 247, 250, 0.5); font-style: normal; }
+
+/* ══════════════════════════════════════════════════════
+   DESKTOP LANDING — Figma page 114:299, frame Main 114:300
+   Hidden below 1024px; mobile stays true to page 0:1.
+   ══════════════════════════════════════════════════════ */
+.fx-dl { display: none; }
+
+@media (min-width: 1024px) {
+  .fx-dl {
+    display: block;
+    background: #0d0e10;
+    color: #f5f7fa;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui,
+                 'Segoe UI', sans-serif;
+  }
+
+  /* ── Top nav (114:301, 1440×80) ─────────────────── */
+  .fx-dl-nav {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 0 80px;
+    background: rgba(20, 21, 24, 0.92);
+    border-bottom: 1px solid rgba(245, 247, 250, 0.07);
+  }
+  .fx-dl-brand {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-right: auto;
+    white-space: nowrap;
+  }
+  .fx-dl-links { display: flex; gap: 32px; }
+  .fx-dl-link {
+    background: none;
+    border: none;
+    padding: 10px 0;
+    color: rgba(245, 247, 250, 0.75);
+    font-size: 16px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .fx-dl-link:hover { color: #f5f7fa; }
+  .fx-dl-live {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: rgba(34, 197, 94, 0.16);
+    border: 1px solid rgba(34, 197, 94, 0.35);
+    color: #22c55e;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .fx-dl-live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #22c55e;
+    animation: fx-pulse 1.6s ease-in-out infinite;
+  }
+
+  /* ── Hero (572:690) ─────────────────────────────── */
+  .fx-dl-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+    padding: 64px 80px 72px;
+    min-height: 640px;
+  }
+  .fx-dl-hero-copy { max-width: 640px; }
+  .fx-dl-title {
+    margin: 0 0 24px;
+    font-size: clamp(48px, 4.5vw, 64px);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .fx-dl-sub {
+    margin: 0 0 36px;
+    font-size: 20px;
+    line-height: 1.55;
+    color: rgba(245, 247, 250, 0.62);
+    max-width: 480px;
+  }
+  .fx-dl-cta-row { display: flex; align-items: center; gap: 16px; }
+  .fx-dl-cta {
+    padding: 13px 26px;
+    border: none;
+    border-radius: 10px;
+    background: #d71920;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.12s;
+    box-shadow: 0 8px 24px -8px rgba(215, 25, 32, 0.6);
+  }
+  .fx-dl-cta:hover  { background: #e8232b; }
+  .fx-dl-cta:active { transform: scale(0.97); }
+  .fx-dl-cta-ghost {
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: 1px solid rgba(245, 247, 250, 0.25);
+    color: #f5f7fa;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .fx-dl-cta-ghost:hover {
+    border-color: rgba(245, 247, 250, 0.5);
+    background: rgba(245, 247, 250, 0.06);
+  }
+  .fx-dl-mascot {
+    flex-shrink: 0;
+    width: min(458px, 32vw);
+  }
+  .fx-dl-mascot img,
+  .fx-dl-mascot svg {
+    width: 100%;
+    height: auto;
+    max-height: 700px;
+    object-fit: contain;
+    filter: drop-shadow(0 24px 60px rgba(0, 0, 0, 0.55));
+  }
+
+  .fx-dl-divider {
+    height: 1px;
+    margin: 0 80px;
+    background: rgba(245, 247, 250, 0.08);
+  }
+
+  /* ── How It Works (578:698 / 578:702) ───────────── */
+  .fx-dl-hiw {
+    padding: 72px 80px 88px;
+    text-align: center;
+  }
+  .fx-dl-hiw-title {
+    margin: 0 0 10px;
+    font-size: 40px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .fx-dl-hiw-sub {
+    margin: 0 0 56px;
+    font-size: 18px;
+    color: rgba(245, 247, 250, 0.55);
+  }
+  .fx-dl-steps {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0;
+  }
+  .fx-dl-step-wrap { display: flex; align-items: flex-start; }
+  .fx-dl-step {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .fx-dl-step-num {
+    width: 64px; height: 64px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    border: 2px solid #f7941d;
+    color: #f7941d;
+    font-size: 30px;
+    font-weight: 600;
+    background: rgba(247, 148, 29, 0.06);
+  }
+  .fx-dl-step-title {
+    margin: 4px 0 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #f7941d;
+  }
+  .fx-dl-step-body {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: rgba(245, 247, 250, 0.55);
+    max-width: 300px;
+  }
+  .fx-dl-step-arrow {
+    color: #f7941d;
+    font-size: 26px;
+    margin: 20px 28px 0;
+    opacity: 0.85;
+  }
+
+  /* App shell sits below the landing as the live "app" section */
+  #fx-app-anchor { scroll-margin-top: 24px; }
+  #fx-app-anchor .fx-swipe-root { height: 100vh; height: 100svh; }
+}
+
+/* ── Desktop-only extra suggestion presets (Figma 579:1001 / 584:191:
+     desktop shows 9 presets, mobile keeps 7) ─────────────────────── */
+.fx-preset-desktop-only { display: none; }
+@media (min-width: 1024px) {
+  .fx-preset-desktop-only { display: inline-flex; }
+}
+
+/* ── Chart: two-panel desktop layout (Figma 133:588) ─────────────── */
+@media (min-width: 1024px) {
+  .fx-busbar-chart-card .fx-busbar-chart-info {
+    align-items: flex-start;
+  }
+  .fx-cmp-sheet { max-width: 880px; }
+}
