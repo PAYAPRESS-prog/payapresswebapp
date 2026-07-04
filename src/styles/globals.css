@@ -2610,9 +2610,24 @@ body {
 
 /* Thin divider */
 .fx-results-divider {
+  /* Figma 313:1381: a short green underline centered beneath "Results",
+     sitting on the faint full-width rule */
   height: 1px;
   background: rgba(245, 247, 250, 0.05);
   margin: 0 0 4px;
+  position: relative;
+}
+.fx-results-divider::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--fx-success);
+  opacity: 0.85;
 }
 
 /* Estimate Price row */
@@ -2674,7 +2689,10 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(245, 247, 250, 0.05);
+  /* Figma Result 383:320 + History cards: the price row is outlined in
+     copper orange — same treatment as .fx-history-curr-row */
+  background: rgba(247, 148, 29, 0.05);
+  border: 1px solid rgba(247, 148, 29, 0.60);
   border-radius: 12px;
   padding: 10px 14px;
   margin: 0 0 4px;
