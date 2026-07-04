@@ -6529,3 +6529,69 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   }
   .fx-cmp-sheet { max-width: 880px; }
 }
+
+/* ══════════════════════════════════════════════════════
+   DESKTOP CALCULATOR LAYOUT — Figma 114:300 sections 4-8.
+   The ≥1024px two-column grid already existed but was capped
+   by the 480px app shell; this engages it at Figma proportions.
+   Appended last so it wins the cascade.
+   ══════════════════════════════════════════════════════ */
+@media (min-width: 1024px) {
+  /* Widen the app shell — Figma content is 1280px + 80px gutters */
+  .fx-swipe-root { max-width: 1440px; }
+
+  /* History / Profile panels keep a readable column width */
+  .fx-swipe-panel > .fx-embed-wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* Calculator panel — Figma ratio: main column ~800 / side ~418,
+     chart breaks out full-width underneath (133:588) */
+  .fx-content {
+    grid-template-columns: minmax(0, 1.88fr) minmax(0, 1fr);
+    grid-template-areas:
+      "inputs results"
+      "chart  chart";
+    max-width: 1440px;
+    padding: 28px 80px 56px;
+    gap: 24px 20px;
+  }
+  .fx-col-results { display: contents; }
+  .fx-col-results > .fx-results-empty-desktop,
+  .fx-col-results > .fx-results { grid-area: results; }
+  .fx-col-results > .fx-busbar-chart-card { grid-area: chart; }
+
+  /* Metal toggle — Figma 579:750: 600×68, centered */
+  .fx-metal-toggle {
+    max-width: 600px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 68px;
+  }
+
+  /* Chart card — two-panel interior (Figma 133:588):
+     header spans, price info left, line chart right */
+  .fx-col-results > .fx-busbar-chart-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    column-gap: 32px;
+    align-items: center;
+  }
+  .fx-busbar-chart-card > .fx-card-head { grid-column: 1 / -1; }
+  .fx-busbar-chart-info {
+    grid-column: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 16px 16px;
+  }
+  .fx-busbar-chart-info .fx-chart-current-price { font-size: 34px; }
+  .fx-busbar-chart-wrap {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    max-height: 300px;
+  }
+}
