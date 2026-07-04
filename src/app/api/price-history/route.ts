@@ -7,7 +7,9 @@ const RANGE_CFG = {
   '1D': { interval: '5m',  yahooRange: '1d'  },
   '7D': { interval: '60m', yahooRange: '7d'  },
   '1M': { interval: '1d',  yahooRange: '1mo' },
-  '1Y': { interval: '1wk', yahooRange: '1y'  },
+  // Daily candles for the full year (~252 points) — weekly was too coarse
+  // for the interactive crosshair to feel precise.
+  '1Y': { interval: '1d',  yahooRange: '1y'  },
 } as const;
 
 type Range = keyof typeof RANGE_CFG;

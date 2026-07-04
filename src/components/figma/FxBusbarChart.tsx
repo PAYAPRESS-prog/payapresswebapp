@@ -111,11 +111,12 @@ export function FxBusbarChart({ metal, weightKg, fxRate, currLabel, pricePerKgUS
   const [busy,     setBusy]     = useState(true);
   const [err,      setErr]      = useState(false);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
+  const [pinned,   setPinned]   = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     let alive = true;
-    setBusy(true); setErr(false); setHoverIdx(null);
+    setBusy(true); setErr(false); setHoverIdx(null); setPinned(false);
     fetch(`/api/price-history?metal=${metal}&range=${range}`)
       .then(r => (r.ok ? r.json() : Promise.reject(r.status)))
       .then(d  => {
@@ -142,7 +143,9 @@ export function FxBusbarChart({ metal, weightKg, fxRate, currLabel, pricePerKgUS
              || raw.timestamps.length < 3) return null;
 
     const busbarPrices = raw.pricesPerKg.map(p => p * (1 + busbarPremium) * weightKg * fxRate);
-    const maxPts = 60;
+    // TradingView-style density: keep enough points that 1Y (daily data,
+    // ~252 samples) still reads as a continuous curve under the crosshair.
+    const maxPts = 160;
     const ts  = thin(raw.timestamps, maxPts);
     const bps = thin(busbarPrices,   maxPts);
 
@@ -190,19 +193,34 @@ export function FxBusbarChart({ metal, weightKg, fxRate, currLabel, pricePerKgUS
   }
 
   function handlePointerMove(e: React.PointerEvent<SVGSVGElement>) {
+    if (pinned) return;                 // pinned marker ignores hover
     const idx = nearestIdx(e.clientX);
     if (idx !== null) setHoverIdx(idx);
+  }
+
+  // Click pins the crosshair so the exact price/date stays readable;
+  // clicking the same point again (or leaving after unpin) releases it.
+  function handleClick(e: React.MouseEvent<SVGSVGElement>) {
+    const idx = nearestIdx(e.clientX);
+    if (idx === null) return;
+    if (pinned && idx === hoverIdx) {
+      setPinned(false);
+      setHoverIdx(null);
+    } else {
+      setHoverIdx(idx);
+      setPinned(true);
+    }
   }
 
   function handleTouchMove(e: React.TouchEvent<SVGSVGElement>) {
     e.preventDefault();
     if (e.touches.length > 0) {
       const idx = nearestIdx(e.touches[0].clientX);
-      if (idx !== null) setHoverIdx(idx);
+      if (idx !== null) { setHoverIdx(idx); setPinned(true); }
     }
   }
 
-  function handlePointerLeave() { setHoverIdx(null); }
+  function handlePointerLeave() { if (!pinned) setHoverIdx(null); }
 
   const currPrefix   = currLabel === 'USD' ? '$' : `${currLabel} `;
   const currentPrice = pricePerKgUSD * weightKg * fxRate;
@@ -271,6 +289,7 @@ export function FxBusbarChart({ metal, weightKg, fxRate, currLabel, pricePerKgUS
             style={{ display: 'block', touchAction: 'none' }}
             onPointerMove={handlePointerMove}
             onPointerLeave={handlePointerLeave}
+            onClick={handleClick}
             onTouchMove={handleTouchMove}
             onTouchEnd={handlePointerLeave}
           >
@@ -366,16 +385,43 @@ export function FxBusbarChart({ metal, weightKg, fxRate, currLabel, pricePerKgUS
               // Show above or below the dot
               const tY = hy - tH - 10 >= PT ? hy - tH - 10 : hy + 14;
 
+              // Axis tags (TradingView style): price on the left axis,
+              // date pinned under the vertical line on the time axis.
+              const priceTagH = 12;
+              const priceTagY = Math.max(PT, Math.min(PB - priceTagH, hy - priceTagH / 2));
+              const dateTagW  = 52;
+              const dateTagX  = Math.max(PL, Math.min(PR - dateTagW, hx - dateTagW / 2));
+
               return (
                 <g>
-                  {/* Vertical crosshair */}
+                  {/* Crosshair — vertical + horizontal */}
                   <line x1={hx} y1={PT} x2={hx} y2={PB} stroke={color} strokeWidth="0.8" strokeDasharray="3,3" opacity="0.7" />
+                  <line x1={PL} y1={hy} x2={PR} y2={hy} stroke={color} strokeWidth="0.7" strokeDasharray="3,3" opacity="0.45" />
+
+                  {/* Price tag on the value axis */}
+                  <rect x={1} y={priceTagY} width={PL - 4} height={priceTagH} rx="3"
+                        fill={color} opacity="0.95" />
+                  <text x={(PL - 4) / 2 + 1} y={priceTagY + 8.8} textAnchor="middle" fontSize="7.5"
+                        fill="#0b0d10" fontWeight="700"
+                        fontFamily="'Roboto Mono','Courier New',monospace">
+                    {fmtYLabel(chart.bps[hoverIdx])}
+                  </text>
+
+                  {/* Date tag on the time axis */}
+                  <rect x={dateTagX} y={PB + 3} width={dateTagW} height={12} rx="3"
+                        fill={color} opacity="0.95" />
+                  <text x={dateTagX + dateTagW / 2} y={PB + 11.8} textAnchor="middle" fontSize="7"
+                        fill="#0b0d10" fontWeight="700"
+                        fontFamily="'Inter',system-ui,sans-serif">
+                    {fmtTooltipDate(chart.ts[hoverIdx], range)}
+                  </text>
 
                   {/* Dot on curve */}
+                  <circle cx={hx} cy={hy} r="6.5" fill={color} opacity="0.18" />
                   <circle cx={hx} cy={hy} r="4" fill={color} />
                   <circle cx={hx} cy={hy} r="2" fill="white" />
 
-                  {/* Tooltip bubble */}
+                  {/* Tooltip bubble — exact price + full date */}
                   <rect x={tX} y={tY} width={tW} height={tH} rx="5" ry="5" fill="#1c1f2b" stroke={color} strokeWidth="0.8" opacity="0.97" />
                   <text x={tX + tW / 2} y={tY + 10} textAnchor="middle" fontSize="8.5" fill={color} fontWeight="600" fontFamily="'Inter',system-ui,sans-serif">
                     {priceStr}
