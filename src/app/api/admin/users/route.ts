@@ -46,12 +46,20 @@ export async function GET(req: NextRequest) {
       `SELECT email, created_at FROM email_subscriptions
        ORDER BY created_at DESC LIMIT 1000`,
     ).catch(() => [[] as RowDataPacket[]] as never);
+    // Deleted-account audit archive (who deleted, when, what it looked like)
+    const [deleted] = await pool.query<RowDataPacket[]>(
+      `SELECT original_uid, email, first_name, last_name, company, phone,
+              opt_in, history_count, registered_at, deleted_at, ip, user_agent
+       FROM deleted_accounts ORDER BY deleted_at DESC LIMIT 1000`,
+    ).catch(() => [[] as RowDataPacket[]] as never);
 
     return NextResponse.json({
       totalUsers: users.length,
       users,
       totalSubscribers: subs.length,
       subscribers: subs,
+      totalDeleted: deleted.length,
+      deletedAccounts: deleted,
       generatedAt: new Date().toISOString(),
     });
   } catch (err) {

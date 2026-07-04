@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import {
   UserIcon, LetterIcon, LockIcon, PhoneIcon, BuildingsIcon,
@@ -29,6 +30,11 @@ export function FxProfilePage({ embedded }: { embedded?: boolean } = {}) {
   // the Sign Up tab completely dead (production bug).
   const [gateMode, setGateMode] = useState<'login' | 'signup'>('login');
   const [gateOpen, setGateOpen] = useState(false);
+  // Account deletion (small, deliberately low-key entry point)
+  const [delOpen,  setDelOpen]  = useState(false);
+  const [delPw,    setDelPw]    = useState('');
+  const [delBusy,  setDelBusy]  = useState(false);
+  const [delError, setDelError] = useState<string | null>(null);
   const [profile, setProfile]   = useState<Profile | null>(null);
   const [editMode, setEditMode] = useState<EditMode>('none');
   const [saving, setSaving]     = useState(false);
@@ -148,6 +154,31 @@ export function FxProfilePage({ embedded }: { embedded?: boolean } = {}) {
       setPwError('Network error — try again.');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDeleteAccount(e: React.FormEvent) {
+    e.preventDefault();
+    setDelError(null);
+    if (!delPw) { setDelError('Please enter your password.'); return; }
+    setDelBusy(true);
+    try {
+      const res = await fetch('/api/account/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: delPw }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setDelError(data?.error || 'Something went wrong. Please try again.');
+        return;
+      }
+      // Account and data removed, session cleared server-side.
+      router.push('/');
+    } catch {
+      setDelError('Network error. Please try again.');
+    } finally {
+      setDelBusy(false);
     }
   }
 
@@ -428,8 +459,73 @@ export function FxProfilePage({ embedded }: { embedded?: boolean } = {}) {
             <LogoutIcon width={20} height={20} />
             Log Out
           </button>
+
+          {/* Deliberately quiet — completes the security chain without
+              inviting accidental taps */}
+          <button
+            type="button"
+            className="fx-profile-delete-link"
+            onClick={() => { setDelPw(''); setDelError(null); setDelOpen(true); }}
+          >
+            Delete account
+          </button>
         </div>
       </main>
+
+      {/* ── Delete-account confirmation (portaled, password required) ── */}
+      {delOpen && createPortal(
+        <div
+          className="fx-name-overlay"
+          onClick={() => !delBusy && setDelOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Delete account"
+        >
+          <div className="fx-name-dialog" onClick={e => e.stopPropagation()}>
+            <div className="fx-name-dialog-head">
+              <div className="fx-name-dialog-titles">
+                <h3 className="fx-name-dialog-title">Delete your account?</h3>
+                <p className="fx-name-dialog-sub">
+                  This permanently deletes your account, saved history and
+                  subscriptions. This cannot be undone.
+                </p>
+              </div>
+            </div>
+            <form onSubmit={handleDeleteAccount}>
+              <input
+                type="password"
+                className="fx-name-input"
+                placeholder="Enter your password to confirm"
+                autoComplete="current-password"
+                value={delPw}
+                onChange={e => setDelPw(e.target.value)}
+                autoFocus
+              />
+              {delError && (
+                <p className="fx-auth-error" role="alert" style={{ marginTop: 8 }}>{delError}</p>
+              )}
+              <div className="fx-name-actions">
+                <button
+                  type="button"
+                  className="fx-name-btn fx-name-btn-cancel"
+                  onClick={() => setDelOpen(false)}
+                  disabled={delBusy}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="fx-name-btn fx-delete-confirm-btn"
+                  disabled={delBusy || !delPw}
+                >
+                  {delBusy ? 'Deleting…' : 'Delete permanently'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body,
+      )}
 
       {toast && <div className="fx-save-toast" role="status">{toast}</div>}
 

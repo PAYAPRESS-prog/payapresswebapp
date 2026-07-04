@@ -6735,3 +6735,27 @@ h3.fx-suggestions-label {
   border-color: rgba(255, 255, 255, 0.38);
   background: rgba(255, 255, 255, 0.05);
 }
+
+/* ── Account deletion — quiet entry link + destructive confirm ── */
+.fx-profile-delete-link {
+  display: block;
+  margin: 18px auto 4px;
+  background: none;
+  border: none;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  color: rgba(245, 247, 250, 0.30);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.fx-profile-delete-link:hover { color: rgba(239, 68, 68, 0.75); }
+
+.fx-delete-confirm-btn {
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #f87171;
+}
+.fx-delete-confirm-btn:hover:not(:disabled) { background: rgba(239, 68, 68, 0.26); }
+.fx-delete-confirm-btn:disabled { opacity: 0.4; cursor: default; }
