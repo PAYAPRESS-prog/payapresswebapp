@@ -7,8 +7,8 @@
     "/api/auth/me": {},
     "/api/auth/reset": {},
     "/api/auth/signup": {},
-    "/api/price-history": {},
     "/api/notify": {},
+    "/api/price-history": {},
     "/api/profile/change-password": {},
     "/api/profile": {},
     "/api/test-mail": {}
