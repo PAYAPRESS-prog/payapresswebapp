@@ -6636,3 +6636,60 @@ h3.fx-suggestions-label {
   margin: 18px auto 0;
   display: block;
 }
+
+/* ── Public waste-calculator SEO landing (/busbar-waste-calculator) ── */
+.fx-wl {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 56px 24px calc(64px + env(safe-area-inset-bottom));
+  color: var(--fx-text-1, #f5f7fa);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+.fx-wl-title {
+  margin: 0 0 14px;
+  font-size: clamp(30px, 6vw, 42px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.fx-wl-sub {
+  margin: 0 0 34px;
+  font-size: 17px;
+  line-height: 1.65;
+  color: rgba(245, 247, 250, 0.65);
+}
+.fx-wl-h2 {
+  margin: 30px 0 10px;
+  font-size: 21px;
+  font-weight: 650;
+  color: #f7941d;
+}
+.fx-wl-p {
+  margin: 0 0 14px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: rgba(245, 247, 250, 0.72);
+}
+.fx-wl-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 30px;
+}
+.fx-wl-cta {
+  padding: 13px 28px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #e8531f, #f7941d);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+}
+.fx-wl-cta-ghost {
+  padding: 12px 26px;
+  border-radius: 10px;
+  border: 1px solid rgba(245, 247, 250, 0.28);
+  color: var(--fx-text-1, #f5f7fa);
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+}

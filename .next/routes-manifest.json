@@ -200,6 +200,12 @@
       "namedRegex": "^/busbar\\-calculator/googlee26e9f9d29e8ef08\\.html(?:/)?$"
     },
     {
+      "page": "/busbar-waste-calculator",
+      "regex": "^/busbar\\-waste\\-calculator(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/busbar\\-waste\\-calculator(?:/)?$"
+    },
+    {
       "page": "/embed",
       "regex": "^/embed(?:/)?$",
       "routeKeys": {},

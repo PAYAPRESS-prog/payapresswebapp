@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Header } from '@/components/Header';
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/whitepaper' },
   title: 'Whitepaper',
   description:
     'Technical whitepaper for the PAYAPRESS Industrial Tools Platform — ' +

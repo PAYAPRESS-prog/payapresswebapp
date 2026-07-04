@@ -7,6 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Primary SEO target — the calculator landing (hero section)
     { url: `${BASE}/busbar-calculator`, lastModified: new Date(), changeFrequency: 'daily',   priority: 1.0 },
     { url: BASE,                        lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.8 },
+    { url: `${BASE}/busbar-waste-calculator`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/whitepaper`,        lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
     { url: `${BASE}/roadmap`,           lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
     { url: `${BASE}/terms`,             lastModified: new Date(), changeFrequency: 'yearly',  priority: 0.3 },

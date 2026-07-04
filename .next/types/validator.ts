@@ -92,6 +92,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../src/app/busbar-waste-calculator/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/busbar-waste-calculator">> = Specific
+  const handler = {} as typeof import("../../src/app/busbar-waste-calculator/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../src/app/embed/page.tsx
 {
   type __IsExpected<Specific extends AppPageConfig<"/embed">> = Specific

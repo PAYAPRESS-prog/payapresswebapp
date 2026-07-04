@@ -3,6 +3,16 @@ import { cookies } from 'next/headers';
 import { verifySessionToken, SESSION_COOKIE } from '@/lib/auth';
 import { FxWelcome } from '@/components/figma/FxWelcome';
 
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  description:
+    'Start the free Busbar Calculator — size copper & aluminum busbars to IEC ' +
+    'standards and price them with live COMEX/LME rates in 17 currencies.',
+  alternates: { canonical: '/' },
+};
+
+
 // The welcome screen reads the session cookie, so it must be dynamic.
 export const dynamic = 'force-dynamic';
 
