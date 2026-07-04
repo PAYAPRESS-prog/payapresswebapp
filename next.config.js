@@ -6,13 +6,20 @@ const path = require('path');
 // - style-src:  'unsafe-inline' required by Tailwind CSS v4 (atomic inline styles)
 // - img-src:    flagcdn.com for country flag images in the currency selector
 // - connect-src: self only (all external fetches happen server-side in API routes)
+// Google Analytics (gtag.js) hosts — required in the CSP or the browser
+// blocks the tag. Our own first-party analytics needs no exceptions;
+// these lines exist ONLY for GA4.
+const GA_SCRIPT = 'https://www.googletagmanager.com';
+const GA_CONNECT = 'https://www.google-analytics.com https://www.googletagmanager.com https://region1.google-analytics.com';
+const GA_IMG = 'https://www.google-analytics.com https://www.googletagmanager.com';
+
 const CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${GA_SCRIPT}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: https://flagcdn.com",
+  `img-src 'self' data: https://flagcdn.com ${GA_IMG}`,
   "font-src 'self'",
-  "connect-src 'self'",
+  `connect-src 'self' ${GA_CONNECT}`,
   "worker-src 'self'",
   "frame-src 'none'",
   "frame-ancestors 'none'",

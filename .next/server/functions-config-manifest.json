@@ -2,11 +2,11 @@
   "version": 1,
   "functions": {
     "/api/account/delete": {},
-    "/api/admin/users": {},
     "/api/admin/analytics": {},
-    "/api/analytics/collect": {},
+    "/api/admin/users": {},
     "/api/auth/forgot": {},
     "/api/auth/login": {},
+    "/api/analytics/collect": {},
     "/api/auth/logout": {},
     "/api/auth/me": {},
     "/api/auth/reset": {},
@@ -15,9 +15,9 @@
     "/api/cron/daily-digest": {
       "maxDuration": 300
     },
+    "/api/notify": {},
     "/api/price-history": {},
     "/api/profile/change-password": {},
-    "/api/notify": {},
     "/api/profile": {},
     "/api/test-mail": {}
   }

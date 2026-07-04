@@ -6,6 +6,9 @@ import { FxAnalytics } from '@/components/FxAnalytics';
 import '@/styles/globals.css';
 
 const BASE_URL = SITE_URL;
+// GA4 measurement ID — set NEXT_PUBLIC_GA_ID to enable, or use the
+// current tag. Kept in one place so it's easy to change/disable.
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? 'G-NXYRQ0MNE4';
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -111,6 +114,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body style={{ background: '#0b0d10' }}>
         <SplashScreen />
         <FxAnalytics />
+        {GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">{`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_ID}');
+            `}</Script>
+          </>
+        )}
         {children}
         {/* Global error capture — shows error on screen even if React can't mount */}
         <Script id="err-capture" strategy="beforeInteractive">{`

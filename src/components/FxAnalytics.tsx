@@ -64,7 +64,10 @@ function send(payload: Record<string, unknown>) {
 }
 
 declare global {
-  interface Window { bcTrack?: (event: string, meta?: string) => void }
+  interface Window {
+    bcTrack?: (event: string, meta?: string) => void;
+    gtag?: (...args: unknown[]) => void;
+  }
 }
 
 export function FxAnalytics() {
@@ -73,9 +76,12 @@ export function FxAnalytics() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // Expose the custom-event tracker for the whole app.
-    window.bcTrack = (event: string, meta?: string) =>
+    // Expose the custom-event tracker for the whole app — fires to BOTH
+    // our first-party analytics and Google Analytics (if gtag is present).
+    window.bcTrack = (event: string, meta?: string) => {
       send({ event, path: pathname || location.pathname, meta });
+      try { window.gtag?.('event', event, meta ? { label: meta } : undefined); } catch { /* noop */ }
+    };
 
     const url = new URL(window.location.href);
     const enteredAt = Date.now();

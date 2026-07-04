@@ -1,6 +1,6 @@
-/* Busbar Calculator Service Worker — v48 */
+/* Busbar Calculator Service Worker — v49 */
 
-const CACHE_VERSION = 'v48';
+const CACHE_VERSION = 'v49';
 const SHELL_CACHE   = `busbar-shell-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `busbar-dynamic-${CACHE_VERSION}`;
 
