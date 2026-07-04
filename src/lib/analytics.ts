@@ -16,6 +16,25 @@ let _ready = false;
 async function ensureTables(): Promise<void> {
   if (_ready) return;
   const pool = getPool();
+
+  // Self-heal: the first analytics release created analytics_events with a
+  // different (simpler) schema. CREATE TABLE IF NOT EXISTS won't alter an
+  // existing table, so the GA-grade columns would be missing and every
+  // query would fail with "Unknown column". If the key column is absent,
+  // drop the stale table (anonymous, disposable data) and recreate it.
+  try {
+    const [cols] = await pool.query<RowDataPacket[]>(
+      `SELECT COLUMN_NAME FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'analytics_events'`,
+    );
+    if (cols.length > 0) {
+      const have = new Set(cols.map(c => String(c.COLUMN_NAME).toLowerCase()));
+      if (!have.has('visitor_id') || !have.has('session_id') || !have.has('event')) {
+        await pool.query('DROP TABLE IF EXISTS analytics_events');
+      }
+    }
+  } catch { /* fall through to create */ }
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS analytics_events (
       id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,

@@ -1,12 +1,12 @@
 {
   "version": 1,
   "functions": {
-    "/api/account/delete": {},
     "/api/admin/analytics": {},
     "/api/admin/users": {},
+    "/api/analytics/collect": {},
+    "/api/account/delete": {},
     "/api/auth/forgot": {},
     "/api/auth/login": {},
-    "/api/analytics/collect": {},
     "/api/auth/logout": {},
     "/api/auth/me": {},
     "/api/auth/reset": {},
@@ -16,8 +16,8 @@
       "maxDuration": 300
     },
     "/api/notify": {},
-    "/api/price-history": {},
     "/api/profile/change-password": {},
+    "/api/price-history": {},
     "/api/profile": {},
     "/api/test-mail": {}
   }
