@@ -6603,3 +6603,29 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
     max-height: 300px;
   }
 }
+
+/* ══════════════════════════════════════════════════════
+   SEO heading semantics — section titles were spans/divs;
+   they are now real h2/h3 tags. Kill UA heading margins so
+   the visual design is byte-identical, and provide the
+   standard .sr-only utility for keyword-complete headings
+   that must not alter the visible text.
+   ══════════════════════════════════════════════════════ */
+h2.fx-card-head-title,
+h2.fx-curr-card-title,
+h3.fx-grade-header,
+h3.fx-suggestions-label {
+  margin: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

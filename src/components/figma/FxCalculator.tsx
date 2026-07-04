@@ -397,17 +397,17 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         <div className="fx-card-head">
           <div className="fx-card-head-label">
             <RulerAngularIcon className="fx-card-head-icon" />
-            <span className="fx-card-head-title">Dimensions</span>
+            <h2 className="fx-card-head-title"><span className="sr-only">Busbar </span>Dimensions</h2>
           </div>
           <div className="fx-card-head-badge">mm</div>
         </div>
 
         {/* ── Material Grade selector ── */}
         <div className="fx-grade-section" data-tour="grade">
-          <div className={`fx-grade-header${metal === 'aluminum' ? ' al' : ''}`}>
+          <h3 className={`fx-grade-header${metal === 'aluminum' ? ' al' : ''}`}>
             <RulerIcon className="fx-grade-header-icon" width={13} height={13} />
             <span>{metal === 'copper' ? 'Grade of Copper' : 'Grade of Aluminum'}</span>
-          </div>
+          </h3>
           <div className={`fx-grade-pills${metal === 'aluminum' ? ' al' : ''}`}>
             {grades.map((g, i) => (
               <button
@@ -429,7 +429,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         </div>
 
         <div className="fx-suggestions" data-tour="suggestions">
-          <span className="fx-suggestions-label">Suggestions</span>
+          <h3 className="fx-suggestions-label">Suggestions<span className="sr-only"> — standard busbar sizes</span></h3>
           <div className="fx-suggestions-scroll no-scrollbar">
             {PRESETS.map(p => {
               const isActive = width === p.w && thick === p.t;
@@ -511,7 +511,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           <div className="fx-curr-card-head">
             <div className="fx-curr-card-head-inner">
               <DollarIcon className="fx-curr-card-icon" width={24} height={24} />
-              <span className="fx-curr-card-title">Currency Conversion</span>
+              <h2 className="fx-curr-card-title">Currency Conversion<span className="sr-only"> for busbar prices</span></h2>
             </div>
           </div>
 

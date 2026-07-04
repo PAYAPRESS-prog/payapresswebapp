@@ -65,7 +65,7 @@ export function FxDesktopLanding() {
       {/* ── Hero — Figma 572:690 ────────────────────────── */}
       <section className="fx-dl-hero">
         <div className="fx-dl-hero-copy">
-          <h1 className="fx-dl-title">Busbar Calculator</h1>
+          <h1 className="fx-dl-title">Busbar Calculator<span className="sr-only"> — Free Busbar Sizing &amp; Price Calculator for Copper &amp; Aluminum</span></h1>
           <p className="fx-dl-sub">
             Design and size copper &amp; aluminum busbars faster, easier, and
             more accurately.

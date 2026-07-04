@@ -244,9 +244,9 @@ export function FxBusbarChart({ metal, weightKg, fxRate, currLabel, pricePerKgUS
             <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
             <polyline points="16 7 22 7 22 13" />
           </svg>
-          <span className="fx-card-head-title">
+          <h2 className="fx-card-head-title">
             {metal === 'copper' ? 'Copper' : 'Aluminum'} Price Trend
-          </span>
+          </h2>
         </div>
         <div className="fx-tab-group">
           {(['1D', '7D', '1M', '1Y'] as const).map(r => (
