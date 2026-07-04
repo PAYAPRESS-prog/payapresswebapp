@@ -44,7 +44,7 @@ export default function PrivacyPage() {
           Privacy Policy
         </h1>
         <p style={{ color: '#52525b', fontSize: '0.85rem', marginBottom: '2.5rem' }}>
-          Last updated: 20 May 2025 &nbsp;·&nbsp; Effective immediately
+          Last updated: 5 July 2026 &nbsp;·&nbsp; Effective immediately
         </p>
 
         <section style={{ marginBottom: '2rem' }}>
@@ -126,7 +126,23 @@ export default function PrivacyPage() {
         </section>
 
         <section style={{ marginBottom: '2rem' }}>
-          <h2 style={h2Style}>7. Changes to This Policy</h2>
+          <h2 style={h2Style}>7. Account Deletion &amp; Data Retention</h2>
+          <p style={pStyle}>
+            You can permanently delete your account at any time from your profile page.
+            Deleting your account removes your profile information, saved calculation
+            history and email subscriptions from our active systems.
+          </p>
+          <p style={pStyle}>
+            After deletion, we may retain a minimal record (such as the account email
+            address, registration and deletion dates, and basic technical metadata)
+            for fraud prevention, security auditing, support and compliance with legal
+            obligations. These records are not used for marketing and are kept only as
+            long as necessary for those purposes.
+          </p>
+        </section>
+
+        <section style={{ marginBottom: '2rem' }}>
+          <h2 style={h2Style}>8. Changes to This Policy</h2>
           <p style={pStyle}>
             We may update this Privacy Policy from time to time. The &ldquo;Last updated&rdquo; date
             at the top of this page will reflect any changes. Continued use of the application
@@ -135,7 +151,7 @@ export default function PrivacyPage() {
         </section>
 
         <section style={{ marginBottom: '2rem' }}>
-          <h2 style={h2Style}>8. Contact</h2>
+          <h2 style={h2Style}>9. Contact</h2>
           <p style={pStyle}>
             For privacy-related questions, please contact us at:
           </p>
