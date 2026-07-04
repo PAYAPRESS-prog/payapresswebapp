@@ -2,12 +2,15 @@
   "version": 1,
   "functions": {
     "/api/admin/users": {},
-    "/api/auth/forgot": {},
     "/api/auth/login": {},
     "/api/auth/logout": {},
     "/api/auth/me": {},
     "/api/auth/reset": {},
     "/api/auth/signup": {},
+    "/api/auth/forgot": {},
+    "/api/cron/daily-digest": {
+      "maxDuration": 300
+    },
     "/api/notify": {},
     "/api/price-history": {},
     "/api/profile/change-password": {},

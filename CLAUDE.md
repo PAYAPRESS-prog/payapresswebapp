@@ -117,6 +117,10 @@ git push -u origin claude/payapress-webapp-setup-0bjxA
 
 - **Uptime monitoring:** add https://calculator.payapress.com/api/copper-price
   to UptimeRobot (free) — alerts when the site or price feed dies.
+- **Daily price digest:** hPanel cron, once a day (e.g. 07:00):
+  `curl -s "https://calculator.payapress.com/api/cron/daily-digest?key=$ADMIN_KEY" > /dev/null`
+  Sends the branded daily copper/aluminum report to every bell subscriber,
+  with their saved configurations re-priced at today's spot rates.
 - **DB backups:** in Hostinger hPanel set a weekly cron:
   `mysqldump -u $DB_USER -p"$DB_PASSWORD" $DB_NAME > ~/backups/busbar_$(date +\%F).sql`
   and download a copy monthly.
