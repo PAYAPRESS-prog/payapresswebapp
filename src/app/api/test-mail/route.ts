@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sendMail, isMailerConfigured } from '@/lib/mailer';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -7,6 +8,17 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const to = searchParams.get('to');
+
+  // Owner-only: without this, the endpoint is an open test-mail relay on
+  // an indexed site. Same key as /api/admin/users; same opaque 404.
+  if (!checkRateLimit(`testmail:${getClientIp(req)}`, 5, 60_000)) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+  const adminKey = process.env.ADMIN_KEY;
+  const provided = req.headers.get('x-admin-key') ?? searchParams.get('key') ?? '';
+  if (!adminKey || adminKey.length < 16 || provided !== adminKey) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
 
   const config = {
     configured: isMailerConfigured(),
