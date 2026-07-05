@@ -24,10 +24,12 @@ export function adminKeyConfigured(): boolean {
 }
 
 // Constant-time compare via SHA-256 digests (lengths always equal).
+// Both sides are trimmed: hosting panels love to append an invisible
+// trailing space/newline when values are pasted in.
 export function adminKeyMatches(provided: string): boolean {
-  const key = process.env.ADMIN_KEY;
+  const key = (process.env.ADMIN_KEY ?? '').trim();
   if (!key || key.length < 16 || !provided) return false;
-  const a = createHash('sha256').update(provided).digest();
+  const a = createHash('sha256').update(provided.trim()).digest();
   const b = createHash('sha256').update(key).digest();
   return timingSafeEqual(a, b);
 }
