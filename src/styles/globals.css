@@ -6743,6 +6743,7 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
       "calc    grade"
       "curr    grade"
       "results share"
+      "banner  banner"
       "chart   chart";
     max-width: 1440px;
     padding: 28px 80px 56px;
@@ -6766,7 +6767,100 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   .fx-col-results > .fx-results-empty-desktop,
   .fx-col-results > .fx-results                   { grid-area: results; }
   .fx-col-results > .fx-share-card                { grid-area: share; }
+  .fx-col-results > .fx-live-banner               { grid-area: banner; }
   .fx-col-results > .fx-busbar-chart-card         { grid-area: chart; }
+
+  /* Figma 114:300 banner -- full-width card, centered copper text */
+  .fx-col-results > .fx-live-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    border-radius: 16px;
+    background: rgba(245, 247, 250, 0.05);
+    border: 1px solid rgba(245, 247, 250, 0.07);
+    color: var(--fx-copper-bright);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  /* Figma detail pass -- visible hairline borders on every section card */
+  .fx-col-inputs > .fx-card > .fx-card-head,
+  .fx-col-inputs > .fx-card > .fx-suggestions,
+  .fx-col-inputs > .fx-card > .fx-grade-section,
+  .fx-col-inputs > .fx-card > .fx-busbar-card,
+  .fx-col-inputs > .fx-curr-card,
+  .fx-col-results > .fx-results,
+  .fx-col-results > .fx-share-card,
+  .fx-col-results > .fx-busbar-chart-card {
+    border: 1px solid rgba(245, 247, 250, 0.07);
+  }
+
+  /* Dimensions -- Figma 579:983: three SEPARATE rounded sub-cards,
+     big centered value, unit pinned to the bottom-right of each cell */
+  .fx-col-inputs > .fx-card > .fx-dim-row {
+    background: transparent;
+    border: none;
+    gap: 14px;
+    overflow: visible;
+  }
+  .fx-col-inputs > .fx-card > .fx-dim-row .fx-dim-col {
+    background: rgba(245, 247, 250, 0.05);
+    border: 1px solid rgba(245, 247, 250, 0.07);
+    border-radius: 14px;
+    padding: 18px 12px 30px;
+  }
+  .fx-col-inputs > .fx-card > .fx-dim-row .fx-dim-col + .fx-dim-col::before { display: none; }
+  .fx-col-inputs > .fx-card > .fx-dim-row .fx-dim-col-label { font-size: 13px; }
+  .fx-col-inputs > .fx-card > .fx-dim-row .fx-dim-col-input { font-size: 26px; }
+  .fx-col-inputs > .fx-card > .fx-dim-row .fx-dim-col-unit {
+    position: absolute;
+    right: 12px;
+    bottom: 9px;
+  }
+
+  /* Grade -- Figma 584:663: centered line-flanked title, solid-fill
+     active pill with a single centered label (no purity %, no info) */
+  .fx-col-inputs > .fx-card > .fx-grade-section .fx-grade-header {
+    justify-content: center;
+    gap: 10px;
+    text-transform: none;
+    letter-spacing: 0.01em;
+    font-size: 13px;
+    font-weight: 510;
+    color: var(--fx-text-1);
+    padding: 0 4px 6px;
+  }
+  .fx-col-inputs > .fx-card > .fx-grade-section .fx-grade-header::before,
+  .fx-col-inputs > .fx-card > .fx-grade-section .fx-grade-header::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(245, 247, 250, 0.1);
+  }
+  .fx-col-inputs > .fx-card > .fx-grade-section .fx-grade-header-icon { display: none; }
+  .fx-col-inputs > .fx-card > .fx-grade-section .fx-grade-pill {
+    justify-content: center;
+    min-height: 46px;
+  }
+  .fx-col-inputs > .fx-card > .fx-grade-section .fx-grade-pill-purity { display: none; }
+  .fx-col-inputs > .fx-card > .fx-grade-section .fx-grade-pill-label {
+    font-size: 14.5px;
+    font-weight: 600;
+  }
+  .fx-col-inputs > .fx-card > .fx-grade-section .fx-grade-pill.active {
+    background: linear-gradient(90deg, #f7941d, #e8731a);
+    border-color: transparent;
+    box-shadow: 0 6px 20px -8px rgba(247, 148, 29, 0.7);
+  }
+  .fx-col-inputs > .fx-card > .fx-grade-section .fx-grade-pill.active .fx-grade-pill-label {
+    color: #ffffff;
+  }
+  .fx-col-inputs > .fx-card > .fx-grade-section .fx-grade-pills.al .fx-grade-pill.active {
+    background: linear-gradient(90deg, #6fb3e0, #4a90c2);
+    box-shadow: 0 6px 20px -8px rgba(111, 179, 224, 0.7);
+  }
+  .fx-col-inputs > .fx-card > .fx-grade-section .fx-grade-info { display: none; }
 
   /* The unwrapped children were styled by the parent .fx-card — each one
      becomes its own card surface at desktop (Figma shows separate cards). */
@@ -7609,3 +7703,7 @@ h3.fx-suggestions-label {
   .fxf-inner { grid-template-columns: 1.5fr 1fr 1fr 1fr; }
   .fxf-cta { grid-column: 1 / -1; max-width: 460px; }
 }
+
+/* Live-price banner exists only in the desktop grid (Figma 114:300);
+   the mobile results sheet must never show it */
+.fx-live-banner { display: none; }

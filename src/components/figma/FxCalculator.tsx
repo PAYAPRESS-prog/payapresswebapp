@@ -1011,6 +1011,12 @@ function ResultsBody({
         )}
       </div>
 
+      {/* Figma 114:300: full-width "Live <metal> Price" banner between the
+          results row and the trend chart. Desktop-only (hidden <1024px). */}
+      <div className="fx-live-banner" aria-hidden="true">
+        Live {metal === 'copper' ? 'Copper' : 'Aluminum'} Price
+      </div>
+
       <FxBusbarChart
         metal={metal}
         weightKg={weightKg}
