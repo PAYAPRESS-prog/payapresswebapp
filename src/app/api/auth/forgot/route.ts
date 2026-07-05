@@ -49,7 +49,9 @@ export async function POST(req: Request) {
       const token = await createResetToken({ uid: user.id, email: user.email });
       const resetUrl = `${BASE_URL}/reset-password?token=${encodeURIComponent(token)}`;
       const mail = resetPasswordEmail(user.email, resetUrl);
-      sendMail({ to: user.email, subject: mail.subject, html: mail.html, text: mail.text })
+      // Awaited: Passenger freezes the process after the response goes out,
+      // so a fire-and-forget send silently never leaves the server.
+      await sendMail({ to: user.email, subject: mail.subject, html: mail.html, text: mail.text })
         .catch(err => console.error('[auth/forgot] reset email failed:', err));
     }
     return NextResponse.json({ ok: true });

@@ -6336,12 +6336,14 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   }
 
   /* ── Top nav (114:301, 1440×80) ─────────────────── */
+  /* Figma frame is 1440 wide with 80px gutters; on wider screens the
+     content column stays 1280px and centers instead of stretching. */
   .fx-dl-nav {
     height: 80px;
     display: flex;
     align-items: center;
     gap: 24px;
-    padding: 0 80px;
+    padding: 0 max(80px, calc((100% - 1280px) / 2));
     background: rgba(20, 21, 24, 0.92);
     border-bottom: 1px solid rgba(245, 247, 250, 0.07);
   }
@@ -6385,14 +6387,16 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
     animation: fx-pulse 1.6s ease-in-out infinite;
   }
 
-  /* ── Hero (572:690) ─────────────────────────────── */
+  /* ── Hero (572:690) — copy left, mascot right-of-center.
+     Figma: hero ≈900px tall, mascot ≈646px tall ending ~140px short of
+     the right gutter (it is NOT flush against the screen edge). ── */
   .fx-dl-hero {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 48px;
-    padding: 64px 80px 72px;
-    min-height: 640px;
+    padding: 48px max(80px, calc((100% - 1280px) / 2)) 64px;
+    min-height: min(880px, calc(100svh - 80px));
   }
   .fx-dl-hero-copy { max-width: 640px; }
   .fx-dl-title {
@@ -6439,28 +6443,30 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
     border-color: rgba(245, 247, 250, 0.5);
     background: rgba(245, 247, 250, 0.06);
   }
+  /* Height-driven sizing: the old width-driven box (width:min(458px,32vw)
+     + max-height letterbox) inflated the mascot and shoved it against the
+     viewport edge on wide screens. */
   .fx-dl-mascot {
     flex-shrink: 0;
-    width: min(458px, 32vw);
+    margin-right: clamp(40px, 9vw, 150px);
   }
   .fx-dl-mascot img,
   .fx-dl-mascot svg {
-    width: 100%;
-    height: auto;
-    max-height: 700px;
-    object-fit: contain;
+    height: min(640px, 64vh);
+    width: auto;
+    display: block;
     filter: drop-shadow(0 24px 60px rgba(0, 0, 0, 0.55));
   }
 
   .fx-dl-divider {
     height: 1px;
-    margin: 0 80px;
+    margin: 0 max(80px, calc((100% - 1280px) / 2));
     background: rgba(245, 247, 250, 0.08);
   }
 
   /* ── How It Works (578:698 / 578:702) ───────────── */
   .fx-dl-hiw {
-    padding: 72px 80px 88px;
+    padding: 72px max(80px, calc((100% - 1280px) / 2)) 88px;
     text-align: center;
   }
   .fx-dl-hiw-title {
@@ -6555,21 +6561,85 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
     width: 100%;
   }
 
-  /* Calculator panel — Figma ratio: main column ~800 / side ~418,
-     chart breaks out full-width underneath (133:588) */
+  /* Calculator panel — full Figma 114:300 section order:
+       [    Copper | Aluminum toggle    ]   579:750 (centered)
+       [        Dimensions ... mm       ]   579:983 header bar
+       [ L / W / T inputs ][ Suggestions]   579:983 | 579:956
+       [   busbar render  ][ Suggestions]   (app feature, left col)
+       [   Calculate Now  ][   Grade    ]
+       [ Currency Convers.][   Grade    ]   584:645 | 584:663
+       [      Results     ][   Share    ]   587:706 | 594:838
+       [           Price chart          ]   133:588
+     Left/right track ratio ~800/418 like the Figma frame. */
   .fx-content {
     grid-template-columns: minmax(0, 1.88fr) minmax(0, 1fr);
     grid-template-areas:
-      "inputs results"
-      "chart  chart";
+      "toggle  toggle"
+      "head    head"
+      "dims    sugg"
+      "render  sugg"
+      "calc    grade"
+      "curr    grade"
+      "results share"
+      "chart   chart";
     max-width: 1440px;
     padding: 28px 80px 56px;
-    gap: 24px 20px;
+    gap: 20px;
+    align-items: start;
   }
+
+  /* Unwrap the mobile containers so each section becomes a grid item */
+  .fx-col-inputs { display: contents; }
+  .fx-content > .fx-col-inputs > .fx-card { display: contents; }
   .fx-col-results { display: contents; }
+
+  .fx-col-inputs > .fx-metal-toggle { grid-area: toggle; }
+  .fx-col-inputs > .fx-card > .fx-card-head       { grid-area: head; }
+  .fx-col-inputs > .fx-card > .fx-dim-row         { grid-area: dims; }
+  .fx-col-inputs > .fx-card > .fx-suggestions     { grid-area: sugg; }
+  .fx-col-inputs > .fx-card > .fx-busbar-card     { grid-area: render; }
+  .fx-col-inputs > .fx-card > .fx-calc-now-btn    { grid-area: calc; align-self: end; }
+  .fx-col-inputs > .fx-card > .fx-grade-section   { grid-area: grade; }
+  .fx-col-inputs > .fx-curr-card                  { grid-area: curr; }
   .fx-col-results > .fx-results-empty-desktop,
-  .fx-col-results > .fx-results { grid-area: results; }
-  .fx-col-results > .fx-busbar-chart-card { grid-area: chart; }
+  .fx-col-results > .fx-results                   { grid-area: results; }
+  .fx-col-results > .fx-share-card                { grid-area: share; }
+  .fx-col-results > .fx-busbar-chart-card         { grid-area: chart; }
+
+  /* The unwrapped children were styled by the parent .fx-card — each one
+     becomes its own card surface at desktop (Figma shows separate cards). */
+  .fx-col-inputs > .fx-card > .fx-card-head,
+  .fx-col-inputs > .fx-card > .fx-dim-row,
+  .fx-col-inputs > .fx-card > .fx-suggestions,
+  .fx-col-inputs > .fx-card > .fx-grade-section {
+    background: rgba(245, 247, 250, 0.05);
+    border-radius: 16px;
+  }
+  .fx-col-inputs > .fx-card > .fx-card-head     { padding: 6px 10px; }
+  .fx-col-inputs > .fx-card > .fx-suggestions   { padding: 16px 14px; }
+  .fx-col-inputs > .fx-card > .fx-grade-section { padding: 16px 14px; }
+  .fx-col-inputs > .fx-card > .fx-dim-row {
+    background: rgba(245, 247, 250, 0.05);
+    border: none;
+  }
+  .fx-col-inputs > .fx-card > .fx-dim-row .fx-dim-col { padding: 22px 12px 18px; }
+
+  /* Suggestions — Figma 579:956: 3×3 wrap grid, not a scroll strip */
+  .fx-col-inputs > .fx-card > .fx-suggestions .fx-suggestions-scroll {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow: visible;
+  }
+  .fx-col-inputs > .fx-card > .fx-suggestions .fx-suggestion-pill { min-width: 0; }
+
+  /* Grade — Figma 584:663: three full-width pills stacked vertically */
+  .fx-col-inputs > .fx-card > .fx-grade-section .fx-grade-pills { flex-direction: column; }
+  .fx-col-inputs > .fx-card > .fx-grade-section .fx-grade-pill {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+  }
 
   /* Metal toggle — Figma 579:750: 600×68, centered */
   .fx-metal-toggle {
@@ -6603,6 +6673,45 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
     max-height: 300px;
   }
 }
+
+/* ── Share card (Figma 594:838) — holds Compare / Bookmark / Share /
+   Waste when results render inline (≥640px; mobile keeps the sheet
+   footer). Buttons stack full-width like the Figma side card. ── */
+.fx-share-card {
+  background: rgba(245, 247, 250, 0.05);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.fx-share-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 510;
+  color: var(--fx-text-1);
+}
+.fx-share-card-title::before,
+.fx-share-card-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(245, 247, 250, 0.1);
+}
+.fx-share-card .fx-results-actions { flex-direction: column; }
+
+/* Tablet (640–1023): keep the action card above the chart in the flow */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .fx-col-results > .fx-busbar-chart-card { order: 99; }
+}
+
+/* "Other currency" slim row — shown once a custom chip occupies the
+   4th grid cell, so the picker is always one tap away */
+.fx-curr-other-row { width: 100%; flex: none; }
 
 /* ══════════════════════════════════════════════════════
    SEO heading semantics — section titles were spans/divs;

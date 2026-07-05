@@ -69,12 +69,11 @@ export async function POST(req: Request) {
     const res = NextResponse.json({ ok: true, user: { id: user.id, email: user.email } });
     res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(true));
 
-    // Welcome + admin notification for genuinely new accounts (non-blocking).
+    // Welcome + admin notification for genuinely new accounts. Awaited
+    // (capped at 8s): Passenger freezes the process once the response is
+    // sent, so un-awaited sends never go out. Failures never block login.
     if (isNewUser) {
       const w = welcomeEmail(user.email);
-      sendMail({ to: user.email, subject: w.subject, html: w.html, text: w.text })
-        .catch(err => console.error('[auth/google] welcome email failed:', err));
-
       const notify = adminSignupNotificationEmail({
         email: user.email, uid: user.id, userNumber: null,
         ip, location: 'via Google Sign-In',
@@ -82,10 +81,15 @@ export async function POST(req: Request) {
         page: req.headers.get('referer') ?? '', optIn: false,
         time: new Date().toISOString(),
       });
-      Promise.all(ADMIN_EMAILS.map(to =>
-        sendMail({ to, subject: `${notify.subject} (Google)`, html: notify.html, text: notify.text })
-          .catch(err => console.error(`[auth/google] admin notify ${to} failed:`, err)),
-      )).catch(() => {});
+      const mailWork = Promise.allSettled([
+        sendMail({ to: user.email, subject: w.subject, html: w.html, text: w.text })
+          .catch(err => console.error('[auth/google] welcome email failed:', err)),
+        ...ADMIN_EMAILS.map(to =>
+          sendMail({ to, subject: `${notify.subject} (Google)`, html: notify.html, text: notify.text })
+            .catch(err => console.error(`[auth/google] admin notify ${to} failed:`, err)),
+        ),
+      ]);
+      await Promise.race([mailWork, new Promise(r => setTimeout(r, 8000))]);
     }
 
     return res;

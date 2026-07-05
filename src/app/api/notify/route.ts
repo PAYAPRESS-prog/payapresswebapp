@@ -53,7 +53,9 @@ export async function POST(req: NextRequest) {
     // Send confirmation only on first subscription (affectedRows=0 means duplicate).
     if (result.affectedRows > 0) {
       const c = subscribeConfirmEmail(trimmed);
-      sendMail({ to: trimmed, subject: c.subject, html: c.html, text: c.text })
+      // Awaited: Passenger freezes the process after the response goes out,
+      // so a fire-and-forget send silently never leaves the server.
+      await sendMail({ to: trimmed, subject: c.subject, html: c.html, text: c.text })
         .catch(err => console.error('[notify] confirm email failed:', err));
     }
 

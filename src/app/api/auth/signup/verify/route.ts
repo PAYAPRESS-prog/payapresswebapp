@@ -41,13 +41,15 @@ async function lookupLocation(ip: string): Promise<string> {
   }
 }
 
-// Fire-and-forget admin notification — a failure here must never
-// affect the user's signup.
-function notifyAdmin(info: {
+// Admin notification. IMPORTANT: this must be AWAITED before the route
+// returns — Hostinger's Passenger process manager freezes the app once the
+// response is sent, so fire-and-forget sends silently die. A failure here
+// must still never affect the user's signup (all errors are swallowed).
+async function notifyAdmin(info: {
   email: string; uid: number; ip: string; userAgent: string;
   page: string; optIn: boolean;
-}) {
-  (async () => {
+}): Promise<void> {
+  try {
     let userNumber: number | null = null;
     try {
       const [rows] = await getPool().query<RowDataPacket[]>('SELECT COUNT(*) AS c FROM users');
@@ -61,7 +63,9 @@ function notifyAdmin(info: {
       sendMail({ to, subject: mail.subject, html: mail.html, text: mail.text })
         .catch(err => console.error(`[signup/verify] admin notify to ${to} failed:`, err)),
     ));
-  })().catch(err => console.error('[signup/verify] admin notification failed:', err));
+  } catch (err) {
+    console.error('[signup/verify] admin notification failed:', err);
+  }
 }
 
 export const runtime = 'nodejs';
@@ -126,19 +130,23 @@ export async function POST(req: Request) {
     const uid = await createUser(pending.email, pending.ph, pending.optIn);
     const session = await createSessionToken({ uid, email: pending.email });
 
+    // Welcome + admin mails run concurrently and are awaited (capped at
+    // 8s) — after the response is sent Passenger freezes the process and
+    // un-awaited sends never leave the box. Failures never block signup.
     const w = welcomeEmail(pending.email);
-    sendMail({ to: pending.email, subject: w.subject, html: w.html, text: w.text })
-      .catch(err => console.error('[signup/verify] welcome email failed:', err));
-
-    // Admin gets a signup notification with location & device details.
-    notifyAdmin({
-      email: pending.email,
-      uid,
-      ip,
-      userAgent: req.headers.get('user-agent') ?? '',
-      page: req.headers.get('referer') ?? '',
-      optIn: pending.optIn,
-    });
+    const mailWork = Promise.allSettled([
+      sendMail({ to: pending.email, subject: w.subject, html: w.html, text: w.text })
+        .catch(err => console.error('[signup/verify] welcome email failed:', err)),
+      notifyAdmin({
+        email: pending.email,
+        uid,
+        ip,
+        userAgent: req.headers.get('user-agent') ?? '',
+        page: req.headers.get('referer') ?? '',
+        optIn: pending.optIn,
+      }),
+    ]);
+    await Promise.race([mailWork, new Promise(r => setTimeout(r, 8000))]);
 
     const res = NextResponse.json({ ok: true, user: { id: uid, email: pending.email } });
     res.cookies.set(SESSION_COOKIE, session, sessionCookieOptions(true));

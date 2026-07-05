@@ -104,10 +104,11 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const [showResults,  setShowResults]  = useState(false);
   const [bookmarked,   setBookmarked]   = useState(false);
   const [updatedLabel, setUpdatedLabel] = useState('just now');
-  const [interacted,   setInteracted]   = useState(false);
   const [showPicker,   setShowPicker]   = useState(false);
   const [pickerSearch, setPickerSearch] = useState('');
-  // Custom currency selected from picker (non-grid currency)
+  // Custom currency added from the picker. Once chosen it stays in the
+  // grid as a fourth chip — switching to USD/EUR/GBP must NOT remove it,
+  // so the user can hop back without reopening the picker.
   const [customCurr,   setCustomCurr]   = useState<CurrCode | null>(null);
 
   // Bookmark / save-to-history naming flow
@@ -252,8 +253,8 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const activeCurr = curr;
   const activeCurrTotal = totalIn(activeCurr);
 
-  // Is the active currency one of the grid currencies?
-  const isCustomActive = customCurr !== null && !GRID_CURRENCIES.includes(activeCurr as CurrCode);
+  // Is the persistent custom chip the active one?
+  const isCustomActive = customCurr !== null && activeCurr === customCurr;
 
   function requireAuth(action: () => void) {
     if (user) {
@@ -355,11 +356,9 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
   function handlePickerSelect(code: CurrCode) {
     setCurr(code);
-    if (!GRID_CURRENCIES.includes(code)) {
-      setCustomCurr(code);
-    } else {
-      setCustomCurr(null);
-    }
+    // Non-grid picks become (or replace) the persistent custom chip.
+    // Picking a grid currency leaves the existing chip in place.
+    if (!GRID_CURRENCIES.includes(code)) setCustomCurr(code);
     setShowPicker(false);
   }
 
@@ -415,7 +414,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
                 key={g.id}
                 type="button"
                 className={`fx-grade-pill${gradeIdx === i ? ' active' : ''}`}
-                onClick={() => { setGradeIdx(i); setInteracted(true); }}
+                onClick={() => setGradeIdx(i)}
               >
                 <span className="fx-grade-pill-label">{g.label}</span>
                 <span className="fx-grade-pill-purity">{(g.purity * 100).toFixed(2)}%</span>
@@ -439,7 +438,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
                   key={`${p.w}x${p.t}`}
                   type="button"
                   className={`fx-suggestion-pill${isActive ? ' active' : ''}${p.desktopOnly ? ' fx-preset-desktop-only' : ''}`}
-                  onClick={() => { setWidth(p.w); setThick(p.t); setInteracted(true); }}
+                  onClick={() => { setWidth(p.w); setThick(p.t); }}
                 >
                   {p.w}x{p.t}
                 </button>
@@ -456,8 +455,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
               type="text" inputMode="numeric" pattern="[0-9]*"
               className="fx-dim-col-input"
               value={length} placeholder="2500"
-              onChange={e => { setLength(e.target.value.replace(/[^0-9]/g, '')); setInteracted(true); }}
-              onFocus={() => setInteracted(true)}
+              onChange={e => setLength(e.target.value.replace(/[^0-9]/g, ''))}
               onBlur={e => { if (e.target.value) setLength(String(clampInt(e.target.value, 1, 100000, 2500))); }}
             />
             <span className="fx-dim-col-unit">mm</span>
@@ -468,8 +466,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
               type="text" inputMode="numeric" pattern="[0-9]*"
               className="fx-dim-col-input"
               value={width} placeholder="100"
-              onChange={e => { setWidth(e.target.value.replace(/[^0-9]/g, '')); setInteracted(true); }}
-              onFocus={() => setInteracted(true)}
+              onChange={e => setWidth(e.target.value.replace(/[^0-9]/g, ''))}
               onBlur={e => { if (e.target.value) setWidth(String(clampInt(e.target.value, 1, 100000, 100))); }}
             />
             <span className="fx-dim-col-unit">mm</span>
@@ -480,8 +477,7 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
               type="text" inputMode="numeric" pattern="[0-9]*"
               className="fx-dim-col-input"
               value={thick} placeholder="10"
-              onChange={e => { setThick(e.target.value.replace(/[^0-9]/g, '')); setInteracted(true); }}
-              onFocus={() => setInteracted(true)}
+              onChange={e => setThick(e.target.value.replace(/[^0-9]/g, ''))}
               onBlur={e => { if (e.target.value) setThick(String(clampInt(e.target.value, 1, 100000, 10))); }}
             />
             <span className="fx-dim-col-unit">mm</span>
@@ -496,7 +492,6 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           onResize={(nw, nt) => {
             setWidth(String(nw));
             setThick(String(nt));
-            setInteracted(true);
           }}
         />
 
@@ -506,9 +501,11 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         </button>
       </div>
 
-      {/* ── Currency Conversion card — Figma 2×2 grid ── */}
-      {interacted && (
-        <div className="fx-curr-card" ref={currCardRef}>
+      {/* ── Currency Conversion card — Figma 2×2 grid ──
+          Always visible so the currency can be chosen BEFORE pressing
+          Calculate Now. A currency picked from the "Other" sheet stays in
+          the grid as its own chip; tapping other currencies never removes it. */}
+      <div className="fx-curr-card" ref={currCardRef}>
           <div className="fx-curr-card-head">
             <div className="fx-curr-card-head-inner">
               <DollarIcon className="fx-curr-card-icon" width={24} height={24} />
@@ -520,13 +517,13 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
           <div className="fx-curr-grid-row">
             {GRID_CURRENCIES.slice(0, 2).map(code => {
               const Flag = FLAGS[code as keyof typeof FLAGS];
-              const isActive = activeCurr === code && !isCustomActive;
+              const isActive = activeCurr === code;
               return (
                 <button
                   key={code}
                   type="button"
                   className={`fx-curr-cell${isActive ? ' active' : ''}`}
-                  onClick={() => { setCurr(code as CurrCode); setCustomCurr(null); }}
+                  onClick={() => setCurr(code as CurrCode)}
                   aria-pressed={isActive}
                 >
                   {Flag && <Flag className="fx-curr-cell-flag" width={30} height={30} />}
@@ -539,18 +536,18 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
             })}
           </div>
 
-          {/* Row 2: GBP + Other */}
+          {/* Row 2: GBP + (custom chip once picked, else Other) */}
           <div className="fx-curr-grid-row">
             {/* GBP cell */}
             {(() => {
               const code = GRID_CURRENCIES[2]; // 'GBP'
               const Flag = FLAGS[code as keyof typeof FLAGS];
-              const isActive = activeCurr === code && !isCustomActive;
+              const isActive = activeCurr === code;
               return (
                 <button
                   type="button"
                   className={`fx-curr-cell${isActive ? ' active' : ''}`}
-                  onClick={() => { setCurr(code as CurrCode); setCustomCurr(null); }}
+                  onClick={() => setCurr(code as CurrCode)}
                   aria-pressed={isActive}
                 >
                   {Flag && <Flag className="fx-curr-cell-flag" width={30} height={30} />}
@@ -562,12 +559,13 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
               );
             })()}
 
-            {/* Other / custom currency cell */}
-            {isCustomActive && customCurr ? (
+            {/* Persistent custom currency chip (selects it — does NOT reopen picker) */}
+            {customCurr ? (
               <button
                 type="button"
-                className="fx-curr-cell active"
-                onClick={() => { setShowPicker(true); setPickerSearch(''); }}
+                className={`fx-curr-cell${isCustomActive ? ' active' : ''}`}
+                onClick={() => setCurr(customCurr)}
+                aria-pressed={isCustomActive}
               >
                 {(() => {
                   const Flag = FLAGS[customCurr as keyof typeof FLAGS];
@@ -593,8 +591,20 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
               </button>
             )}
           </div>
+
+          {/* Once a custom chip exists, "Other" moves to its own slim row so
+              the picker stays one tap away */}
+          {customCurr && (
+            <button
+              type="button"
+              className="fx-curr-cell-other fx-curr-other-row"
+              onClick={() => { setShowPicker(true); setPickerSearch(''); }}
+            >
+              <span className="fx-curr-other-icon"><PlusSvg /></span>
+              <span className="fx-curr-other-label">Other currency</span>
+            </button>
+          )}
         </div>
-      )}
 
       </div>{/* end fx-col-inputs */}
 
@@ -618,22 +628,44 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
         </div>
       )}
 
-      {/* Desktop only: inline results in right column */}
-      {showResults && !isMobile && <ResultsBody
-        metal={metal} activeCurr={activeCurr} activeCurrTotal={activeCurrTotal}
-        grade={grade} weightKg={weightKg} maxCurrentA={maxCurrentA}
-        fxRate={fxRate} totalIn={totalIn} showCompare={showCompare}
-        bookmarked={bookmarked} w={w} t={t} L={L} pricePerKgUSD={pricePerKgUSD}
-        busbarPremium={grade.busbarPremium} updatedLabel={updatedLabel}
-        priceIsFallback={Boolean(live?.isFallback)}
-        density={grade.density}
-        resultsRef={resultsRef}
-        onCompare={() => requireAuth(() => setShowCompare(true))}
-        onBookmark={openBookmarkDialog}
-        onWaste={openWasteSheet}
-        onClose={() => setShowResults(false)}
-        showCloseBtn={false}
-      />}
+      {/* Desktop only: inline results. Actions live in a separate "Share"
+          card (Figma 594:838) so ≥1024px can place it beside the results. */}
+      {showResults && !isMobile && (
+        <>
+          <ResultsBody
+            metal={metal} activeCurr={activeCurr} activeCurrTotal={activeCurrTotal}
+            grade={grade} weightKg={weightKg} maxCurrentA={maxCurrentA}
+            fxRate={fxRate} totalIn={totalIn} showCompare={showCompare}
+            bookmarked={bookmarked} w={w} t={t} L={L} pricePerKgUSD={pricePerKgUSD}
+            busbarPremium={grade.busbarPremium} updatedLabel={updatedLabel}
+            priceIsFallback={Boolean(live?.isFallback)}
+            density={grade.density}
+            resultsRef={resultsRef}
+            onCompare={() => requireAuth(() => setShowCompare(true))}
+            onBookmark={openBookmarkDialog}
+            onWaste={openWasteSheet}
+            onClose={() => setShowResults(false)}
+            showCloseBtn={false}
+            showActions={false}
+          />
+          <div className="fx-share-card">
+            <h2 className="fx-share-card-title">Share</h2>
+            <ResultsActionButtons
+              metal={metal}
+              activeCurr={activeCurr}
+              activeCurrTotal={activeCurrTotal}
+              showCompare={showCompare}
+              bookmarked={bookmarked}
+              w={w} t={t} L={L}
+              weightKg={weightKg}
+              maxCurrentA={maxCurrentA}
+              onCompare={() => requireAuth(() => setShowCompare(true))}
+              onBookmark={openBookmarkDialog}
+              onWaste={openWasteSheet}
+            />
+          </div>
+        </>
+      )}
 
       </div>{/* end fx-col-results */}
 

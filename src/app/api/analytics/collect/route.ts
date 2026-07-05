@@ -23,7 +23,10 @@ export async function POST(req: Request) {
   const sessionId = str(b.sid);
   if (!visitorId || !sessionId) return new NextResponse(null, { status: 204 });
 
-  track({
+  // Awaited: Passenger freezes the process once the response is sent, so
+  // an un-awaited insert can be lost. The client fires this via
+  // sendBeacon and never waits, so the extra latency is invisible.
+  await track({
     event: str(b.event) ?? 'pageview',
     path: str(b.path) ?? '/',
     visitorId,
