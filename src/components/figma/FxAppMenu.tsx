@@ -8,7 +8,6 @@ import {
   ChartUpIcon,
   MagicStickIcon,
   ScissorsIcon,
-  ArrowLeftIcon,
   ArrowRightIcon,
 } from './FxIcons';
 import { FxAuthSheet } from './FxAuthSheet';
@@ -105,15 +104,6 @@ export function FxAppMenu() {
   return (
     <div className="fx-menu">
       <div className="fx-menu-inner">
-        <button
-          type="button"
-          className="fx-menu-back"
-          onClick={() => router.push('/')}
-        >
-          <ArrowLeftIcon width={22} height={22} />
-          <span>Go back</span>
-        </button>
-
         <nav className="fx-menu-list" aria-label="Sections">
           {ITEMS.map((item, i) => {
             const Icon = item.Icon;

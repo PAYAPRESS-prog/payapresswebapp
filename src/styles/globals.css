@@ -6632,7 +6632,13 @@ h3.fx-suggestions-label {
 
 /* Profile gate CTA — opens the auth sheet on demand (never auto-opens) */
 .fx-profile-gate-btn {
+  /* The gate container is a centered flex column, which shrinks buttons
+     to their text width — force a proper full pill. */
+  width: 100%;
   max-width: 320px;
+  min-height: 56px;
+  padding: 0 32px;
+  font-size: 17px;
   margin: 18px auto 0;
   display: block;
 }
