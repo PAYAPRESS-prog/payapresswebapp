@@ -14,7 +14,12 @@ import { getPool } from '@/lib/db';
 import type { RowDataPacket } from 'mysql2';
 import { createHash, timingSafeEqual } from 'crypto';
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'web3.payapress@gmail.com';
+// One or more admin recipients — comma-separated ADMIN_EMAIL env var
+// overrides these defaults.
+const ADMIN_EMAILS = (process.env.ADMIN_EMAIL ?? 'web3.payapress@gmail.com, web1.payapress@gmail.com')
+  .split(',')
+  .map(e => e.trim())
+  .filter(Boolean);
 
 // Best-effort IP → location lookup (free, keyless). Never blocks signup.
 async function lookupLocation(ip: string): Promise<string> {
@@ -52,7 +57,10 @@ function notifyAdmin(info: {
     const mail = adminSignupNotificationEmail({
       ...info, userNumber, location, time: new Date().toISOString(),
     });
-    await sendMail({ to: ADMIN_EMAIL, subject: mail.subject, html: mail.html, text: mail.text });
+    await Promise.all(ADMIN_EMAILS.map(to =>
+      sendMail({ to, subject: mail.subject, html: mail.html, text: mail.text })
+        .catch(err => console.error(`[signup/verify] admin notify to ${to} failed:`, err)),
+    ));
   })().catch(err => console.error('[signup/verify] admin notification failed:', err));
 }
 

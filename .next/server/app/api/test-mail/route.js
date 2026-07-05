@@ -15,7 +15,7 @@ Sent at ${new Date().toISOString()}`}),u.NextResponse.json({ok:!0,config:f,sent_
 <style>
   body{margin:0;padding:0;background:#f2f3f5;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;}
   .outer{background:#f2f3f5;padding:32px 16px;}
-  .wrap{max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;
+  .wrap{width:100%;max-width:560px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;
         box-shadow:0 4px 16px rgba(0,0,0,0.10);}
   .header{background:#d71920;background:linear-gradient(135deg,#d71920 0%,#e8531f 55%,#f7941d 100%);
           padding:28px 28px 22px;text-align:center;}
@@ -24,6 +24,7 @@ Sent at ${new Date().toISOString()}`}),u.NextResponse.json({ok:!0,config:f,sent_
   .header-tag{font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;
               color:rgba(255,255,255,0.85);margin-top:4px;}
   .body{padding:30px 30px 26px;}
+  @media (max-width:520px){.body{padding:22px 18px 20px;}.header{padding:22px 18px 18px;}h1{font-size:19px;}}
   h1{margin:0 0 14px;font-size:21px;font-weight:800;color:#16181d;letter-spacing:-0.01em;}
   p{margin:0 0 13px;font-size:14px;line-height:1.75;color:#4b5563;}
   .btn{display:inline-block;margin:10px 0 6px;padding:13px 32px;
@@ -109,7 +110,10 @@ If you didn't request this, ignore this email — your password will not change.
 
 ---
 Account: ${a}
-\xa9 2025 Busbar Calculator`}}function p(a){let b=`<a href="mailto:${j()}?subject=unsubscribe">Notifications</a>`,c=(a,b)=>`<div class="price-row"><span class="price-val" style="max-width:60%;text-align:right;word-break:break-all;">${b}</span><b>${a}</b></div>`,d=m(`
+\xa9 2025 Busbar Calculator`}}function p(a){let b=`<a href="mailto:${j()}?subject=unsubscribe">Notifications</a>`,c=(a,b)=>`<div style="padding:10px 14px;margin:0 0 8px;background:#faf7f2;border:1px solid #f0e6d8;border-radius:8px;">
+       <div style="font-size:11px;color:#9a7b4f;text-transform:uppercase;letter-spacing:0.04em;font-weight:700;">${a}</div>
+       <div style="font-size:14px;color:#16181d;font-weight:600;word-break:break-word;line-height:1.5;margin-top:2px;">${b}</div>
+     </div>`,d=m(`
     <h1>🆕 New user signed up</h1>
     <p class="muted" style="margin-top:-8px;">${new Date(a.time).toUTCString()}</p>
     ${c("Email",a.email)}
