@@ -387,3 +387,30 @@ export function dailyPriceReportEmail(
 
   return { subject: `📈 Busbar prices today — Copper $${copperPerKg.toFixed(2)}/kg`, html, text };
 }
+
+// ── Admin broadcast / direct email — generic branded announcement ──
+// Used by the Busbar Admin panel (single-user compose + broadcast).
+// Plain-text message: blank lines become paragraphs, single newlines
+// become <br>. Everything is HTML-escaped.
+export function announcementEmail(
+  subject: string,
+  message: string,
+): { subject: string; html: string; text: string } {
+  const esc = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const paragraphs = esc(message.trim())
+    .split(/\n{2,}/)
+    .map(p =>
+      `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#3d4046;">${p.replace(/\n/g, '<br>')}</p>`)
+    .join('');
+  const html = baseLayout(
+    `<h1 style="margin:0 0 18px;font-size:21px;line-height:1.35;color:#17181c;">${esc(subject)}</h1>
+     ${paragraphs}
+     <p style="margin:24px 0 0;">
+       <a href="https://calculator.payapress.com" style="display:inline-block;padding:12px 26px;border-radius:10px;background:linear-gradient(90deg,#f7941d,#d71920);color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;">Open Busbar Calculator</a>
+     </p>`,
+    'You are receiving this because you have a Busbar Calculator account or price subscription.',
+    subject,
+  );
+  return { subject, html, text: `${subject}\n\n${message.trim()}\n\nhttps://calculator.payapress.com` };
+}

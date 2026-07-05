@@ -6,5 +6,6 @@ Disallow: /app
 Disallow: /reset-password
 Disallow: /offline
 Disallow: /embed
+Disallow: /admin
 
 Sitemap: https://calculator.payapress.com/sitemap.xml

@@ -160,6 +160,12 @@
       "namedRegex": "^/\\.well\\-known/security\\.txt(?:/)?$"
     },
     {
+      "page": "/admin",
+      "regex": "^/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin(?:/)?$"
+    },
+    {
       "page": "/app",
       "regex": "^/app(?:/)?$",
       "routeKeys": {},

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { recordCronRun } from '@/lib/adminAuth';
 import { getPool, isDbConfigured } from '@/lib/db';
 import { listHistory } from '@/lib/history';
 import { fetchCopperPrice, fetchAluminumPrice } from '@/lib/serverPrices';
@@ -91,6 +92,8 @@ export async function GET(req: NextRequest) {
         if (errors.length < 5) errors.push(`${email}: ${String(err)}`);
       }
     }
+
+    await recordCronRun('daily-digest', `sent ${sent}/${subs.length}, failed ${failed}`);
 
     return NextResponse.json({
       ok: true,
