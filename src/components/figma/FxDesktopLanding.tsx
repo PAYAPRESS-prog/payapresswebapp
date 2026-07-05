@@ -1,15 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { MrBusbarMascot } from './FxMascot';
 import { FxNotifySheet } from './FxNotifySheet';
+import { FxAuthSheet } from './FxAuthSheet';
+import { BellIcon, CalculatorIcon, HistoryIcon, UserIcon } from './FxIcons';
 
 /* Desktop landing layer — Figma page 114:299, frame "Main" 114:300.
    Rendered ABOVE the app shell on /busbar-calculator and hidden below
    1024px (mobile stays pixel-true to the Mobile page 0:1).
-   Sections: top nav (114:301), hero (572:690), How It Works (578:698 +
-   578:702). "Start Calculate" scrolls down to the calculator app. */
+
+   The top nav is the ONE desktop header (Figma 114:301): brand, app
+   links (Calculator / History), the coming-soon items, Live COMEX,
+   bell and Sign In. The app shell's own header is hidden at ≥1024px on
+   this page so the header never appears twice. */
 
 const NAV_ITEMS = ['Live Metal Prices', 'Industry News', 'Equipment Costs'];
 
@@ -33,17 +38,54 @@ const STEPS = [
 
 export function FxDesktopLanding() {
   const [notifyOpen, setNotifyOpen] = useState(false);
+  const [authOpen,   setAuthOpen]   = useState(false);
+  const [authMode,   setAuthMode]   = useState<'login' | 'signup'>('login');
+  const [email,      setEmail]      = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/auth/me', { signal: AbortSignal.timeout(4000) })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => setEmail(d?.user?.email ?? null))
+      .catch(() => {});
+  }, []);
 
   function scrollToApp() {
     document.getElementById('fx-app-anchor')?.scrollIntoView({ behavior: 'smooth' });
   }
 
+  // Bell = account feature (explore-first policy gates at actions):
+  // signed-in users get the notification sheet, others the auth sheet.
+  function openBell() {
+    if (email) setNotifyOpen(true);
+    else { setAuthMode('signup'); setAuthOpen(true); }
+  }
+
+  function handleAuthSuccess() {
+    fetch('/api/auth/me')
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        setEmail(d?.user?.email ?? null);
+        setAuthOpen(false);
+        setNotifyOpen(true); // continue what the user came for
+      })
+      .catch(() => setAuthOpen(false));
+  }
+
   return (
     <div className="fx-dl" aria-label="Busbar Calculator overview">
-      {/* ── Top nav — Figma 114:301 ─────────────────────── */}
+      {/* ── Top nav — Figma 114:301 + app controls ──────── */}
       <header className="fx-dl-nav">
         <span className="fx-dl-brand">Busbar Calculator</span>
+
         <nav className="fx-dl-links" aria-label="Sections">
+          <button type="button" className="fx-dl-link fx-dl-link-app" onClick={scrollToApp}>
+            <CalculatorIcon width={16} height={16} />
+            Calculator
+          </button>
+          <Link href="/app/history" className="fx-dl-link fx-dl-link-app">
+            <HistoryIcon width={16} height={16} />
+            History
+          </Link>
           {NAV_ITEMS.map(label => (
             <button
               key={label}
@@ -56,10 +98,32 @@ export function FxDesktopLanding() {
             </button>
           ))}
         </nav>
+
         <span className="fx-dl-live">
           <span className="fx-dl-live-dot" />
           Live COMEX
         </span>
+
+        <button
+          type="button"
+          className="fx-dl-bell"
+          aria-label="Email notifications"
+          onClick={openBell}
+        >
+          <BellIcon width={20} height={20} />
+        </button>
+
+        {email ? (
+          <Link href="/app/profile" className="fx-dl-signin" aria-label="Profile">
+            <span className="fx-dl-avatar">{email[0].toUpperCase()}</span>
+            <span className="fx-dl-signin-email">{email}</span>
+          </Link>
+        ) : (
+          <Link href="/app/profile" className="fx-dl-signin" aria-label="Sign in">
+            <UserIcon width={18} height={18} />
+            <span>Sign In</span>
+          </Link>
+        )}
       </header>
 
       {/* ── Hero — Figma 572:690 ────────────────────────── */}
@@ -104,6 +168,13 @@ export function FxDesktopLanding() {
       </section>
 
       <FxNotifySheet open={notifyOpen} onClose={() => setNotifyOpen(false)} />
+      <FxAuthSheet
+        open={authOpen}
+        mode={authMode}
+        onClose={() => setAuthOpen(false)}
+        onModeChange={setAuthMode}
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 }

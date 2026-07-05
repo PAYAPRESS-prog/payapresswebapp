@@ -6337,14 +6337,23 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
 
   /* ── Top nav (114:301, 1440×80) ─────────────────── */
   /* Figma frame is 1440 wide with 80px gutters; on wider screens the
-     content column stays 1280px and centers instead of stretching. */
+     content column stays 1280px and centers instead of stretching.
+     Sticky: this is the ONE desktop header — the app shell's own header
+     is hidden below (Figma has a single top nav), so Calculator /
+     History / bell / Sign In must stay reachable while scrolled deep
+     into the calculator. */
   .fx-dl-nav {
+    position: sticky;
+    top: 0;
+    z-index: 60;
     height: 80px;
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 20px;
     padding: 0 max(80px, calc((100% - 1280px) / 2));
     background: rgba(20, 21, 24, 0.92);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
     border-bottom: 1px solid rgba(245, 247, 250, 0.07);
   }
   .fx-dl-brand {
@@ -6354,7 +6363,7 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
     margin-right: auto;
     white-space: nowrap;
   }
-  .fx-dl-links { display: flex; gap: 32px; }
+  .fx-dl-links { display: flex; gap: 26px; }
   .fx-dl-link {
     background: none;
     border: none;
@@ -6365,8 +6374,16 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
     font-family: inherit;
     cursor: pointer;
     transition: color 0.15s;
+    text-decoration: none;
+    white-space: nowrap;
   }
   .fx-dl-link:hover { color: #f5f7fa; }
+  .fx-dl-link-app {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .fx-dl-link-app svg { color: var(--fx-copper-bright); }
   .fx-dl-live {
     margin-left: auto;
     display: inline-flex;
@@ -6385,6 +6402,62 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
     width: 6px; height: 6px; border-radius: 50%;
     background: #22c55e;
     animation: fx-pulse 1.6s ease-in-out infinite;
+  }
+  .fx-dl-bell {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid rgba(245, 247, 250, 0.14);
+    background: rgba(245, 247, 250, 0.05);
+    color: rgba(245, 247, 250, 0.85);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .fx-dl-bell:hover {
+    background: rgba(245, 247, 250, 0.1);
+    border-color: rgba(245, 247, 250, 0.28);
+  }
+  .fx-dl-signin {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 9px 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(245, 247, 250, 0.18);
+    background: rgba(245, 247, 250, 0.06);
+    color: #f5f7fa;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .fx-dl-signin:hover {
+    background: rgba(245, 247, 250, 0.12);
+    border-color: rgba(245, 247, 250, 0.32);
+  }
+  .fx-dl-avatar {
+    width: 26px; height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--fx-copper-bright);
+    color: #16181c;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .fx-dl-signin-email {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+    font-size: 14px;
   }
 
   /* ── Hero (572:690) — copy left, mascot right-of-center.
@@ -6524,9 +6597,16 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
     opacity: 0.85;
   }
 
-  /* App shell sits below the landing as the live "app" section */
-  #fx-app-anchor { scroll-margin-top: 24px; }
-  #fx-app-anchor .fx-swipe-root { height: 100vh; height: 100svh; }
+  /* App shell sits below the landing as the live "app" section.
+     The shell's own header is hidden here — the sticky landing nav
+     (Figma 114:301) is the single desktop header, so the brand /
+     Calculator / History / Sign In row must not appear twice. */
+  #fx-app-anchor { scroll-margin-top: 80px; }
+  #fx-app-anchor .fx-swipe-root {
+    height: calc(100vh - 80px);
+    height: calc(100svh - 80px);
+  }
+  #fx-app-anchor .fx-header { display: none; }
 }
 
 /* ── Desktop-only extra suggestion presets (Figma 579:1001 / 584:191:
