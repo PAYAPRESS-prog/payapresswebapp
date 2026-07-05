@@ -2,7 +2,7 @@
 // JWT is stored in an httpOnly cookie so it can't be read by client JS.
 
 import bcrypt from 'bcryptjs';
-import { SignJWT, jwtVerify } from 'jose';
+import { SignJWT, jwtVerify, createRemoteJWKSet } from 'jose';
 
 export const SESSION_COOKIE = 'pp_session';
 const SESSION_DAYS = 30;
@@ -27,8 +27,51 @@ export async function hashPassword(plain: string): Promise<string> {
   return bcrypt.hash(plain, 12);
 }
 
-export async function verifyPassword(plain: string, hash: string): Promise<boolean> {
+export async function verifyPassword(plain: string, hash: string | null | undefined): Promise<boolean> {
+  // A Google-only account has no password hash — never authenticate it
+  // via password (bcrypt.compare on a null hash would throw).
+  if (!hash) return false;
   return bcrypt.compare(plain, hash);
+}
+
+// ── Google Sign-In: verify the ID token from Google Identity Services ──
+// Validates the RS256 signature against Google's rotating public keys and
+// checks issuer + audience + email_verified. Returns the trusted claims
+// or null. No secret needed — this is public-key verification.
+const GOOGLE_JWKS = createRemoteJWKSet(
+  new URL('https://www.googleapis.com/oauth2/v3/certs'),
+);
+
+export type GoogleClaims = {
+  sub: string;          // stable Google user id
+  email: string;
+  emailVerified: boolean;
+  givenName?: string;
+  familyName?: string;
+};
+
+export async function verifyGoogleIdToken(idToken: string): Promise<GoogleClaims | null> {
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? process.env.GOOGLE_CLIENT_ID;
+  if (!clientId) return null;
+  try {
+    const { payload } = await jwtVerify(idToken, GOOGLE_JWKS, {
+      issuer: ['https://accounts.google.com', 'accounts.google.com'],
+      audience: clientId,
+      algorithms: ['RS256'],
+    });
+    const email = String(payload.email ?? '').toLowerCase();
+    const sub = String(payload.sub ?? '');
+    if (!email || !sub) return null;
+    return {
+      sub,
+      email,
+      emailVerified: payload.email_verified === true,
+      givenName:  payload.given_name  ? String(payload.given_name)  : undefined,
+      familyName: payload.family_name ? String(payload.family_name) : undefined,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export type SessionPayload = { uid: number; email: string };

@@ -60,6 +60,13 @@ export async function POST(req: Request) {
         { status: 404 },
       );
     }
+    // Google-only account (no password set) — guide the user to the right button.
+    if (!user.password_hash && user.google_id) {
+      return NextResponse.json(
+        { error: 'This account uses Google Sign-In. Please continue with Google.' },
+        { status: 409 },
+      );
+    }
     if (!(await verifyPassword(password, user.password_hash))) {
       return NextResponse.json({ error: 'Incorrect password.' }, { status: 401 });
     }

@@ -6830,3 +6830,34 @@ h3.fx-suggestions-label {
     max-height: min(80svh, 640px);
   }
 }
+
+/* ── Sign in with Google ──────────────────────────────── */
+.fx-google-wrap {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.fx-auth-or {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  margin: 8px 0 14px;
+  color: rgba(245, 247, 250, 0.35);
+  font-size: 13px;
+}
+.fx-auth-or::before,
+.fx-auth-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(245, 247, 250, 0.12);
+}
+.fx-google-btn {
+  min-height: 44px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.fx-google-btn.is-busy { opacity: 0.5; pointer-events: none; }

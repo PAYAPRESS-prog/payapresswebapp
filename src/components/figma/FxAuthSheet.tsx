@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { LetterIcon, EyeIcon, EyeClosedIcon } from './FxIcons';
 import { lockBodyScroll, unlockBodyScroll } from '@/lib/scrollLock';
+import { FxGoogleButton } from './FxGoogleButton';
 
 type Mode = 'login' | 'signup';
 
@@ -142,6 +143,11 @@ export function FxAuthSheet({
     } finally {
       setBusy(false);
     }
+  }
+
+  function handleGoogleSuccess() {
+    if (onSuccess) { onSuccess(); onClose(); }
+    else router.push('/app');
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -454,6 +460,11 @@ export function FxAuthSheet({
           <button type="submit" className="fx-auth-submit" disabled={busy}>
             {busy ? 'Please wait…' : isSignup ? 'Sign Up' : 'Log In'}
           </button>
+
+          <FxGoogleButton
+            onSuccess={handleGoogleSuccess}
+            onError={msg => { setError(msg); setErrorSwitch(null); }}
+          />
         </form>
         </>
         )}

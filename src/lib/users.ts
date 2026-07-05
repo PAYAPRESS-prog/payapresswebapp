@@ -29,6 +29,7 @@ async function ensureTable(): Promise<void> {
     ['last_name',  'VARCHAR(100) NULL'],
     ['company',    'VARCHAR(150) NULL'],
     ['phone',      'VARCHAR(30)  NULL'],
+    ['google_id',  'VARCHAR(64)  NULL'],
   ];
   const [existing] = await pool.query<RowDataPacket[]>(
     `SELECT COLUMN_NAME FROM information_schema.COLUMNS
@@ -41,14 +42,22 @@ async function ensureTable(): Promise<void> {
       console.error(`[users] failed to add column ${col}:`, err);
     });
   }
+  // Google accounts have no password — relax the NOT NULL constraint so
+  // they can be created with a NULL password_hash.
+  await pool.query('ALTER TABLE users MODIFY password_hash VARCHAR(255) NULL').catch(() => {});
+  // Fast lookup + no duplicate Google links.
+  if (!have.has('google_id')) {
+    await pool.query('CREATE UNIQUE INDEX uniq_google_id ON users (google_id)').catch(() => {});
+  }
   tableReady = true;
 }
 
 export type UserRow = {
   id: number;
   email: string;
-  password_hash: string;
+  password_hash: string | null;  // null for Google-only accounts
   opt_in: number;
+  google_id?: string | null;
 };
 
 export type ProfileRow = {
@@ -64,7 +73,7 @@ export async function findUserByEmail(email: string): Promise<UserRow | null> {
   await ensureTable();
   const pool = getPool();
   const [rows] = await pool.query<(UserRow & RowDataPacket)[]>(
-    'SELECT id, email, password_hash, opt_in FROM users WHERE email = ? LIMIT 1',
+    'SELECT id, email, password_hash, opt_in, google_id FROM users WHERE email = ? LIMIT 1',
     [email.toLowerCase()],
   );
   return rows[0] ?? null;
@@ -92,6 +101,41 @@ export async function createUser(
     [email.toLowerCase(), passwordHash, optIn ? 1 : 0],
   );
   return res.insertId;
+}
+
+// ── Google OAuth accounts ─────────────────────────────────────────
+export async function findUserByGoogleId(googleId: string): Promise<UserRow | null> {
+  await ensureTable();
+  const pool = getPool();
+  const [rows] = await pool.query<(UserRow & RowDataPacket)[]>(
+    'SELECT id, email, password_hash, opt_in, google_id FROM users WHERE google_id = ? LIMIT 1',
+    [googleId],
+  );
+  return rows[0] ?? null;
+}
+
+export async function createGoogleUser(
+  email: string,
+  googleId: string,
+  firstName?: string,
+  lastName?: string,
+): Promise<number> {
+  await ensureTable();
+  const pool = getPool();
+  const [res] = await pool.query<ResultSetHeader>(
+    `INSERT INTO users (email, password_hash, google_id, first_name, last_name, opt_in)
+     VALUES (?, NULL, ?, ?, ?, 0)`,
+    [email.toLowerCase(), googleId, firstName ?? null, lastName ?? null],
+  );
+  return res.insertId;
+}
+
+// Link a Google identity to an existing (email/password) account so the
+// same person can sign in either way.
+export async function linkGoogleId(uid: number, googleId: string): Promise<void> {
+  await ensureTable();
+  const pool = getPool();
+  await pool.query('UPDATE users SET google_id = ? WHERE id = ?', [googleId, uid]);
 }
 
 export async function updateProfile(

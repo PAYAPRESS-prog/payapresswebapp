@@ -13,15 +13,24 @@ const GA_SCRIPT = 'https://www.googletagmanager.com';
 const GA_CONNECT = 'https://www.google-analytics.com https://www.googletagmanager.com https://region1.google-analytics.com';
 const GA_IMG = 'https://www.google-analytics.com https://www.googletagmanager.com';
 
+// Google Identity Services ("Sign in with Google"). The GIS client script
+// runs an iframe (frame-src), fetches from accounts.google.com (connect),
+// and shows the user's avatar (img). Required or the button won't load.
+const GIS_SCRIPT = 'https://accounts.google.com/gsi/client';
+const GIS_FRAME  = 'https://accounts.google.com/gsi/';
+const GIS_CONNECT = 'https://accounts.google.com/gsi/';
+const GIS_STYLE  = 'https://accounts.google.com/gsi/style';
+const GIS_IMG    = 'https://lh3.googleusercontent.com';
+
 const CSP = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${GA_SCRIPT}`,
-  "style-src 'self' 'unsafe-inline'",
-  `img-src 'self' data: https://flagcdn.com ${GA_IMG}`,
+  `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${GA_SCRIPT} ${GIS_SCRIPT}`,
+  `style-src 'self' 'unsafe-inline' ${GIS_STYLE}`,
+  `img-src 'self' data: https://flagcdn.com ${GA_IMG} ${GIS_IMG}`,
   "font-src 'self'",
-  `connect-src 'self' ${GA_CONNECT}`,
+  `connect-src 'self' ${GA_CONNECT} ${GIS_CONNECT}`,
   "worker-src 'self'",
-  "frame-src 'none'",
+  `frame-src ${GIS_FRAME}`,
   "frame-ancestors 'none'",
   "object-src 'none'",
   "base-uri 'self'",
