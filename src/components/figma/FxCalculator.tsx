@@ -283,10 +283,13 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   function handleCalculate() {
     if (typeof window !== 'undefined') window.bcTrack?.('calculate');
     setShowResults(true);
-    // On desktop: scroll results into view; on mobile the sheet pops up
+    // On desktop: scroll the freshly rendered Results card into view
+    // (it sits below the currency row in the Figma grid); on mobile the
+    // sheet pops up over everything instead.
     if (!isMobile) {
       setTimeout(() => {
-        currCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        (resultsRef.current ?? currCardRef.current)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 150);
     }
   }

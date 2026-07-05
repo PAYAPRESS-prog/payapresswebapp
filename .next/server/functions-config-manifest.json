@@ -13,11 +13,11 @@
     "/api/auth/reset": {},
     "/api/auth/signup": {},
     "/api/auth/signup/verify": {},
+    "/api/notify": {},
+    "/api/price-history": {},
     "/api/cron/daily-digest": {
       "maxDuration": 300
     },
-    "/api/notify": {},
-    "/api/price-history": {},
     "/api/profile/change-password": {},
     "/api/profile": {},
     "/api/test-mail": {}
