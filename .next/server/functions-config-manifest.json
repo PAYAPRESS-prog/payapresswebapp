@@ -1,8 +1,8 @@
 {
   "version": 1,
   "functions": {
-    "/api/account/delete": {},
     "/api/admin/analytics": {},
+    "/api/account/delete": {},
     "/api/admin/users": {},
     "/api/analytics/collect": {},
     "/api/auth/forgot": {},
