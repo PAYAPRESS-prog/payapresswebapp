@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
+  BellIcon,
   CalculatorIcon,
   HistoryIcon,
   ChartUpIcon,
@@ -12,7 +13,7 @@ import {
 } from './FxIcons';
 import { FxAuthSheet } from './FxAuthSheet';
 
-type Action = 'route' | 'auth' | 'soon';
+type Action = 'route' | 'auth' | 'soon' | 'feedback';
 
 type Item = {
   key: string;
@@ -29,6 +30,7 @@ const ITEMS: Item[] = [
   { key: 'waste',   label: 'Waste Calculator',   sub: 'Kerf & punch-out loss',       Icon: ScissorsIcon,   action: 'auth',  href: '/app/waste' },
   { key: 'trends',  label: 'Current Trends',     sub: 'Market price movements',      Icon: ChartUpIcon,    action: 'soon' },
   { key: 'future',  label: 'Future Projections', sub: 'AI-assisted price forecast',  Icon: MagicStickIcon, action: 'soon' },
+  { key: 'pulse',   label: 'Give feedback',      sub: 'Help shape the roadmap',      Icon: BellIcon,       action: 'feedback' },
 ];
 
 export function FxAppMenu() {
@@ -64,6 +66,10 @@ export function FxAppMenu() {
   }, [soon]);
 
   function handleItem(item: Item) {
+    if (item.action === 'feedback') {
+      window.dispatchEvent(new CustomEvent('bc:pulse:open'));
+      return;
+    }
     if (item.action === 'route' && item.href) {
       router.push(item.href);
       return;

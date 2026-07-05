@@ -14,5 +14,11 @@
       "static/chunks/1057.d662a81ce626eff5.js",
       "static/chunks/3972.18c9a19510bc43d3.js"
     ]
+  },
+  "components/pulse/PulseHost.tsx -> ./PulsePlayer": {
+    "id": 7181,
+    "files": [
+      "static/chunks/7181.95768b4cbb84dcc3.js"
+    ]
   }
 }

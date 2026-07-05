@@ -6,12 +6,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
    (bottom tabs under 768px) + six sections fetching /api/admin/*.
    Charts are hand-rolled SVG in the same style as the app. */
 
-type Section = 'overview' | 'analytics' | 'users' | 'monitor' | 'broadcast' | 'settings';
+type Section = 'overview' | 'analytics' | 'users' | 'pulse' | 'monitor' | 'broadcast' | 'settings';
 
 const SECTIONS: Array<{ id: Section; label: string; icon: string }> = [
   { id: 'overview',  label: 'Overview',  icon: '◫' },
   { id: 'analytics', label: 'Analytics', icon: '∿' },
   { id: 'users',     label: 'Users',     icon: '◉' },
+  { id: 'pulse',     label: 'Pulse',     icon: '✦' },
   { id: 'monitor',   label: 'Monitor',   icon: '♥' },
   { id: 'broadcast', label: 'Broadcast', icon: '➤' },
   { id: 'settings',  label: 'Settings',  icon: '⚙' },
@@ -782,6 +783,219 @@ function Broadcast() {
   );
 }
 
+
+/* ═══ Section: Pulse (surveys) ══════════════════════════════ */
+
+interface SurveyMeta {
+  id: number; slug: string; title: string; active: number;
+  trigger_kind: string; trigger_n: number; responses: number; completed: number;
+  questions: Array<{ id: string; type: string; title: string; options?: string[]; max?: number }>;
+}
+interface PulseResponse {
+  visitor_id: string; user_id: number | null; user_email: string | null;
+  answers: Record<string, unknown>; partial: number; email: string | null;
+  page: string; device: string; country: string; created_at: string;
+}
+
+function Pulse() {
+  const [surveys, setSurveys] = useState<SurveyMeta[] | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const [sel, setSel] = useState<SurveyMeta | null>(null);
+  const [days, setDays] = useState(30);
+  const [resp, setResp] = useState<PulseResponse[] | null>(null);
+  const [edit, setEdit] = useState<SurveyMeta | null>(null);
+  const [editJson, setEditJson] = useState('');
+  const [editMsg, setEditMsg] = useState('');
+
+  const load = useCallback(() => {
+    setErr(null);
+    getJson<{ surveys: SurveyMeta[] }>('/api/admin/surveys')
+      .then(d => setSurveys(d.surveys)).catch(e => setErr(e.message));
+  }, []);
+  useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    if (!sel) return;
+    setResp(null);
+    getJson<{ responses: PulseResponse[] }>(`/api/admin/surveys?insights=${sel.id}&days=${days}`)
+      .then(d => setResp(d.responses)).catch(() => setResp([]));
+  }, [sel, days]);
+
+  async function toggle(sv: SurveyMeta) {
+    await fetch('/api/admin/surveys', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'toggle', id: sv.id, active: !sv.active }),
+    }).catch(() => {});
+    load();
+  }
+  async function save() {
+    if (!edit) return;
+    setEditMsg('');
+    let questions: unknown;
+    try { questions = JSON.parse(editJson); } catch { setEditMsg('Questions JSON is invalid'); return; }
+    const r = await fetch('/api/admin/surveys', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'save', id: edit.id > 0 ? edit.id : undefined, title: edit.title,
+        trigger: edit.trigger_kind, triggerN: edit.trigger_n, questions,
+      }),
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) { setEditMsg(d.error || 'Save failed'); return; }
+    setEdit(null); load();
+  }
+
+  // Aggregates for the selected survey
+  const agg = useMemo(() => {
+    if (!sel || !resp) return null;
+    const full = resp.filter(r => !r.partial);
+    const out: Record<string, { counts: Map<string, number>; nums: number[] }> = {};
+    for (const q of sel.questions) out[q.id] = { counts: new Map(), nums: [] };
+    for (const r of resp) {
+      for (const [qid, v] of Object.entries(r.answers ?? {})) {
+        const slot = out[qid]; if (!slot) continue;
+        if (typeof v === 'number') slot.nums.push(v);
+        else if (Array.isArray(v)) v.forEach(x => slot.counts.set(String(x), (slot.counts.get(String(x)) ?? 0) + 1));
+        else if (typeof v === 'string' && v) slot.counts.set(v, (slot.counts.get(v) ?? 0) + 1);
+      }
+    }
+    // NPS from the first nps question
+    const npsQ = sel.questions.find(q => q.type === 'nps');
+    let nps: number | null = null;
+    if (npsQ && out[npsQ.id].nums.length) {
+      const ns = out[npsQ.id].nums;
+      const promoters = ns.filter(n => n >= 9).length;
+      const detractors = ns.filter(n => n <= 6).length;
+      nps = Math.round(((promoters - detractors) / ns.length) * 100);
+    }
+    const moodQ = sel.questions.find(q => q.type === 'emoji');
+    const moodAvg = moodQ && out[moodQ.id].nums.length
+      ? out[moodQ.id].nums.reduce((a, b) => a + b, 0) / out[moodQ.id].nums.length : null;
+    return { out, nps, moodAvg, total: resp.length, completed: full.length };
+  }, [sel, resp]);
+
+  if (err) return <StatusView state="error" error={err} retry={load} />;
+  if (!surveys) return <StatusView state="loading" />;
+
+  const EMO = ['😖', '😕', '😐', '🙂', '🤩'];
+
+  return (
+    <>
+      <Panel title="Surveys"
+        action={<button type="button" className="bcadm-btn" onClick={() => {
+          setEdit({ id: 0, slug: '', title: '', active: 0, trigger_kind: 'manual',
+            trigger_n: 1, responses: 0, completed: 0, questions: [] });
+          setEditJson(JSON.stringify([{ id: 'q1', type: 'emoji', title: 'How was it?' }], null, 2));
+        }}>+ New survey</button>}>
+        <div className="bcadm-scroll">
+          <table className="bcadm-table bcadm-click">
+            <thead><tr><th>Survey</th><th>Trigger</th><th>Responses</th><th>Active</th><th /></tr></thead>
+            <tbody>{surveys.map(sv => (
+              <tr key={sv.id} onClick={() => setSel(sv)}>
+                <td><b>{sv.title}</b><div className="bcadm-dim">{sv.slug}</div></td>
+                <td><span className="bcadm-tag">{sv.trigger_kind}{sv.trigger_n > 1 ? ` ×${sv.trigger_n}` : ''}</span></td>
+                <td>{sv.responses} <span className="bcadm-dim">({sv.completed} full)</span></td>
+                <td onClick={e => e.stopPropagation()}>
+                  <button type="button" className={`bcadm-chip${sv.active ? ' active' : ''}`}
+                    onClick={() => toggle(sv)}>{sv.active ? 'On' : 'Off'}</button>
+                </td>
+                <td onClick={e => e.stopPropagation()}>
+                  <button type="button" className="bcadm-btn" onClick={() => {
+                    setEdit(sv); setEditJson(JSON.stringify(sv.questions, null, 2)); setEditMsg('');
+                  }}>Edit</button>
+                </td>
+              </tr>))}
+            </tbody>
+          </table>
+        </div>
+      </Panel>
+
+      {edit && (
+        <Panel title={edit.id ? `Edit: ${edit.title || '…'}` : 'New survey'}
+          action={<button type="button" className="bcadm-btn" onClick={() => setEdit(null)}>✕</button>}>
+          <input className="bcadm-input" placeholder="Title" value={edit.title}
+            onChange={e => setEdit({ ...edit, title: e.target.value })} />
+          <div className="bcadm-row" style={{ marginBottom: 10 }}>
+            {['manual', 'post_calculate', 'post_bookmark', 'post_waste', 'nth_visit'].map(t => (
+              <button key={t} type="button"
+                className={`bcadm-chip${edit.trigger_kind === t ? ' active' : ''}`}
+                onClick={() => setEdit({ ...edit, trigger_kind: t })}>{t}</button>
+            ))}
+            <input className="bcadm-input bcadm-input-sm" type="number" min={1} max={20}
+              value={edit.trigger_n} title="Fire on Nth event"
+              onChange={e => setEdit({ ...edit, trigger_n: Number(e.target.value) || 1 })} />
+          </div>
+          <textarea className="bcadm-input bcadm-textarea bcadm-mono" rows={12}
+            value={editJson} onChange={e => setEditJson(e.target.value)}
+            spellCheck={false} />
+          <div className="bcadm-row">
+            <button type="button" className="bcadm-btn bcadm-btn-primary" onClick={save}>Save survey</button>
+            {editMsg && <span className="bcadm-err-text">{editMsg}</span>}
+            <span className="bcadm-dim">Types: emoji · nps · single · multi · text (id, type, title, options?, max?)</span>
+          </div>
+        </Panel>
+      )}
+
+      {sel && (
+        <Panel title={`Insights — ${sel.title}`}
+          action={<div className="bcadm-row">
+            {[7, 30, 90].map(d => (
+              <button key={d} type="button" className={`bcadm-chip${days === d ? ' active' : ''}`}
+                onClick={() => setDays(d)}>{d}d</button>))}
+            {resp && <button type="button" className="bcadm-btn"
+              onClick={() => csv(resp.map(r => ({ ...r, answers: JSON.stringify(r.answers) })), `pulse-${sel.slug}`)}>CSV</button>}
+          </div>}>
+          {!resp && <StatusView state="loading" />}
+          {resp && agg && (
+            <>
+              <div className="bcadm-kpis">
+                <div className="bcadm-kpi"><span className="bcadm-kpi-label">Responses</span>
+                  <span className="bcadm-kpi-value">{agg.total}</span>
+                  <span className="bcadm-kpi-sub">{agg.completed} completed</span></div>
+                <div className="bcadm-kpi"><span className="bcadm-kpi-label">Avg mood</span>
+                  <span className="bcadm-kpi-value">{agg.moodAvg != null ? EMO[Math.round(agg.moodAvg) - 1] : '—'}</span>
+                  <span className="bcadm-kpi-sub">{agg.moodAvg != null ? agg.moodAvg.toFixed(2) + ' / 5' : 'no data'}</span></div>
+                <div className="bcadm-kpi"><span className="bcadm-kpi-label">NPS</span>
+                  <span className="bcadm-kpi-value">{agg.nps ?? '—'}</span>
+                  <span className="bcadm-kpi-sub">promoters − detractors</span></div>
+              </div>
+              {sel.questions.map(q => {
+                const slot = agg.out[q.id];
+                if (!slot) return null;
+                if (q.type === 'single' || q.type === 'multi' || q.type === 'emoji' || q.type === 'nps') {
+                  const entries = q.type === 'emoji'
+                    ? EMO.map((e, i) => [e, slot.nums.filter(n => n === i + 1).length] as [string, number])
+                    : q.type === 'nps'
+                      ? [['Detractors 0–6', slot.nums.filter(n => n <= 6).length],
+                         ['Passives 7–8', slot.nums.filter(n => n === 7 || n === 8).length],
+                         ['Promoters 9–10', slot.nums.filter(n => n >= 9).length]] as Array<[string, number]>
+                      : (q.options ?? []).map(o => [o, slot.counts.get(o) ?? 0] as [string, number]);
+                  return <TopList key={q.id} title={q.title} rows={entries} />;
+                }
+                const texts = Array.from(slot.counts.keys());
+                return (
+                  <div key={q.id} className="bcadm-toplist" style={{ marginTop: 12 }}>
+                    <h3>{q.title}</h3>
+                    {texts.length === 0 && <div className="bcadm-empty">No written answers yet</div>}
+                    {resp.filter(r => typeof r.answers?.[q.id] === 'string' && r.answers[q.id]).map((r, i) => (
+                      <div key={i} className="bcadm-toplist-row" style={{ alignItems: 'flex-start' }}>
+                        <span style={{ flex: 1, whiteSpace: 'pre-wrap' }}>{String(r.answers[q.id])}</span>
+                        <span className="bcadm-dim" style={{ flexShrink: 0 }}>
+                          {[r.user_email ?? r.email, r.country, r.device].filter(Boolean).join(' · ') || 'guest'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
+            </>
+          )}
+        </Panel>
+      )}
+    </>
+  );
+}
+
 /* ═══ Section: Settings ═════════════════════════════════════ */
 
 function Settings() {
@@ -864,6 +1078,7 @@ export function AdminShell() {
       case 'overview':  return <Overview />;
       case 'analytics': return <Analytics />;
       case 'users':     return <Users />;
+      case 'pulse':     return <Pulse />;
       case 'monitor':   return <Monitor />;
       case 'broadcast': return <Broadcast />;
       case 'settings':  return <Settings />;

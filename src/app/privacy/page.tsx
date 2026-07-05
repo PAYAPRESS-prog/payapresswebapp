@@ -117,9 +117,14 @@ export default function PrivacyPage() {
             with advertisers. For measurement we store two random identifiers in
             your browser&rsquo;s local/session storage (not cookies) to count
             returning visitors and sessions; these never leave our domain and are
-            not linked to your identity. 
-            We do not use any analytics or telemetry service (no Google Analytics, no Mixpanel,
-            no similar tools).
+            not linked to your identity. We additionally use Google Analytics
+            for aggregate traffic measurement.
+          </p>
+          <p style={pStyle}>
+            If you choose to answer one of our short in-app feedback surveys,
+            your answers are stored on our own servers only, keyed to the same
+            anonymous identifier. Leaving an email address in a survey is
+            entirely optional and only used to follow up on your feedback.
           </p>
         </section>
 

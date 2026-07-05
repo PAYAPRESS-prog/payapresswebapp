@@ -34,6 +34,12 @@ function FooterCol({ title, links }: { title: string; links: Array<[string, stri
   return (
     <nav className="fxf-col" aria-label={title}>
       <h3 className="fxf-col-title">{title}</h3>
+      {title === 'Product' && (
+        <button type="button" className="fxf-link fxf-link-btn"
+          onClick={() => window.dispatchEvent(new CustomEvent('bc:pulse:open'))}>
+          Give feedback
+        </button>
+      )}
       {links.map(([label, href, external]) =>
         external ? (
           <a key={label} href={href} className="fxf-link" target="_blank" rel="noopener noreferrer">
