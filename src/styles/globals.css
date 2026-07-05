@@ -6203,8 +6203,9 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  height: 56px;
+  /* keep clear of the iOS status bar / notch in standalone PWA mode */
+  padding: env(safe-area-inset-top) 16px 0;
+  height: calc(56px + env(safe-area-inset-top));
   background: #0b0d10;
   border-bottom: 1px solid rgba(245, 247, 250, 0.08);
   flex-shrink: 0;
@@ -7282,6 +7283,8 @@ h3.fx-suggestions-label {
    ══════════════════════════════════════════════════════ */
 .bcadm-gate {
   min-height: 100svh;
+  padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -7716,11 +7719,26 @@ h3.fx-suggestions-label {
    ══════════════════════════════════════════════════════ */
 .bcadm-scroll { -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
 @media (max-width: 767px) {
-  .bcadm-title { font-size: 20px; margin-bottom: 14px; }
-  .bcadm-main { max-width: 100%; }
+  /* Sticky blurred section header that clears the iOS status bar */
+  .bcadm-main {
+    max-width: 100%;
+    padding-top: 0;
+  }
+  .bcadm-title {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    font-size: 19px;
+    margin: 0 -14px 14px;
+    padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+    background: rgba(13, 14, 16, 0.92);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(245, 247, 250, 0.07);
+  }
 
   /* Tables: readable, momentum horizontal scroll, no squashing */
-  .bcadm-table { min-width: 560px; font-size: 12.5px; }
+  .bcadm-table { min-width: 520px; font-size: 12.5px; }
   .bcadm-table th { padding: 7px 8px; }
   .bcadm-table td { padding: 8px; }
   .bcadm-scroll { max-height: 440px; }
