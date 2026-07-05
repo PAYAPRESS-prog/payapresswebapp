@@ -13,13 +13,20 @@ const PulsePlayer = dynamic(() => import('./PulsePlayer'), { ssr: false });
    the frequency guards, then shows a small invitation toast. Manual
    entry points dispatch `bc:pulse:open`. */
 
+// ── TEST MODE ────────────────────────────────────────────────
+// While the app is in its beta/testing phase we ask much more often:
+// invites fire on the FIRST qualifying action, the 2-minute grace and
+// 14-day cap are off, and snoozes are hours instead of weeks. Flip to
+// false for the public/production behaviour.
+const TEST_MODE = true;
+
 const LAST_PROMPT_KEY = 'bc_fb_last';          // any prompt shown
 const FIRST_SEEN_KEY  = 'bc_pulse_first';
 const DAYS_KEY        = 'bc_pulse_days';
 const SNOOZE_PREFIX   = 'bc_pulse_s_';          // per-survey snooze until (ms)
-const PROMPT_EVERY_MS = 14 * 86400_000;
-const DISMISS_SNOOZE  = 30 * 86400_000;
-const DONE_SNOOZE     = 60 * 86400_000;
+const PROMPT_EVERY_MS = TEST_MODE ? 0 : 14 * 86400_000;
+const DISMISS_SNOOZE  = TEST_MODE ? 4 * 3600_000  : 30 * 86400_000;  // 4h in test
+const DONE_SNOOZE     = TEST_MODE ? 24 * 3600_000 : 60 * 86400_000;  // 1d in test
 
 function lsGet(k: string): string | null { try { return localStorage.getItem(k); } catch { return null; } }
 function lsSet(k: string, v: string): void { try { localStorage.setItem(k, v); } catch { /* private mode */ } }
@@ -28,10 +35,10 @@ function lsSet(k: string, v: string): void { try { localStorage.setItem(k, v); }
 function frequencyOk(slug: string): boolean {
   const now = Date.now();
   const first = Number(lsGet(FIRST_SEEN_KEY));
-  if (!first) { lsSet(FIRST_SEEN_KEY, String(now)); return false; }
-  if (now - first < 2 * 60_000) return false;                    // first 2 minutes
+  if (!first) { lsSet(FIRST_SEEN_KEY, String(now)); if (!TEST_MODE) return false; }
+  if (!TEST_MODE && now - Number(first || now) < 2 * 60_000) return false; // first 2 minutes
   const last = Number(lsGet(LAST_PROMPT_KEY));
-  if (last && now - last < PROMPT_EVERY_MS) return false;        // 14-day global cap
+  if (PROMPT_EVERY_MS && last && now - last < PROMPT_EVERY_MS) return false; // global cap
   const snooze = Number(lsGet(SNOOZE_PREFIX + slug));
   if (snooze && now < snooze) return false;                      // per-survey snooze
   return true;
@@ -68,10 +75,15 @@ export function PulseHost() {
   const tryTrigger = useCallback(async (trigger: string, n: number) => {
     if (promptedThisSession.current) return;
     try {
-      const r = await fetch(`/api/survey/active?trigger=${trigger}`);
+      let r = await fetch(`/api/survey/active?trigger=${trigger}`);
+      // Test mode: if no survey is bound to this trigger, fall back to
+      // the default one so EVERY section produces tester feedback.
+      if (r.status !== 200 && TEST_MODE) r = await fetch('/api/survey/active?trigger=manual');
       if (r.status !== 200) return;
       const s = await r.json();
-      if (!s?.id || n < (s.triggerN ?? 1)) return;
+      if (!s?.id) return;
+      const need = TEST_MODE ? 1 : (s.triggerN ?? 1);
+      if (n < need) return;
       if (!frequencyOk(s.slug)) return;
 
       const show = () => {
@@ -119,7 +131,11 @@ export function PulseHost() {
   // Visit-day trigger + login state (for the optional email field).
   useEffect(() => {
     const days = markVisitDay();
-    const t = setTimeout(() => tryTrigger('nth_visit', days), 8000);
+    // Test mode: also invite after ~25s of simply exploring the page.
+    const t = setTimeout(
+      () => tryTrigger('nth_visit', TEST_MODE ? 99 : days),
+      TEST_MODE ? 25_000 : 8000,
+    );
     fetch('/api/auth/me', { signal: AbortSignal.timeout(4000) })
       .then(r => (r.ok ? r.json() : null))
       .then(d => setLoggedIn(Boolean(d?.user)))
