@@ -7500,3 +7500,16 @@ h3.fx-suggestions-label {
     padding-top: 24px;
   }
 }
+
+/* Desktop sizing for the restored Figma app footer */
+@media (min-width: 1024px) {
+  .fx-dl-footer-wrap .fx-footer {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 26px 24px 34px;
+    border-top: none;
+    text-align: center;
+  }
+  .fx-dl-footer-wrap { border-top: 1px solid rgba(245,247,250,0.08); }
+  .fx-dl-footer-wrap .fx-footer-text { font-size: 13px; color: rgba(245,247,250,0.6); }
+}

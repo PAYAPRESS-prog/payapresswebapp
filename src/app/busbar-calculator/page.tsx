@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Footer } from '@/components/Footer';
+import { FxFooter } from '@/components/figma/FxFooter';
 import { SITE_URL } from '@/lib/siteUrl';
 import { FxSwipeApp } from '@/components/figma/FxSwipeApp';
 import { FxDesktopLanding } from '@/components/figma/FxDesktopLanding';
@@ -169,11 +169,11 @@ export default async function CalculatorPage() {
           aluminumPrice={aluminumVal?.pricePerKg ?? null}
         />
       </div>
-      {/* Professional multi-column footer — desktop only: the mobile
-          view is an app shell (100svh + bottom nav) where a page footer
-          below the fold would break the app feel. */}
+      {/* Original Figma app footer — desktop only: the mobile view is
+          an app shell (100svh + bottom nav) where a page footer below
+          the fold would break the app feel. */}
       <div className="fx-dl-footer-wrap">
-        <Footer />
+        <FxFooter />
       </div>
     </SectionErrorBoundary>
   );
