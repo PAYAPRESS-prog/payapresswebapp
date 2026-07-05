@@ -173,7 +173,10 @@ export default async function CalculatorPage() {
           an app shell (100svh + bottom nav) where a page footer below
           the fold would break the app feel. */}
       <div className="fx-dl-footer-wrap">
-        <FxFooter />
+        <FxFooter
+          copperPrice={copperVal?.pricePerKg ?? null}
+          aluminumPrice={aluminumVal?.pricePerKg ?? null}
+        />
       </div>
     </SectionErrorBoundary>
   );
