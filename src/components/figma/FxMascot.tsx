@@ -72,8 +72,8 @@ export function MrBusbarMascot({ className }: { className?: string }) {
         <img
           src="/mr-busbar.png"
           alt=""
-          width={256}
-          height={731}
+          width={254}
+          height={730}
           onError={() => setImgOk(false)}
         />
       ) : (

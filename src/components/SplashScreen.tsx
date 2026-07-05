@@ -32,7 +32,7 @@ export default function SplashScreen() {
     <div className={`pp-splash${phase === 'leaving' ? ' is-leaving' : ''}`} aria-hidden="true">
       <div className="pp-splash-mascot">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/mr-busbar.png" alt="" width={256} height={731} />
+        <img src="/mr-busbar.png" alt="" width={254} height={730} />
       </div>
 
       <h1 className="pp-splash-title">
