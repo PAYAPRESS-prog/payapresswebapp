@@ -1,23 +1,24 @@
 {
   "version": 1,
   "functions": {
+    "/api/account/delete": {},
     "/api/admin/analytics": {},
     "/api/admin/audit": {},
     "/api/admin/broadcast": {},
     "/api/admin/crm": {},
     "/api/admin/events": {},
     "/api/admin/login": {},
-    "/api/account/delete": {},
     "/api/admin/monitor": {},
-    "/api/admin/surveys": {},
     "/api/admin/overview": {},
+    "/api/admin/surveys": {},
+    "/api/admin/users": {},
     "/api/analytics/collect": {},
     "/api/auth/forgot": {},
     "/api/auth/google": {},
     "/api/auth/login": {},
     "/api/auth/logout": {},
-    "/api/auth/reset": {},
     "/api/auth/me": {},
+    "/api/auth/reset": {},
     "/api/auth/signup": {},
     "/api/auth/signup/verify": {},
     "/api/cron/daily-digest": {
@@ -30,7 +31,6 @@
     "/api/survey/active": {},
     "/api/survey/respond": {},
     "/api/test-mail": {},
-    "/api/admin/users": {},
     "/admin": {}
   }
 }

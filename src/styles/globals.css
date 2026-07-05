@@ -7967,3 +7967,36 @@ h3.fx-suggestions-label {
   .plx-overlay, .plx-sheet, .plx-invite { animation: none !important; }
 }
 .fxf-link-btn { background: none; border: none; padding: 0; font-family: inherit; cursor: pointer; font-size: 13.5px; text-align: left; }
+
+/* ── Pulse player: mobile ergonomics (standard touch sizing) ── */
+@media (max-width: 767px) {
+  .plx-sheet { padding: 12px 16px calc(20px + env(safe-area-inset-bottom)); }
+  .plx-title { font-size: 17px; }
+  .plx-close { width: 40px; height: 40px; }
+  .plx-emojis { gap: 6px; }
+  .plx-emoji { font-size: 26px; padding: 14px 0; min-height: 58px; }
+  /* NPS 0–10: two rows of large targets instead of 11 tiny columns */
+  .plx-nps { grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .plx-nps-n { min-height: 48px; font-size: 15px; }
+  /* 16px inputs stop iOS Safari from zooming the sheet on focus */
+  .plx-textarea, .plx-email { font-size: 16px; }
+  .plx-foot { gap: 10px; }
+  .plx-primary { flex: 1; min-height: 50px; }
+  .plx-ghost { min-height: 48px; }
+  /* Invitation toast wraps into a tidy two-line card on phones */
+  .plx-invite {
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 8px;
+    text-align: center;
+    padding: 13px 16px;
+    border-radius: 18px;
+  }
+  .plx-invite-txt { flex-basis: 100%; }
+  .plx-invite-yes { min-height: 42px; padding: 9px 22px; }
+  .plx-invite-no { min-height: 42px; }
+}
+@media (max-width: 360px) {
+  .plx-emoji { font-size: 23px; min-height: 52px; }
+  .plx-nps { grid-template-columns: repeat(4, 1fr); }
+}
