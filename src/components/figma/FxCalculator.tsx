@@ -628,12 +628,9 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
       {/* ── Desktop empty state ─────────────────────────── */}
       {!showResults && (
         <div className="fx-results-empty-desktop" aria-hidden="true">
-          <div className="fx-results-empty-icon">
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-              <rect x="6" y="14" width="36" height="5" rx="2.5" fill="rgba(184,115,51,0.25)"/>
-              <rect x="6" y="23" width="36" height="5" rx="2.5" fill="rgba(184,115,51,0.18)"/>
-              <rect x="6" y="32" width="36" height="5" rx="2.5" fill="rgba(184,115,51,0.12)"/>
-            </svg>
+          <div className="fx-results-empty-mascot">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/mr-busbar.png" alt="" width={64} height={184} loading="lazy" />
           </div>
           <p className="fx-results-empty-title">Set dimensions &amp; calculate</p>
           <p className="fx-results-empty-sub">

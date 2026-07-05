@@ -157,7 +157,10 @@ export default async function CalculatorPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
       />
       {/* Desktop-only landing (Figma page 114:299) — hidden below 1024px */}
-      <FxDesktopLanding />
+      <FxDesktopLanding
+        copperPrice={copperVal?.pricePerKg ?? null}
+        aluminumPrice={aluminumVal?.pricePerKg ?? null}
+      />
       <div id="fx-app-anchor">
         <FxSwipeApp
           initialData={initialData}

@@ -36,7 +36,13 @@ const STEPS = [
   },
 ];
 
-export function FxDesktopLanding() {
+export function FxDesktopLanding({
+  copperPrice = null,
+  aluminumPrice = null,
+}: {
+  copperPrice?: number | null;
+  aluminumPrice?: number | null;
+}) {
   const [notifyOpen, setNotifyOpen] = useState(false);
   const [authOpen,   setAuthOpen]   = useState(false);
   const [authMode,   setAuthMode]   = useState<'login' | 'signup'>('login');
@@ -142,8 +148,31 @@ export function FxDesktopLanding() {
               Try App
             </Link>
           </div>
+
+          {/* Live spot-price chips — real ISR data, refreshed every 5 min */}
+          {(copperPrice || aluminumPrice) && (
+            <div className="fx-dl-stats" aria-label="Live metal prices">
+              {copperPrice && (
+                <button type="button" className="fx-dl-stat" onClick={scrollToApp}>
+                  <span className="fx-dl-stat-dot cu" />
+                  <span className="fx-dl-stat-label">Copper</span>
+                  <span className="fx-dl-stat-value">${copperPrice.toFixed(2)}<small>/kg</small></span>
+                </button>
+              )}
+              {aluminumPrice && (
+                <button type="button" className="fx-dl-stat" onClick={scrollToApp}>
+                  <span className="fx-dl-stat-dot al" />
+                  <span className="fx-dl-stat-label">Aluminum</span>
+                  <span className="fx-dl-stat-value">${aluminumPrice.toFixed(2)}<small>/kg</small></span>
+                </button>
+              )}
+            </div>
+          )}
         </div>
-        <MrBusbarMascot className="fx-dl-mascot" />
+        <div className="fx-dl-mascot-stage">
+          <div className="fx-dl-mascot-glow" aria-hidden="true" />
+          <MrBusbarMascot className="fx-dl-mascot" />
+        </div>
       </section>
 
       <div className="fx-dl-divider" />

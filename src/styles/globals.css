@@ -6519,17 +6519,76 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   /* Height-driven sizing: the old width-driven box (width:min(458px,32vw)
      + max-height letterbox) inflated the mascot and shoved it against the
      viewport edge on wide screens. */
-  .fx-dl-mascot {
+  .fx-dl-mascot-stage {
+    position: relative;
     flex-shrink: 0;
     margin-right: clamp(40px, 9vw, 150px);
+    animation: fx-dl-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
+  .fx-dl-mascot-glow {
+    position: absolute;
+    inset: -12% -55%;
+    background: radial-gradient(closest-side,
+      rgba(247, 148, 29, 0.16) 0%,
+      rgba(215, 25, 32, 0.07) 55%,
+      transparent 100%);
+    filter: blur(8px);
+    pointer-events: none;
+  }
+  .fx-dl-mascot { position: relative; }
   .fx-dl-mascot img,
   .fx-dl-mascot svg {
     height: min(640px, 64vh);
     width: auto;
     display: block;
     filter: drop-shadow(0 24px 60px rgba(0, 0, 0, 0.55));
+    animation: fx-dl-float 7s ease-in-out infinite;
   }
+  @keyframes fx-dl-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-12px); }
+  }
+  @keyframes fx-dl-in {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fx-dl-hero-copy { animation: fx-dl-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  @media (prefers-reduced-motion: reduce) {
+    .fx-dl-mascot img, .fx-dl-mascot svg, .fx-dl-mascot-stage, .fx-dl-hero-copy {
+      animation: none;
+    }
+  }
+
+  /* Live spot-price chips under the hero CTAs */
+  .fx-dl-stats { display: flex; gap: 12px; margin-top: 34px; }
+  .fx-dl-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(245, 247, 250, 0.12);
+    background: rgba(245, 247, 250, 0.04);
+    color: rgba(245, 247, 250, 0.8);
+    font-family: inherit;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+  }
+  .fx-dl-stat:hover {
+    border-color: rgba(247, 148, 29, 0.45);
+    background: rgba(247, 148, 29, 0.07);
+    transform: translateY(-1px);
+  }
+  .fx-dl-stat-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    animation: fx-pulse 1.8s ease-in-out infinite;
+  }
+  .fx-dl-stat-dot.cu { background: #f7941d; }
+  .fx-dl-stat-dot.al { background: #6fb3e0; }
+  .fx-dl-stat-label { font-weight: 500; }
+  .fx-dl-stat-value { font-weight: 700; color: #f5f7fa; }
+  .fx-dl-stat-value small { font-weight: 500; color: rgba(245,247,250,0.5); margin-left: 2px; }
 
   .fx-dl-divider {
     height: 1px;
@@ -6792,6 +6851,48 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
 /* "Other currency" slim row — shown once a custom chip occupies the
    4th grid cell, so the picker is always one tap away */
 .fx-curr-other-row { width: 100%; flex: none; }
+
+/* ── Desktop micro-interactions: gentle lift on hoverable controls.
+   Pointer-fine only so touch devices never get sticky hover states. ── */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .fx-suggestion-pill,
+  .fx-grade-pill,
+  .fx-results-btn,
+  .fx-results-share-btn,
+  .fx-results-waste-btn,
+  .fx-metal-btn {
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s,
+                transform 0.15s, opacity 0.15s;
+  }
+  .fx-suggestion-pill:hover:not(.active),
+  .fx-grade-pill:hover:not(.active) {
+    border-color: rgba(247, 148, 29, 0.45);
+    transform: translateY(-1px);
+  }
+  .fx-results-btn:hover,
+  .fx-results-share-btn:hover,
+  .fx-results-waste-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(245, 247, 250, 0.35);
+  }
+  .fx-calc-now-btn:hover {
+    box-shadow: 0 10px 32px -10px rgba(215, 25, 32, 0.75);
+    transform: translateY(-1px);
+  }
+  .fx-calc-now-btn { transition: background 0.15s, box-shadow 0.15s, transform 0.15s; }
+}
+
+/* Empty-state mascot (desktop results placeholder) */
+.fx-results-empty-mascot img {
+  width: 64px;
+  height: auto;
+  opacity: 0.9;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.5));
+  animation: fx-dl-float 6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fx-results-empty-mascot img { animation: none; }
+}
 
 /* ══════════════════════════════════════════════════════
    SEO heading semantics — section titles were spans/divs;
