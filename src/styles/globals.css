@@ -7337,6 +7337,7 @@ h3.fx-suggestions-label {
 .bcadm-brand img { filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
 .bcadm-brand strong { display: block; font-size: 15px; }
 .bcadm-brand span { font-size: 11px; color: rgba(245,247,250,0.45); }
+.bcadm-side nav { display: flex; flex-direction: column; gap: 4px; }
 .bcadm-nav {
   display: flex;
   align-items: center;
@@ -7413,8 +7414,9 @@ h3.fx-suggestions-label {
 .bcadm-legend { display: flex; gap: 18px; font-size: 12px; color: rgba(245,247,250,0.55); margin-top: 8px; }
 .bcadm-legend i { display: inline-block; width: 10px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
 
-.bcadm-grid4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-bottom: 18px; }
-.bcadm-grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px; }
+.bcadm-grid4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 14px; margin-bottom: 18px; }
+.bcadm-grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 14px; }
+.bcadm-grid4 > *, .bcadm-grid2 > * { min-width: 0; }
 .bcadm-toplist {
   background: rgba(245,247,250,0.05);
   border-radius: 14px;
@@ -7569,7 +7571,8 @@ h3.fx-suggestions-label {
     overflow-x: auto; z-index: 700;
   }
   .bcadm-brand, .bcadm-side-foot { display: none; }
-  .bcadm-nav { flex-direction: column; gap: 3px; font-size: 10.5px; padding: 8px 10px; flex: 1; min-width: 62px; }
+  .bcadm-side nav { flex-direction: row; flex: 1; min-width: 0; gap: 4px; }
+  .bcadm-nav { flex-direction: column; gap: 3px; font-size: 10.5px; padding: 8px 6px; flex: 1; min-width: 58px; width: auto; }
   .bcadm-main { padding: 18px 14px calc(90px + env(safe-area-inset-bottom)); }
   .bcadm-drawer { width: 100%; }
   .bcadm-kpis { grid-template-columns: repeat(2, 1fr); }
@@ -7707,3 +7710,59 @@ h3.fx-suggestions-label {
 /* Live-price banner exists only in the desktop grid (Figma 114:300);
    the mobile results sheet must never show it */
 .fx-live-banner { display: none; }
+
+/* ══════════════════════════════════════════════════════
+   BUSBAR ADMIN — mobile optimization pass (≤767px)
+   ══════════════════════════════════════════════════════ */
+.bcadm-scroll { -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+@media (max-width: 767px) {
+  .bcadm-title { font-size: 20px; margin-bottom: 14px; }
+  .bcadm-main { max-width: 100%; }
+
+  /* Tables: readable, momentum horizontal scroll, no squashing */
+  .bcadm-table { min-width: 560px; font-size: 12.5px; }
+  .bcadm-table th { padding: 7px 8px; }
+  .bcadm-table td { padding: 8px; }
+  .bcadm-scroll { max-height: 440px; }
+  .bcadm-panel { padding: 14px; border-radius: 14px; }
+  .bcadm-panel-head h2 { font-size: 14px; }
+
+  /* KPI cards: 2-up, tighter */
+  .bcadm-kpi { padding: 12px 13px; border-radius: 12px; }
+  .bcadm-kpi-value { font-size: 20px; }
+
+  /* Filter bar: inputs share rows evenly, comfy touch sizes */
+  .bcadm-rangebar { gap: 7px; }
+  .bcadm-input-sm { flex: 1 1 44%; width: auto; min-height: 40px; }
+  .bcadm-chip { min-height: 40px; padding: 8px 15px; }
+  .bcadm-btn { min-height: 40px; }
+  .bcadm-live-dot { display: none; }
+
+  /* Grids collapse without min-width overflow on 320px phones */
+  .bcadm-grid2 { grid-template-columns: minmax(0, 1fr); }
+  .bcadm-grid4 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .bcadm-toplist { padding: 12px; }
+
+  /* Funnel rows wrap instead of clipping */
+  .bcadm-funnel-step { flex-wrap: wrap; font-size: 12.5px; }
+
+  /* Drawer: full-screen sheet with safe-area padding */
+  .bcadm-drawer { padding: 18px 16px calc(24px + env(safe-area-inset-bottom)); }
+  .bcadm-drawer-head h2 { font-size: 15px; }
+
+  /* Bottom tab bar: 44px+ touch targets, active pill */
+  .bcadm-nav { min-height: 52px; justify-content: center; }
+  .bcadm-nav.active { background: rgba(247,148,29,0.16); }
+  .bcadm-nav i { font-size: 15px; }
+
+  /* Toast above the tab bar */
+  .bcadm-toast { bottom: calc(84px + env(safe-area-inset-bottom)); width: max-content; max-width: 92vw; }
+
+  /* Broadcast preview stays inside the viewport */
+  .bcadm-preview-body { padding: 14px; }
+}
+/* Ultra-narrow (<= 360px): single-column KPIs */
+@media (max-width: 360px) {
+  .bcadm-kpis { grid-template-columns: 1fr; }
+  .bcadm-grid4 { grid-template-columns: minmax(0, 1fr); }
+}

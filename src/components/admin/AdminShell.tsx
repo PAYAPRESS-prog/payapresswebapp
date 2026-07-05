@@ -244,6 +244,7 @@ function Overview() {
         <TopList title="Countries" rows={s.byCountry.slice(0, 8).map(r => [r.country, r.visitors])} />
       </div>
       <Panel title="Latest activity">
+        <div className="bcadm-scroll">
         <table className="bcadm-table">
           <thead><tr><th>Event</th><th>Path</th><th>Country</th><th>Device</th><th>When</th></tr></thead>
           <tbody>
@@ -257,6 +258,7 @@ function Overview() {
             ))}
           </tbody>
         </table>
+        </div>
       </Panel>
     </>
   );
@@ -332,6 +334,7 @@ function Analytics() {
           <Panel title="Events breakdown"
             action={<button type="button" className="bcadm-btn"
               onClick={() => csv(data.byEvent, 'events-breakdown')}>CSV</button>}>
+            <div className="bcadm-scroll">
             <table className="bcadm-table">
               <thead><tr><th>Event</th><th>Count</th><th>Sessions</th></tr></thead>
               <tbody>{data.byEvent.map(r => (
@@ -341,6 +344,7 @@ function Analytics() {
                 </tr>))}
               </tbody>
             </table>
+            </div>
           </Panel>
           <Panel title={`Raw events (${data.rows.length}${data.rows.length === 500 ? ', capped' : ''})`}
             action={<button type="button" className="bcadm-btn"
@@ -668,6 +672,7 @@ function Monitor() {
       </div>
       <div className="bcadm-grid2">
         <Panel title="Cron runs (daily digest)">
+          <div className="bcadm-scroll bcadm-scroll-sm">
           <table className="bcadm-table">
             <thead><tr><th>Job</th><th>Detail</th><th>When</th></tr></thead>
             <tbody>{data.cronRuns.map((c, i) => (
@@ -675,6 +680,7 @@ function Monitor() {
                 <td title={exact(c.created_at)}>{timeAgo(c.created_at)}</td></tr>))}
             </tbody>
           </table>
+          </div>
           {data.cronRuns.length === 0 &&
             <div className="bcadm-empty">No runs recorded yet — the digest logs here from its next run</div>}
         </Panel>
