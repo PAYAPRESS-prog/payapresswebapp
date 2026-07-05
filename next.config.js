@@ -93,7 +93,11 @@ const nextConfig = {
           // overrides all page metadata; private pages opt out via their
           // own metadata + robots.txt instead.
           { key: 'Strict-Transport-Security',  value: 'max-age=63072000; includeSubDomains; preload' },
-          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+          // COOP must be same-origin-allow-popups (NOT same-origin): the
+          // Google Sign-In popup needs the opener channel to hand the
+          // credential back — plain same-origin severs it and the popup
+          // hangs on a blank accounts.google.com/gsi/transform page.
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
           { key: 'Cross-Origin-Resource-Policy', value: 'same-origin' },
         ],
       },
