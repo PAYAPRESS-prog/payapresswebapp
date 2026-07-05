@@ -137,6 +137,10 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   const resultsRef = useRef<HTMLDivElement>(null);
   const currCardRef = useRef<HTMLDivElement>(null);
   const pickerInput = useRef<HTMLInputElement>(null);
+  // Pending close-animation timer for the mobile results sheet. Tracked so
+  // a rapid re-Calculate during the 340ms exit animation cancels the close
+  // instead of letting the stale timer shut the freshly opened sheet.
+  const resultsCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Detect mobile breakpoint — results render as portal bottom-sheet on mobile
   useEffect(() => {
@@ -282,6 +286,11 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
 
   function handleCalculate() {
     if (typeof window !== 'undefined') window.bcTrack?.('calculate');
+    if (resultsCloseTimer.current) {
+      clearTimeout(resultsCloseTimer.current);
+      resultsCloseTimer.current = null;
+    }
+    setResultsLeaving(false);
     setShowResults(true);
     // On desktop: scroll the freshly rendered Results card into view
     // (it sits below the currency row in the Figma grid); on mobile the
@@ -297,8 +306,10 @@ export function FxCalculator({ initialData }: { initialData?: InitialPriceData }
   // Close the results sheet with slide-out animation on mobile
   function closeResults() {
     if (!isMobile) { setShowResults(false); return; }
+    if (resultsCloseTimer.current) return; // already animating out
     setResultsLeaving(true);
-    setTimeout(() => {
+    resultsCloseTimer.current = setTimeout(() => {
+      resultsCloseTimer.current = null;
       setShowResults(false);
       setResultsLeaving(false);
     }, 340);
