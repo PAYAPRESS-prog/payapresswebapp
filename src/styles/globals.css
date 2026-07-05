@@ -6333,6 +6333,8 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
     color: #f5f7fa;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui,
                  'Segoe UI', sans-serif;
+    /* room for the fixed 80px nav */
+    padding-top: 80px;
   }
 
   /* ── Top nav (114:301, 1440×80) ─────────────────── */
@@ -6342,9 +6344,13 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
      is hidden below (Figma has a single top nav), so Calculator /
      History / bell / Sign In must stay reachable while scrolled deep
      into the calculator. */
+  /* fixed, not sticky: sticky would stop at the end of the landing
+     wrapper (.fx-dl) and vanish over the calculator section below it */
   .fx-dl-nav {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 60;
     height: 80px;
     display: flex;
@@ -6659,11 +6665,28 @@ html { scroll-padding-top: 84px; }          /* anchored jumps clear the header *
   /* App shell sits below the landing as the live "app" section.
      The shell's own header is hidden here — the sticky landing nav
      (Figma 114:301) is the single desktop header, so the brand /
-     Calculator / History / Sign In row must not appear twice. */
+     Calculator / History / Sign In row must not appear twice.
+
+     ONE scrollbar only: the shell must NOT be a viewport-height box
+     with its own inner scroll (scroll-inside-scroll). It takes its
+     natural height and the PAGE scrolls. overflow-x stays clipped so
+     the off-screen History/Profile swipe panels never peek through;
+     visible+clip is the one overflow pair that creates no inner
+     scroll container. */
   #fx-app-anchor { scroll-margin-top: 80px; }
   #fx-app-anchor .fx-swipe-root {
-    height: calc(100vh - 80px);
-    height: calc(100svh - 80px);
+    height: auto;
+    overflow: visible;
+  }
+  #fx-app-anchor .fx-swipe-viewport {
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+  #fx-app-anchor .fx-swipe-track { height: auto; }
+  #fx-app-anchor .fx-swipe-panel {
+    height: auto;
+    overflow: visible;
+    padding-bottom: 48px;
   }
   #fx-app-anchor .fx-header { display: none; }
 }
