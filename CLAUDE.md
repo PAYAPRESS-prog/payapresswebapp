@@ -100,6 +100,48 @@ git push -u origin claude/busbar-calculator-webapp-setup-0bjxA
 
 ---
 
+## maintenance — Post-Debug Stable Checkpoint
+
+When the user says **`maintenance`** (or «به maintenance برگرد»), restore the project to this fully debugged state.
+
+### Current Stable Checkpoint
+
+| Field | Value |
+|-------|-------|
+| **Tag** | `maintenance/stable` |
+| **Commit** | `3cd167f4427078109b878918ca03186fe7cd2359` |
+| **Date** | 2026-07-05 |
+| **Status** | ✅ Full debug sweep + stress-test clean. Build clean. 29 unit + 19 smoke tests green. |
+
+### What this state includes
+- **Desktop calculator matches Figma 114:300**: centered metal toggle, Dimensions header bar, dims | suggestions (3×3), render + Calculate | grade (stacked pills), currency | grade, results | Share card, full-width chart
+- **Hero fixed**: 1280px centered content column, height-driven mascot sizing (no oversize/edge clip)
+- **Currency UX**: conversion card visible before Calculate; custom currency from the picker persists as a 4th chip; "Other currency" row always reachable
+- **Email delivery fix**: welcome / admin-notify / password-reset / bell-confirm sends awaited (8s cap) — Passenger froze fire-and-forget sends after the response; analytics beacon insert awaited for the same reason
+- **Race fixes**: mobile results-sheet close timer cancelled on rapid re-Calculate; post-Calculate scrolls to the Results card
+- Stress-tested: rapid clicks on every control, 24× chart range spam, 40-point chart click hammer, pin + range/metal switch, hostile dimension inputs, drag abuse — no crashes, no stuck scroll locks
+- Service Worker v55
+
+### How to restore (when user says "maintenance")
+
+```bash
+git fetch origin
+git checkout claude/payapress-webapp-setup-0bjxA
+git reset --hard 3cd167f4427078109b878918ca03186fe7cd2359
+npm run build
+git add -A
+git commit -m "restore: maintenance/stable"
+git push -u origin claude/payapress-webapp-setup-0bjxA
+```
+
+### How to update the checkpoint (when user says "maintenance save" or "ذخیره maintenance")
+
+1. Confirm the build is clean: `npm run build`
+2. Update the **Commit** hash above to `git rev-parse HEAD`
+3. Commit and push this CLAUDE.md
+
+---
+
 ## 🚀 Launch Checklist (do these when going public)
 
 1. ~~Enable SEO indexing~~ ✅ DONE — site is indexed; /busbar-calculator is
