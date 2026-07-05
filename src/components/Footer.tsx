@@ -61,7 +61,7 @@ export function Footer() {
           {/* Brand column */}
           <div className="col-span-2 sm:col-span-1 space-y-3">
             <Link
-              href="/"
+              href="/busbar-calculator"
               className="flex items-center gap-2 w-fit transition-transform duration-150 hover:scale-[1.03] active:scale-[0.97]"
             >
               <span className="text-sm font-black tracking-tight text-shimmer">Busbar Calculator</span>
@@ -84,7 +84,7 @@ export function Footer() {
           <div>
             <ColHeading>Product</ColHeading>
             <nav className="space-y-2.5" aria-label="Product">
-              <FooterLink href="/">Calculator</FooterLink>
+              <FooterLink href="/busbar-calculator">Calculator</FooterLink>
               <FooterLink href="/roadmap">Roadmap</FooterLink>
               <FooterLink href="#" disabled>Coming Soon</FooterLink>
             </nav>

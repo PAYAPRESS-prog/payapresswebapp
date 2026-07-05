@@ -7489,3 +7489,14 @@ h3.fx-suggestions-label {
   25% { transform: translateX(-7px); }
   75% { transform: translateX(7px); }
 }
+
+/* Footer on /busbar-calculator: desktop only — mobile keeps the pure
+   app-shell feel (bottom nav, no page footer below the 100svh shell) */
+.fx-dl-footer-wrap { display: none; }
+@media (min-width: 1024px) {
+  .fx-dl-footer-wrap {
+    display: block;
+    background: #0d0e10;
+    padding-top: 24px;
+  }
+}

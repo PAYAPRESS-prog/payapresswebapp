@@ -7,12 +7,12 @@
     ]
   },
   "components/DynamicRoadmap.tsx -> ./RoadmapClient": {
-    "id": 3972,
+    "id": 7530,
     "files": [
       "static/chunks/2619-3c9e02e22d10480a.js",
       "static/chunks/6212.486b143168d447c3.js",
       "static/chunks/1057.d662a81ce626eff5.js",
-      "static/chunks/3972.b63a7ecacb7bde66.js"
+      "static/chunks/7530.81b846c299100687.js"
     ]
   }
 }
