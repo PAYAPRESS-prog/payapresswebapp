@@ -6,30 +6,32 @@ import { FxFooter } from '@/components/figma/FxFooter';
 
 const BASE_URL = SITE_URL;
 const REPO = 'https://github.com/PAYAPRESS-prog/payapresswebapp';
-const DL = `${REPO}/releases/latest/download`;
 
-// Target keywords: "busbar calculator download", "busbar calculator windows".
+// Target keywords: "busbar calculator download", "busbar calculator windows",
+// "busbar calculator android app".
 export const metadata: Metadata = {
-  title: { absolute: 'Download Busbar Calculator for Windows — Free Desktop App' },
+  title: { absolute: 'Download Busbar Calculator — Windows & Android App' },
   description:
-    'Get the official Busbar Calculator Windows app: live copper & aluminum prices, ' +
-    'busbar sizing, waste and EPLAN panel costs on your desktop. Windows 10 & 11, ~8 MB.',
+    'Get the official Busbar Calculator apps: live copper & aluminum prices, ' +
+    'busbar sizing, waste and EPLAN panel costs. Windows 10/11 installer and ' +
+    'Android APK — Google Play listing coming soon. Free.',
   keywords: [
     'busbar calculator download', 'busbar calculator windows',
-    'busbar calculator desktop app', 'copper price desktop app',
+    'busbar calculator android app', 'busbar calculator apk',
+    'busbar calculator desktop app', 'copper price app',
     'busbar software free download',
   ],
   alternates: { canonical: '/download' },
   openGraph: {
     type: 'website',
     url: `${BASE_URL}/download`,
-    title: 'Download Busbar Calculator for Windows — Free Desktop App',
-    description: 'The official desktop app — live busbar prices on Windows 10 & 11.',
+    title: 'Download Busbar Calculator — Windows & Android App',
+    description: 'The official apps — live busbar prices on Windows 10/11 and Android.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Download Busbar Calculator for Windows — Free Desktop App',
-    description: 'Live copper & aluminum busbar prices as a native Windows 10/11 app. Free, ~8 MB.',
+    title: 'Download Busbar Calculator — Windows & Android App',
+    description: 'Live copper & aluminum busbar prices as native Windows and Android apps. Free.',
   },
 };
 
@@ -42,7 +44,15 @@ const JSON_LD = {
       operatingSystem: 'Windows 10, Windows 11',
       applicationCategory: 'EngineeringApplication',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-      downloadUrl: `${DL}/Busbar-Calculator-Setup-x64.exe`,
+      url: `${BASE_URL}/download`,
+      publisher: { '@id': `${BASE_URL}/#organization` },
+    },
+    {
+      '@type': 'SoftwareApplication',
+      name: 'Busbar Calculator for Android',
+      operatingSystem: 'Android 7.0+',
+      applicationCategory: 'EngineeringApplication',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
       url: `${BASE_URL}/download`,
       publisher: { '@id': `${BASE_URL}/#organization` },
     },
@@ -51,7 +61,7 @@ const JSON_LD = {
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Home', item: BASE_URL },
         { '@type': 'ListItem', position: 2, name: 'Busbar Calculator', item: `${BASE_URL}/busbar-calculator` },
-        { '@type': 'ListItem', position: 3, name: 'Download for Windows', item: `${BASE_URL}/download` },
+        { '@type': 'ListItem', position: 3, name: 'Download — Windows & Android', item: `${BASE_URL}/download` },
       ],
     },
   ],
@@ -68,15 +78,15 @@ export default function DownloadPage() {
 
       <section className="dlw-hero">
         <div className="dlw-copy">
-          <h1>Busbar Calculator<br />for <span>Windows</span></h1>
+          <h1>Busbar Calculator<br />for <span>Windows &amp; Android</span></h1>
           <p>
             Live copper &amp; aluminum prices, busbar sizing, waste and EPLAN panel
-            costs — as a real desktop app. Always up to date, nothing to configure.
+            costs — as real apps. Always up to date, nothing to configure.
           </p>
-          <DownloadButtons dlBase={DL} repo={REPO} />
+          <DownloadButtons repo={REPO} />
           <p className="dlw-req">
-            Windows 10 (1803+) &amp; Windows 11 · x64 &amp; ARM64 · ~8 MB ·
-            WebView2 installs automatically · Free
+            Windows 10 (1803+) &amp; 11 · x64 &amp; ARM64 · Android 7.0+ ·
+            small download · Free
           </p>
         </div>
         <div className="dlw-mascot" aria-hidden>
@@ -86,7 +96,7 @@ export default function DownloadPage() {
       </section>
 
       <section className="dlw-steps">
-        <h2>Install in three steps</h2>
+        <h2>Install on Windows</h2>
         <ol>
           <li><b>Download</b> the setup file above.</li>
           <li>
@@ -98,10 +108,24 @@ export default function DownloadPage() {
         </ol>
       </section>
 
+      <section className="dlw-steps">
+        <h2>Install on Android</h2>
+        <ol>
+          <li><b>Download</b> the APK above on your phone.</li>
+          <li>
+            <b>Open it.</b> Android asks once to allow installs from your
+            browser (&quot;Install unknown apps&quot;) — that prompt disappears
+            when the Google Play listing goes live.
+          </li>
+          <li><b>Launch</b> Busbar Calculator from your home screen — sign-in,
+            history and saved panels are the same as on the web.</li>
+        </ol>
+      </section>
+
       <section className="dlw-faq">
         <h2>Good to know</h2>
         <p>
-          The app is a lightweight native shell around the live product, so every
+          Both apps are lightweight native shells around the live product, so every
           improvement we ship appears instantly — no updates to babysit. Your
           account, history and saved panels are the same everywhere. Checksums and
           all releases live on <a href={`${REPO}/releases`} target="_blank" rel="noopener noreferrer">GitHub Releases ↗</a>.

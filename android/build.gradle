@@ -1,0 +1,7 @@
+// Busbar Calculator — Android TWA shell.
+// Root build script: pins the Android Gradle Plugin. Gradle itself is pinned
+// by CI (see .github/workflows/release-android.yml) — no wrapper jar is
+// committed to keep binaries out of the repo.
+plugins {
+    id 'com.android.application' version '8.5.2' apply false
+}

@@ -2,7 +2,7 @@
   "id": "com.busbar-calculator.calculator",
   "name": "Busbar Calculator",
   "short_name": "Busbar Calc",
-  "description": "Professional real-time copper busbar cost calculator. Live COMEX pricing, 22 currencies, IEC/DIN standards.",
+  "description": "Professional real-time copper & aluminum busbar cost calculator. Live COMEX/LME pricing, 17 currencies, IEC standard cross-sections.",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",

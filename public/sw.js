@@ -1,6 +1,6 @@
-/* Busbar Calculator Service Worker — v82 */
+/* Busbar Calculator Service Worker */
 
-const CACHE_VERSION = 'v84';
+const CACHE_VERSION = 'v85';
 const SHELL_CACHE   = `busbar-shell-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `busbar-dynamic-${CACHE_VERSION}`;
 
@@ -10,6 +10,11 @@ const DYNAMIC_CACHE = `busbar-dynamic-${CACHE_VERSION}`;
 const PRECACHE_ASSETS = [
   '/manifest.json',
   '/favicon.svg',
+  // The offline fallback page MUST be precached or a cold offline launch
+  // (e.g. the Android TWA started with no network) falls through to the
+  // browser's own error page. It renders from inline styles, so a stale
+  // copy still displays correctly.
+  '/offline',
 ];
 
 // Synthetic offline JSON response for API calls that fail when offline.
@@ -60,6 +65,13 @@ self.addEventListener('fetch', event => {
       fetch(request).catch(() => offlineApiResponse())
     );
     return;
+  }
+
+  // /.well-known/* (Digital Asset Links for the Android app) → network-only,
+  // NEVER cached: a stale assetlinks.json makes Android's TWA verification
+  // flap and the app would show the URL bar.
+  if (url.pathname.startsWith('/.well-known/')) {
+    return; // let the browser hit the network directly
   }
 
   // _next/static/ → cache-first (content-hashed, safe to cache indefinitely)

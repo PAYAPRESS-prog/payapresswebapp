@@ -70,16 +70,23 @@ declare global {
   }
 }
 
-// The Windows shell appends ?src=windows-app on first load. Persist the
-// flag so the whole session (and future visits) know they're in the
-// desktop app: hides the PWA install prompt, counted in analytics.
+// The native shells append ?src=… on first load (Windows: windows-app,
+// Android TWA: android-app). Persist the flag so the whole session (and
+// future visits) know they're in the app: hides the PWA install prompt,
+// counted in analytics.
 function detectDesktopShell() {
   try {
-    if (new URLSearchParams(location.search).get('src') === 'windows-app') {
+    const src = new URLSearchParams(location.search).get('src');
+    if (src === 'windows-app') {
       if (localStorage.getItem('bc_desktop') !== '1') {
         localStorage.setItem('bc_desktop', '1');
       }
       window.bcTrack?.('desktop_launch');
+    } else if (src === 'android-app') {
+      if (localStorage.getItem('bc_android') !== '1') {
+        localStorage.setItem('bc_android', '1');
+      }
+      window.bcTrack?.('android_launch');
     }
   } catch { /* private mode */ }
 }

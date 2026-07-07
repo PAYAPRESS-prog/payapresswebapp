@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Busbar Calculator</string>
+    <string name="launch_url">https://calculator.payapress.com/busbar-calculator?src=android-app</string>
+    <!-- Must mirror https://calculator.payapress.com/.well-known/assetlinks.json -->
+    <string name="asset_statements">
+        [{
+            \"relation\": [\"delegate_permission/common.handle_all_urls\"],
+            \"target\": {
+                \"namespace\": \"web\",
+                \"site\": \"https://calculator.payapress.com\"
+            }
+        }]
+    </string>
+</resources>

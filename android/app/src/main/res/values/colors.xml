@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand surface — matches the web app's #0b0d10 dark background -->
+    <color name="statusBarColor">#0b0d10</color>
+    <color name="navigationBarColor">#0b0d10</color>
+    <color name="splashBackground">#0b0d10</color>
+    <color name="iconBackground">#0b0d10</color>
+</resources>

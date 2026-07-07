@@ -1,0 +1,63 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Single source of truth for the app version — bump BOTH values in
+// android/VERSION for every release (versionCode must increase by exactly 1;
+// Google Play rejects any reused versionCode forever).
+def versionProps = new Properties()
+file("${rootDir}/VERSION").withInputStream { versionProps.load(it) }
+
+// Release signing comes ONLY from the environment (CI injects it from repo
+// secrets; locally export the same variables). When absent, the release
+// build falls back to a debug-signed artifact so CI can still produce a
+// testable pre-release without any secret material in the repo.
+def keystorePath = System.getenv('ANDROID_KEYSTORE_PATH')
+def hasReleaseKeystore = keystorePath != null && file(keystorePath).exists()
+
+android {
+    namespace 'com.payapress.calculator'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.payapress.calculator'
+        // minSdk 24 = Android 7.0 — first version with a reliably
+        // auto-updating WebView/Chrome split, and >99% of live devices.
+        minSdk 24
+        targetSdk 35
+        versionCode versionProps['versionCode'].toInteger()
+        versionName versionProps['versionName']
+    }
+
+    signingConfigs {
+        if (hasReleaseKeystore) {
+            release {
+                storeFile file(keystorePath)
+                storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('ANDROID_KEY_ALIAS')
+                keyPassword System.getenv('ANDROID_KEY_PASSWORD')
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig hasReleaseKeystore
+                ? signingConfigs.release
+                : signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // Google's Trusted Web Activity launcher — the sanctioned way to ship a
+    // PWA on Play. Runs the site in the user's Chrome (full GIS/OAuth
+    // support), falls back to a Custom Tab when TWA isn't available.
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.6.2'
+}
