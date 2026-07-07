@@ -134,3 +134,169 @@ describe('cost computation (frozen formulas)', () => {
     expect(t.extraKg).toBeCloseTo(t.grossKg * 0.05, 6);
   });
 });
+
+/* ══ Format-matrix tests: every EPLAN export shape we support ══ */
+import { decodeBuffer, parseSection, parseXlsx } from '../panelImport';
+import { deflateRawSync } from 'zlib';
+
+function toBuf(u8: Uint8Array): ArrayBuffer {
+  return u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength) as ArrayBuffer;
+}
+
+describe('encodings', () => {
+  it('decodes UTF-8 with BOM', () => {
+    const body = new TextEncoder().encode('Menge;Länge\n1;100');
+    const withBom = new Uint8Array([0xef, 0xbb, 0xbf, ...body]);
+    expect(decodeBuffer(toBuf(withBom))).toBe('Menge;Länge\n1;100');
+  });
+
+  it('decodes UTF-16LE (typical EPLAN .txt) with and without BOM', () => {
+    const text = 'Menge\tLänge\n2\t1250,5';
+    const codes = Array.from(text).map(c => c.charCodeAt(0));
+    const le = new Uint8Array(codes.length * 2 + 2);
+    le[0] = 0xff; le[1] = 0xfe;
+    codes.forEach((c, i) => { le[2 + i * 2] = c & 0xff; le[3 + i * 2] = c >> 8; });
+    expect(decodeBuffer(toBuf(le))).toBe(text);
+    expect(decodeBuffer(toBuf(le.slice(2)))).toBe(text); // BOM-less heuristic
+  });
+});
+
+describe('format variants', () => {
+  it('headers with units — "Länge [mm]", "Width (mm)"', () => {
+    const m = autoMapColumns(['Stück', 'Breite [mm]', 'Dicke [mm]', 'Länge [mm]']);
+    expect(m).toMatchObject({ qty: 0, width: 1, thickness: 2, length: 3 });
+  });
+
+  it('combined Querschnitt column "40x10" fills width+thickness', () => {
+    const t = parseDelimited('Menge;Querschnitt;Länge\n2;40x10;1000\n1;30 X 5;500\n1;25×3;250');
+    const m = autoMapColumns(t.headers);
+    expect(m.section).toBe(1);
+    const { rows, flagged } = normalizeRows(t, m);
+    expect(flagged).toHaveLength(0);
+    expect(rows[0]).toMatchObject({ width: 40, thickness: 10 });
+    expect(rows[1]).toMatchObject({ width: 30, thickness: 5 });
+    expect(rows[2]).toMatchObject({ width: 25, thickness: 3 });
+  });
+
+  it('parseSection accepts x × * / separators and rejects garbage', () => {
+    expect(parseSection('40*10')).toEqual([40, 10]);
+    expect(parseSection('40/10')).toEqual([40, 10]);
+    expect(parseSection('40x10 mm')).toEqual([40, 10]);
+    expect(parseSection('CU 40x10')).toBeNull();
+    expect(parseSection('40')).toBeNull();
+  });
+
+  it('headerless numeric export gets synthetic headers and keeps row 1', () => {
+    const t = parseDelimited('4;40;10;1250\n2;30;5;600');
+    expect(t.headers).toEqual(['Column 1', 'Column 2', 'Column 3', 'Column 4']);
+    expect(t.rows).toHaveLength(2);
+  });
+
+  it('numbers with in-cell units and space thousands', () => {
+    expect(parseLocaleNumber('1 250,5 mm')).toBeCloseTo(1250.5);
+    expect(parseLocaleNumber('40 mm')).toBeCloseTo(40);
+    expect(parseLocaleNumber('1 234,5')).toBeCloseTo(1234.5);
+  });
+
+  it('EPLAN long-form headers: Zuschnittslänge / Materialdicke / Schienenbreite', () => {
+    const m = autoMapColumns(['Anzahl', 'Schienenbreite', 'Materialdicke', 'Zuschnittslänge [mm]']);
+    expect(m).toMatchObject({ qty: 0, width: 1, thickness: 2, length: 3 });
+  });
+
+  it('quantity column missing defaults every row to qty 1', () => {
+    const t = parseDelimited('Breite;Höhe;Länge\n40;10;1000');
+    const { rows } = normalizeRows(t, autoMapColumns(t.headers));
+    expect(rows[0].qty).toBe(1);
+  });
+});
+
+/* ── real .xlsx built byte-by-byte (stored + deflated entries) ── */
+function crc32(data: Uint8Array): number {
+  let c = ~0;
+  for (let i = 0; i < data.length; i++) {
+    c ^= data[i];
+    for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1));
+  }
+  return ~c >>> 0;
+}
+function makeZip(entries: Array<[string, string]>, deflate: boolean): ArrayBuffer {
+  const enc = new TextEncoder();
+  const chunks: number[] = [];
+  const central: number[] = [];
+  const push = (arr: number[], bytes: ArrayLike<number>) => { for (let i = 0; i < bytes.length; i++) arr.push(bytes[i]); };
+  const le16 = (n: number) => [n & 0xff, (n >> 8) & 0xff];
+  const le32 = (n: number) => [n & 0xff, (n >> 8) & 0xff, (n >> 16) & 0xff, (n >>> 24) & 0xff];
+  for (const [name, content] of entries) {
+    const nameB = enc.encode(name);
+    const raw = enc.encode(content);
+    const data = deflate ? new Uint8Array(deflateRawSync(raw)) : raw;
+    const method = deflate ? 8 : 0;
+    const crc = crc32(raw);
+    const offset = chunks.length;
+    push(chunks, le32(0x04034b50)); push(chunks, le16(20)); push(chunks, le16(0));
+    push(chunks, le16(method)); push(chunks, le16(0)); push(chunks, le16(0));
+    push(chunks, le32(crc)); push(chunks, le32(data.length)); push(chunks, le32(raw.length));
+    push(chunks, le16(nameB.length)); push(chunks, le16(0));
+    push(chunks, nameB); push(chunks, data);
+    push(central, le32(0x02014b50)); push(central, le16(20)); push(central, le16(20));
+    push(central, le16(0)); push(central, le16(method)); push(central, le16(0)); push(central, le16(0));
+    push(central, le32(crc)); push(central, le32(data.length)); push(central, le32(raw.length));
+    push(central, le16(nameB.length)); push(central, le16(0)); push(central, le16(0));
+    push(central, le16(0)); push(central, le16(0)); push(central, le32(0)); push(central, le32(offset));
+    push(central, nameB);
+  }
+  const cdStart = chunks.length;
+  push(chunks, central);
+  push(chunks, le32(0x06054b50)); push(chunks, le16(0)); push(chunks, le16(0));
+  push(chunks, le16(entries.length)); push(chunks, le16(entries.length));
+  push(chunks, le32(central.length)); push(chunks, le32(cdStart)); push(chunks, le16(0));
+  return new Uint8Array(chunks).buffer;
+}
+
+const SHEET_XML = `<?xml version="1.0"?>
+<worksheet><sheetData>
+<row r="1"><c r="A1" t="s"><v>0</v></c><c r="B1" t="s"><v>1</v></c><c r="C1" t="s"><v>2</v></c><c r="D1" t="s"><v>3</v></c></row>
+<row r="2"><c r="A2"><v>4</v></c><c r="B2"><v>40</v></c><c r="C2"><v>10</v></c><c r="D2"><v>1250.5</v></c></row>
+<row r="3"><c r="A3"><v>2</v></c><c r="B3"><v>30</v></c><c r="C3"><v>5</v></c><c r="D3" t="inlineStr"><is><t>600</t></is></c></row>
+</sheetData></worksheet>`;
+const SHARED_XML = `<?xml version="1.0"?>
+<sst><si><t>Menge</t></si><si><t>Breite</t></si><si><r><t>Dic</t></r><r><t>ke</t></r></si><si><t>L&#228;nge [mm]</t></si></sst>`;
+
+describe('xlsx', () => {
+  const parts: Array<[string, string]> = [
+    ['xl/workbook.xml', '<workbook/>'],
+    ['xl/sharedStrings.xml', SHARED_XML],
+    ['xl/worksheets/sheet1.xml', SHEET_XML],
+  ];
+
+  it.each([['stored', false], ['deflated', true]] as Array<[string, boolean]>)(
+    'parses a %s xlsx: shared strings, multi-run cells, inline strings, entities',
+    async (_label, deflate) => {
+      const table = await parseXlsx(makeZip(parts, deflate));
+      expect(table.headers).toEqual(['Menge', 'Breite', 'Dicke', 'Länge [mm]']);
+      expect(table.rows).toHaveLength(2);
+      const m = autoMapColumns(table.headers);
+      const { rows, flagged } = normalizeRows(table, m);
+      expect(flagged).toHaveLength(0);
+      expect(rows[0]).toMatchObject({ qty: 4, width: 40, thickness: 10 });
+      expect(rows[0].length).toBeCloseTo(1250.5);
+      expect(rows[1].length).toBeCloseTo(600);
+    },
+  );
+
+  it('rejects a non-zip buffer cleanly', async () => {
+    await expect(parseXlsx(new TextEncoder().encode('not a zip').buffer as ArrayBuffer))
+      .rejects.toThrow();
+  });
+
+  it('end-to-end xlsx → totals match the CSV pipeline', async () => {
+    const table = await parseXlsx(makeZip(parts, true));
+    const { rows } = normalizeRows(table, autoMapColumns(table.headers));
+    const totals = computePanel(groupBySection(rows), {
+      stockLen: 4000, bladeDia: 200, punchDia: 0, punchCount: 0, extraScrapPct: 0,
+    }, 8.89);
+    // gross: (4×1250.5×(40×10) + 2×600×(30×5)) mm³ ×8.89/1e6
+    const expected = ((4 * 1250.5 * 400 + 2 * 600 * 150) * 8.89) / 1e6;
+    expect(totals.grossKg).toBeCloseTo(expected, 4);
+  });
+});

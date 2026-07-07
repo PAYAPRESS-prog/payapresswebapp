@@ -9,6 +9,17 @@
 
 // ── Parsing ───────────────────────────────────────────────────────
 
+/** Decode a raw file buffer: handles UTF-8/UTF-16LE/UTF-16BE BOMs
+    (EPLAN .txt exports are frequently UTF-16LE) and strips the BOM. */
+export function decodeBuffer(buf: ArrayBuffer): string {
+  const b = new Uint8Array(buf);
+  let enc = 'utf-8';
+  if (b.length >= 2 && b[0] === 0xff && b[1] === 0xfe) enc = 'utf-16le';
+  else if (b.length >= 2 && b[0] === 0xfe && b[1] === 0xff) enc = 'utf-16be';
+  else if (b.length >= 4 && b[0] !== 0 && b[1] === 0 && b[2] !== 0 && b[3] === 0) enc = 'utf-16le';
+  return new TextDecoder(enc).decode(buf).replace(/^\ufeff/, '');
+}
+
 export interface ParsedTable {
   headers: string[];
   rows: string[][];
@@ -49,17 +60,32 @@ function splitDelimited(line: string, delim: string): string[] {
 }
 
 export function parseDelimited(text: string): ParsedTable {
-  const delimiter = detectDelimiter(text);
-  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+  const delimiter = detectDelimiter(text.replace(/^\ufeff/, ''));
+  const lines = text.replace(/^\ufeff/, '').split(/\r?\n/).filter(l => l.trim().length > 0);
   const all = lines.map(l => splitDelimited(l, delimiter));
-  const headers = all[0] ?? [];
-  return { headers, rows: all.slice(1), delimiter };
+  const first = all[0] ?? [];
+  // Headerless export: if every non-empty first-row cell is a number the
+  // file has no header row — synthesize Column 1..N and keep the data.
+  const numericFirst = first.length > 1 &&
+    first.filter(c => c !== '').every(c => parseLocaleNumber(c) !== null);
+  if (numericFirst) {
+    return {
+      headers: first.map((_, i) => `Column ${i + 1}`),
+      rows: all,
+      delimiter,
+    };
+  }
+  return { headers: first, rows: all.slice(1), delimiter };
 }
 
 /** Parse a number that may use German locale (1.234,5) or plain (1234.5). */
 export function parseLocaleNumber(raw: string): number | null {
-  const s = raw.trim().replace(/\s/g, '');
-  if (!s) return null;
+  // Strip trailing unit text ("1.250,5 mm", "40 mm") and thin/normal
+  // spaces used as thousands separators ("1 250,5").
+  const s = raw.trim()
+    .replace(/(mm|cm|m|stk|pcs|x)\s*$/i, '')
+    .replace(/[\s\u00a0\u202f]/g, '');
+  if (!s || /[a-df-z]/i.test(s)) return null;
   let normalized = s;
   const lastComma = s.lastIndexOf(',');
   const lastDot = s.lastIndexOf('.');
@@ -78,28 +104,59 @@ export function parseLocaleNumber(raw: string): number | null {
 
 // ── Column auto-mapping ───────────────────────────────────────────
 
-export type FieldKey = 'qty' | 'length' | 'width' | 'thickness' | 'material' | 'part';
+export type FieldKey =
+  | 'qty' | 'length' | 'width' | 'thickness' | 'section' | 'material' | 'part';
 
 const SYNONYMS: Record<FieldKey, string[]> = {
-  qty:       ['menge', 'anzahl', 'qty', 'quantity', 'count', 'stück', 'stueck', 'pcs'],
-  length:    ['länge', 'laenge', 'length', 'l', 'l (mm)', 'länge (mm)'],
-  width:     ['breite', 'width', 'b', 'w', 'b (mm)'],
-  thickness: ['höhe', 'hoehe', 'dicke', 'thickness', 'h', 't', 'd', 'stärke', 'staerke'],
+  qty:       ['menge', 'anzahl', 'stück', 'stueck', 'stk', 'qty', 'quantity', 'count', 'pcs', 'pieces'],
+  length:    ['zuschnittslänge', 'zuschnittslaenge', 'gestreckte länge', 'gestreckte laenge',
+              'schnittlänge', 'schnittlaenge', 'länge', 'laenge', 'cutting length',
+              'stretched length', 'length', 'len', 'l'],
+  width:     ['schienenbreite', 'breite', 'width', 'b', 'w'],
+  thickness: ['materialdicke', 'materialstärke', 'materialstaerke', 'höhe', 'hoehe', 'dicke',
+              'stärke', 'staerke', 'thickness', 'height', 'h', 't', 'd'],
+  section:   ['querschnitt', 'abmessung', 'abmessungen', 'cross-section', 'cross section',
+              'section', 'dimension', 'dimensions', 'profil', 'profile', 'size'],
   material:  ['werkstoff', 'material'],
-  part:      ['bezeichnung', 'teil', 'part', 'description', 'benennung', 'artikel'],
+  part:      ['bezeichnung', 'benennung', 'teil', 'artikel', 'artikelnummer', 'part',
+              'part number', 'description', 'designation', 'name'],
 };
+
+/** Normalise a header for matching: lowercase, quotes gone, bracketed
+    units stripped — "Länge [mm]" and "Length (mm)" both become the
+    bare word. */
+function normHeader(h: string): string {
+  return h.toLowerCase()
+    .replace(/["']/g, '')
+    .replace(/\[[^\]]*\]|\([^)]*\)/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
 export function autoMapColumns(headers: string[]): Partial<Record<FieldKey, number>> {
   const map: Partial<Record<FieldKey, number>> = {};
-  const norm = headers.map(h => h.toLowerCase().replace(/["']/g, '').trim());
+  const norm = headers.map(normHeader);
   for (const key of Object.keys(SYNONYMS) as FieldKey[]) {
     for (const syn of SYNONYMS[key]) {
       const idx = norm.findIndex((h, i) =>
-        !Object.values(map).includes(i) && (h === syn || h.startsWith(syn + ' ') || h.startsWith(syn + '(')));
+        !Object.values(map).includes(i) && (h === syn || h.startsWith(syn + ' ')));
       if (idx > -1) { map[key] = idx; break; }
     }
   }
+  // If separate width+thickness were found, drop a stray section match
+  // so one column never double-feeds the dimensions.
+  if (map.width !== undefined && map.thickness !== undefined) delete map.section;
   return map;
+}
+
+/** Parse a combined cross-section cell: "40x10", "40 X 10", "40×10",
+    "40*10", "40/10" — returns [width, thickness] or null. */
+export function parseSection(raw: string): [number, number] | null {
+  const m = raw.trim().match(/^\s*([\d.,]+)\s*[x×*\/]\s*([\d.,]+)\s*(?:mm)?\s*$/i);
+  if (!m) return null;
+  const w = parseLocaleNumber(m[1]);
+  const t = parseLocaleNumber(m[2]);
+  return w !== null && t !== null && w > 0 && t > 0 ? [w, t] : null;
 }
 
 // ── Normalisation ─────────────────────────────────────────────────
@@ -129,8 +186,13 @@ export function normalizeRows(
     const get = (k: FieldKey) => (mapping[k] !== undefined ? r[mapping[k]!] ?? '' : '');
     const qty = parseLocaleNumber(get('qty')) ?? 1;
     const length = parseLocaleNumber(get('length'));
-    const width = parseLocaleNumber(get('width'));
-    const thickness = parseLocaleNumber(get('thickness'));
+    let width = parseLocaleNumber(get('width'));
+    let thickness = parseLocaleNumber(get('thickness'));
+    // Combined "Querschnitt" column (e.g. "40x10") fills missing dims.
+    if ((width === null || thickness === null) && mapping.section !== undefined) {
+      const sec = parseSection(get('section'));
+      if (sec) { width = width ?? sec[0]; thickness = thickness ?? sec[1]; }
+    }
     if (length === null || width === null || thickness === null) {
       flagged.push({ line: i + 2, reason: 'unreadable number' });
       return;
@@ -305,3 +367,130 @@ export const SAMPLE_CSV = [
   '6;Verbinder;20;5;210',
   '1;Erdungsschiene;25;3;1750',
 ].join('\n');
+
+// ── XLSX support (no dependencies) ────────────────────────────────
+// An .xlsx file is a ZIP of XML parts. We read the central directory,
+// inflate entries with the browser-native DecompressionStream
+// ('deflate-raw', also available in Node 18+), then extract the first
+// worksheet's cells + sharedStrings. Covers EPLAN's Excel exports.
+
+function u16(b: Uint8Array, o: number): number { return b[o] | (b[o + 1] << 8); }
+function u32(b: Uint8Array, o: number): number {
+  return (b[o] | (b[o + 1] << 8) | (b[o + 2] << 16) | (b[o + 3] << 24)) >>> 0;
+}
+
+async function inflateRaw(data: Uint8Array): Promise<Uint8Array> {
+  const ds = new DecompressionStream('deflate-raw');
+  const stream = new Blob([data as BlobPart]).stream().pipeThrough(ds);
+  const buf = await new Response(stream).arrayBuffer();
+  return new Uint8Array(buf);
+}
+
+async function readZip(buf: ArrayBuffer): Promise<Map<string, Uint8Array>> {
+  const b = new Uint8Array(buf);
+  // find End Of Central Directory (0x06054b50) scanning from the tail
+  let eocd = -1;
+  for (let i = b.length - 22; i >= Math.max(0, b.length - 22 - 65536); i--) {
+    if (b[i] === 0x50 && b[i + 1] === 0x4b && b[i + 2] === 0x05 && b[i + 3] === 0x06) { eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error('not a zip');
+  const count = u16(b, eocd + 10);
+  let off = u32(b, eocd + 16);
+  const files = new Map<string, Uint8Array>();
+  const dec = new TextDecoder();
+  for (let n = 0; n < count; n++) {
+    if (u32(b, off) !== 0x02014b50) break;
+    const method = u16(b, off + 10);
+    const csize = u32(b, off + 20);
+    const nameLen = u16(b, off + 28);
+    const extraLen = u16(b, off + 30);
+    const commentLen = u16(b, off + 32);
+    const localOff = u32(b, off + 42);
+    const name = dec.decode(b.subarray(off + 46, off + 46 + nameLen));
+    // local header: skip its own (possibly different) name/extra lengths
+    const lNameLen = u16(b, localOff + 26);
+    const lExtraLen = u16(b, localOff + 28);
+    const dataStart = localOff + 30 + lNameLen + lExtraLen;
+    const raw = b.subarray(dataStart, dataStart + csize);
+    if (/\.xml$/.test(name)) {
+      files.set(name, method === 8 ? await inflateRaw(raw) : raw.slice());
+    }
+    off += 46 + nameLen + extraLen + commentLen;
+  }
+  return files;
+}
+
+function xmlUnescape(s: string): string {
+  return s
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(parseInt(d, 10)))
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, '&');
+}
+
+function colToIndex(ref: string): number {
+  let n = 0;
+  for (const ch of ref) {
+    if (ch >= 'A' && ch <= 'Z') n = n * 26 + (ch.charCodeAt(0) - 64);
+    else break;
+  }
+  return Math.max(0, n - 1);
+}
+
+export async function parseXlsx(buf: ArrayBuffer): Promise<ParsedTable> {
+  const files = await readZip(buf);
+  // shared strings (each <si> may hold several <t> runs)
+  const shared: string[] = [];
+  const ss = files.get('xl/sharedStrings.xml');
+  if (ss) {
+    const xml = new TextDecoder().decode(ss);
+    for (const si of xml.match(/<si[\s>][\s\S]*?<\/si>/g) ?? []) {
+      const runs = si.match(/<t[^>]*>([\s\S]*?)<\/t>/g) ?? [];
+      shared.push(xmlUnescape(runs.map(r => r.replace(/<t[^>]*>|<\/t>/g, '')).join('')));
+    }
+  }
+  const sheetName =
+    ['xl/worksheets/sheet1.xml',
+      ...Array.from(files.keys()).filter(k => /^xl\/worksheets\/sheet\d+\.xml$/.test(k)).sort()]
+      .find(k => files.has(k));
+  if (!sheetName) throw new Error('no worksheet');
+  const xml = new TextDecoder().decode(files.get(sheetName)!);
+
+  const matrix: string[][] = [];
+  for (const rowXml of xml.match(/<row[\s>][\s\S]*?<\/row>/g) ?? []) {
+    const cells: string[] = [];
+    const cellRe = /<c\b([^>]*)(?:\/>|>([\s\S]*?)<\/c>)/g;
+    let m: RegExpExecArray | null;
+    let autoCol = 0;
+    while ((m = cellRe.exec(rowXml)) !== null) {
+      const attrs = m[1] ?? '';
+      const inner = m[2] ?? '';
+      const refMatch = attrs.match(/r="([A-Z]+)\d+"/);
+      const col = refMatch ? colToIndex(refMatch[1]) : autoCol;
+      autoCol = col + 1;
+      const type = (attrs.match(/t="(\w+)"/) ?? [])[1];
+      let val = '';
+      if (type === 'inlineStr') {
+        const runs = inner.match(/<t[^>]*>([\s\S]*?)<\/t>/g) ?? [];
+        val = xmlUnescape(runs.map(r => r.replace(/<t[^>]*>|<\/t>/g, '')).join(''));
+      } else {
+        const v = (inner.match(/<v>([\s\S]*?)<\/v>/) ?? [])[1] ?? '';
+        val = type === 's' ? (shared[parseInt(v, 10)] ?? '') : xmlUnescape(v);
+      }
+      while (cells.length < col) cells.push('');
+      cells[col] = val.trim();
+    }
+    matrix.push(cells);
+  }
+  const nonEmpty = matrix.filter(r => r.some(c => c !== ''));
+  if (nonEmpty.length === 0) throw new Error('empty sheet');
+  const width = Math.max(...nonEmpty.map(r => r.length));
+  const rows = nonEmpty.map(r => { const c = r.slice(); while (c.length < width) c.push(''); return c; });
+  const first = rows[0];
+  const numericFirst = first.filter(c => c !== '').length > 1 &&
+    first.filter(c => c !== '').every(c => parseLocaleNumber(c) !== null);
+  if (numericFirst) {
+    return { headers: first.map((_, i) => `Column ${i + 1}`), rows, delimiter: 'xlsx' };
+  }
+  return { headers: first, rows: rows.slice(1), delimiter: 'xlsx' };
+}

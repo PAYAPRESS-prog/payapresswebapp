@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { MATERIAL_GRADES } from '@/lib/copperData';
 import { ALUMINUM_GRADES } from '@/lib/aluminumData';
 import {
-  parseDelimited, autoMapColumns, normalizeRows, groupBySection,
-  computePanel, SAMPLE_CSV,
+  parseDelimited, parseXlsx, decodeBuffer, autoMapColumns, normalizeRows,
+  groupBySection, computePanel, SAMPLE_CSV,
   type ParsedTable, type FieldKey, type PanelRow, type PanelSettings,
 } from '@/lib/panelImport';
 import type { FxRates } from '@/types/calculator';
@@ -18,10 +18,14 @@ import { FxAuthSheet } from '@/components/figma/FxAuthSheet';
 type Metal = 'copper' | 'aluminum';
 type Curr = 'USD' | 'EUR' | 'GBP' | string;
 
-const REQUIRED: Array<[FieldKey, string]> = [
-  ['qty', 'Quantity'], ['length', 'Length'], ['width', 'Width'], ['thickness', 'Thickness'],
+const FIELDS: Array<[FieldKey, string, boolean]> = [
+  ['qty', 'Quantity', true],
+  ['length', 'Length', true],
+  ['width', 'Width', false],
+  ['thickness', 'Thickness', false],
+  ['section', 'Cross-section (e.g. 40x10)', false],
+  ['part', 'Part / designation', false],
 ];
-const OPTIONAL: Array<[FieldKey, string]> = [['part', 'Part / designation']];
 
 const STEPS = ['Import', 'Map', 'Review', 'Results'];
 
@@ -68,11 +72,9 @@ export function PanelCostTool({
   function note(m: string) { setToast(m); setTimeout(() => setToast(''), 2800); }
 
   // ── Step 1: import ─────────────────────────────────────────────
-  function ingest(text: string, name: string) {
-    setParseErr('');
-    const t = parseDelimited(text);
+  function accept(t: ParsedTable, name: string) {
     if (t.headers.length < 2 || t.rows.length === 0) {
-      setParseErr("Couldn't read a table in that file. Export as CSV from EPLAN (or paste the rows) and try again.");
+      setParseErr("Couldn't read a table in that file. Export as CSV/XLSX from EPLAN (or paste the rows) and try again.");
       return;
     }
     setTable(t);
@@ -82,13 +84,32 @@ export function PanelCostTool({
     try { window.bcTrack?.('panel_import', String(t.rows.length)); } catch { /* noop */ }
   }
 
-  function onFile(f: File | undefined) {
+  function ingest(text: string, name: string) {
+    setParseErr('');
+    accept(parseDelimited(text), name);
+  }
+
+  async function onFile(f: File | undefined) {
     if (!f) return;
-    if (/\.xlsx?$/i.test(f.name)) {
-      setParseErr('Excel files: please use "Save as → CSV" in Excel/EPLAN first — CSV keeps every number intact.');
-      return;
+    setParseErr('');
+    try {
+      const buf = await f.arrayBuffer();
+      const head = new Uint8Array(buf.slice(0, 4));
+      const isZip = head[0] === 0x50 && head[1] === 0x4b;
+      if (isZip) {
+        // .xlsx (EPLAN's Excel export) — parsed natively, still in-browser
+        accept(await parseXlsx(buf), f.name);
+        return;
+      }
+      if (/\.xls$/i.test(f.name)) {
+        setParseErr('Legacy .xls: please re-save as .xlsx or CSV in Excel — both import directly here.');
+        return;
+      }
+      // Text: handles UTF-8 and the UTF-16 files EPLAN often writes
+      accept(parseDelimited(decodeBuffer(buf)), f.name);
+    } catch {
+      setParseErr('Could not read the file — try re-exporting it as CSV or XLSX.');
     }
-    f.text().then(txt => ingest(txt, f.name)).catch(() => setParseErr('Could not read the file.'));
   }
 
   // ── Step 2 → 3: normalize ──────────────────────────────────────
@@ -191,7 +212,10 @@ export function PanelCostTool({
     URL.revokeObjectURL(url);
   }
 
-  const mappingComplete = REQUIRED.every(([k]) => mapping[k] !== undefined);
+  const mappingComplete =
+    mapping.qty !== undefined && mapping.length !== undefined &&
+    ((mapping.width !== undefined && mapping.thickness !== undefined) ||
+      mapping.section !== undefined);
 
   // ── Summary side card (desktop) ────────────────────────────────
   const summary = (
@@ -253,7 +277,7 @@ export function PanelCostTool({
                     onDrop={e => { e.preventDefault(); onFile(e.dataTransfer.files?.[0]); }}>
                     <span className="pnl-drop-ic">⬆</span>
                     <b>Drop your EPLAN export</b>
-                    <span>.csv / .txt — or tap to choose</span>
+                    <span>.csv / .txt / .xlsx — or tap to choose</span>
                   </button>
                   <input ref={fileInput} type="file" accept=".csv,.txt,.xls,.xlsx" hidden
                     onChange={e => onFile(e.target.files?.[0])} />
@@ -295,9 +319,9 @@ export function PanelCostTool({
             <section className="pnl-card">
               <h2 className="pnl-h2">Match your columns</h2>
               <p className="pnl-sub">{fileName} · {table.rows.length} rows — we guessed the columns; correct any that look wrong.</p>
-              {[...REQUIRED, ...OPTIONAL].map(([key, label]) => (
+              {FIELDS.map(([key, label, req]) => (
                 <div key={key} className="pnl-map-row">
-                  <label>{label}{REQUIRED.some(([k]) => k === key) && <em> *</em>}</label>
+                  <label>{label}{req && <em> *</em>}</label>
                   <select value={mapping[key] ?? -1}
                     onChange={e => {
                       const v = Number(e.target.value);
@@ -320,13 +344,21 @@ export function PanelCostTool({
               <div className="pnl-preview">
                 {table.rows.slice(0, 3).map((r, i) => (
                   <div key={i} className="pnl-preview-row">
-                    {REQUIRED.map(([k, l]) => (
+                    {FIELDS.filter(([, , req]) => req).map(([k, l]) => (
                       <span key={k}><em>{l}:</em> {mapping[k] !== undefined ? r[mapping[k]!] : '—'}</span>
                     ))}
+                    <span><em>W×T:</em> {mapping.width !== undefined && mapping.thickness !== undefined
+                      ? `${r[mapping.width!]} × ${r[mapping.thickness!]}`
+                      : mapping.section !== undefined ? r[mapping.section!] : '—'}</span>
                   </div>
                 ))}
               </div>
-              {!mappingComplete && <p className="pnl-err">Map all required fields (*) to continue.</p>}
+              {!mappingComplete && (
+                <p className="pnl-err">
+                  Map Quantity, Length and either Width + Thickness or a combined
+                  Cross-section column to continue.
+                </p>
+              )}
               <div className="pnl-foot">
                 <button type="button" className="pnl-ghost" onClick={() => setStep(0)}>‹ Back</button>
                 <button type="button" className="pnl-primary" disabled={!mappingComplete} onClick={applyMapping}>
