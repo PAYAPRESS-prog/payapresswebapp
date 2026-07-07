@@ -4,6 +4,23 @@
      networking, storage and the service worker. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Android 11+ package-visibility: WITHOUT this the app cannot discover
+         a TWA-capable browser (CustomTabsService is filtered out), so instead
+         of launching full-screen inside the app it degrades to handing the
+         URL to the browser. This block is in every Bubblewrap template. -->
+    <queries>
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
+
     <application
         android:name="android.app.Application"
         android:label="@string/app_name"
@@ -22,6 +39,7 @@
             android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
             android:label="@string/app_name"
             android:exported="true"
+            android:launchMode="singleTask"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
 
             <meta-data
