@@ -8561,3 +8561,22 @@ h3.fx-suggestions-label {
 .dlw-steps li::marker { color: #f7941d; font-weight: 700; }
 .dlw-faq p { margin: 0; font-size: 14px; line-height: 1.75; color: rgba(245,247,250,0.62); }
 .dlw-faq a { color: #f7941d; }
+
+/* Footer: Windows app secondary CTA */
+.fxf-win-btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  margin-top: 10px;
+  padding: 11px 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(245,247,250,0.2);
+  background: rgba(245,247,250,0.05);
+  color: #f5f7fa; font-size: 13.5px; font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+.fxf-win-btn:hover {
+  border-color: rgba(247,148,29,0.55);
+  background: rgba(247,148,29,0.08);
+  transform: translateY(-1px);
+}
+.fxf-win-btn svg { color: #f7941d; }
