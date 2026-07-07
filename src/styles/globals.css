@@ -8479,3 +8479,85 @@ h3.fx-suggestions-label {
   .pnl-price-mode { flex-direction: column; }
   .pnl-set-row { flex-wrap: wrap; }
 }
+
+/* ══════════════════════════════════════════════════════
+   /download — Windows app landing (dlw-*)
+   ══════════════════════════════════════════════════════ */
+.dlw {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: calc(24px + env(safe-area-inset-top)) 20px 72px;
+  background: #0d0e10;
+  color: #f5f7fa;
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100svh;
+}
+.dlw-hero {
+  display: flex; align-items: center; gap: 32px;
+  padding: 28px 0 40px;
+}
+.dlw-copy { flex: 1; min-width: 0; }
+.dlw-copy h1 {
+  margin: 0 0 14px;
+  font-size: clamp(30px, 5vw, 52px);
+  font-weight: 700; line-height: 1.08; letter-spacing: -0.02em;
+}
+.dlw-copy h1 span {
+  background: linear-gradient(90deg, #f7941d, #d71920);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.dlw-copy > p {
+  margin: 0 0 24px; font-size: 15.5px; line-height: 1.7;
+  color: rgba(245,247,250,0.62); max-width: 460px;
+}
+.dlw-req { margin: 14px 0 0; font-size: 12.5px; color: rgba(245,247,250,0.45); line-height: 1.7; }
+.dlw-mascot { flex-shrink: 0; }
+.dlw-mascot img {
+  filter: drop-shadow(0 24px 60px rgba(0,0,0,0.55));
+  animation: fx-dl-float 7s ease-in-out infinite;
+}
+@media (max-width: 767px) {
+  .dlw-hero { flex-direction: column-reverse; text-align: center; gap: 18px; }
+  .dlw-copy > p { margin-inline: auto; }
+  .dlw-mascot img { height: 220px; width: auto; }
+}
+@media (prefers-reduced-motion: reduce) { .dlw-mascot img { animation: none; } }
+
+.dlw-btn {
+  display: inline-flex; align-items: center; gap: 11px;
+  padding: 15px 30px; border-radius: 14px;
+  background: linear-gradient(90deg, #f7941d, #d71920);
+  color: #fff; font-size: 16px; font-weight: 700; text-decoration: none;
+  box-shadow: 0 14px 36px -12px rgba(215,25,32,0.75);
+  transition: transform 0.15s, filter 0.15s;
+  min-height: 52px;
+}
+.dlw-btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
+.dlw-alts {
+  display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px;
+  font-size: 13px;
+}
+.dlw-alts a { color: rgba(245,247,250,0.55); text-decoration: underline; text-underline-offset: 3px; }
+.dlw-alts a:hover { color: #f7941d; }
+@media (max-width: 767px) {
+  .dlw-cta { display: flex; flex-direction: column; align-items: center; }
+  .dlw-btn { width: 100%; justify-content: center; }
+  .dlw-alts { justify-content: center; }
+}
+
+.dlw-steps, .dlw-faq {
+  max-width: 680px; margin: 0 auto;
+  padding: 26px 22px;
+  border: 1px solid rgba(245,247,250,0.08);
+  border-radius: 16px;
+  background: rgba(245,247,250,0.03);
+  margin-bottom: 18px;
+}
+.dlw-steps h2, .dlw-faq h2 { margin: 0 0 14px; font-size: 18px; }
+.dlw-steps ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; }
+.dlw-steps li { font-size: 14px; line-height: 1.7; color: rgba(245,247,250,0.65); }
+.dlw-steps li b { color: #f5f7fa; }
+.dlw-steps li em { color: #f7941d; font-style: normal; }
+.dlw-steps li::marker { color: #f7941d; font-weight: 700; }
+.dlw-faq p { margin: 0; font-size: 14px; line-height: 1.75; color: rgba(245,247,250,0.62); }
+.dlw-faq a { color: #f7941d; }

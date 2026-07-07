@@ -17,6 +17,7 @@ const PRODUCT_LINKS: Array<[string, string]> = [
   ['Waste Calculator', '/busbar-waste-calculator'],
   ['Panel Cost (EPLAN)', '/electrical-panel-busbar-cost-calculator'],
   ['Roadmap', '/roadmap'],
+  ['Windows app', '/download'],
 ];
 
 const RESOURCE_LINKS: Array<[string, string, boolean?]> = [

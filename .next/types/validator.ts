@@ -119,6 +119,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../src/app/download/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/download">> = Specific
+  const handler = {} as typeof import("../../src/app/download/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../src/app/electrical-panel-busbar-cost-calculator/page.tsx
 {
   type __IsExpected<Specific extends AppPageConfig<"/electrical-panel-busbar-cost-calculator">> = Specific

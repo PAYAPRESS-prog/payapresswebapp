@@ -1,0 +1,112 @@
+# Builds the official Windows installers for Busbar Calculator.
+# Trigger: push a tag like `desktop-v1.0.0` (or run manually).
+# Outputs on the GitHub Release, with stable names the /download
+# page links to:
+#   Busbar-Calculator-Setup-x64.exe     (NSIS, per-user, WebView2 bootstrap)
+#   Busbar-Calculator-Setup-arm64.exe   (NSIS, Windows on ARM)
+#   Busbar-Calculator-x64.msi           (enterprise MSI)
+#   SHA256SUMS.txt
+name: Release Windows app
+
+on:
+  push:
+    tags: ['desktop-v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-pc-windows-msvc
+            arch: x64
+            bundles: nsis,msi
+          - target: aarch64-pc-windows-msvc
+            arch: arm64
+            bundles: nsis        # WiX has no arm64 MSI support
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/src-tauri
+
+      - name: Tauri CLI
+        run: npm install -g @tauri-apps/cli@^2
+
+      - name: Build installers
+        working-directory: desktop
+        run: tauri build --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
+
+      # Optional code signing: define these repo secrets to sign
+      # (Azure Trusted Signing or a PFX): WINDOWS_CERT_PFX_BASE64,
+      # WINDOWS_CERT_PASSWORD. Unsigned builds still ship (SmartScreen
+      # shows "More info -> Run anyway" until a cert is added).
+      - name: Sign (if cert configured)
+        if: ${{ env.PFX != '' }}
+        env:
+          PFX: ${{ secrets.WINDOWS_CERT_PFX_BASE64 }}
+          PW: ${{ secrets.WINDOWS_CERT_PASSWORD }}
+        shell: pwsh
+        working-directory: desktop/src-tauri/target/${{ matrix.target }}/release/bundle
+        run: |
+          [IO.File]::WriteAllBytes("cert.pfx", [Convert]::FromBase64String($env:PFX))
+          $signtool = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" | Select-Object -Last 1
+          Get-ChildItem -Recurse -Include *.exe,*.msi | ForEach-Object {
+            & $signtool.FullName sign /f cert.pfx /p $env:PW /tr http://timestamp.digicert.com /td sha256 /fd sha256 $_.FullName
+          }
+          Remove-Item cert.pfx
+
+      - name: Stage artifacts with stable names
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          $bundle = "desktop/src-tauri/target/${{ matrix.target }}/release/bundle"
+          Get-ChildItem "$bundle/nsis/*-setup.exe" | ForEach-Object {
+            Copy-Item $_.FullName "dist/Busbar-Calculator-Setup-${{ matrix.arch }}.exe"
+          }
+          if ("${{ matrix.bundles }}" -like "*msi*") {
+            Get-ChildItem "$bundle/msi/*.msi" | ForEach-Object {
+              Copy-Item $_.FullName "dist/Busbar-Calculator-${{ matrix.arch }}.msi"
+            }
+          }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-${{ matrix.arch }}
+          path: dist/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt
+
+      - name: GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+          name: "Busbar Calculator for Windows ${{ github.ref_name }}"
+          tag_name: ${{ github.ref_name != 'main' && github.ref_name || 'desktop-manual' }}

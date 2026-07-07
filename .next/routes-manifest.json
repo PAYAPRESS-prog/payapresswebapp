@@ -220,6 +220,12 @@
       "namedRegex": "^/busbar\\-waste\\-calculator(?:/)?$"
     },
     {
+      "page": "/download",
+      "regex": "^/download(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/download(?:/)?$"
+    },
+    {
       "page": "/electrical-panel-busbar-cost-calculator",
       "regex": "^/electrical\\-panel\\-busbar\\-cost\\-calculator(?:/)?$",
       "routeKeys": {},

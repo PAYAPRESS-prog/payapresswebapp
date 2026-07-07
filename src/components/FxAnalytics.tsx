@@ -70,10 +70,25 @@ declare global {
   }
 }
 
+// The Windows shell appends ?src=windows-app on first load. Persist the
+// flag so the whole session (and future visits) know they're in the
+// desktop app: hides the PWA install prompt, counted in analytics.
+function detectDesktopShell() {
+  try {
+    if (new URLSearchParams(location.search).get('src') === 'windows-app') {
+      if (localStorage.getItem('bc_desktop') !== '1') {
+        localStorage.setItem('bc_desktop', '1');
+      }
+      window.bcTrack?.('desktop_launch');
+    }
+  } catch { /* private mode */ }
+}
+
 export function FxAnalytics() {
   const pathname = usePathname();
 
   useEffect(() => {
+    detectDesktopShell();
     if (typeof window === 'undefined') return;
 
     // Expose the custom-event tracker for the whole app — fires to BOTH

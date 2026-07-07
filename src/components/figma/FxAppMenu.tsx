@@ -31,6 +31,7 @@ const ITEMS: Item[] = [
   { key: 'panel',   label: 'Panel Cost (EPLAN)', sub: 'Import EPLAN busbar list',    Icon: CalculatorIcon, action: 'route', href: '/app/panel-cost' },
   { key: 'trends',  label: 'Current Trends',     sub: 'Market price movements',      Icon: ChartUpIcon,    action: 'soon' },
   { key: 'future',  label: 'Future Projections', sub: 'AI-assisted price forecast',  Icon: MagicStickIcon, action: 'soon' },
+  { key: 'winapp',  label: 'Windows App',        sub: 'Install on your desktop',     Icon: CalculatorIcon, action: 'route', href: '/download' },
   { key: 'pulse',   label: 'Give feedback',      sub: 'Help shape the roadmap',      Icon: BellIcon,       action: 'feedback' },
 ];
 

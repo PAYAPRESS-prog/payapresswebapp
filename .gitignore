@@ -42,3 +42,4 @@ wordpress-plugin/node_modules/
 # Testing
 coverage/
 .nyc_output/
+desktop/src-tauri/target/

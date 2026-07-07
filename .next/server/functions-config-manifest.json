@@ -5,12 +5,13 @@
     "/api/admin/analytics": {},
     "/api/admin/audit": {},
     "/api/admin/broadcast": {},
-    "/api/admin/events": {},
     "/api/admin/crm": {},
-    "/api/admin/login": {},
+    "/api/admin/events": {},
     "/api/admin/monitor": {},
     "/api/admin/overview": {},
+    "/api/admin/login": {},
     "/api/admin/surveys": {},
+    "/api/admin/users": {},
     "/api/analytics/collect": {},
     "/api/auth/forgot": {},
     "/api/auth/google": {},
@@ -19,7 +20,6 @@
     "/api/auth/me": {},
     "/api/auth/reset": {},
     "/api/auth/signup": {},
-    "/api/admin/users": {},
     "/api/auth/signup/verify": {},
     "/api/cron/daily-digest": {
       "maxDuration": 300
