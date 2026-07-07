@@ -28,6 +28,7 @@ const ITEMS: Item[] = [
   { key: 'calc',    label: 'Busbar Calculator',  sub: 'Live copper & aluminum cost', Icon: CalculatorIcon, action: 'route', href: '/busbar-calculator' },
   { key: 'history', label: 'History',            sub: 'Your saved calculations',     Icon: HistoryIcon,    action: 'auth',  href: '/app/history' },
   { key: 'waste',   label: 'Waste Calculator',   sub: 'Kerf & punch-out loss',       Icon: ScissorsIcon,   action: 'auth',  href: '/app/waste' },
+  { key: 'panel',   label: 'Panel Cost (EPLAN)', sub: 'Import EPLAN busbar list',    Icon: CalculatorIcon, action: 'route', href: '/app/panel-cost' },
   { key: 'trends',  label: 'Current Trends',     sub: 'Market price movements',      Icon: ChartUpIcon,    action: 'soon' },
   { key: 'future',  label: 'Future Projections', sub: 'AI-assisted price forecast',  Icon: MagicStickIcon, action: 'soon' },
   { key: 'pulse',   label: 'Give feedback',      sub: 'Help shape the roadmap',      Icon: BellIcon,       action: 'feedback' },
@@ -55,6 +56,7 @@ export function FxAppMenu() {
     router.prefetch('/busbar-calculator');
     router.prefetch('/app/history');
     router.prefetch('/app/waste');
+    router.prefetch('/app/panel-cost');
   }, [router]);
 
   // Close the coming-soon modal on Escape

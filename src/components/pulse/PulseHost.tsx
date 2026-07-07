@@ -124,6 +124,7 @@ export function PulseHost() {
       if (event === 'calculate') { c.calculate = (c.calculate ?? 0) + 1; tryTrigger('post_calculate', c.calculate); }
       if (event === 'bookmark')  { c.bookmark  = (c.bookmark ?? 0) + 1;  tryTrigger('post_bookmark', c.bookmark); }
       if (event === 'waste')     { c.waste     = (c.waste ?? 0) + 1;     tryTrigger('post_waste', c.waste); }
+      if (event === 'panel_calculate') { c.panel = (c.panel ?? 0) + 1;   tryTrigger('post_panel', c.panel); }
     };
     return () => { window.bcTrack = prev; };
   }, [tryTrigger]);

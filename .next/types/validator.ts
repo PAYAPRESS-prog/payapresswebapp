@@ -74,6 +74,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../src/app/app/panel-cost/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/app/panel-cost">> = Specific
+  const handler = {} as typeof import("../../src/app/app/panel-cost/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../src/app/app/profile/page.tsx
 {
   type __IsExpected<Specific extends AppPageConfig<"/app/profile">> = Specific
@@ -105,6 +114,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 {
   type __IsExpected<Specific extends AppPageConfig<"/busbar-waste-calculator">> = Specific
   const handler = {} as typeof import("../../src/app/busbar-waste-calculator/page.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../src/app/electrical-panel-busbar-cost-calculator/page.tsx
+{
+  type __IsExpected<Specific extends AppPageConfig<"/electrical-panel-busbar-cost-calculator">> = Specific
+  const handler = {} as typeof import("../../src/app/electrical-panel-busbar-cost-calculator/page.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

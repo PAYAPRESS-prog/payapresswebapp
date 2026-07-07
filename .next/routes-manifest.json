@@ -178,6 +178,12 @@
       "namedRegex": "^/app/history(?:/)?$"
     },
     {
+      "page": "/app/panel-cost",
+      "regex": "^/app/panel\\-cost(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/app/panel\\-cost(?:/)?$"
+    },
+    {
       "page": "/app/profile",
       "regex": "^/app/profile(?:/)?$",
       "routeKeys": {},
@@ -212,6 +218,12 @@
       "regex": "^/busbar\\-waste\\-calculator(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/busbar\\-waste\\-calculator(?:/)?$"
+    },
+    {
+      "page": "/electrical-panel-busbar-cost-calculator",
+      "regex": "^/electrical\\-panel\\-busbar\\-cost\\-calculator(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/electrical\\-panel\\-busbar\\-cost\\-calculator(?:/)?$"
     },
     {
       "page": "/embed",

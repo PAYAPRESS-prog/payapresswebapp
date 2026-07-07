@@ -104,6 +104,12 @@ export default function WasteLandingPage() {
         <Link href="/busbar-calculator" className="fx-wl-cta">Open Busbar Calculator</Link>
         <Link href="/app/waste" className="fx-wl-cta-ghost">Go to Waste Calculator</Link>
       </div>
+      <p className="fx-wl-p">
+        Building a whole panel?{' '}
+        <Link href="/electrical-panel-busbar-cost-calculator">
+          Try the EPLAN panel cost calculator →
+        </Link>
+      </p>
     </main>
   );
 }

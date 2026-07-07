@@ -15,10 +15,11 @@ export interface PulseQuestion {
   max?: number;
 }
 export type PulseTrigger =
-  | 'post_calculate' | 'post_bookmark' | 'post_waste' | 'nth_visit' | 'manual';
+  | 'post_calculate' | 'post_bookmark' | 'post_waste' | 'post_panel'
+  | 'nth_visit' | 'manual';
 
 const TRIGGERS: PulseTrigger[] = [
-  'post_calculate', 'post_bookmark', 'post_waste', 'nth_visit', 'manual',
+  'post_calculate', 'post_bookmark', 'post_waste', 'post_panel', 'nth_visit', 'manual',
 ];
 
 let tablesReady = false;
@@ -142,6 +143,15 @@ async function seedDefaults(): Promise<void> {
     `INSERT IGNORE INTO surveys (slug, title, active, trigger_kind, trigger_n, questions)
      VALUES (?, ?, 0, 'post_waste', 1, ?)`,
     ['post-waste-check', 'Post-waste check', JSON.stringify(wasteQuestions)],
+  );
+  const panelQuestions: PulseQuestion[] = [
+    { id: 'mood', type: 'emoji', title: 'How useful was the EPLAN panel cost tool?' },
+    { id: 'wish', type: 'text', title: 'What would make the panel import better?', max: 500 },
+  ];
+  await pool.query(
+    `INSERT IGNORE INTO surveys (slug, title, active, trigger_kind, trigger_n, questions)
+     VALUES (?, ?, 0, 'post_panel', 1, ?)`,
+    ['post-panel-check', 'Post-panel check', JSON.stringify(panelQuestions)],
   );
 }
 

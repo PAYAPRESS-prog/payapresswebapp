@@ -15,6 +15,7 @@ const PRODUCT_LINKS: Array<[string, string]> = [
   ['Calculator', '/busbar-calculator'],
   ['History', '/app/history'],
   ['Waste Calculator', '/busbar-waste-calculator'],
+  ['Panel Cost (EPLAN)', '/electrical-panel-busbar-cost-calculator'],
   ['Roadmap', '/roadmap'],
 ];
 
