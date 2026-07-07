@@ -8584,3 +8584,20 @@ h3.fx-suggestions-label {
 /* Panel page: back-navigation row (calculator + menu) */
 .pnl-backrow { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
 .pnl-backrow .pnl-back { margin-bottom: 14px; }
+
+/* /download: pre-release state + version chip */
+.dlw-soon {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 16px 20px; border-radius: 14px;
+  border: 1px dashed rgba(247,148,29,0.5);
+  background: rgba(247,148,29,0.06);
+  font-size: 14px; line-height: 1.65; max-width: 430px;
+}
+.dlw-soon b { color: #f7941d; }
+.dlw-soon span { color: rgba(245,247,250,0.6); font-size: 13px; }
+.dlw-soon a { color: #f7941d; }
+.dlw-ver {
+  font-style: normal; font-size: 11.5px; font-weight: 600;
+  padding: 3px 9px; border-radius: 999px;
+  background: rgba(255,255,255,0.18);
+}

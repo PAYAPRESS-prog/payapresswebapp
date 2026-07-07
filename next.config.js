@@ -28,7 +28,7 @@ const CSP = [
   `style-src 'self' 'unsafe-inline' ${GIS_STYLE}`,
   `img-src 'self' data: https://flagcdn.com ${GA_IMG} ${GIS_IMG}`,
   "font-src 'self'",
-  `connect-src 'self' ${GA_CONNECT} ${GIS_CONNECT}`,
+  `connect-src 'self' ${GA_CONNECT} ${GIS_CONNECT} https://api.github.com`,
   "worker-src 'self'",
   `frame-src ${GIS_FRAME}`,
   "frame-ancestors 'none'",
