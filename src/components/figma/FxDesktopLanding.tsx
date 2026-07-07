@@ -12,11 +12,11 @@ import { BellIcon, CalculatorIcon, HistoryIcon, UserIcon } from './FxIcons';
    1024px (mobile stays pixel-true to the Mobile page 0:1).
 
    The top nav is the ONE desktop header (Figma 114:301): brand, app
-   links (Calculator / History), the coming-soon items, Live COMEX,
-   bell and Sign In. The app shell's own header is hidden at ≥1024px on
-   this page so the header never appears twice. */
-
-const NAV_ITEMS = ['Live Metal Prices', 'Industry News', 'Equipment Costs'];
+   links (Calculator / History), bell and Sign In. The app shell's own
+   header is hidden at ≥1024px on this page so the header never appears
+   twice. (The coming-soon items — Live Metal Prices / Industry News /
+   Equipment Costs — and the Live COMEX chip were removed 2026-07-07:
+   those services aren't offered yet.) */
 
 const STEPS = [
   {
@@ -92,23 +92,7 @@ export function FxDesktopLanding({
             <HistoryIcon width={16} height={16} />
             History
           </Link>
-          {NAV_ITEMS.map(label => (
-            <button
-              key={label}
-              type="button"
-              className="fx-dl-link"
-              title="Coming soon — get notified"
-              onClick={() => setNotifyOpen(true)}
-            >
-              {label}
-            </button>
-          ))}
         </nav>
-
-        <span className="fx-dl-live">
-          <span className="fx-dl-live-dot" />
-          Live COMEX
-        </span>
 
         <button
           type="button"
