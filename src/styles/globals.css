@@ -8288,7 +8288,17 @@ h3.fx-suggestions-label {
 .pnl-sum-bar i { flex: 1; height: 6px; border-radius: 3px; background: rgba(245,247,250,0.07); overflow: hidden; }
 .pnl-sum-bar i b { display: block; height: 100%; background: linear-gradient(90deg,#f7941d,#d71920); border-radius: 3px; }
 .pnl-sum-bar em { width: 54px; text-align: right; font-style: normal; }
-@media (max-width: 1023px) { .pnl-summary { order: -1; } }
+@media (max-width: 1023px) {
+  .pnl-summary { order: -1; }
+  /* an empty summary above the import step is pure noise on phones */
+  .pnl-summary.is-empty { display: none; }
+}
+.pnl-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-bottom: 14px; font-size: 13px;
+  color: rgba(245,247,250,0.55); text-decoration: none;
+}
+.pnl-back:hover { color: #f7941d; }
 
 .pnl-toast {
   position: fixed; bottom: calc(24px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);

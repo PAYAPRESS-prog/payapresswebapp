@@ -95,11 +95,19 @@ export function PanelCostTool({
   async function onFile(f: File | undefined) {
     if (!f) return;
     setParseErr('');
+    if (f.size > 10 * 1024 * 1024) {
+      setParseErr('That file is over 10 MB — a busbar parts list should be far smaller. Export just the copper/busbar report from EPLAN, not the whole project.');
+      return;
+    }
     try {
       const buf = await f.arrayBuffer();
       const head = new Uint8Array(buf.slice(0, 4));
       const isZip = head[0] === 0x50 && head[1] === 0x4b;
       if (isZip) {
+        if (typeof DecompressionStream === 'undefined') {
+          setParseErr('This browser cannot open XLSX files here. Save the export as CSV in Excel (or update your browser) and try again.');
+          return;
+        }
         // .xlsx (EPLAN's Excel export) — parsed natively, still in-browser
         accept(await parseXlsx(buf), f.name);
         return;
@@ -145,6 +153,8 @@ export function PanelCostTool({
     () => (groups.length ? computePanel(groups, settings, grade.density) : null),
     [groups, settings, grade.density],
   );
+
+  useEffect(() => { if (!fx && curr !== 'USD') setCurr('USD'); }, [fx, curr]);
 
   const rate = useMemo(() => {
     if (curr === 'USD' || !fx) return 1;
@@ -244,7 +254,7 @@ export function PanelCostTool({
 
   // ── Summary side card (desktop) ────────────────────────────────
   const summary = (
-    <aside className="pnl-summary">
+    <aside className={`pnl-summary${totals ? '' : ' is-empty'}`}>
       <h3 className="pnl-sum-title">Summary</h3>
       {!totals ? (
         <p className="pnl-sum-empty">Import your EPLAN list to see live totals here.</p>
@@ -445,7 +455,7 @@ export function PanelCostTool({
                   <table className="pnl-table">
                     <thead><tr><th>Part</th><th>Qty</th><th>W×T</th><th>Length</th><th /></tr></thead>
                     <tbody>
-                      {rows.map((r, i) => (
+                      {rows.slice(0, 300).map((r, i) => (
                         <tr key={i} className={excluded.has(i) ? 'off' : ''}>
                           <td>{r.part || '—'}</td>
                           <td>{r.qty}</td>
@@ -463,6 +473,12 @@ export function PanelCostTool({
                       ))}
                     </tbody>
                   </table>
+                  {rows.length > 300 && (
+                    <p className="pnl-sub" style={{ padding: '10px 4px 0' }}>
+                      Showing the first 300 of {rows.length} rows — every row is
+                      still counted in the totals.
+                    </p>
+                  )}
                 </div>
               </section>
 
@@ -521,6 +537,8 @@ export function PanelCostTool({
                 <div className="pnl-curr">
                   {['USD', 'EUR', 'GBP'].map(c => (
                     <button key={c} type="button" className={curr === c ? 'on' : ''}
+                      disabled={c !== 'USD' && !fx}
+                      title={c !== 'USD' && !fx ? 'Exchange rates unavailable right now' : undefined}
                       onClick={() => setCurr(c)}>{c}</button>
                   ))}
                 </div>

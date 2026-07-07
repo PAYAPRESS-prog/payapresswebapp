@@ -75,6 +75,7 @@ export default async function PanelCostLanding() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
       />
+      <Link href="/busbar-calculator" className="pnl-back">← Busbar Calculator</Link>
       <h1 className="pnl-page-title">Electrical Panel Busbar Cost Calculator</h1>
       <p className="pnl-page-sub">
         Import the busbar list straight from <b>EPLAN</b>, subtract cutting waste
