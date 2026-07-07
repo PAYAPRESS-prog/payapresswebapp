@@ -24,6 +24,12 @@ export const metadata: Metadata = {
     description:
       'Import an EPLAN busbar list, subtract cutting waste, and get the panel copper cost at live market prices.',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Electrical Panel Busbar Cost Calculator — EPLAN Import',
+    description:
+      'Import an EPLAN busbar list, subtract cutting waste, and get the panel copper cost at live market prices.',
+  },
 };
 
 const JSON_LD = {

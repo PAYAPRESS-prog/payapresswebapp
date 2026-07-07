@@ -462,6 +462,7 @@ export default function RoadmapClient() {
               }}
             >
               Development<br />Roadmap
+              <span className="sr-only"> — Busbar Calculator product plan</span>
             </h1>
 
             <p

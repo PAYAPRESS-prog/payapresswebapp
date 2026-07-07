@@ -24,7 +24,7 @@ export function FxWelcome({ initialSheet }: { initialSheet?: Mode }) {
 
       <div className="fx-welcome-content">
         <header className="fx-welcome-head">
-          <h1 className="fx-welcome-title">BusBar price Calculator</h1>
+          <h1 className="fx-welcome-title">Busbar Price Calculator</h1>
           <p className="fx-welcome-sub">
             Design and size copper &amp; aluminum busbars faster, easier, and
             more accurately.

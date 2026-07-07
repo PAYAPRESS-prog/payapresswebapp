@@ -5,11 +5,32 @@ import { FxWelcome } from '@/components/figma/FxWelcome';
 
 import type { Metadata } from 'next';
 
+// Target keyword: "busbar price calculator" (the primary "busbar calculator"
+// head term is owned by /busbar-calculator — kept distinct to avoid
+// cannibalization).
 export const metadata: Metadata = {
+  title: { absolute: 'Busbar Price Calculator — Live Copper & Aluminum Rates | Busbar Calculator' },
   description:
-    'Start the free Busbar Calculator — size copper & aluminum busbars to IEC ' +
+    'Start the free busbar price calculator — size copper & aluminum busbars to IEC ' +
     'standards and price them with live COMEX/LME rates in 17 currencies.',
+  keywords: [
+    'busbar price calculator', 'copper busbar price', 'aluminum busbar price',
+    'busbar cost', 'live copper price', 'busbar sizing',
+  ],
   alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    url: '/',
+    title: 'Busbar Price Calculator — Live Copper & Aluminum Rates',
+    description:
+      'Size copper & aluminum busbars to IEC standards and price them with live COMEX/LME rates in 17 currencies — free.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Busbar Price Calculator — Live Copper & Aluminum Rates',
+    description:
+      'Size copper & aluminum busbars to IEC standards and price them live in 17 currencies.',
+  },
 };
 
 

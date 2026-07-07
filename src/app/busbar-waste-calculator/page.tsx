@@ -23,6 +23,12 @@ export const metadata: Metadata = {
     description:
       'Estimate blade kerf and punch-out waste for copper & aluminum busbars, priced at live market rates.',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Busbar Waste Calculator — Kerf & Punch-Out Loss',
+    description:
+      'Estimate blade kerf and punch-out waste for copper & aluminum busbars, priced at live market rates.',
+  },
 };
 
 const JSON_LD = {

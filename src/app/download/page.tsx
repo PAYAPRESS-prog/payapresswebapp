@@ -7,29 +7,53 @@ const BASE_URL = SITE_URL;
 const REPO = 'https://github.com/PAYAPRESS-prog/payapresswebapp';
 const DL = `${REPO}/releases/latest/download`;
 
+// Target keywords: "busbar calculator download", "busbar calculator windows".
 export const metadata: Metadata = {
   title: { absolute: 'Download Busbar Calculator for Windows — Free Desktop App' },
   description:
     'Get the official Busbar Calculator Windows app: live copper & aluminum prices, ' +
     'busbar sizing, waste and EPLAN panel costs on your desktop. Windows 10 & 11, ~8 MB.',
+  keywords: [
+    'busbar calculator download', 'busbar calculator windows',
+    'busbar calculator desktop app', 'copper price desktop app',
+    'busbar software free download',
+  ],
   alternates: { canonical: '/download' },
   openGraph: {
     type: 'website',
     url: `${BASE_URL}/download`,
-    title: 'Busbar Calculator for Windows',
+    title: 'Download Busbar Calculator for Windows — Free Desktop App',
     description: 'The official desktop app — live busbar prices on Windows 10 & 11.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Download Busbar Calculator for Windows — Free Desktop App',
+    description: 'Live copper & aluminum busbar prices as a native Windows 10/11 app. Free, ~8 MB.',
   },
 };
 
 const JSON_LD = {
   '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  name: 'Busbar Calculator for Windows',
-  operatingSystem: 'Windows 10, Windows 11',
-  applicationCategory: 'EngineeringApplication',
-  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-  downloadUrl: `${DL}/Busbar-Calculator-Setup-x64.exe`,
-  url: `${BASE_URL}/download`,
+  '@graph': [
+    {
+      '@type': 'SoftwareApplication',
+      name: 'Busbar Calculator for Windows',
+      operatingSystem: 'Windows 10, Windows 11',
+      applicationCategory: 'EngineeringApplication',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      downloadUrl: `${DL}/Busbar-Calculator-Setup-x64.exe`,
+      url: `${BASE_URL}/download`,
+      publisher: { '@id': `${BASE_URL}/#organization` },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: BASE_URL },
+        { '@type': 'ListItem', position: 2, name: 'Busbar Calculator', item: `${BASE_URL}/busbar-calculator` },
+        { '@type': 'ListItem', position: 3, name: 'Download for Windows', item: `${BASE_URL}/download` },
+      ],
+    },
+  ],
 };
 
 export default function DownloadPage() {
