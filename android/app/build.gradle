@@ -17,7 +17,9 @@ def hasReleaseKeystore = keystorePath != null && file(keystorePath).exists()
 
 android {
     namespace 'com.payapress.calculator'
-    compileSdk 35
+    // compileSdk 36: required by androidx.browser 1.9.0 (androidbrowserhelper
+    // transitive). targetSdk stays 35 — Google Play's current target policy.
+    compileSdk 36
 
     defaultConfig {
         applicationId 'com.payapress.calculator'

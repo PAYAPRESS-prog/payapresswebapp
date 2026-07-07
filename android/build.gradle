@@ -2,6 +2,9 @@
 // Root build script: pins the Android Gradle Plugin. Gradle itself is pinned
 // by CI (see .github/workflows/release-android.yml) — no wrapper jar is
 // committed to keep binaries out of the repo.
+// AGP ≥ 8.9.1 + compileSdk 36 are required by androidx.browser 1.9.0
+// (transitive dependency of androidbrowserhelper 2.6.2). Gradle 8.11.1
+// (pinned in CI) is the minimum for AGP 8.9.
 plugins {
-    id 'com.android.application' version '8.5.2' apply false
+    id 'com.android.application' version '8.9.1' apply false
 }
