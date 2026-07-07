@@ -9,13 +9,12 @@
     "/api/admin/events": {},
     "/api/admin/login": {},
     "/api/admin/monitor": {},
-    "/api/admin/overview": {},
     "/api/admin/surveys": {},
+    "/api/admin/overview": {},
     "/api/admin/users": {},
-    "/api/analytics/collect": {},
-    "/api/auth/forgot": {},
     "/api/auth/google": {},
     "/api/auth/login": {},
+    "/api/analytics/collect": {},
     "/api/auth/logout": {},
     "/api/auth/me": {},
     "/api/auth/reset": {},
@@ -25,12 +24,13 @@
       "maxDuration": 300
     },
     "/api/notify": {},
+    "/api/survey/active": {},
+    "/api/auth/forgot": {},
+    "/api/survey/respond": {},
     "/api/price-history": {},
+    "/api/test-mail": {},
     "/api/profile/change-password": {},
     "/api/profile": {},
-    "/api/survey/active": {},
-    "/api/survey/respond": {},
-    "/api/test-mail": {},
     "/admin": {}
   }
 }

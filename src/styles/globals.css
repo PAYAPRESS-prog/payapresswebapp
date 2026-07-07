@@ -8003,3 +8003,36 @@ h3.fx-suggestions-label {
   .plx-emoji { font-size: 23px; min-height: 52px; }
   .plx-nps { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* ── Compare popup — brand identity pass (matches the Figma card
+   language used across the app: hairline border, copper accents,
+   line-flanked section title, glass-dark surface) ── */
+.fx-cmp-sheet {
+  border: 1px solid rgba(245, 247, 250, 0.09);
+  border-bottom: none;
+}
+.fx-cmp-header {
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid rgba(245, 247, 250, 0.07);
+  margin-bottom: 4px;
+}
+.fx-cmp-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+}
+.fx-cmp-title::before {
+  content: '';
+  width: 4px;
+  height: 18px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #f7941d, #d71920);
+}
+@media (min-width: 640px) {
+  .fx-cmp-sheet {
+    border-radius: 20px;
+    border-bottom: 1px solid rgba(245, 247, 250, 0.09);
+  }
+  .fx-cmp-handle { display: none; }
+}
