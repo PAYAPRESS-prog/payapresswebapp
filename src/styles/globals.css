@@ -3683,9 +3683,9 @@ body {
 .fx-cmp-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(10, 11, 14, 0.72);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(8, 9, 12, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   z-index: 700;
   display: flex;
   align-items: flex-end;
@@ -3699,8 +3699,11 @@ body {
   max-height: min(92svh, calc(100svh - env(safe-area-inset-top, 0px)));
   overflow-y: auto;
   overflow-x: hidden; /* prevent horizontal scroll — implicit from overflow-y:auto */
-  background: var(--fx-surface);
+  /* --fx-surface was never defined, so this resolved to transparent and
+     the page text bled through the sheet. Solid opaque surface. */
+  background: #16181d;
   border-radius: 24px 24px 0 0;
+  box-shadow: 0 -18px 60px rgba(0, 0, 0, 0.6);
   border-top: 1px solid rgba(245, 247, 250, 0.08);
   animation: fx-sheet-up 0.32s cubic-bezier(0.32, 0.72, 0, 1);
   overscroll-behavior: contain;
