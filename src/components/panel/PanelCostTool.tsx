@@ -337,41 +337,106 @@ export function PanelCostTool({
                 <button type="button" className="pnl-link" onClick={downloadSample}>Download 5-row sample CSV</button>
               </div>
               <div className="pnl-guide">
-                <h3 className="pnl-guide-title">What your file must look like</h3>
-                <div className="pnl-guide-grid">
-                  <div className="pnl-guide-col">
-                    <h4>Accepted formats</h4>
-                    <div className="pnl-guide-chips">
-                      <span>CSV ; , tab</span><span>XLSX</span><span>TXT UTF-8/16</span><span>Excel paste</span>
-                    </div>
-                    <h4>Required columns <em>(EPLAN names auto-detected)</em></h4>
-                    <table className="pnl-guide-table">
-                      <thead><tr><th>EPLAN (DE)</th><th>English</th><th>Example</th></tr></thead>
-                      <tbody>
-                        <tr><td>Menge / Stück</td><td>Quantity</td><td className="pnl-mono">4</td></tr>
-                        <tr><td>Länge [mm]</td><td>Length</td><td className="pnl-mono">1.250,5</td></tr>
-                        <tr><td>Breite</td><td>Width</td><td className="pnl-mono">40</td></tr>
-                        <tr><td>Höhe / Dicke</td><td>Thickness</td><td className="pnl-mono">10</td></tr>
-                        <tr><td colSpan={2}>…or combined: Querschnitt</td><td className="pnl-mono">40x10</td></tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <div className="pnl-guide-col">
-                    <h4>Rules the checker verifies</h4>
-                    <ul className="pnl-guide-rules">
-                      <li><i>✓</i> German <b>1.250,5</b> and English <b>1250.5</b> decimals both work</li>
-                      <li><i>✓</i> Units in headers (<b>[mm]</b>) or cells (<b>1250 mm</b>) are fine</li>
-                      <li><i>✓</i> A missing header row or quantity column is handled</li>
-                      <li><i>!</i> Dimensions must be positive numbers — text like <b>n/a</b> is flagged with its line number</li>
-                      <li><i>!</i> One metal per file — mixed Cu/Al files get a warning</li>
-                      <li><i>!</i> Lengths in metres? We detect it and suggest the unit toggle</li>
+                <h3 className="pnl-guide-title">File guide — a perfect import, every time</h3>
+                <p className="pnl-guide-intro">
+                  Pick the format you have. Each one shows exactly how to get it
+                  out of EPLAN and what it must contain.
+                </p>
+
+                <details className="pnl-fmt">
+                  <summary>
+                    <span className="pnl-fmt-chip">CSV / TXT</span>
+                    <span className="pnl-fmt-name">EPLAN&rsquo;s standard text export</span>
+                    <i className="pnl-fmt-arrow" aria-hidden>›</i>
+                  </summary>
+                  <div className="pnl-fmt-body">
+                    <p><b>Get it from EPLAN:</b> Utilities → Reports → Copper / busbar
+                    parts list → output as file → <em>CSV (semicolon)</em>.</p>
+                    <ul>
+                      <li>Semicolon <b>;</b> comma <b>,</b> or tab — detected automatically</li>
+                      <li>UTF-8 and UTF-16 encodings both open correctly</li>
+                      <li>German <b>1.250,5</b> and English <b>1250.5</b> decimals both work</li>
+                      <li>A missing header row is fine — you map the columns manually</li>
                     </ul>
-                    <p className="pnl-guide-note">
-                      Anything off gets a clear message with the exact lines and how
-                      to fix them — nothing is dropped silently.
-                    </p>
+                    <pre className="pnl-fmt-example">{`Menge;Bezeichnung;Breite;Höhe;Länge
+4;Sammelschiene L1;40;10;1.250,5
+2;Abgang Q1;30;5;445,25`}</pre>
+                  </div>
+                </details>
+
+                <details className="pnl-fmt">
+                  <summary>
+                    <span className="pnl-fmt-chip">XLSX</span>
+                    <span className="pnl-fmt-name">Excel workbook</span>
+                    <i className="pnl-fmt-arrow" aria-hidden>›</i>
+                  </summary>
+                  <div className="pnl-fmt-body">
+                    <p><b>Get it from EPLAN:</b> export the parts list as Excel, or open
+                    any export in Excel and save as <em>.xlsx</em>.</p>
+                    <ul>
+                      <li>The first worksheet is read; the first row becomes the headers</li>
+                      <li>Formulas are fine — their calculated values are used</li>
+                      <li>Legacy <b>.xls</b> (pre-2007) is not supported — re-save as .xlsx or CSV</li>
+                    </ul>
+                  </div>
+                </details>
+
+                <details className="pnl-fmt">
+                  <summary>
+                    <span className="pnl-fmt-chip">Paste</span>
+                    <span className="pnl-fmt-name">Copy rows straight from Excel / EPLAN</span>
+                    <i className="pnl-fmt-arrow" aria-hidden>›</i>
+                  </summary>
+                  <div className="pnl-fmt-body">
+                    <p>Select the table in Excel or the EPLAN preview, copy, switch to
+                    <b> Paste from Excel/EPLAN</b> above and paste. Include the header
+                    row if you have one — mapping gets guessed for you.</p>
+                  </div>
+                </details>
+
+                <h4 className="pnl-guide-h4">The columns we need</h4>
+                <div className="pnl-cols">
+                  <div className="pnl-col-row">
+                    <div className="pnl-col-info">
+                      <b>Quantity <em>*</em></b>
+                      <span>Menge · Stück · Anzahl · Qty</span>
+                    </div>
+                    <code>4</code>
+                  </div>
+                  <div className="pnl-col-row">
+                    <div className="pnl-col-info">
+                      <b>Length <em>*</em></b>
+                      <span>Länge [mm] · Zuschnittslänge · Length</span>
+                    </div>
+                    <code>1.250,5</code>
+                  </div>
+                  <div className="pnl-col-row">
+                    <div className="pnl-col-info">
+                      <b>Width</b>
+                      <span>Breite · Schienenbreite · Width</span>
+                    </div>
+                    <code>40</code>
+                  </div>
+                  <div className="pnl-col-row">
+                    <div className="pnl-col-info">
+                      <b>Thickness</b>
+                      <span>Höhe · Dicke · Materialdicke · Thickness</span>
+                    </div>
+                    <code>10</code>
+                  </div>
+                  <div className="pnl-col-row alt">
+                    <div className="pnl-col-info">
+                      <b>…or one combined column</b>
+                      <span>Querschnitt · Cross-section · Profil</span>
+                    </div>
+                    <code>40x10</code>
                   </div>
                 </div>
+                <p className="pnl-guide-note">
+                  <em>*</em> required · Width + Thickness can be replaced by the
+                  combined column · anything unreadable is flagged with its exact
+                  line number and a fix — nothing is dropped silently.
+                </p>
               </div>
               <details className="pnl-help">
                 <summary>How to export from EPLAN</summary>
