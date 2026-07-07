@@ -8442,3 +8442,40 @@ h3.fx-suggestions-label {
   color: rgba(245,247,250,0.5);
 }
 .pnl-guide-note em { color: #f7941d; font-style: normal; }
+
+/* ── Panel pricing source (live vs custom rates) ── */
+.pnl-pricing {
+  margin: 0 0 14px; padding: 12px 14px;
+  border: 1px solid rgba(245,247,250,0.08);
+  border-radius: 12px;
+  background: rgba(245,247,250,0.02);
+}
+.pnl-price-mode { display: flex; gap: 8px; margin-bottom: 10px; }
+.pnl-price-mode button {
+  flex: 1; min-height: 44px; padding: 10px 12px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(245,247,250,0.14);
+  background: none; color: rgba(245,247,250,0.65);
+  font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.pnl-price-mode button.on {
+  border-color: #f7941d; color: #f7941d;
+  background: rgba(247,148,29,0.1);
+}
+.pnl-price-info {
+  margin: 2px 2px 0; font-size: 13px; line-height: 1.6;
+  color: rgba(245,247,250,0.6);
+}
+.pnl-price-info b { color: #f5f7fa; }
+.pnl-price-live {
+  color: #22c55e; font-weight: 700; font-size: 11px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.pnl-price-inputs .pnl-set-row:last-of-type { border-bottom: none; }
+.pnl-price-inputs .pnl-set-input input { width: 96px; }
+.pnl-price-note { margin: 8px 2px 0; font-size: 12px; color: rgba(245,247,250,0.45); line-height: 1.6; }
+@media (max-width: 480px) {
+  .pnl-price-mode { flex-direction: column; }
+  .pnl-set-row { flex-wrap: wrap; }
+}

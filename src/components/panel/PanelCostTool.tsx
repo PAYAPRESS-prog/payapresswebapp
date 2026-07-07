@@ -59,6 +59,10 @@ export function PanelCostTool({
   });
   const [curr, setCurr] = useState<Curr>('USD');
   const [fx, setFx] = useState<FxRates | null>(null);
+  // Pricing source: the app's live rates, or the user's own numbers.
+  const [priceMode, setPriceMode] = useState<'live' | 'custom'>('live');
+  const [customPrice, setCustomPrice] = useState('');          // USD per kg
+  const [customFx, setCustomFx] = useState<Record<string, string>>({});
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [toast, setToast] = useState('');
@@ -147,20 +151,49 @@ export function PanelCostTool({
   const grades = metal === 'copper' ? MATERIAL_GRADES : ALUMINUM_GRADES;
   const grade = grades[gradeIdx] ?? grades[0];
   const spot = metal === 'copper' ? copperPricePerKg : aluminumPricePerKg;
-  const pricePerKgUSD = (spot ?? 0) * (1 + grade.busbarPremium);
+  const livePriceUSD = (spot ?? 0) * (1 + grade.busbarPremium);
+  const customPriceNum = parseFloat(customPrice.replace(',', '.'));
+  const pricePerKgUSD = priceMode === 'custom'
+    ? (Number.isFinite(customPriceNum) && customPriceNum > 0 ? customPriceNum : 0)
+    : livePriceUSD;
 
   const totals = useMemo(
     () => (groups.length ? computePanel(groups, settings, grade.density) : null),
     [groups, settings, grade.density],
   );
 
-  useEffect(() => { if (!fx && curr !== 'USD') setCurr('USD'); }, [fx, curr]);
+  useEffect(() => {
+    if (!fx && curr !== 'USD' && priceMode === 'live') setCurr('USD');
+  }, [fx, curr, priceMode]);
 
-  const rate = useMemo(() => {
+  const liveRate = useMemo(() => {
     if (curr === 'USD' || !fx) return 1;
     const r = (fx as unknown as Record<string, number>)[curr];
     return typeof r === 'number' && r > 0 ? r : 1;
   }, [curr, fx]);
+  const customFxNum = parseFloat((customFx[curr] ?? '').replace(',', '.'));
+  const rate = curr === 'USD'
+    ? 1
+    : priceMode === 'custom' && Number.isFinite(customFxNum) && customFxNum > 0
+      ? customFxNum
+      : liveRate;
+
+  // Entering custom mode pre-fills with today's live numbers so the
+  // user edits from a sane starting point instead of a blank box.
+  function enterCustomMode() {
+    if (!customPrice && livePriceUSD > 0) setCustomPrice(livePriceUSD.toFixed(2));
+    if (curr !== 'USD' && !customFx[curr]) {
+      setCustomFx(m => ({ ...m, [curr]: liveRate.toFixed(4) }));
+    }
+    setPriceMode('custom');
+  }
+  function pickCurr(c: Curr) {
+    setCurr(c);
+    if (priceMode === 'custom' && c !== 'USD' && !customFx[c]) {
+      const r = fx ? (fx as unknown as Record<string, number>)[c] : 0;
+      setCustomFx(m => ({ ...m, [c]: (typeof r === 'number' && r > 0 ? r : 1).toFixed(4) }));
+    }
+  }
 
   const cost = totals ? totals.costUSD(pricePerKgUSD) : null;
   const cv = (usd: number) => `${fmt(usd * rate)} ${curr}`;
@@ -602,13 +635,65 @@ export function PanelCostTool({
                 <div className="pnl-curr">
                   {['USD', 'EUR', 'GBP'].map(c => (
                     <button key={c} type="button" className={curr === c ? 'on' : ''}
-                      disabled={c !== 'USD' && !fx}
-                      title={c !== 'USD' && !fx ? 'Exchange rates unavailable right now' : undefined}
-                      onClick={() => setCurr(c)}>{c}</button>
+                      disabled={c !== 'USD' && !fx && priceMode === 'live'}
+                      title={c !== 'USD' && !fx && priceMode === 'live'
+                        ? 'No live rate — switch to "My own rates" to use this currency'
+                        : undefined}
+                      onClick={() => pickCurr(c)}>{c}</button>
                   ))}
                 </div>
-                {spot === null && (
-                  <p className="pnl-flag">Live metal feed unavailable — prices use an estimated rate. Don&apos;t quote commercially.</p>
+                <div className="pnl-pricing">
+                  <div className="pnl-price-mode" role="tablist" aria-label="Pricing source">
+                    <button type="button" className={priceMode === 'live' ? 'on' : ''}
+                      onClick={() => setPriceMode('live')}>Live market rates</button>
+                    <button type="button" className={priceMode === 'custom' ? 'on' : ''}
+                      onClick={enterCustomMode}>My own rates</button>
+                  </div>
+
+                  {priceMode === 'live' ? (
+                    <p className="pnl-price-info">
+                      {metal === 'copper' ? 'Cu' : 'Al'} {spot !== null ? `$${spot.toFixed(2)}` : '—'}/kg
+                      {grade.busbarPremium > 0 && <> × {grade.label} premium → <b>${livePriceUSD.toFixed(2)}/kg</b></>}
+                      {curr !== 'USD' && <> · 1 USD = {liveRate.toFixed(4)} {curr}</>}
+                      <span className="pnl-price-live"> live</span>
+                    </p>
+                  ) : (
+                    <div className="pnl-price-inputs">
+                      <div className="pnl-set-row">
+                        <label>{metal === 'copper' ? 'Copper' : 'Aluminum'} price</label>
+                        <div className="pnl-set-input">
+                          <input type="text" inputMode="decimal" value={customPrice}
+                            placeholder={livePriceUSD > 0 ? livePriceUSD.toFixed(2) : '9.50'}
+                            onChange={e => setCustomPrice(e.target.value)} />
+                          <span>USD/kg</span>
+                        </div>
+                      </div>
+                      {curr !== 'USD' && (
+                        <div className="pnl-set-row">
+                          <label>Exchange rate · 1 USD =</label>
+                          <div className="pnl-set-input">
+                            <input type="text" inputMode="decimal" value={customFx[curr] ?? ''}
+                              placeholder={liveRate.toFixed(4)}
+                              onChange={e => setCustomFx(m => ({ ...m, [curr]: e.target.value }))} />
+                            <span>{curr}</span>
+                          </div>
+                        </div>
+                      )}
+                      <p className="pnl-price-note">
+                        Your price is used as-is (no grade premium added).
+                        {pricePerKgUSD === 0 && ' Enter a price above zero to see costs.'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {spot === null && priceMode === 'live' && (
+                  <p className="pnl-flag">
+                    Live metal feed unavailable — prices use an estimated rate.{' '}
+                    <button type="button" className="pnl-link" onClick={enterCustomMode}>
+                      Enter your own rates instead
+                    </button>
+                  </p>
                 )}
                 <div className="pnl-res-total">
                   <span>Total cost incl. waste</span>
