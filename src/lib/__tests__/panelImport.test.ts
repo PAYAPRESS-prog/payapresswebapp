@@ -300,3 +300,67 @@ describe('xlsx', () => {
     expect(totals.grossKg).toBeCloseTo(expected, 4);
   });
 });
+
+/* ══ Import audit — discrepancy checks with cause + fix ══ */
+import { auditTable, auditRows } from '../panelImport';
+
+describe('auditTable (structure)', () => {
+  it('flags wrong-delimiter single-column files as errors', () => {
+    const t = parseDelimited('Menge|Breite|Höhe|Länge\n4|40|10|1000');
+    const issues = auditTable(t);
+    expect(issues.some(i => i.code === 'single-column' && i.severity === 'error')).toBe(true);
+    expect(issues[0].fix).toMatch(/semicolon|Paste/i);
+  });
+
+  it('flags header-only files and duplicate headers', () => {
+    expect(auditTable(parseDelimited('Menge;Breite;Höhe;Länge'))
+      .some(i => i.code === 'no-rows')).toBe(true);
+    expect(auditTable(parseDelimited('L;B;L;Menge\n1;2;3;4'))
+      .some(i => i.code === 'dup-headers')).toBe(true);
+  });
+
+  it('accepts a clean sample with zero issues', () => {
+    expect(auditTable(parseDelimited(SAMPLE_CSV))).toHaveLength(0);
+  });
+});
+
+describe('auditRows (data plausibility)', () => {
+  const mk = (csv: string, unit: 'mm' | 'cm' | 'm' = 'mm') => {
+    const t = parseDelimited(csv);
+    const m = autoMapColumns(t.headers);
+    return auditRows(normalizeRows(t, m, unit), t, m, unit);
+  };
+
+  it('escalates to error when nothing is calculable, with a fix hint', () => {
+    const issues = mk('Menge;Breite;Höhe;Länge\n1;a;b;c\n2;x;y;z');
+    const err = issues.find(i => i.code === 'nothing-calculable');
+    expect(err?.severity).toBe('error');
+    expect(err?.fix).toMatch(/mapping|columns/i);
+  });
+
+  it('lists affected line numbers for unreadable rows', () => {
+    const issues = mk('Menge;Breite;Höhe;Länge\n1;40;10;abc\n1;40;10;100');
+    const u = issues.find(i => i.code === 'unreadable');
+    expect(u?.severity).toBe('warning');
+    expect(u?.lines).toEqual([2]);
+  });
+
+  it('suggests the metre toggle for metre-scale lengths', () => {
+    const issues = mk('Menge;Breite;Höhe;Länge\n1;40;10;1,2\n1;40;10;0,8');
+    expect(issues.some(i => i.code === 'unit-small')).toBe(true);
+  });
+
+  it('detects swapped width/thickness columns', () => {
+    const issues = mk('Menge;Breite;Höhe;Länge\n1;10;40;1000\n1;5;30;600');
+    expect(issues.some(i => i.code === 'swapped-dims')).toBe(true);
+  });
+
+  it('warns when the material column says aluminum', () => {
+    const issues = mk('Menge;Werkstoff;Breite;Höhe;Länge\n1;E-Al 99,5;40;10;1000');
+    expect(issues.some(i => i.code === 'material-alu')).toBe(true);
+  });
+
+  it('stays silent on a perfectly healthy file', () => {
+    expect(mk(SAMPLE_CSV)).toHaveLength(0);
+  });
+});

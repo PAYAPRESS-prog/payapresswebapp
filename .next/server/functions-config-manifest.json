@@ -2,8 +2,8 @@
   "version": 1,
   "functions": {
     "/api/account/delete": {},
-    "/api/admin/audit": {},
     "/api/admin/analytics": {},
+    "/api/admin/audit": {},
     "/api/admin/broadcast": {},
     "/api/admin/crm": {},
     "/api/admin/events": {},

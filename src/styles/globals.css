@@ -8301,3 +8301,75 @@ h3.fx-suggestions-label {
 .pnl-seo h2 { font-size: 19px; margin: 26px 0 8px; }
 .pnl-seo p { font-size: 14px; line-height: 1.75; color: rgba(245,247,250,0.6); }
 .pnl-seo a { color: #f7941d; }
+
+/* ── Panel import: issue cards (cause + fix) ── */
+.pnl-issues { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.pnl-issue {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 13px 15px; border-radius: 13px;
+  background: rgba(215, 25, 32, 0.07);
+  border: 1px solid rgba(215, 25, 32, 0.45);
+}
+.pnl-issue.warning {
+  background: rgba(247, 148, 29, 0.06);
+  border-color: rgba(247, 148, 29, 0.45);
+}
+.pnl-issue-ic {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #d71920; color: #fff; font-size: 12px; font-weight: 700;
+}
+.pnl-issue.warning .pnl-issue-ic { background: #f7941d; color: #17181c; }
+.pnl-issue b { font-size: 13.5px; display: block; margin-bottom: 3px; }
+.pnl-issue p { margin: 0; font-size: 12.5px; line-height: 1.55; color: rgba(245,247,250,0.65); }
+.pnl-issue em {
+  display: inline-block; margin-top: 5px; font-style: normal;
+  font-family: 'Roboto Mono', monospace; font-size: 11px; color: rgba(245,247,250,0.45);
+}
+
+/* ── Panel import: format guide ── */
+.pnl-guide {
+  margin-top: 16px; padding: 16px;
+  border: 1px solid rgba(245,247,250,0.08);
+  border-radius: 14px;
+  background: rgba(245,247,250,0.02);
+}
+.pnl-guide-title {
+  margin: 0 0 14px; font-size: 13px; font-weight: 510;
+  display: flex; align-items: center; gap: 10px;
+}
+.pnl-guide-title::before, .pnl-guide-title::after {
+  content: ''; flex: 1; height: 1px; background: rgba(245,247,250,0.1);
+}
+.pnl-guide-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+@media (min-width: 720px) { .pnl-guide-grid { grid-template-columns: 1fr 1fr; } }
+.pnl-guide-col h4 {
+  margin: 0 0 8px; font-size: 11.5px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: rgba(247,148,29,0.85);
+}
+.pnl-guide-col h4 em { text-transform: none; letter-spacing: 0; font-weight: 400; color: rgba(245,247,250,0.4); font-style: normal; }
+.pnl-guide-col h4 + .pnl-guide-table, .pnl-guide-chips { margin-bottom: 14px; }
+.pnl-guide-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.pnl-guide-chips span {
+  padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  background: rgba(247,148,29,0.1); color: #f7941d;
+  border: 1px solid rgba(247,148,29,0.3);
+}
+.pnl-guide-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.pnl-guide-table th {
+  text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em;
+  color: rgba(245,247,250,0.4); padding: 5px 8px;
+  border-bottom: 1px solid rgba(245,247,250,0.09);
+}
+.pnl-guide-table td { padding: 6px 8px; border-bottom: 1px solid rgba(245,247,250,0.05); color: rgba(245,247,250,0.75); }
+.pnl-guide-rules { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.pnl-guide-rules li { display: flex; gap: 9px; font-size: 12.5px; line-height: 1.5; color: rgba(245,247,250,0.65); }
+.pnl-guide-rules li b { color: #f5f7fa; font-weight: 600; }
+.pnl-guide-rules li i {
+  font-style: normal; flex-shrink: 0; width: 18px; height: 18px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700;
+  background: rgba(34,197,94,0.15); color: #22c55e; margin-top: 1px;
+}
+.pnl-guide-rules li i:empty { display: none; }
+.pnl-guide-rules li:nth-child(n+4) i { background: rgba(247,148,29,0.15); color: #f7941d; }
+.pnl-guide-note { margin: 0; font-size: 12px; color: rgba(245,247,250,0.45); line-height: 1.6; }

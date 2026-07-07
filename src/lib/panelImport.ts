@@ -494,3 +494,171 @@ export async function parseXlsx(buf: ArrayBuffer): Promise<ParsedTable> {
   }
   return { headers: first, rows: rows.slice(1), delimiter: 'xlsx' };
 }
+
+// ── Import audit (discrepancy checks) ─────────────────────────────
+// Three layers of validation, each issue carrying WHY it matters and
+// HOW to fix it. 'error' blocks the calculation, 'warning' lets the
+// user continue but tells them accuracy may suffer.
+
+export interface ImportIssue {
+  severity: 'error' | 'warning';
+  code: string;
+  title: string;
+  fix: string;
+  lines?: number[];
+}
+
+const cap = (lines: number[]) => lines.slice(0, 8);
+
+/** Layer 1 — file structure, right after parsing. */
+export function auditTable(table: ParsedTable): ImportIssue[] {
+  const issues: ImportIssue[] = [];
+  if (table.headers.length < 2) {
+    issues.push({
+      severity: 'error', code: 'single-column',
+      title: 'Only one column was detected',
+      fix: 'The delimiter was probably not recognised. Export from EPLAN as CSV with semicolons (or copy the table straight from Excel and use Paste).',
+    });
+  }
+  if (table.rows.length === 0) {
+    issues.push({
+      severity: 'error', code: 'no-rows',
+      title: 'The file has a header but no data rows',
+      fix: 'Check that the EPLAN report actually contains busbar parts, then export again.',
+    });
+  }
+  const ragged = table.rows
+    .map((r, i) => ({ i: i + 2, n: r.filter(c => c !== '').length ? r.length : -1 }))
+    .filter(x => x.n > -1 && x.n !== table.headers.length)
+    .map(x => x.i);
+  if (ragged.length > 0 && ragged.length > table.rows.length * 0.2) {
+    issues.push({
+      severity: 'warning', code: 'ragged',
+      title: `${ragged.length} rows have a different number of columns than the header`,
+      fix: 'Some cells may contain unquoted delimiters (e.g. a ; inside a description). Re-export as XLSX, or check these lines.',
+      lines: cap(ragged),
+    });
+  }
+  const dupes = table.headers.filter((h, i) => h && table.headers.indexOf(h) !== i);
+  if (dupes.length) {
+    issues.push({
+      severity: 'warning', code: 'dup-headers',
+      title: `Duplicate column names: ${Array.from(new Set(dupes)).join(', ')}`,
+      fix: 'Auto-mapping picks the first match — double-check the column dropdowns in the next step.',
+    });
+  }
+  if (table.rows.length > 5000) {
+    issues.push({
+      severity: 'warning', code: 'huge',
+      title: `${table.rows.length} rows is a very large export`,
+      fix: 'Everything still works, but consider exporting one panel at a time for easier review.',
+    });
+  }
+  return issues;
+}
+
+/** Layer 2+3 — after mapping & normalisation: data plausibility. */
+export function auditRows(
+  result: NormalizeResult,
+  table: ParsedTable,
+  mapping: Partial<Record<FieldKey, number>>,
+  lengthUnit: 'mm' | 'cm' | 'm',
+): ImportIssue[] {
+  const issues: ImportIssue[] = [];
+  const { rows, flagged } = result;
+
+  if (flagged.length > 0) {
+    const unreadable = flagged.filter(f => f.reason === 'unreadable number');
+    const nonPositive = flagged.filter(f => f.reason === 'non-positive value');
+    if (unreadable.length) {
+      issues.push({
+        severity: rows.length ? 'warning' : 'error', code: 'unreadable',
+        title: `${unreadable.length} rows have numbers that could not be read`,
+        fix: 'Open the file at these lines and check the mapped columns — text like "n/a" or merged cells cannot be calculated. German decimals (1.250,5) are fine.',
+        lines: cap(unreadable.map(f => f.line)),
+      });
+    }
+    if (nonPositive.length) {
+      issues.push({
+        severity: rows.length ? 'warning' : 'error', code: 'non-positive',
+        title: `${nonPositive.length} rows contain zero or negative dimensions`,
+        fix: 'Quantity, length, width and thickness must all be greater than zero. Fix or delete these lines in the export.',
+        lines: cap(nonPositive.map(f => f.line)),
+      });
+    }
+  }
+  if (rows.length === 0) {
+    issues.push({
+      severity: 'error', code: 'nothing-calculable',
+      title: 'No calculable rows are left',
+      fix: 'Every row failed validation. Most often the wrong columns are mapped — go back and check Length / Width / Thickness point at numeric columns.',
+    });
+    return issues;
+  }
+
+  // Unit sanity: median length far outside busbar reality.
+  const lens = rows.map(r => r.length).sort((a, b) => a - b);
+  const median = lens[Math.floor(lens.length / 2)];
+  if (median < 20 && lengthUnit === 'mm') {
+    issues.push({
+      severity: 'warning', code: 'unit-small',
+      title: `Median piece length is only ${median} mm — did you mean metres?`,
+      fix: 'If the file lists lengths like 1,25 for 1.25 m, switch the length unit toggle to "m" in the mapping step.',
+    });
+  }
+  if (median > 20000) {
+    issues.push({
+      severity: 'warning', code: 'unit-big',
+      title: `Median piece length is ${Math.round(median)} mm (${(median / 1000).toFixed(1)} m)`,
+      fix: 'That is unusually long for one busbar piece. Check the length column mapping and the unit toggle.',
+    });
+  }
+
+  // Swapped width/thickness suspicion.
+  const swapped = rows
+    .map((r, i) => ({ i, bad: r.thickness > r.width }))
+    .filter(x => x.bad);
+  if (swapped.length > rows.length / 2) {
+    issues.push({
+      severity: 'warning', code: 'swapped-dims',
+      title: 'Thickness is larger than width on most rows',
+      fix: 'Busbar thickness is normally the smaller dimension. The Width and Thickness columns are probably swapped — flip them in the mapping step.',
+    });
+  }
+
+  // Implausible cross-sections.
+  const wild = rows
+    .map((r, i) => ({ i, bad: r.width > 400 || r.thickness > 60 }))
+    .filter(x => x.bad).map(x => x.i + 2);
+  if (wild.length) {
+    issues.push({
+      severity: 'warning', code: 'wild-section',
+      title: `${wild.length} rows have unusual cross-sections (width > 400 mm or thickness > 60 mm)`,
+      fix: 'Check the mapping — these cells may hold lengths or part numbers instead of dimensions.',
+      lines: cap(wild),
+    });
+  }
+
+  // Material column disagreement (file says Al but tool defaults to Cu).
+  if (mapping.material !== undefined) {
+    const mats = table.rows.map(r => (r[mapping.material!] ?? '').toLowerCase());
+    const alu = mats.filter(m => /alu|al\b|e-?al/i.test(m)).length;
+    const cu = mats.filter(m => /cu|kupfer|copper/i.test(m)).length;
+    if (alu > 0 && cu === 0) {
+      issues.push({
+        severity: 'warning', code: 'material-alu',
+        title: 'The file\'s material column says aluminum',
+        fix: 'Switch the metal toggle to Aluminum in the next step so density and price match your parts.',
+      });
+    }
+    if (alu > 0 && cu > 0) {
+      issues.push({
+        severity: 'warning', code: 'material-mixed',
+        title: 'The file mixes copper and aluminum parts',
+        fix: 'The tool prices one metal at a time. Import the file twice — once per metal — excluding the other rows in the review step.',
+      });
+    }
+  }
+
+  return issues;
+}

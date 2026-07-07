@@ -5,8 +5,9 @@ import { MATERIAL_GRADES } from '@/lib/copperData';
 import { ALUMINUM_GRADES } from '@/lib/aluminumData';
 import {
   parseDelimited, parseXlsx, decodeBuffer, autoMapColumns, normalizeRows,
-  groupBySection, computePanel, SAMPLE_CSV,
+  groupBySection, computePanel, auditTable, auditRows, SAMPLE_CSV,
   type ParsedTable, type FieldKey, type PanelRow, type PanelSettings,
+  type ImportIssue,
 } from '@/lib/panelImport';
 import type { FxRates } from '@/types/calculator';
 import { FxAuthSheet } from '@/components/figma/FxAuthSheet';
@@ -49,6 +50,7 @@ export function PanelCostTool({
   const [unit, setUnit] = useState<'mm' | 'cm' | 'm'>('mm');
   const [rows, setRows] = useState<PanelRow[]>([]);
   const [flaggedCount, setFlaggedCount] = useState(0);
+  const [issues, setIssues] = useState<ImportIssue[]>([]);
   const [excluded, setExcluded] = useState<Set<number>>(new Set());
   const [metal, setMetal] = useState<Metal>('copper');
   const [gradeIdx, setGradeIdx] = useState(0);
@@ -80,6 +82,7 @@ export function PanelCostTool({
     setTable(t);
     setFileName(name);
     setMapping(autoMapColumns(t.headers));
+    setIssues(auditTable(t));
     setStep(1);
     try { window.bcTrack?.('panel_import', String(t.rows.length)); } catch { /* noop */ }
   }
@@ -115,10 +118,15 @@ export function PanelCostTool({
   // ── Step 2 → 3: normalize ──────────────────────────────────────
   function applyMapping() {
     if (!table) return;
-    const { rows: parsed, flagged } = normalizeRows(table, mapping, unit);
-    setRows(parsed);
-    setFlaggedCount(flagged.length);
+    const result = normalizeRows(table, mapping, unit);
+    setRows(result.rows);
+    setFlaggedCount(result.flagged.length);
     setExcluded(new Set());
+    const dataIssues = [...auditTable(table), ...auditRows(result, table, mapping, unit)];
+    setIssues(dataIssues);
+    // Hard errors keep the user on the mapping step so they can fix
+    // the cause instead of hitting a dead review screen.
+    if (dataIssues.some(i => i.severity === 'error') && result.rows.length === 0) return;
     setStep(2);
   }
 
@@ -212,6 +220,23 @@ export function PanelCostTool({
     URL.revokeObjectURL(url);
   }
 
+  const issueList = issues.length > 0 && (
+    <div className="pnl-issues" role="alert">
+      {issues.map(i => (
+        <div key={i.code} className={`pnl-issue ${i.severity}`}>
+          <span className="pnl-issue-ic" aria-hidden>{i.severity === 'error' ? '✕' : '!'}</span>
+          <div>
+            <b>{i.title}</b>
+            <p>{i.fix}</p>
+            {i.lines && i.lines.length > 0 && (
+              <em>Lines: {i.lines.join(', ')}{i.lines.length >= 8 ? '…' : ''}</em>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   const mappingComplete =
     mapping.qty !== undefined && mapping.length !== undefined &&
     ((mapping.width !== undefined && mapping.thickness !== undefined) ||
@@ -301,6 +326,43 @@ export function PanelCostTool({
                 </button>
                 <button type="button" className="pnl-link" onClick={downloadSample}>Download 5-row sample CSV</button>
               </div>
+              <div className="pnl-guide">
+                <h3 className="pnl-guide-title">What your file must look like</h3>
+                <div className="pnl-guide-grid">
+                  <div className="pnl-guide-col">
+                    <h4>Accepted formats</h4>
+                    <div className="pnl-guide-chips">
+                      <span>CSV ; , tab</span><span>XLSX</span><span>TXT UTF-8/16</span><span>Excel paste</span>
+                    </div>
+                    <h4>Required columns <em>(EPLAN names auto-detected)</em></h4>
+                    <table className="pnl-guide-table">
+                      <thead><tr><th>EPLAN (DE)</th><th>English</th><th>Example</th></tr></thead>
+                      <tbody>
+                        <tr><td>Menge / Stück</td><td>Quantity</td><td className="pnl-mono">4</td></tr>
+                        <tr><td>Länge [mm]</td><td>Length</td><td className="pnl-mono">1.250,5</td></tr>
+                        <tr><td>Breite</td><td>Width</td><td className="pnl-mono">40</td></tr>
+                        <tr><td>Höhe / Dicke</td><td>Thickness</td><td className="pnl-mono">10</td></tr>
+                        <tr><td colSpan={2}>…or combined: Querschnitt</td><td className="pnl-mono">40x10</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div className="pnl-guide-col">
+                    <h4>Rules the checker verifies</h4>
+                    <ul className="pnl-guide-rules">
+                      <li><i>✓</i> German <b>1.250,5</b> and English <b>1250.5</b> decimals both work</li>
+                      <li><i>✓</i> Units in headers (<b>[mm]</b>) or cells (<b>1250 mm</b>) are fine</li>
+                      <li><i>✓</i> A missing header row or quantity column is handled</li>
+                      <li><i>!</i> Dimensions must be positive numbers — text like <b>n/a</b> is flagged with its line number</li>
+                      <li><i>!</i> One metal per file — mixed Cu/Al files get a warning</li>
+                      <li><i>!</i> Lengths in metres? We detect it and suggest the unit toggle</li>
+                    </ul>
+                    <p className="pnl-guide-note">
+                      Anything off gets a clear message with the exact lines and how
+                      to fix them — nothing is dropped silently.
+                    </p>
+                  </div>
+                </div>
+              </div>
               <details className="pnl-help">
                 <summary>How to export from EPLAN</summary>
                 <p>
@@ -359,6 +421,7 @@ export function PanelCostTool({
                   Cross-section column to continue.
                 </p>
               )}
+              {issueList}
               <div className="pnl-foot">
                 <button type="button" className="pnl-ghost" onClick={() => setStep(0)}>‹ Back</button>
                 <button type="button" className="pnl-primary" disabled={!mappingComplete} onClick={applyMapping}>
@@ -371,6 +434,7 @@ export function PanelCostTool({
           {/* ── Step 3: Review & waste ── */}
           {step === 2 && (
             <>
+              {issueList}
               <section className="pnl-card">
                 <h2 className="pnl-h2">Review pieces</h2>
                 <p className="pnl-sub">
