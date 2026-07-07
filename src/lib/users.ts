@@ -30,6 +30,7 @@ async function ensureTable(): Promise<void> {
     ['company',    'VARCHAR(150) NULL'],
     ['phone',      'VARCHAR(30)  NULL'],
     ['google_id',  'VARCHAR(64)  NULL'],
+    ['apple_sub',  'VARCHAR(64)  NULL'],
   ];
   const [existing] = await pool.query<RowDataPacket[]>(
     `SELECT COLUMN_NAME FROM information_schema.COLUMNS
@@ -45,9 +46,12 @@ async function ensureTable(): Promise<void> {
   // Google accounts have no password — relax the NOT NULL constraint so
   // they can be created with a NULL password_hash.
   await pool.query('ALTER TABLE users MODIFY password_hash VARCHAR(255) NULL').catch(() => {});
-  // Fast lookup + no duplicate Google links.
+  // Fast lookup + no duplicate Google/Apple links.
   if (!have.has('google_id')) {
     await pool.query('CREATE UNIQUE INDEX uniq_google_id ON users (google_id)').catch(() => {});
+  }
+  if (!have.has('apple_sub')) {
+    await pool.query('CREATE UNIQUE INDEX uniq_apple_sub ON users (apple_sub)').catch(() => {});
   }
   tableReady = true;
 }
@@ -136,6 +140,41 @@ export async function linkGoogleId(uid: number, googleId: string): Promise<void>
   await ensureTable();
   const pool = getPool();
   await pool.query('UPDATE users SET google_id = ? WHERE id = ?', [googleId, uid]);
+}
+
+// ── Sign in with Apple accounts ───────────────────────────────────
+// `sub` is Apple's stable per-team user identifier. Apple sends the email
+// only on the FIRST authorization, so the account row is the durable record.
+export async function findUserByAppleSub(appleSub: string): Promise<UserRow | null> {
+  await ensureTable();
+  const pool = getPool();
+  const [rows] = await pool.query<(UserRow & RowDataPacket)[]>(
+    'SELECT id, email, password_hash, opt_in, google_id FROM users WHERE apple_sub = ? LIMIT 1',
+    [appleSub],
+  );
+  return rows[0] ?? null;
+}
+
+export async function createAppleUser(
+  email: string,
+  appleSub: string,
+  firstName?: string,
+  lastName?: string,
+): Promise<number> {
+  await ensureTable();
+  const pool = getPool();
+  const [res] = await pool.query<ResultSetHeader>(
+    `INSERT INTO users (email, password_hash, apple_sub, first_name, last_name, opt_in)
+     VALUES (?, NULL, ?, ?, ?, 0)`,
+    [email.toLowerCase(), appleSub, firstName ?? null, lastName ?? null],
+  );
+  return res.insertId;
+}
+
+export async function linkAppleSub(uid: number, appleSub: string): Promise<void> {
+  await ensureTable();
+  const pool = getPool();
+  await pool.query('UPDATE users SET apple_sub = ? WHERE id = ?', [appleSub, uid]);
 }
 
 export async function updateProfile(

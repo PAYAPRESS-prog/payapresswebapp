@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { LetterIcon, EyeIcon, EyeClosedIcon } from './FxIcons';
 import { lockBodyScroll, unlockBodyScroll } from '@/lib/scrollLock';
 import { FxGoogleButton } from './FxGoogleButton';
+import { FxAppleButton } from './FxAppleButton';
 
 type Mode = 'login' | 'signup';
 
@@ -38,13 +39,24 @@ export function FxAuthSheet({
   const [error, setError]       = useState<string | null>(null);
   const [errorSwitch, setErrorSwitch] = useState<'login' | 'signup' | null>(null);
   const [mounted, setMounted] = useState(false);
+  // iOS shell (Capacitor / ?src=ios-app): Google OAuth can't run in the
+  // embedded webview, so the sheet swaps Google for Sign in with Apple.
+  const [iosShell, setIosShell] = useState(false);
   // 'form' = login/signup · 'forgot'/'sent' = password reset ·
   // 'otp' = signup email-verification code entry
   const [view, setView] = useState<'form' | 'forgot' | 'sent' | 'otp'>('form');
   const [otpToken, setOtpToken] = useState('');
   const [otpCode,  setOtpCode]  = useState('');
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+    try {
+      setIosShell(
+        localStorage.getItem('bc_ios') === '1' ||
+        Boolean(window.Capacitor?.isNativePlatform?.()),
+      );
+    } catch { /* private mode */ }
+  }, []);
 
   // Lock body scroll while the sheet is open
   useEffect(() => {
@@ -461,7 +473,16 @@ export function FxAuthSheet({
             {busy ? 'Please wait…' : isSignup ? 'Sign Up' : 'Log In'}
           </button>
 
-          <FxGoogleButton
+          {/* Google OAuth is blocked inside WKWebView (disallowed_useragent),
+              so the iOS shell hides it and leads with Sign in with Apple
+              (also required by App Review guideline 4.8). */}
+          {!iosShell && (
+            <FxGoogleButton
+              onSuccess={handleGoogleSuccess}
+              onError={msg => { setError(msg); setErrorSwitch(null); }}
+            />
+          )}
+          <FxAppleButton
             onSuccess={handleGoogleSuccess}
             onError={msg => { setError(msg); setErrorSwitch(null); }}
           />

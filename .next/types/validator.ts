@@ -344,6 +344,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../src/app/api/auth/apple/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/auth/apple">> = Specific
+  const handler = {} as typeof import("../../src/app/api/auth/apple/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../src/app/api/auth/forgot/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/auth/forgot">> = Specific
@@ -537,6 +546,15 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/v1/fx-rates">> = Specific
   const handler = {} as typeof import("../../src/app/api/v1/fx-rates/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../src/app/api/well-known/aasa/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/well-known/aasa">> = Specific
+  const handler = {} as typeof import("../../src/app/api/well-known/aasa/route.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

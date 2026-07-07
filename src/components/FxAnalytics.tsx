@@ -87,6 +87,11 @@ function detectDesktopShell() {
         localStorage.setItem('bc_android', '1');
       }
       window.bcTrack?.('android_launch');
+    } else if (src === 'ios-app') {
+      if (localStorage.getItem('bc_ios') !== '1') {
+        localStorage.setItem('bc_ios', '1');
+      }
+      window.bcTrack?.('ios_launch');
     }
   } catch { /* private mode */ }
 }

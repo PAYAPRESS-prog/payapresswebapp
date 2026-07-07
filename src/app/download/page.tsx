@@ -8,16 +8,17 @@ const BASE_URL = SITE_URL;
 const REPO = 'https://github.com/PAYAPRESS-prog/payapresswebapp';
 
 // Target keywords: "busbar calculator download", "busbar calculator windows",
-// "busbar calculator android app".
+// "busbar calculator android app", "busbar calculator ios".
 export const metadata: Metadata = {
-  title: { absolute: 'Download Busbar Calculator — Windows & Android App' },
+  title: { absolute: 'Download Busbar Calculator — Windows, Android & iOS App' },
   description:
     'Get the official Busbar Calculator apps: live copper & aluminum prices, ' +
-    'busbar sizing, waste and EPLAN panel costs. Windows 10/11 installer and ' +
-    'Android APK — Google Play listing coming soon. Free.',
+    'busbar sizing, waste and EPLAN panel costs. Windows 10/11 installer, ' +
+    'Android APK and the iPhone app — free.',
   keywords: [
     'busbar calculator download', 'busbar calculator windows',
     'busbar calculator android app', 'busbar calculator apk',
+    'busbar calculator ios', 'busbar calculator iphone app',
     'busbar calculator desktop app', 'copper price app',
     'busbar software free download',
   ],
@@ -25,13 +26,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     url: `${BASE_URL}/download`,
-    title: 'Download Busbar Calculator — Windows & Android App',
-    description: 'The official apps — live busbar prices on Windows 10/11 and Android.',
+    title: 'Download Busbar Calculator — Windows, Android & iOS App',
+    description: 'The official apps — live busbar prices on Windows 10/11, Android and iPhone.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Download Busbar Calculator — Windows & Android App',
-    description: 'Live copper & aluminum busbar prices as native Windows and Android apps. Free.',
+    title: 'Download Busbar Calculator — Windows, Android & iOS App',
+    description: 'Live copper & aluminum busbar prices as native Windows, Android and iOS apps. Free.',
   },
 };
 
@@ -51,6 +52,15 @@ const JSON_LD = {
       '@type': 'SoftwareApplication',
       name: 'Busbar Calculator for Android',
       operatingSystem: 'Android 7.0+',
+      applicationCategory: 'EngineeringApplication',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      url: `${BASE_URL}/download`,
+      publisher: { '@id': `${BASE_URL}/#organization` },
+    },
+    {
+      '@type': 'SoftwareApplication',
+      name: 'Busbar Calculator for iPhone & iPad',
+      operatingSystem: 'iOS 15+',
       applicationCategory: 'EngineeringApplication',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
       url: `${BASE_URL}/download`,
@@ -78,7 +88,7 @@ export default function DownloadPage() {
 
       <section className="dlw-hero">
         <div className="dlw-copy">
-          <h1>Busbar Calculator<br />for <span>Windows &amp; Android</span></h1>
+          <h1>Busbar Calculator<br />for <span>Windows, Android &amp; iOS</span></h1>
           <p>
             Live copper &amp; aluminum prices, busbar sizing, waste and EPLAN panel
             costs — as real apps. Always up to date, nothing to configure.
@@ -86,7 +96,7 @@ export default function DownloadPage() {
           <DownloadButtons repo={REPO} />
           <p className="dlw-req">
             Windows 10 (1803+) &amp; 11 · x64 &amp; ARM64 · Android 7.0+ ·
-            small download · Free
+            iOS 15+ · small download · Free
           </p>
         </div>
         <div className="dlw-mascot" aria-hidden>
@@ -119,6 +129,19 @@ export default function DownloadPage() {
           </li>
           <li><b>Launch</b> Busbar Calculator from your home screen — sign-in,
             history and saved panels are the same as on the web.</li>
+        </ol>
+      </section>
+
+      <section className="dlw-steps">
+        <h2>Install on iPhone &amp; iPad</h2>
+        <ol>
+          <li><b>TestFlight first:</b> during the beta, the button above joins
+            the TestFlight test — install Apple&apos;s TestFlight app, tap the
+            link, done.</li>
+          <li><b>App Store:</b> once approved, the same button becomes a direct
+            App Store download.</li>
+          <li><b>Sign in</b> with Apple, email or your existing account —
+            history and saved panels sync everywhere.</li>
         </ol>
       </section>
 

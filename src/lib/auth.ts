@@ -74,6 +74,50 @@ export async function verifyGoogleIdToken(idToken: string): Promise<GoogleClaims
   }
 }
 
+// ── Sign in with Apple: verify the identity token ──────────────────
+// Same public-key model as Google. Audience differs by surface:
+//   - native app (AuthenticationServices):  aud = bundle id
+//   - web (Sign in with Apple JS):          aud = Services ID (APPLE_CLIENT_ID)
+const APPLE_JWKS = createRemoteJWKSet(
+  new URL('https://appleid.apple.com/auth/keys'),
+);
+const APPLE_BUNDLE_ID = 'com.payapress.calculator';
+
+export type AppleClaims = {
+  sub: string;            // stable per-team Apple user id
+  email: string;          // may be a privaterelay.appleid.com address
+  emailVerified: boolean;
+  isPrivateEmail: boolean;
+};
+
+export async function verifyAppleIdToken(idToken: string): Promise<AppleClaims | null> {
+  const audiences = [
+    APPLE_BUNDLE_ID,
+    process.env.APPLE_CLIENT_ID ?? '',
+    process.env.NEXT_PUBLIC_APPLE_CLIENT_ID ?? '',
+  ].filter(Boolean);
+  try {
+    const { payload } = await jwtVerify(idToken, APPLE_JWKS, {
+      issuer: 'https://appleid.apple.com',
+      audience: audiences,
+      algorithms: ['RS256'],
+    });
+    const sub = String(payload.sub ?? '');
+    const email = String(payload.email ?? '').toLowerCase();
+    if (!sub || !email) return null;
+    // Apple encodes booleans as true OR the string "true".
+    const truthy = (v: unknown) => v === true || v === 'true';
+    return {
+      sub,
+      email,
+      emailVerified: truthy(payload.email_verified),
+      isPrivateEmail: truthy(payload.is_private_email),
+    };
+  } catch {
+    return null;
+  }
+}
+
 export type SessionPayload = { uid: number; email: string };
 
 export async function createSessionToken(payload: SessionPayload): Promise<string> {

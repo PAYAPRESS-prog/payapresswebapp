@@ -1,0 +1,176 @@
+# Builds the official iOS app for Busbar Calculator (Capacitor shell).
+# Trigger: push a tag like `ios-v1.0.0`, or run manually with a tag input.
+#
+# Two modes:
+#  - WITHOUT signing secrets: unsigned validation archive (proves the project
+#    compiles) uploaded as a workflow artifact; no release assets.
+#  - WITH signing secrets: signed IPA, uploaded to TestFlight via fastlane
+#    pilot (App Store Connect API key — fastlane ships on GitHub macOS
+#    runners and its ASC-key auth is the most dependable non-interactive
+#    path), and attached to the GitHub release as Busbar-Calculator-iOS.ipa.
+#
+# Secrets (never committed):
+#   APP_STORE_CONNECT_API_KEY_ID / APP_STORE_CONNECT_ISSUER_ID /
+#   APP_STORE_CONNECT_API_KEY_P8_BASE64
+#   IOS_DIST_CERT_P12_BASE64 / IOS_DIST_CERT_PASSWORD
+#   IOS_PROVISIONING_PROFILE_BASE64   (App Store profile for
+#                                      com.payapress.calculator)
+name: Release iOS app
+
+on:
+  push:
+    tags: ['ios-v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. ios-v1.0.0)'
+        required: true
+        default: 'ios-v1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-14
+    outputs:
+      signed: ${{ steps.mode.outputs.signed }}
+    env:
+      HAS_SIGNING: ${{ secrets.IOS_DIST_CERT_P12_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Capacitor sync
+        shell: bash
+        working-directory: ios
+        run: |
+          npm ci
+          npx cap sync ios
+
+      - name: CocoaPods
+        shell: bash
+        working-directory: ios/ios/App
+        run: pod install
+
+      - name: Read version
+        id: ver
+        shell: bash
+        run: |
+          source <(sed 's/^/export /' ios/VERSION)
+          echo "mv=$marketingVersion" >> "$GITHUB_OUTPUT"
+          echo "bn=$buildNumber" >> "$GITHUB_OUTPUT"
+
+      - name: Mode
+        id: mode
+        shell: bash
+        run: echo "signed=$HAS_SIGNING" >> "$GITHUB_OUTPUT"
+
+      # ── Unsigned validation build (no secrets) ─────────────────────
+      - name: Build validation archive (unsigned)
+        if: env.HAS_SIGNING != 'true'
+        shell: bash
+        working-directory: ios/ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace -scheme App \
+            -configuration Release -sdk iphoneos \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" archive \
+            MARKETING_VERSION="${{ steps.ver.outputs.mv }}" \
+            CURRENT_PROJECT_VERSION="${{ steps.ver.outputs.bn }}" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_ENTITLEMENTS=""
+          ditto -c -k --keepParent "$RUNNER_TEMP/App.xcarchive" unsigned-archive.zip
+
+      - uses: actions/upload-artifact@v4
+        if: env.HAS_SIGNING != 'true'
+        with:
+          name: ios-unsigned-archive
+          path: ios/ios/App/unsigned-archive.zip
+
+      # ── Signed build + TestFlight (secrets present) ────────────────
+      - name: Import signing assets
+        if: env.HAS_SIGNING == 'true'
+        shell: bash
+        env:
+          P12_B64: ${{ secrets.IOS_DIST_CERT_P12_BASE64 }}
+          P12_PW: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+          PROFILE_B64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          KC="$RUNNER_TEMP/build.keychain"
+          security create-keychain -p ci "$KC"
+          security set-keychain-settings -lut 1800 "$KC"
+          security unlock-keychain -p ci "$KC"
+          echo "$P12_B64" | base64 -d > "$RUNNER_TEMP/dist.p12"
+          security import "$RUNNER_TEMP/dist.p12" -k "$KC" -P "$P12_PW" \
+            -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k ci "$KC"
+          security list-keychains -d user -s "$KC" login.keychain
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "$PROFILE_B64" | base64 -d \
+            > ~/Library/MobileDevice/Provisioning\ Profiles/busbar.mobileprovision
+
+      - name: Build signed IPA
+        if: env.HAS_SIGNING == 'true'
+        shell: bash
+        working-directory: ios/ios/App
+        run: |
+          xcodebuild -workspace App.xcworkspace -scheme App \
+            -configuration Release -sdk iphoneos \
+            -archivePath "$RUNNER_TEMP/App.xcarchive" archive \
+            MARKETING_VERSION="${{ steps.ver.outputs.mv }}" \
+            CURRENT_PROJECT_VERSION="${{ steps.ver.outputs.bn }}"
+          cat > "$RUNNER_TEMP/export.plist" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+          </dict></plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/export.plist" \
+            -exportPath "$RUNNER_TEMP/export"
+          mkdir -p dist
+          cp "$RUNNER_TEMP"/export/*.ipa dist/Busbar-Calculator-iOS.ipa
+          (cd dist && shasum -a 256 * > SHA256SUMS-ios.txt)
+
+      - name: Upload to TestFlight (fastlane pilot)
+        if: env.HAS_SIGNING == 'true'
+        shell: bash
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_KEY_B64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
+        run: |
+          echo "$ASC_KEY_B64" | base64 -d > "$RUNNER_TEMP/asc.p8"
+          fastlane pilot upload \
+            --ipa ios/ios/App/dist/Busbar-Calculator-iOS.ipa \
+            --api_key_path <(printf '{"key_id":"%s","issuer_id":"%s","key_filepath":"%s"}' \
+              "$ASC_KEY_ID" "$ASC_ISSUER_ID" "$RUNNER_TEMP/asc.p8") \
+            --skip_waiting_for_build_processing true
+
+      - uses: actions/upload-artifact@v4
+        if: env.HAS_SIGNING == 'true'
+        with:
+          name: ios
+          path: ios/ios/App/dist/*
+
+  release:
+    needs: build
+    if: needs.build.outputs.signed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ios
+          path: dist
+
+      - name: GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
+          name: "Busbar Calculator for iOS ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}"
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}

@@ -300,7 +300,12 @@
       "root": "/home/user/payapresswebapp"
     },
     "_originalRewrites": {
-      "beforeFiles": [],
+      "beforeFiles": [
+        {
+          "source": "/.well-known/apple-app-site-association",
+          "destination": "/api/well-known/aasa"
+        }
+      ],
       "afterFiles": [],
       "fallback": []
     }

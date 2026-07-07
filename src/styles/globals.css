@@ -8011,6 +8011,19 @@ h3.fx-suggestions-label {
 }
 .fxf-link-btn { background: none; border: none; padding: 0; font-family: inherit; cursor: pointer; font-size: 13.5px; text-align: left; }
 
+/* "Continue with Apple" — Apple HIG: black button, white mark, ≥44px */
+.fx-apple-btn {
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  width: 100%; min-height: 44px; margin-top: 10px;
+  padding: 11px 18px; border: 1px solid rgba(245,247,250,0.22);
+  border-radius: 12px; background: #000; color: #fff;
+  font-family: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+.fx-apple-btn:hover { filter: brightness(1.25); }
+.fx-apple-btn:active { transform: scale(0.985); }
+.fx-apple-btn:disabled { opacity: 0.6; cursor: default; }
+
 /* ── Pulse player: mobile ergonomics (standard touch sizing) ── */
 @media (max-width: 767px) {
   .plx-sheet { padding: 12px 16px calc(20px + env(safe-area-inset-bottom)); }

@@ -1,0 +1,21 @@
+{
+  "appId": "com.payapress.calculator",
+  "appName": "Busbar Calculator",
+  "webDir": "www",
+  "server": {
+    "url": "https://calculator.payapress.com/busbar-calculator?src=ios-app",
+    "errorPath": "offline.html",
+    "allowNavigation": [
+      "calculator.payapress.com",
+      "www.payapress.com",
+      "appleid.apple.com"
+    ]
+  },
+  "backgroundColor": "#0b0d10",
+  "ios": {
+    "contentInset": "automatic",
+    "backgroundColor": "#0b0d10",
+    "allowsLinkPreview": false,
+    "scheme": "Busbar Calculator"
+  }
+}

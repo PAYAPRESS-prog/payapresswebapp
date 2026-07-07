@@ -198,4 +198,4 @@ Unsubscribe: mailto:${j()}?subject=unsubscribe`}}function s(a,b,c,d){let e=`<a h
 
 ${b.trim()}
 
-https://calculator.payapress.com`}}},81630:a=>{"use strict";a.exports=require("http")},86439:a=>{"use strict";a.exports=require("next/dist/shared/lib/no-fallback-error.external")},91645:a=>{"use strict";a.exports=require("net")},94735:a=>{"use strict";a.exports=require("events")},96487:()=>{}};var b=require("../../../webpack-runtime.js");b.C(a);var c=b.X(0,[1331,1692,9382,5112],()=>b(b.s=38674));module.exports=c})();
+https://calculator.payapress.com`}}},81630:a=>{"use strict";a.exports=require("http")},86439:a=>{"use strict";a.exports=require("next/dist/shared/lib/no-fallback-error.external")},91645:a=>{"use strict";a.exports=require("net")},94735:a=>{"use strict";a.exports=require("events")},96487:()=>{}};var b=require("../../../webpack-runtime.js");b.C(a);var c=b.X(0,[5873,1692,9382,5112],()=>b(b.s=38674));module.exports=c})();

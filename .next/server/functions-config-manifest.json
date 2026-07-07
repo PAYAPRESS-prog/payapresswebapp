@@ -13,13 +13,14 @@
     "/api/admin/surveys": {},
     "/api/admin/users": {},
     "/api/analytics/collect": {},
+    "/api/auth/apple": {},
     "/api/auth/forgot": {},
     "/api/auth/google": {},
     "/api/auth/login": {},
     "/api/auth/logout": {},
-    "/api/auth/me": {},
     "/api/auth/reset": {},
     "/api/auth/signup": {},
+    "/api/auth/me": {},
     "/api/auth/signup/verify": {},
     "/api/cron/daily-digest": {
       "maxDuration": 300
@@ -28,9 +29,10 @@
     "/api/price-history": {},
     "/api/profile/change-password": {},
     "/api/profile": {},
-    "/api/survey/active": {},
     "/api/survey/respond": {},
     "/api/test-mail": {},
+    "/api/survey/active": {},
+    "/api/well-known/aasa": {},
     "/admin": {}
   }
 }

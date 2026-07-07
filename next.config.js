@@ -22,15 +22,21 @@ const GIS_CONNECT = 'https://accounts.google.com/gsi/';
 const GIS_STYLE  = 'https://accounts.google.com/gsi/style';
 const GIS_IMG    = 'https://lh3.googleusercontent.com';
 
+// Sign in with Apple (web flow): the JS loads from Apple's CDN and the
+// popup/frame talks to appleid.apple.com.
+const APPLE_SCRIPT  = 'https://appleid.cdn-apple.com';
+const APPLE_CONNECT = 'https://appleid.apple.com';
+const APPLE_FRAME   = 'https://appleid.apple.com';
+
 const CSP = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${GA_SCRIPT} ${GIS_SCRIPT}`,
+  `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${GA_SCRIPT} ${GIS_SCRIPT} ${APPLE_SCRIPT}`,
   `style-src 'self' 'unsafe-inline' ${GIS_STYLE}`,
   `img-src 'self' data: https://flagcdn.com ${GA_IMG} ${GIS_IMG}`,
   "font-src 'self'",
-  `connect-src 'self' ${GA_CONNECT} ${GIS_CONNECT} https://api.github.com`,
+  `connect-src 'self' ${GA_CONNECT} ${GIS_CONNECT} ${APPLE_CONNECT} https://api.github.com`,
   "worker-src 'self'",
-  `frame-src ${GIS_FRAME}`,
+  `frame-src ${GIS_FRAME} ${APPLE_FRAME}`,
   "frame-ancestors 'none'",
   "object-src 'none'",
   "base-uri 'self'",
@@ -145,14 +151,20 @@ const nextConfig = {
   },
 
   async rewrites() {
-    const wpApiBase = process.env.NEXT_PUBLIC_WP_API_BASE || '';
-    if (!wpApiBase) return [];
-    return [
+    // beforeFiles: must win over public/ so the AASA JSON is served by the
+    // route handler with content-type application/json (Apple requirement —
+    // the extensionless public file would ship as octet-stream).
+    const beforeFiles = [
       {
-        source:      '/api/wp/:path*',
-        destination: `${wpApiBase}/:path*`,
+        source:      '/.well-known/apple-app-site-association',
+        destination: '/api/well-known/aasa',
       },
     ];
+    const wpApiBase = process.env.NEXT_PUBLIC_WP_API_BASE || '';
+    const afterFiles = wpApiBase
+      ? [{ source: '/api/wp/:path*', destination: `${wpApiBase}/:path*` }]
+      : [];
+    return { beforeFiles, afterFiles, fallback: [] };
   },
 };
 

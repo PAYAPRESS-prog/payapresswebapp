@@ -1,12 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 // Set this to the Play Store URL once the listing is live, e.g.
 // 'https://play.google.com/store/apps/details?id=com.payapress.calculator'
 // — the Android section then swaps the "coming soon" chip for a real
 // Google Play button automatically.
 const PLAY_STORE_URL = '';
+// Same idea for iOS: the App Store URL when the listing is live, and the
+// TestFlight public link during the beta (either lights the button up).
+const APP_STORE_URL = '';
+const TESTFLIGHT_URL = '';
 
 type Platform = 'windows' | 'android';
 
@@ -133,22 +137,64 @@ function AndroidCta({ repo, tag }: { repo: string; tag: string | null }) {
   );
 }
 
-// Both platform CTAs; the visitor's own platform is listed first.
+function AppleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M16.365 12.79c-.024-2.448 1.998-3.623 2.089-3.68-1.137-1.664-2.907-1.892-3.536-1.917-1.505-.152-2.938.886-3.7.886-.763 0-1.942-.864-3.193-.84-1.643.024-3.158.955-4.003 2.425-1.707 2.963-.436 7.344 1.226 9.75.814 1.178 1.784 2.5 3.057 2.452 1.226-.048 1.69-.792 3.172-.792 1.482 0 1.899.792 3.194.768 1.32-.024 2.155-1.202 2.962-2.384.932-1.368 1.316-2.693 1.34-2.762-.03-.012-2.571-.986-2.608-3.906ZM13.93 5.62c.676-.82 1.132-1.958 1.007-3.093-.973.04-2.152.648-2.85 1.466-.626.727-1.174 1.888-1.027 3.001 1.086.084 2.194-.552 2.87-1.374Z"/>
+    </svg>
+  );
+}
+
+// iOS distribution is store-only (no sideloading), so this CTA is driven by
+// the App Store / TestFlight constants rather than GitHub release assets.
+function IosCta() {
+  const url = APP_STORE_URL || TESTFLIGHT_URL;
+  const track = () => { try { window.bcTrack?.('ios_store_click'); } catch { /* noop */ } };
+  if (!url) {
+    return (
+      <div className="dlw-soon">
+        <b>The iPhone &amp; iPad app is being prepared.</b>
+        <span>
+          It ships via TestFlight first, then the App Store — this page lights
+          up the moment it&apos;s live.
+        </span>
+      </div>
+    );
+  }
+  return (
+    <a className="dlw-btn" href={url} target="_blank" rel="noopener noreferrer" onClick={track}>
+      <AppleIcon />
+      {APP_STORE_URL ? 'Download on the App Store' : 'Join the TestFlight beta'}
+    </a>
+  );
+}
+
+// All platform CTAs; the visitor's own platform is listed first.
 export function DownloadButtons({ repo }: { repo: string }) {
   const releases = useReleases(repo);
-  const [isAndroid, setIsAndroid] = useState(false);
+  const [platform, setPlatform] = useState<Platform | 'ios'>('windows');
   useEffect(() => {
-    setIsAndroid(/android/i.test(navigator.userAgent));
+    const ua = navigator.userAgent;
+    if (/iphone|ipad|ipod/i.test(ua)) setPlatform('ios');
+    else if (/android/i.test(ua)) setPlatform('android');
   }, []);
 
-  const windows = <WindowsCta key="win" repo={repo} tag={releases.windows} />;
-  const android = <AndroidCta key="and" repo={repo} tag={releases.android} />;
+  const sections: Array<[string, React.ReactElement]> = [
+    ['windows', <WindowsCta key="win" repo={repo} tag={releases.windows} />],
+    ['android', <AndroidCta key="and" repo={repo} tag={releases.android} />],
+    ['ios',     <IosCta key="ios" />],
+  ];
+  sections.sort(([a], [b]) =>
+    (a === platform ? -1 : b === platform ? 1 : 0));
 
   return (
     <div className="dlw-cta">
-      {isAndroid ? android : windows}
-      <div className="dlw-divider" aria-hidden />
-      {isAndroid ? windows : android}
+      {sections.map(([key, el], i) => (
+        <div key={key}>
+          {i > 0 && <div className="dlw-divider" aria-hidden />}
+          {el}
+        </div>
+      ))}
     </div>
   );
 }
