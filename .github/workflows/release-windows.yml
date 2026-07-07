@@ -12,6 +12,11 @@ on:
   push:
     tags: ['desktop-v*']
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to attach installers to (e.g. desktop-v1.0.0)'
+        required: true
+        default: 'desktop-v1.0.0'
 
 permissions:
   contents: write
@@ -50,7 +55,11 @@ jobs:
 
       - name: Build installers
         working-directory: desktop
-        run: tauri build --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
+        # bash, not pwsh: PowerShell splits `nsis,msi` into an array and the
+        # Tauri CLI receives the invalid value 'nsis msi'. Quoted in bash it
+        # arrives as one comma-separated argument, which clap splits itself.
+        shell: bash
+        run: tauri build --target ${{ matrix.target }} --bundles "${{ matrix.bundles }}"
 
       # Optional code signing: define these repo secrets to sign
       # (Azure Trusted Signing or a PFX): WINDOWS_CERT_PFX_BASE64,
@@ -108,5 +117,6 @@ jobs:
         with:
           files: dist/*
           generate_release_notes: true
-          name: "Busbar Calculator for Windows ${{ github.ref_name }}"
-          tag_name: ${{ github.ref_name != 'main' && github.ref_name || 'desktop-manual' }}
+          # Manual runs attach to the tag given as input; tag pushes use the ref.
+          name: "Busbar Calculator for Windows ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}"
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
