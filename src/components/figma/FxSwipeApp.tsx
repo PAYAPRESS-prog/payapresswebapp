@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { FxHeader } from './FxHeader';
 import { FxBottomNav } from './FxBottomNav';
 import { FxCalculator } from './FxCalculator';
+import { FxFooter } from './FxFooter';
 import { FxHistoryPage } from './FxHistoryPage';
 import { FxProfilePage } from './FxProfilePage';
 import { FxTour } from './FxTour';
@@ -141,6 +142,13 @@ export function FxSwipeApp({ initialData, copperPrice, aluminumPrice }: Props) {
           {/* Panel 1 — Calculator */}
           <div className="fx-swipe-panel">
             <FxCalculator initialData={initialData} />
+            {/* Mobile footer lives INSIDE the panel scroll: the panels use
+                overscroll-behavior: contain, so a footer outside the 100svh
+                shell can never be reached by touch. Hidden on desktop, where
+                the page-level footer below the shell is used instead. */}
+            <div className="fx-panel-footer">
+              <FxFooter copperPrice={copperPrice} aluminumPrice={aluminumPrice} />
+            </div>
           </div>
 
           {/* Panel 2 — Profile */}

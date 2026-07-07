@@ -9,16 +9,16 @@
     "/api/admin/events": {},
     "/api/admin/login": {},
     "/api/admin/monitor": {},
+    "/api/admin/surveys": {},
+    "/api/admin/overview": {},
     "/api/admin/users": {},
     "/api/analytics/collect": {},
     "/api/auth/forgot": {},
     "/api/auth/google": {},
-    "/api/admin/surveys": {},
     "/api/auth/login": {},
-    "/api/auth/logout": {},
-    "/api/admin/overview": {},
-    "/api/auth/reset": {},
     "/api/auth/me": {},
+    "/api/auth/logout": {},
+    "/api/auth/reset": {},
     "/api/auth/signup": {},
     "/api/auth/signup/verify": {},
     "/api/cron/daily-digest": {
@@ -28,9 +28,9 @@
     "/api/price-history": {},
     "/api/profile/change-password": {},
     "/api/profile": {},
+    "/api/survey/active": {},
     "/api/survey/respond": {},
     "/api/test-mail": {},
-    "/api/survey/active": {},
     "/admin": {}
   }
 }
