@@ -7593,15 +7593,15 @@ h3.fx-suggestions-label {
   75% { transform: translateX(7px); }
 }
 
-/* Footer on /busbar-calculator: desktop only — mobile keeps the pure
-   app-shell feel (bottom nav, no page footer below the 100svh shell) */
-.fx-dl-footer-wrap { display: none; }
+/* Footer wrapper — shown on every viewport. On /busbar-calculator mobile
+   it sits below the 100svh app shell: the shell stays a full-screen app,
+   and scrolling past its end reveals the footer. */
+.fx-dl-footer-wrap {
+  display: block;
+  background: #0d0e10;
+}
 @media (min-width: 1024px) {
-  .fx-dl-footer-wrap {
-    display: block;
-    background: #0d0e10;
-    padding-top: 24px;
-  }
+  .fx-dl-footer-wrap { padding-top: 24px; }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -7711,6 +7711,49 @@ h3.fx-suggestions-label {
 @media (max-width: 1200px) {
   .fxf-inner { grid-template-columns: 1.5fr 1fr 1fr 1fr; }
   .fxf-cta { grid-column: 1 / -1; max-width: 460px; }
+}
+
+/* ── Mobile footer (≤1023px) — stacked Figma layout ──
+   Brand block full-width, link columns in a 2-col grid, CTA full-width,
+   generous touch targets (≥40px rows) and safe-area bottom padding. */
+@media (max-width: 1023px) {
+  .fxf-inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 30px 22px;
+    padding: 38px 20px 10px;
+  }
+  .fxf-brand { grid-column: 1 / -1; }
+  .fxf-mission { max-width: none; }
+  .fxf-col { gap: 2px; }
+  .fxf-col-title { margin-bottom: 8px; }
+  /* taller rows = comfortable thumb targets without changing the look.
+     .fxf .fxf-link-btn beats the later base `.fxf-link-btn { padding: 0 }` */
+  .fxf .fxf-link,
+  .fxf .fxf-link-btn { padding: 9px 0; font-size: 14px; line-height: 1.35; }
+  .fxf-link:hover { transform: none; }
+  .fxf-cta {
+    grid-column: 1 / -1;
+    max-width: none;
+    border-top: 1px solid rgba(245,247,250,0.07);
+    padding-top: 26px;
+  }
+  .fxf-cta-btn,
+  .fxf-win-btn { width: 100%; justify-content: center; min-height: 48px; }
+  .fxf-bottom {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    padding: 18px 20px calc(24px + env(safe-area-inset-bottom));
+  }
+  /* On /busbar-calculator the floating bottom-nav pill (64px + 16px offset)
+     hovers over the page end — clear it so the last footer line stays readable */
+  #fx-app-anchor + .fx-dl-footer-wrap .fxf-bottom {
+    padding-bottom: calc(104px + env(safe-area-inset-bottom));
+  }
+}
+@media (max-width: 379px) {
+  .fxf-inner { grid-template-columns: 1fr; }
 }
 
 /* Live-price banner exists only in the desktop grid (Figma 114:300);

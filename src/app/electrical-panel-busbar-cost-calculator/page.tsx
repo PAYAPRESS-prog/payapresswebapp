@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/siteUrl';
 import Link from 'next/link';
 import { PanelCostTool } from '@/components/panel/PanelCostTool';
+import { FxFooter } from '@/components/figma/FxFooter';
 import { fetchCopperPrice, fetchAluminumPrice } from '@/lib/serverPrices';
 
 const BASE_URL = SITE_URL;
@@ -76,6 +77,7 @@ export default async function PanelCostLanding() {
     fetchAluminumPrice(),
   ]);
   return (
+    <>
     <main className="pnl-page pnl-page-public">
       <script
         type="application/ld+json"
@@ -117,5 +119,12 @@ export default async function PanelCostLanding() {
         </p>
       </section>
     </main>
+    <div className="fx-dl-footer-wrap">
+      <FxFooter
+        copperPrice={copper.status === 'fulfilled' ? copper.value.pricePerKg : null}
+        aluminumPrice={aluminum.status === 'fulfilled' ? aluminum.value.pricePerKg : null}
+      />
+    </div>
+    </>
   );
 }

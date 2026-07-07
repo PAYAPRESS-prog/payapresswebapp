@@ -8,20 +8,23 @@ import { FxNotifySheet } from './FxNotifySheet';
 /* Premium app footer — designed in the product's Figma language:
    dark glass surface with a copper hairline, brand column with live
    metal chips, three link columns, a price-alerts CTA and an
-   attribution bottom bar with Mr Busbar. Desktop-only (the mobile
-   view is an app shell with bottom navigation). */
+   attribution bottom bar with Mr Busbar. Responsive: 5-col grid on
+   desktop, stacked 2-col grid on mobile (below the app shell).
+
+   SEO: each internal anchor text matches the target keyword of the
+   page it links to (keep in sync with each page's metadata). */
 
 const PRODUCT_LINKS: Array<[string, string]> = [
-  ['Calculator', '/busbar-calculator'],
-  ['History', '/app/history'],
-  ['Waste Calculator', '/busbar-waste-calculator'],
-  ['Panel Cost (EPLAN)', '/electrical-panel-busbar-cost-calculator'],
-  ['Roadmap', '/roadmap'],
-  ['Windows app', '/download'],
+  ['Busbar Calculator', '/busbar-calculator'],
+  ['Busbar Waste Calculator', '/busbar-waste-calculator'],
+  ['Electrical Panel Busbar Cost Calculator', '/electrical-panel-busbar-cost-calculator'],
+  ['Calculation History', '/app/history'],
+  ['Product Roadmap', '/roadmap'],
+  ['Busbar Calculator for Windows', '/download'],
 ];
 
 const RESOURCE_LINKS: Array<[string, string, boolean?]> = [
-  ['Whitepaper', '/whitepaper'],
+  ['Busbar Calculation Formulas — Whitepaper', '/whitepaper'],
   ['API Reference', 'https://github.com/PAYAPRESS-prog/payapresswebapp/blob/main/docs/API.md', true],
   ['GitHub', 'https://github.com/PAYAPRESS-prog/payapresswebapp', true],
 ];

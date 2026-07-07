@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/siteUrl';
 import Link from 'next/link';
+import { FxFooter } from '@/components/figma/FxFooter';
 
 const BASE_URL = SITE_URL;
 
@@ -71,6 +72,7 @@ const JSON_LD = {
 
 export default function WasteLandingPage() {
   return (
+    <>
     <main className="fx-wl">
       <script
         type="application/ld+json"
@@ -117,5 +119,9 @@ export default function WasteLandingPage() {
         </Link>
       </p>
     </main>
+    <div className="fx-dl-footer-wrap">
+      <FxFooter />
+    </div>
+    </>
   );
 }

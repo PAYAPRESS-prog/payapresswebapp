@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/siteUrl';
 import Link from 'next/link';
 import { DownloadButtons } from '@/components/DownloadButtons';
+import { FxFooter } from '@/components/figma/FxFooter';
 
 const BASE_URL = SITE_URL;
 const REPO = 'https://github.com/PAYAPRESS-prog/payapresswebapp';
@@ -58,6 +59,7 @@ const JSON_LD = {
 
 export default function DownloadPage() {
   return (
+    <>
     <main className="dlw">
       <script type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }} />
@@ -106,5 +108,9 @@ export default function DownloadPage() {
         </p>
       </section>
     </main>
+    <div className="fx-dl-footer-wrap">
+      <FxFooter />
+    </div>
+    </>
   );
 }
