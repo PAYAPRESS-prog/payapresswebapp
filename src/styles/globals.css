@@ -8580,3 +8580,7 @@ h3.fx-suggestions-label {
   transform: translateY(-1px);
 }
 .fxf-win-btn svg { color: #f7941d; }
+
+/* Panel page: back-navigation row (calculator + menu) */
+.pnl-backrow { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+.pnl-backrow .pnl-back { margin-bottom: 14px; }
