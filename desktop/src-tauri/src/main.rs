@@ -15,11 +15,16 @@ const APP_ORIGIN: &str = "https://calculator.payapress.com";
 /// Origins allowed to render inside the shell window.
 fn allowed(url: &Url) -> bool {
     match url.scheme() {
-        // local bootstrap page (tauri://localhost) and blank frames
+        // local bootstrap page (tauri://localhost on macOS/Linux) and blank frames
         "tauri" | "about" | "data" => true,
         "http" | "https" => matches!(
             url.host_str(),
-            Some("calculator.payapress.com")
+            // On WINDOWS the bundled bootstrap page is served from
+            // http(s)://tauri.localhost — without this entry the very first
+            // navigation is treated as foreign: the window stays black and
+            // the system browser opens tauri.localhost (connection refused).
+            Some("tauri.localhost")
+                | Some("calculator.payapress.com")
                 | Some("www.payapress.com")
                 // Google Identity Services sign-in chain
                 | Some("accounts.google.com")
