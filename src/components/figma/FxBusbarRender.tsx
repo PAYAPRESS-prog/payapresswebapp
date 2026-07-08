@@ -30,7 +30,16 @@ export function FxBusbarRender({ width, thick, metal, onResize }: Props) {
   const [isDragging, setIsDragging] = useState(false);
 
   const onPointerDown = useCallback((e: React.PointerEvent) => {
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    // Stop native gestures/selection from stealing the drag (Windows
+    // WebView2 touchscreens, Edge). Must come before anything that can
+    // throw, or the drag never starts.
+    e.preventDefault();
+    // setPointerCapture keeps move events flowing outside the element;
+    // some engines throw here (pointer already released / not supported) —
+    // the drag still works while hovering, so never let it kill the handler.
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch { /* drag continues without capture */ }
     dragStart.current = { x: e.clientX, y: e.clientY, w: width, t: thick };
     setIsDragging(true);
   }, [width, thick]);

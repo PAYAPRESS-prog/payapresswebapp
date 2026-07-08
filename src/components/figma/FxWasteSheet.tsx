@@ -153,6 +153,12 @@ export function FxWasteSheet({
                     {kerfMm.toFixed(1)}<span className="fx-waste-result-unit"> mm</span>
                   </span>
                 </div>
+                {bd * 0.015 < 0.5 && (
+                  <p className="fx-waste-min-note">
+                    Minimum kerf of 0.5 mm applies — blades under ≈33 mm all cut
+                    the same slot, so the numbers won&apos;t change until Ø exceeds 33 mm.
+                  </p>
+                )}
                 <div className="fx-waste-result-row">
                   <span className="fx-waste-result-label">Waste per cut</span>
                   <span className="fx-waste-result-val">
