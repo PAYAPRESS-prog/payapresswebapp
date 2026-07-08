@@ -35,9 +35,16 @@ export function Header() {
           </span>
         </Link>
 
-        <span className="hidden md:block text-[0.65rem] text-zinc-700 font-mono tracking-wide select-none">
-          Busbar Calculator
-        </span>
+        <nav className="hidden md:flex items-center gap-5" aria-label="Site">
+          <Link href="/busbar-calculator"
+            className="text-[0.8rem] font-semibold text-zinc-400 hover:text-zinc-100 transition-colors">
+            Calculator
+          </Link>
+          <Link href="/download"
+            className="text-[0.8rem] font-semibold text-[#f7941d] hover:brightness-110 transition-[filter]">
+            Get the apps
+          </Link>
+        </nav>
       </div>
     </header>
   );

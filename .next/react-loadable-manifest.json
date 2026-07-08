@@ -1,18 +1,31 @@
 {
   "app/embed/page.tsx -> @/components/CopperCalculator": {
-    "id": 1558,
+    "id": 8070,
     "files": [
-      "static/chunks/6212.486b143168d447c3.js",
-      "static/chunks/1558.684dc2bf638943a0.js"
+      "static/chunks/1627.63fd9c701d41f980.js",
+      "static/chunks/8070.08ea4e0e511beef1.js"
     ]
   },
   "components/DynamicRoadmap.tsx -> ./RoadmapClient": {
-    "id": 3972,
+    "id": 7530,
     "files": [
       "static/chunks/2619-3c9e02e22d10480a.js",
-      "static/chunks/6212.486b143168d447c3.js",
-      "static/chunks/1057.d662a81ce626eff5.js",
-      "static/chunks/3972.172dc0cb1b6548fc.js"
+      "static/chunks/6877-ef2578e703a6cd17.js",
+      "static/chunks/1627.63fd9c701d41f980.js",
+      "static/chunks/5324.e4f4c181bbc20fbf.js",
+      "static/chunks/3881-b7cc6fc0f671f697.js",
+      "static/chunks/3257.326526410e210b92.js"
+    ]
+  },
+  "components/DynamicWhitepaper.tsx -> ./WhitepaperClient": {
+    "id": 7167,
+    "files": [
+      "static/chunks/2619-3c9e02e22d10480a.js",
+      "static/chunks/6877-ef2578e703a6cd17.js",
+      "static/chunks/1627.63fd9c701d41f980.js",
+      "static/chunks/5324.e4f4c181bbc20fbf.js",
+      "static/chunks/3881-b7cc6fc0f671f697.js",
+      "static/chunks/6792.be06a0ee29f23f63.js"
     ]
   },
   "components/pulse/PulseHost.tsx -> ./PulsePlayer": {

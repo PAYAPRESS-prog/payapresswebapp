@@ -1,613 +1,253 @@
 'use client';
 
 import Link from 'next/link';
-import { useRef, useState } from 'react';
-import { motion, AnimatePresence, useInView, useScroll, useSpring } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import {
+  motion, MotionConfig, useInView, useReducedMotion, useScroll, useSpring,
+} from 'framer-motion';
 import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import { FxFooter } from '@/components/figma/FxFooter';
 
-/* ─────────────────────────────────────────────────────────────────
-   Data
-───────────────────────────────────────────────────────────────── */
-const PHASES = [
+/* Roadmap — showpiece edition (July 2026 relaunch).
+   Four honest eras around an animated copper timeline: the spine draws
+   itself with scroll, era nodes ignite in view, SHIPPED nodes pulse.
+   All motion is transform/opacity-only and collapses to static under
+   prefers-reduced-motion (MotionConfig reducedMotion="user" + CSS media). */
+
+/* ── Data ─────────────────────────────────────────────────────── */
+type Era = {
+  key: string;
+  chip: string;
+  chipColor: string;
+  title: string;
+  blurb: string;
+  pulse?: boolean;
+  items: Array<{ icon: string; title: string; desc: string }>;
+};
+
+const ERAS: Era[] = [
   {
-    num: '01',
-    group: 'launch',
-    groupLabel: 'Launching June 2026',
-    groupColor: '#22c55e',
-    status: 'LAUNCHING JUNE 2026',
-    statusColor: '#22c55e',
+    key: 'shipped',
+    chip: 'SHIPPED ✦ 2026',
+    chipColor: '#22c55e',
     pulse: true,
-    timeline: 'June 2026',
-    icon: '⚡',
-    title: 'Copper Busbar Calculator',
-    subtitle: 'Platform launch · Public REST API v1 included',
-    desc: 'The foundation of the platform — a professional-grade cost calculator for electrical panel fabricators across the UAE and the MENA region. The Public REST API v1 launches at the same time, free of charge for developer integrations.',
-    features: [
-      'Live COMEX HG=F copper price — Yahoo Finance, 5-minute server cache',
-      '22 currencies with Gulf central-bank peg rates (AED, SAR, KWD, QAR, BHD)',
-      'IEC/DIN material grades — Cu-ETP · Cu-OF · Cu-OFE with exact density values',
-      'Proportional SVG busbar viewer with drag-to-resize interaction',
-      'IEC standard preset chips for one-tap dimension entry',
-      'Achievement badges, calculation milestones, live cost breakdown',
-      'PWA — installs to home screen on iOS & Android, fully offline capable',
-      'Public REST API v1 — free at launch · /api/v1/calculate',
+    title: 'From calculator to four-platform product',
+    blurb:
+      'Everything below is live today — built, tested and deployed at calculator.payapress.com and in the official apps.',
+    items: [
+      { icon: '⚡', title: 'Copper & aluminum calculator', desc: 'Live COMEX/LME pricing, 17 currencies with live FX, weight · ampacity · cost from exact dimensions, IEC cross-sections and material grades.' },
+      { icon: '🪚', title: 'Waste calculator', desc: 'Blade kerf loss per cut and punch-out slugs — weighed with exact alloy density and priced at the live market rate.' },
+      { icon: '📥', title: 'EPLAN panel cost tool', desc: 'Import the parts list straight from EPLAN (Excel or text export), automatic DE/EN column mapping, offcut packing — the true copper cost of a whole panel. Files never leave the browser.' },
+      { icon: '👤', title: 'Accounts & history', desc: 'Email OTP and Google Sign-In (Sign in with Apple ready), saved calculations, compare & bookmarks, daily price digest email.' },
+      { icon: '🖥️', title: 'Official Windows app', desc: 'Native shell for Windows 10/11 (x64 + ARM64), branded offline handling — v1.0.2 live on /download.' },
+      { icon: '🤖', title: 'Official Android app', desc: 'Trusted Web Activity signed and live (v1.0.1), Google Play submission kit complete.' },
+      { icon: '🍎', title: 'iOS app built', desc: 'Capacitor shell with native Sign in with Apple — TestFlight-ready, App Store kit prepared.' },
+      { icon: '🔌', title: 'Public REST API v1', desc: 'Free calculation + live price endpoints, plus first-party cookieless analytics and a PWA that installs anywhere.' },
     ],
-    highlight: true,
-    featured: true,
   },
   {
-    num: '02',
-    group: 'next',
-    groupLabel: 'Next 6 Months',
-    groupColor: '#f59e0b',
-    status: 'PLANNED',
-    statusColor: '#f59e0b',
-    pulse: false,
-    timeline: 'Q3 2026',
-    icon: '📊',
-    title: 'Live Metal Prices & Exchange Rates',
-    subtitle: '~1–2 months after launch',
-    desc: 'Expand beyond copper to a full industrial metals dashboard with live pricing for every major metal used in electrical panel manufacturing.',
-    features: [
-      'Live spot prices — Aluminum, Steel, Zinc, Tin, Lead, Nickel',
-      'Real-time FX rates with GCC & MENA currency support',
-      'Price history charts — 30 and 90-day trend indicators',
-      'Market mood indicators and volatility alerts',
-      'Spot vs 30/90-day average comparison tables',
+    key: 'progress',
+    chip: 'IN PROGRESS',
+    chipColor: '#f7941d',
+    title: 'Store rollouts & the feedback loop',
+    blurb: 'The apps exist — now they meet the stores and the users shape what ships next.',
+    items: [
+      { icon: '▶️', title: 'Google Play listing', desc: 'Closed testing → production rollout of the signed Android build.' },
+      { icon: '✈️', title: 'TestFlight → App Store', desc: 'Apple Developer onboarding, TestFlight beta, then App Store review.' },
+      { icon: '💬', title: 'Pulse insights loop', desc: 'In-app micro-surveys feeding the roadmap — what users need decides what gets built.' },
     ],
-    highlight: false,
-    featured: false,
   },
   {
-    num: '03',
-    group: 'next',
-    groupLabel: 'Next 6 Months',
-    groupColor: '#f59e0b',
-    status: 'PLANNED',
-    statusColor: '#f59e0b',
-    pulse: false,
-    timeline: 'Q3–Q4 2026',
-    icon: '🔧',
-    title: 'Equipment & Component Cost Database',
-    subtitle: '~2–4 months after launch',
-    desc: 'A comprehensive component pricing reference covering everything inside an electrical panel — from cables to enclosures, with full BOM estimation.',
-    features: [
-      'Cables & conductors — all cross-sections, insulation types, materials',
-      'Terminal blocks, contactors, relays, miniature circuit breakers',
-      'Enclosures, DIN rails, cable trays, mounting hardware',
-      'Full BOM calculator — complete panel cost estimation',
-      'Local vs import supplier price comparison',
-      'Export BOM to Excel and PDF',
+    key: 'next',
+    chip: 'NEXT',
+    chipColor: '#f59e0b',
+    title: 'Deeper intelligence for daily work',
+    blurb: 'Sharper tools for the people who quote metal every day.',
+    items: [
+      { icon: '🔔', title: 'Price alerts expansion', desc: 'Threshold alerts and richer notification channels beyond the daily digest.' },
+      { icon: '📈', title: 'Historical analytics', desc: 'Longer ranges, volatility context and comparisons built for procurement decisions.' },
+      { icon: '👥', title: 'Teams & workspaces', desc: 'Shared history, panels and price books for fabrication teams.' },
     ],
-    highlight: false,
-    featured: false,
   },
   {
-    num: '04',
-    group: 'next',
-    groupLabel: 'Next 6 Months',
-    groupColor: '#f59e0b',
-    status: 'PLANNED',
-    statusColor: '#f59e0b',
-    pulse: false,
-    timeline: 'Q4 2026',
-    icon: '📰',
-    title: 'Industry News & Market Intelligence',
-    subtitle: '~4–5 months after launch',
-    desc: 'Curated news and market intelligence for electrical professionals — metals markets, IEC standard updates, and regional sector developments.',
-    features: [
-      'Aggregated news from global metals and electrical industry sources',
-      'IEC/EN standard updates and revision tracking',
-      'Regional market analysis for the UAE and MENA',
-      'Weekly price summaries and market outlook',
-      'Bookmark and offline reading via PWA',
+    key: 'vision',
+    chip: 'VISION',
+    chipColor: '#8b9bb0',
+    title: 'The industrial intelligence suite',
+    blurb: 'The services we deliberately keep out of the header until they are real.',
+    items: [
+      { icon: '🌐', title: 'Live Metal Prices hub', desc: 'Aluminum, steel, zinc, tin, nickel — one dashboard for every panel-shop metal.' },
+      { icon: '📰', title: 'Industry news & market intelligence', desc: 'Curated signals that matter to switchgear builders, not noise.' },
+      { icon: '🔩', title: 'Equipment & component costs', desc: 'From enclosures to breakers — full BOM estimation around the busbar core.' },
     ],
-    highlight: false,
-    featured: false,
   },
-  {
-    num: '05',
-    group: 'horizon',
-    groupLabel: 'Horizon',
-    groupColor: '#a78bfa',
-    status: 'FUTURE',
-    statusColor: '#a78bfa',
-    pulse: false,
-    timeline: 'Q4 2026 – Q1 2027',
-    icon: '📚',
-    title: 'Specialized Technical Encyclopedias',
-    subtitle: '~5–6 months after launch',
-    desc: 'Deep-dive knowledge bases for IEC standards, material science, and practical engineering references — built for professionals, accessible offline.',
-    features: [
-      'IEC 60317 copper conductor standards — full reference library',
-      'Material science: conductivity, thermal ratings, corrosion resistance',
-      'Panel fabrication guides and best-practice documentation',
-      'Persian (فارسی) and Arabic (العربية) language versions',
-      'Offline-first via PWA service worker',
-    ],
-    highlight: false,
-    featured: true,
-  },
-] as const;
+];
 
-type Phase = typeof PHASES[number];
+const STATS: Array<{ n: number; suffix: string; label: string }> = [
+  { n: 4,  suffix: '',  label: 'platforms live' },
+  { n: 17, suffix: '',  label: 'currencies' },
+  { n: 3,  suffix: '',  label: 'live feeds · COMEX LME FX' },
+  { n: 97, suffix: '',  label: 'automated tests green' },
+];
 
-/* ─────────────────────────────────────────────────────────────────
-   Scroll progress bar
-───────────────────────────────────────────────────────────────── */
-function ScrollProgressBar() {
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
-  return (
-    <motion.div
-      aria-hidden
-      className="fixed top-0 left-0 right-0 z-[200] origin-left pointer-events-none"
-      style={{
-        scaleX,
-        height: 3,
-        background: 'linear-gradient(90deg,#7d4c22,#cd7f32,#f5d78e,#cd7f32)',
-      }}
-    />
-  );
+/* ── Small primitives ─────────────────────────────────────────── */
+
+function Counter({ n, suffix }: { n: number; suffix: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-40px' });
+  const reduced = useReducedMotion();
+  const [v, setV] = useState(0);
+  useEffect(() => {
+    if (!inView) return;
+    if (reduced) { setV(n); return; }
+    const t0 = performance.now();
+    const dur = 1100;
+    let raf = 0;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - t0) / dur);
+      setV(Math.round(n * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, n, reduced]);
+  return <span ref={ref}>{v}{suffix}</span>;
 }
 
-/* ─────────────────────────────────────────────────────────────────
-   Pulsing live dot
-───────────────────────────────────────────────────────────────── */
-function PulseDot({ color }: { color: string }) {
-  return (
-    <span
-      className="inline-block rounded-full flex-shrink-0"
-      style={{
-        width: 6, height: 6, background: color,
-        animation: 'live-pulse 2s ease-in-out infinite',
-      }}
-    />
-  );
-}
+const rise = {
+  initial: { opacity: 0, y: 26 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-60px' },
+  transition: { duration: 0.55, ease: [0.32, 0.72, 0, 1] as const },
+};
 
-/* ─────────────────────────────────────────────────────────────────
-   Phase card — Canva presentation style
-───────────────────────────────────────────────────────────────── */
-function PhaseCard({ phase, index }: { phase: Phase; index: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-50px' });
-  const [open, setOpen] = useState(phase.highlight);
-  const [rx, setRx] = useState(0);
-  const [ry, setRy] = useState(0);
-  const touched = useRef(false);
-
+/* ── Milestone card ───────────────────────────────────────────── */
+function MilestoneCard({ icon, title, desc, i }: { icon: string; title: string; desc: string; i: number }) {
   return (
     <motion.div
-      ref={ref}
-      initial={{ y: 36 }}
-      animate={inView ? { y: 0 } : {}}
-      transition={{ duration: 0.65, delay: index * 0.07, ease: [0.22, 1, 0.36, 1] }}
-      className="h-full"
+      className="rmx-card"
+      initial={{ opacity: 0, y: 22 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.5, delay: (i % 4) * 0.07, ease: [0.32, 0.72, 0, 1] }}
     >
-      {/* CSS perspective on wrapper — avoids Safari preserve-3d bugs */}
-      <div style={{ perspective: '1200px' }} className="h-full">
-        <motion.div
-          className="relative h-full rounded-2xl overflow-hidden"
-          style={{
-            background: phase.highlight
-              ? 'linear-gradient(145deg, rgba(205,127,50,0.12) 0%, rgba(120,70,30,0.04) 100%)'
-              : 'var(--color-surface-1)',
-            border: `1px solid ${phase.statusColor}25`,
-            borderTopWidth: 3,
-            borderTopColor: phase.statusColor,
-            boxShadow: phase.highlight
-              ? `0 0 40px ${phase.statusColor}18, inset 0 1px 0 ${phase.statusColor}15`
-              : `0 1px 0 ${phase.statusColor}10 inset`,
-          }}
-          animate={{ rotateX: rx, rotateY: ry }}
-          transition={{ type: 'spring', stiffness: 220, damping: 26, mass: 0.9 }}
-          onMouseMove={e => {
-            if (touched.current) return;
-            const r = e.currentTarget.getBoundingClientRect();
-            setRx(((e.clientY - r.top) / r.height - 0.5) * -4);
-            setRy(((e.clientX - r.left) / r.width - 0.5) * 7);
-          }}
-          onMouseLeave={() => { setRx(0); setRy(0); }}
-          onTouchStart={() => { touched.current = true; setRx(0); setRy(0); }}
-        >
-          {/* Phase number watermark */}
-          <div
-            aria-hidden
-            className="absolute right-0 top-0 font-black font-mono leading-none select-none pointer-events-none"
-            style={{
-              fontSize: 'clamp(5.5rem, 18vw, 9rem)',
-              color: `${phase.statusColor}09`,
-              right: '-0.05em',
-              top: '-0.12em',
-              lineHeight: 1,
-            }}
-          >
-            {phase.num}
-          </div>
-
-          <div className="relative p-6 sm:p-8 flex flex-col h-full">
-
-            {/* ── Top meta row ─────────────────────────── */}
-            <div className="flex items-center gap-2.5 flex-wrap mb-6">
-              {/* Numbered circle badge */}
-              <div
-                className="flex items-center justify-center w-9 h-9 rounded-xl font-black font-mono text-sm flex-shrink-0"
-                style={{
-                  background: `${phase.statusColor}15`,
-                  color: phase.statusColor,
-                  border: `1.5px solid ${phase.statusColor}35`,
-                }}
-              >
-                {phase.num}
-              </div>
-
-              {/* Status badge */}
-              <div
-                className="flex items-center gap-1.5 text-[0.6rem] font-bold tracking-[0.14em] uppercase px-2.5 py-1 rounded-full"
-                style={{
-                  background: `${phase.statusColor}10`,
-                  color: phase.statusColor,
-                  border: `1px solid ${phase.statusColor}28`,
-                }}
-              >
-                {phase.pulse && <PulseDot color={phase.statusColor} />}
-                {phase.status}
-              </div>
-
-              <span
-                className="ml-auto font-mono text-[0.67rem] font-medium"
-                style={{ color: 'rgba(255,255,255,0.22)' }}
-              >
-                {phase.timeline}
-              </span>
-            </div>
-
-            {/* ── Icon + Title ──────────────────────────── */}
-            <div className="flex items-start gap-3 mb-3">
-              <span
-                className="text-xl flex-shrink-0 mt-0.5 leading-none"
-                style={{ filter: 'drop-shadow(0 0 8px rgba(205,127,50,0.3))' }}
-              >
-                {phase.icon}
-              </span>
-              <div>
-                <h2
-                  className="font-black leading-tight mb-1"
-                  style={{
-                    fontSize: 'clamp(1.1rem, 3.2vw, 1.35rem)',
-                    letterSpacing: '-0.015em',
-                    color: phase.highlight ? '#e8a855' : '#e4e4e7',
-                  }}
-                >
-                  {phase.title}
-                </h2>
-                <p
-                  className="font-mono text-[0.68rem] tracking-wide leading-snug"
-                  style={{ color: 'rgba(255,255,255,0.28)' }}
-                >
-                  {phase.subtitle}
-                </p>
-              </div>
-            </div>
-
-            {/* ── Description ──────────────────────────── */}
-            <p
-              className="leading-relaxed mb-6 flex-1"
-              style={{ fontSize: '0.875rem', color: '#71717a', minHeight: 0 }}
-            >
-              {phase.desc}
-            </p>
-
-            {/* ── Divider ──────────────────────────────── */}
-            <div
-              className="mb-5"
-              style={{ height: 1, background: `linear-gradient(90deg, ${phase.statusColor}20, transparent)` }}
-            />
-
-            {/* ── Feature list (safe AnimatePresence) ──── */}
-            <AnimatePresence initial={false}>
-              {open && (
-                <motion.ul
-                  key="features"
-                  initial={{ y: -8 }}
-                  animate={{ y: 0 }}
-                  exit={{ y: -8 }}
-                  transition={{ duration: 0.22, ease: 'easeOut' }}
-                  className="space-y-2.5 mb-5"
-                >
-                  {phase.features.map((f, fi) => (
-                    <motion.li
-                      key={f}
-                      initial={{ x: -6 }}
-                      animate={{ x: 0 }}
-                      transition={{ delay: fi * 0.04, duration: 0.25 }}
-                      className="flex items-start gap-2.5"
-                    >
-                      <span
-                        className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-[0.38rem]"
-                        style={{ background: phase.statusColor, boxShadow: `0 0 6px ${phase.statusColor}60` }}
-                      />
-                      <span style={{ fontSize: '0.82rem', color: '#71717a', lineHeight: 1.55 }}>
-                        {f}
-                      </span>
-                    </motion.li>
-                  ))}
-                </motion.ul>
-              )}
-            </AnimatePresence>
-
-            {/* ── Toggle ───────────────────────────────── */}
-            <button
-              onClick={() => setOpen(v => !v)}
-              className="flex items-center gap-1.5 text-[0.75rem] font-semibold mt-auto transition-opacity hover:opacity-75"
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                color: phase.statusColor,
-              }}
-            >
-              <motion.span
-                animate={{ rotate: open ? 180 : 0 }}
-                transition={{ duration: 0.22 }}
-                className="inline-block leading-none"
-              >
-                ↓
-              </motion.span>
-              {open ? 'Hide details' : 'Show details'}
-            </button>
-
-          </div>
-        </motion.div>
+      <span className="rmx-card-icon" aria-hidden>{icon}</span>
+      <div>
+        <h3 className="rmx-card-title">{title}</h3>
+        <p className="rmx-card-desc">{desc}</p>
       </div>
     </motion.div>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────
-   Group section header
-───────────────────────────────────────────────────────────────── */
-function GroupHeader({ label, color, count }: { label: string; color: string; count: number }) {
+/* ── Era block (node ignites when in view) ────────────────────── */
+function EraBlock({ era }: { era: Era }) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-40px' });
+  const lit = useInView(ref, { once: true, margin: '-25% 0px -25% 0px' });
   return (
-    <motion.div
-      ref={ref}
-      initial={{ x: -16 }}
-      animate={inView ? { x: 0 } : {}}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="flex items-center gap-3 mb-6"
-    >
-      <span
-        className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-        style={{ background: color, boxShadow: `0 0 12px ${color}90` }}
-      />
-      <span
-        className="font-mono text-[0.67rem] font-bold tracking-[0.2em] uppercase"
-        style={{ color }}
-      >
-        {label}
-      </span>
-      <span
-        className="font-mono text-[0.6rem] px-1.5 py-0.5 rounded"
-        style={{ color: `${color}80`, border: `1px solid ${color}20`, background: `${color}08` }}
-      >
-        {count} phase{count !== 1 ? 's' : ''}
-      </span>
-      <div className="flex-1" style={{ height: 1, background: `linear-gradient(90deg, ${color}25, transparent)` }} />
-    </motion.div>
+    <section ref={ref} className={`rmx-era${lit ? ' lit' : ''}`} aria-label={era.chip}>
+      <div className="rmx-node-wrap" aria-hidden>
+        <span
+          className={`rmx-node${era.pulse ? ' pulse' : ''}`}
+          style={{ '--node': era.chipColor } as React.CSSProperties}
+        />
+      </div>
+      <div className="rmx-era-body">
+        <motion.div {...rise}>
+          <span className="rmx-chip" style={{ color: era.chipColor, borderColor: era.chipColor }}>
+            {era.chip}
+          </span>
+          <h2 className="rmx-era-title">{era.title}</h2>
+          <p className="rmx-era-blurb">{era.blurb}</p>
+        </motion.div>
+        <div className="rmx-grid">
+          {era.items.map((m, i) => <MilestoneCard key={m.title} {...m} i={i} />)}
+        </div>
+      </div>
+    </section>
   );
 }
 
-/* ─────────────────────────────────────────────────────────────────
-   Page
-───────────────────────────────────────────────────────────────── */
+/* ── Page ─────────────────────────────────────────────────────── */
 export default function RoadmapClient() {
-  const { scrollYProgress } = useScroll();
-  const lineScaleY = useSpring(scrollYProgress, { stiffness: 60, damping: 20 });
+  const reduced = useReducedMotion();
 
-  const launchPhases  = PHASES.filter(p => p.group === 'launch');
-  const nextPhases    = PHASES.filter(p => p.group === 'next');
-  const horizonPhases = PHASES.filter(p => p.group === 'horizon');
+  // Top reading-progress bar
+  const { scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 26, mass: 0.4 });
+
+  // Timeline spine draws with scroll through the timeline section
+  const spineRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: spineProg } = useScroll({
+    target: spineRef,
+    offset: ['start 0.75', 'end 0.6'],
+  });
+  const spineScale = useSpring(spineProg, { stiffness: 120, damping: 24, mass: 0.4 });
 
   return (
-    <div style={{ background: 'var(--color-surface-0)', minHeight: '100svh' }}>
-      <ScrollProgressBar />
-      <Header />
+    <MotionConfig reducedMotion="user">
+      <div className="rmx">
+        <motion.div className="rmx-progress" style={{ scaleX: reduced ? 1 : progress }} aria-hidden />
+        <Header />
 
-      <main className="px-4 sm:px-6 pt-10 sm:pt-14 pb-28">
-        <div style={{ maxWidth: '56rem', margin: '0 auto' }}>
-
-          {/* ── Hero ──────────────────────────────────── */}
+        {/* ── Hero ── */}
+        <section className="rmx-hero">
+          <div className="rmx-orb a" aria-hidden />
+          <div className="rmx-orb b" aria-hidden />
           <motion.div
-            initial={{ y: 24 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-16 sm:mb-20"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.32, 0.72, 0, 1] }}
+            className="rmx-hero-inner"
           >
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1.5 mb-8 text-sm font-medium transition-opacity hover:opacity-70"
-              style={{ color: '#cd7f32', textDecoration: 'none' }}
-            >
-              ← Back to Calculator
-            </Link>
-
-            {/* Launch badge */}
-            <div className="mb-5">
-              <div
-                className="inline-flex items-center gap-2 text-[0.7rem] font-bold tracking-[0.14em] uppercase px-3.5 py-1.5 rounded-full"
-                style={{
-                  color: '#22c55e',
-                  background: 'rgba(34,197,94,0.08)',
-                  border: '1px solid rgba(34,197,94,0.22)',
-                }}
-              >
-                <PulseDot color="#22c55e" />
-                Launching June 2026
-              </div>
-            </div>
-
-            {/* Title */}
-            <h1
-              className="mb-5 leading-none"
-              style={{
-                fontSize: 'clamp(2.8rem, 9vw, 4.8rem)',
-                fontWeight: 900,
-                letterSpacing: '-0.04em',
-                background: 'linear-gradient(135deg,#7d4c22 0%,#cd7f32 35%,#f5d78e 58%,#cd7f32 80%,#8b5a2b 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
+            <p className="rmx-kicker">Busbar Calculator · Product Roadmap</p>
+            <h1 className="rmx-h1">
               Development<br />Roadmap
               <span className="sr-only"> — Busbar Calculator product plan</span>
             </h1>
-
-            <p
-              className="max-w-lg leading-relaxed mb-8"
-              style={{ fontSize: '0.95rem', color: '#71717a' }}
-            >
-              From copper busbar calculator to a full industrial intelligence suite
-              for electrical professionals across the UAE and MENA region.
+            <p className="rmx-hero-sub">
+              From a copper busbar calculator to a four-platform industrial
+              product — shipped, in motion, and what comes next.
             </p>
-
-            {/* Stats strip */}
-            <div className="flex flex-wrap gap-4 sm:gap-8">
-              {[
-                { label: 'Total Phases', value: '5' },
-                { label: 'Launch',       value: 'June 2026' },
-                { label: 'Roadmap',      value: '6 Months' },
-                { label: 'Region',       value: 'UAE · MENA' },
-              ].map(s => (
-                <div key={s.label}>
-                  <p
-                    className="font-black leading-none mb-0.5"
-                    style={{ fontSize: '1.15rem', color: '#cd7f32' }}
-                  >
-                    {s.value}
-                  </p>
-                  <p className="text-[0.65rem] uppercase tracking-widest font-medium" style={{ color: '#52525b' }}>
-                    {s.label}
-                  </p>
-                </div>
+            <div className="rmx-stats">
+              {STATS.map(s => (
+                <motion.div key={s.label} className="rmx-stat" {...rise}>
+                  <span className="rmx-stat-n"><Counter n={s.n} suffix={s.suffix} /></span>
+                  <span className="rmx-stat-l">{s.label}</span>
+                </motion.div>
               ))}
             </div>
           </motion.div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <motion.img
+            src="/mr-busbar.png" alt="" width={120} height={345}
+            className="rmx-mascot" aria-hidden
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.25, ease: [0.32, 0.72, 0, 1] }}
+          />
+        </section>
 
-          {/* ── Animated left-rail progress ───────────── */}
-          <div className="relative" style={{ paddingLeft: '0' }}>
-
-            {/* ── GROUP: Launching June 2026 ─────────── */}
-            <section className="mb-14">
-              <GroupHeader
-                label="Launching June 2026"
-                color="#22c55e"
-                count={launchPhases.length}
-              />
-              <div className="grid grid-cols-1 gap-5">
-                {launchPhases.map((phase, i) => (
-                  <PhaseCard key={phase.num} phase={phase} index={i} />
-                ))}
-              </div>
-            </section>
-
-            {/* ── GROUP: Next 6 Months ───────────────── */}
-            <section className="mb-14">
-              <GroupHeader
-                label="Next 6 Months"
-                color="#f59e0b"
-                count={nextPhases.length}
-              />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {nextPhases.map((phase, i) => (
-                  <PhaseCard key={phase.num} phase={phase} index={i} />
-                ))}
-              </div>
-            </section>
-
-            {/* ── GROUP: Horizon ─────────────────────── */}
-            <section className="mb-14">
-              <GroupHeader
-                label="Horizon"
-                color="#a78bfa"
-                count={horizonPhases.length}
-              />
-              <div className="grid grid-cols-1 gap-5">
-                {horizonPhases.map((phase, i) => (
-                  <PhaseCard key={phase.num} phase={phase} index={i} />
-                ))}
-              </div>
-            </section>
-
+        {/* ── Timeline ── */}
+        <div className="rmx-timeline" ref={spineRef}>
+          <div className="rmx-spine" aria-hidden>
+            <motion.div className="rmx-spine-fill" style={{ scaleY: reduced ? 1 : spineScale }} />
           </div>
-
-          {/* ── Timeline progress rail ─────────────── */}
-          <motion.div
-            aria-hidden
-            className="fixed left-4 sm:left-6 top-1/4 bottom-1/4 pointer-events-none"
-            style={{ width: 2, zIndex: 10 }}
-          >
-            <div
-              className="absolute inset-0 rounded-full"
-              style={{ background: 'rgba(184,115,51,0.08)' }}
-            />
-            <motion.div
-              className="absolute top-0 left-0 right-0 rounded-full origin-top"
-              style={{
-                scaleY: lineScaleY,
-                background: 'linear-gradient(to bottom, #cd7f32, rgba(205,127,50,0.15))',
-              }}
-            />
-          </motion.div>
-
-          {/* ── CTA ───────────────────────────────────── */}
-          <motion.div
-            initial={{ y: 20 }}
-            whileInView={{ y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="pt-10 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between"
-            style={{ borderTop: '1px solid rgba(184,115,51,0.12)' }}
-          >
-            <div>
-              <p className="text-[0.72rem] mt-0.5" style={{ color: '#3f3f46' }}>
-                © Busbar Calculator · Industrial Tools Platform
-              </p>
-            </div>
-            <div className="flex gap-3 flex-wrap">
-              <Link
-                href="/"
-                className="inline-flex items-center gap-1.5 font-semibold text-sm px-5 py-2.5 rounded-xl"
-                style={{
-                  color: '#fff',
-                  background: 'linear-gradient(135deg,#cd7f32,#b87333)',
-                  textDecoration: 'none',
-                  boxShadow: '0 4px 20px rgba(205,127,50,0.25)',
-                }}
-              >
-                Try the Calculator →
-              </Link>
-              <a
-                href="/whitepaper"
-                className="inline-flex items-center gap-1.5 font-medium text-sm px-5 py-2.5 rounded-xl"
-                style={{
-                  color: '#cd7f32',
-                  border: '1px solid rgba(205,127,50,0.28)',
-                  textDecoration: 'none',
-                  background: 'rgba(205,127,50,0.04)',
-                }}
-              >
-                Whitepaper
-              </a>
-            </div>
-          </motion.div>
-
+          {ERAS.map(era => <EraBlock key={era.key} era={era} />)}
         </div>
-      </main>
 
-      <Footer />
-    </div>
+        {/* ── CTA ── */}
+        <motion.section className="rmx-cta" {...rise}>
+          <h2 className="rmx-cta-title">See the shipped part for yourself</h2>
+          <p className="rmx-cta-sub">The calculator is free — on the web today, on your desktop and phone as apps.</p>
+          <div className="rmx-cta-row">
+            <Link href="/busbar-calculator" className="rmx-cta-btn">Open Busbar Calculator</Link>
+            <Link href="/download" className="rmx-cta-ghost">Get the apps — Windows · Android · iOS</Link>
+          </div>
+        </motion.section>
+
+        <FxFooter />
+      </div>
+    </MotionConfig>
   );
 }

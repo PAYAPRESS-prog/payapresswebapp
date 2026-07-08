@@ -1,8 +1,8 @@
 {
   "version": 1,
   "functions": {
-    "/api/admin/analytics": {},
     "/api/account/delete": {},
+    "/api/admin/analytics": {},
     "/api/admin/audit": {},
     "/api/admin/broadcast": {},
     "/api/admin/crm": {},
@@ -26,8 +26,8 @@
       "maxDuration": 300
     },
     "/api/notify": {},
-    "/api/profile/change-password": {},
     "/api/price-history": {},
+    "/api/profile/change-password": {},
     "/api/profile": {},
     "/api/survey/active": {},
     "/api/survey/respond": {},
