@@ -1,83 +1,53 @@
-# Contributing to PAYAPRESS-WEBAPP
+# Contributing to Busbar Calculator
 
-Thank you for your interest in contributing! This document outlines the process for contributing to this project.
+Thanks for your interest! Issues and pull requests are welcome.
 
-## Code of Conduct
+## Ground rules
 
-Be respectful, inclusive, and constructive in all interactions.
+- Be respectful and constructive.
+- Bugs → **Bug report** template · ideas → **Feature request** template.
+- Security problems → **never** a public issue; see [SECURITY.md](SECURITY.md).
 
-## How to Contribute
+## Repository layout & branches
 
-### Reporting Bugs
+- This is a monorepo: `src/` (Next.js web app), `desktop/` (Tauri Windows),
+  `android/` (TWA), `ios/` (Capacitor), `docs/`.
+- **`claude/payapress-webapp-setup-0bjxA` is the default AND deploy branch**
+  (a hosting auto-deploy hook is tied to its name — do not rename it).
+  Build artifacts in `.next/` are committed on purpose for this reason.
+- Base your PRs on the default branch.
 
-1. Check that the bug hasn't already been reported in [Issues](https://github.com/PAYAPRESS-prog/payapresswebapp/issues)
-2. Open a new issue using the **Bug Report** template
-3. Include steps to reproduce, expected vs actual behavior, and your environment
-
-### Suggesting Features
-
-1. Open a new issue using the **Feature Request** template
-2. Describe the problem you're solving and your proposed solution
-
-### Pull Requests
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature-name`
-3. Make your changes following the coding standards below
-4. Write or update tests as needed
-5. Update documentation if needed
-6. Submit a pull request against the `main` branch
-
-## Coding Standards
-
-### Frontend (TypeScript/React)
-
-- Use TypeScript for all new files
-- Follow the existing component structure in `frontend/src/components/`
-- Use functional components and React hooks
-- Format with Prettier (`npm run format`)
-- Lint with ESLint (`npm run lint`)
-
-### WordPress Plugin (PHP)
-
-- Follow [WordPress Coding Standards](https://developer.wordpress.org/coding-standards/wordpress-coding-standards/)
-- Prefix all functions and classes with `payapress_`
-- Sanitize all input and escape all output
-- Use WordPress nonces for form security
-
-## Development Setup
+## Development
 
 ```bash
-# Clone your fork
-git clone https://github.com/YOUR_USERNAME/payapresswebapp.git
-cd payapresswebapp
-
-# Install frontend dependencies
-cd frontend && npm install
-
-# Run the dev server
-npm run dev
+npm install
+npm run dev          # http://localhost:3000 — runs with zero env config
+npm run build        # must stay clean
+npm test             # unit tests (Jest)
+npm run test:smoke   # component smoke tests (jsdom)
+./node_modules/.bin/tsc --noEmit   # typecheck (use the local binary, not bare npx)
 ```
 
-## Branch Naming
+Conventions that will save you review round-trips:
 
-| Type | Pattern | Example |
-|---|---|---|
-| Feature | `feature/short-description` | `feature/post-listing` |
-| Bug fix | `fix/short-description` | `fix/api-timeout` |
-| Documentation | `docs/short-description` | `docs/plugin-setup` |
+- **Never change calculation formulas** (weight, kerf, punch, packing) —
+  they are frozen and documented in the whitepaper.
+- Bump the service-worker `CACHE_VERSION` (`public/sw.js`) in any PR that
+  changes CSS/JS delivered to the browser.
+- All DB writes / email sends inside API routes must be **awaited before
+  the response** (Passenger hosting freezes the process afterwards).
+- Keep secrets out of the repo — env names may appear in docs, values never.
+- Commit style: `type(scope): summary` (`feat`, `fix`, `chore`, `docs`, `seo`).
 
-## Commit Messages
+## Releases
 
-Follow the [Conventional Commits](https://www.conventionalcommits.org/) format:
+Handled by maintainers: platform tags `desktop-v*` / `android-v*` / `ios-v*`
+are created from the GitHub UI and CI builds + attaches the artifacts.
+Bump the matching `VERSION` file in the same PR as shell changes.
 
-```
-feat: add post listing component
-fix: correct API base URL handling
-docs: update plugin installation steps
-chore: upgrade Next.js to 15
-```
+## Pull requests
 
-## Questions?
-
-Open a [Discussion](https://github.com/PAYAPRESS-prog/payapresswebapp/discussions) or an Issue.
+1. Fork → branch → focused change (one concern per PR).
+2. `npm run build` + both test suites green locally.
+3. Fill in the PR template checklist.
+4. A maintainer reviews; CI must pass before merge.

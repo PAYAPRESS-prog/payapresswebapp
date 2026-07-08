@@ -1,10 +1,11 @@
 # PAYAPRESS PRO — Public API Reference
 
-**Base URL:** `https://www.payapress.com/api/v1`  
+**Base URL:** `https://calculator.payapress.com/api/v1`  
 **Version:** v1  
 **Authentication:** None (public)  
 **Format:** JSON · UTF-8  
-**CORS:** `Access-Control-Allow-Origin: *`
+**CORS:** `Access-Control-Allow-Origin: *`  
+**Rate limiting:** fair-use; responses are edge-cached ~5 minutes (`s-maxage=300`) — poll no faster than that, prices refresh on the same cadence.
 
 ---
 

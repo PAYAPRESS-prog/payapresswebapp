@@ -1,246 +1,130 @@
-# PAYAPRESS — Busbar Calculator
+<div align="center">
 
-> Professional copper & aluminum busbar cost calculator for electrical panel fabricators.  
-> Live COMEX & LME pricing · 22 currencies · IEC/DIN standards · Installable PWA.
+![Busbar Calculator](docs/media/readme-banner.png)
 
+**Professional copper & aluminum busbar costing — live COMEX/LME prices, waste math and EPLAN panel costing, on the web and as official Windows, Android and iOS apps.**
+
+[![CI](https://github.com/PAYAPRESS-prog/payapresswebapp/actions/workflows/ci.yml/badge.svg?branch=claude%2Fpayapress-webapp-setup-0bjxA)](https://github.com/PAYAPRESS-prog/payapresswebapp/actions/workflows/ci.yml)
+[![Windows build](https://github.com/PAYAPRESS-prog/payapresswebapp/actions/workflows/release-windows.yml/badge.svg)](https://github.com/PAYAPRESS-prog/payapresswebapp/actions/workflows/release-windows.yml)
+[![Android build](https://github.com/PAYAPRESS-prog/payapresswebapp/actions/workflows/release-android.yml/badge.svg)](https://github.com/PAYAPRESS-prog/payapresswebapp/actions/workflows/release-android.yml)
+[![iOS build](https://github.com/PAYAPRESS-prog/payapresswebapp/actions/workflows/release-ios.yml/badge.svg)](https://github.com/PAYAPRESS-prog/payapresswebapp/actions/workflows/release-ios.yml)
+
+[![Windows v1.0.2](https://img.shields.io/badge/Windows-v1.0.2-0078d4?logo=windows&logoColor=white)](https://github.com/PAYAPRESS-prog/payapresswebapp/releases/tag/desktop-v1.0.2)
+[![Android v1.0.1](https://img.shields.io/badge/Android-v1.0.1-3ddc84?logo=android&logoColor=white)](https://github.com/PAYAPRESS-prog/payapresswebapp/releases/tag/android-v1.0.1)
+[![iOS](https://img.shields.io/badge/iOS-TestFlight--ready-999999?logo=apple&logoColor=white)](ios/README-IOS.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19-61dafb?logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript)](https://www.typescriptlang.org)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38bdf8?logo=tailwindcss)](https://tailwindcss.com)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Tauri](https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&logoColor=white)](desktop/README-DESKTOP.md)
+[![Capacitor](https://img.shields.io/badge/Capacitor-7-119EFF?logo=capacitor&logoColor=white)](ios/README-IOS.md)
 
-**[Live App](https://calculator.payapress.com)** · **[API Reference](docs/API.md)** · **[Architecture](docs/architecture.md)** · **[Changelog](CHANGELOG.md)**
+**[▶ Live App](https://calculator.payapress.com)** · **[⬇ Downloads](https://calculator.payapress.com/download)** · **[API Reference](docs/API.md)** · **[Architecture](docs/architecture.md)** · **[Whitepaper](https://calculator.payapress.com/whitepaper)** · **[Roadmap](https://calculator.payapress.com/roadmap)**
 
----
-
-## Overview
-
-PAYAPRESS Busbar Calculator is a production-grade web application that helps electrical panel fabricators calculate the material cost of copper and aluminum busbars in real time. It pulls live metal prices from COMEX (copper) and LME (aluminum), supports 22 currencies with live FX rates, and ships as an installable PWA with a public REST API.
+</div>
 
 ---
+
+## Get the app
+
+| Platform | Download | Notes |
+|---|---|---|
+| 🌐 **Web / PWA** | [calculator.payapress.com](https://calculator.payapress.com/busbar-calculator) | Installs to any home screen, offline-aware |
+| 🖥️ **Windows 10/11** | [x64 installer](https://github.com/PAYAPRESS-prog/payapresswebapp/releases/download/desktop-v1.0.2/Busbar-Calculator-Setup-x64.exe) · [ARM64](https://github.com/PAYAPRESS-prog/payapresswebapp/releases/download/desktop-v1.0.2/Busbar-Calculator-Setup-arm64.exe) · [MSI](https://github.com/PAYAPRESS-prog/payapresswebapp/releases/download/desktop-v1.0.2/Busbar-Calculator-x64.msi) | ~1.5 MB Tauri shell, SHA-256 published |
+| 🤖 **Android 7+** | [APK](https://github.com/PAYAPRESS-prog/payapresswebapp/releases/download/android-v1.0.1/Busbar-Calculator.apk) | Signed Trusted Web Activity · Google Play listing in progress |
+| 🍎 **iOS 15+** | TestFlight / App Store — coming soon | Capacitor shell with Sign in with Apple, [built & CI-verified](ios/README-IOS.md) |
+
+The [/download](https://calculator.payapress.com/download) page always points at the newest release of every platform.
+
+## Screenshots
+
+Real product screens (from the store listing set):
+
+| | |
+|---|---|
+| ![Calculator](android/store/screenshots/1-calculator.png) | ![Results](android/store/screenshots/2-results.png) |
+| ![EPLAN panel cost](android/store/screenshots/3-panel.png) | ![Live currencies](android/store/screenshots/4-currency.png) |
 
 ## Features
 
-### Copper Busbar
-- **Live COMEX HG=F pricing** via Yahoo Finance, auto-refreshed every 5 minutes
-- **3 material grades:** Cu-ETP (99.90%) · Cu-OF (99.95%) · Cu-OFE (99.99%)
-- **IEC 60317-3 / EN 13601** standard size presets (25×3 mm → 120×10 mm)
+- **Live market pricing** — COMEX HG=F copper and LME aluminum, fetched server-side with a 5-minute cache and an explicit *Estimated price* fallback badge when a feed stalls
+- **Busbar engine** — weight, ampacity and cost from exact dimensions; IEC standard cross-sections; Cu-ETP / Cu-OF / Cu-OFE and aluminum grades with exact densities; drag-to-resize 3D busbar viewer
+- **17 currencies** with live FX conversion, custom currencies and manual-rate mode
+- **Waste calculator** — blade kerf per cut `max(0.5 mm, Ø × 1.5%)` and punch-out slugs, weighed and priced at the live rate
+- **EPLAN panel costing** — import the parts-list export from EPLAN (Excel or delimited text, German/English headers, German decimals, UTF-16), automatic column mapping with an import audit that explains and fixes issues, first-fit-decreasing offcut packing — **files are parsed in the browser and never uploaded**
+- **Accounts & sync** — email OTP, Google Sign-In and a ready Sign-in-with-Apple path; saved history, compare, bookmarks; one account across all platforms; in-app account deletion
+- **Daily price digest** email with your saved configurations re-priced
+- **Four platforms, one core** — every web deploy is instantly an app update on Windows (Tauri), Android (TWA) and iOS (Capacitor)
+- **Public REST API v1** — free calculation and live-price endpoints ([docs](docs/API.md)); `/embed` route + WordPress shortcode plugin
+- **Privacy-first** — first-party cookieless analytics, no trackers, no ad identifiers; in-app micro-surveys (Pulse) instead of third-party tools
 
-### Aluminum Busbar
-- **Live LME ALI=F pricing** via Yahoo Finance (USD/MT → USD/kg, server-side)
-- **3 material grades:** Al-1350 EC (99.50%) · Al-6101 · Al-6063
-- **IEC 60317-40** standard size presets (20×3 mm → 160×12 mm)
+## Architecture
 
-### Calculator
-- Manual width × thickness inputs (any dimension, no preset lock-in)
-- Length input in mm — total weight and cost auto-calculated
-- 22 currencies with live ECB/Frankfurter FX rates
-- Auto locale detection (defaults to user's local currency)
-- Manual price override for custom pricing scenarios
-- Copy results to clipboard (formatted report)
-- IEC standard badge highlights when a size matches published standards
-
-### Visual
-- Photorealistic 3D busbar SVG renderer with per-metal color palette
-- Drag-to-resize busbar viewer (pointer capture)
-- Animated result cards with Framer Motion spring physics
-- Achievement badges · milestone toasts · confetti burst
-
-### PWA
-- Installable as a home-screen web app on iOS and Android
-- Service worker with cache-first static assets and network-only HTML
-- Offline fallback page
-- Auto-recovery from stale-cache errors on every new deploy
-
-### Embedding & API
-- Public REST API `/api/v1/` with full CORS (`Access-Control-Allow-Origin: *`)
-- `/embed` route for frameless iframe embedding
-- WordPress companion plugin with `[payapress_app]` shortcode
-
----
-
-## Tech Stack
-
-| Layer | Technology | Version |
-|-------|------------|---------|
-| Framework | Next.js App Router | 15 |
-| UI | React | 19 |
-| Language | TypeScript | 5 |
-| Styling | Tailwind CSS | v4 |
-| Animations | Framer Motion | 12 |
-| Runtime | Node.js | ≥ 20 |
-| Process manager | PM2 (ecosystem.config.js) | — |
-| Testing | Jest + ts-jest | — |
-
----
-
-## Project Structure
-
-```
-payapresswebapp/
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── copper-price/      # COMEX HG=F · 5-min server cache
-│   │   │   ├── aluminum-price/    # LME ALI=F · 5-min server cache
-│   │   │   ├── fx-rate/           # ECB FX rates · 6-hr server cache
-│   │   │   └── v1/                # Public REST API (CORS *)
-│   │   │       ├── calculate/
-│   │   │       ├── copper-price/
-│   │   │       └── fx-rates/
-│   │   ├── embed/                 # Minimal page for iframe embedding
-│   │   ├── offline/               # PWA offline fallback
-│   │   ├── roadmap/               # Product roadmap page
-│   │   ├── whitepaper/            # Technical whitepaper
-│   │   ├── layout.tsx             # Root layout, SW registration, error capture
-│   │   └── page.tsx
-│   ├── components/
-│   │   ├── CopperCalculator.tsx   # Main calculator — Cu & Al toggle
-│   │   ├── BusbarRender.tsx       # Photorealistic SVG busbar (Cu + Al palette)
-│   │   ├── DynamicPage.tsx        # ssr:false wrapper for calculator
-│   │   ├── Header.tsx
-│   │   ├── HeroSection.tsx
-│   │   ├── ComingSoonSection.tsx
-│   │   ├── Footer.tsx
-│   │   ├── InstallPrompt.tsx
-│   │   ├── ParticleBackground.tsx
-│   │   ├── SectionErrorBoundary.tsx
-│   │   └── SplashScreen.tsx
-│   ├── lib/
-│   │   ├── serverPrices.ts        # Server-side price fetching (ISR, shared by page + API routes)
-│   │   ├── copperData.ts          # Cu grades, IEC sizes
-│   │   ├── aluminumData.ts        # Al grades, IEC 60317-40 sizes
-│   │   ├── copperPrice.ts         # calculateCost(), fmt(), fmtUSD()
-│   │   └── fetchWithRetry.ts      # Fetch with exponential backoff
-│   ├── styles/globals.css         # Tailwind v4 @theme + design tokens
-│   └── types/calculator.ts
-├── public/
-│   ├── sw.js                      # Service worker (v12)
-│   ├── manifest.json              # PWA manifest
-│   └── icons/
-├── docs/
-│   ├── API.md                     # Public REST API reference
-│   └── architecture.md            # Technical architecture overview
-├── wordpress-plugin/              # WP plugin with [payapress_app] shortcode
-├── .github/
-│   ├── ISSUE_TEMPLATE/
-│   ├── PULL_REQUEST_TEMPLATE.md
-│   └── workflows/
-├── server.js                      # Custom Node.js server (Hostinger)
-├── ecosystem.config.js            # PM2 process config
-├── next.config.js
-├── package.json
-└── tsconfig.json
+```mermaid
+flowchart LR
+    subgraph Feeds["Live feeds"]
+      C[COMEX HG=F] --> P
+      L[LME aluminum] --> P
+      F[FX rates] --> P
+    end
+    P[Next.js core<br/>server fetch · 5-min cache · ISR] --> W[Web · PWA]
+    P --> D[Windows · Tauri shell]
+    P --> A[Android · Trusted Web Activity]
+    P --> I[iOS · Capacitor shell]
+    P --> API[Public REST API v1]
 ```
 
----
+One live Next.js application (custom Node server on Hostinger + Passenger) serves the product; the three native shells wrap the same origin with platform integration — deep links, offline bootstraps, store-grade signing. Details in [docs/architecture.md](docs/architecture.md).
 
-## Quick Start
+## Monorepo map
+
+| Path | What lives there |
+|---|---|
+| `src/` | Next.js 15 app — pages, API routes, calculator engine, EPLAN importer, admin, Pulse |
+| `desktop/` | Windows app (Tauri 2) — [release guide](desktop/README-DESKTOP.md) |
+| `android/` | Android app (TWA) + Play Store kit — [release guide](android/README-ANDROID.md) |
+| `ios/` | iOS app (Capacitor 7) + App Store kit — [release guide](ios/README-IOS.md) |
+| `docs/` | [API](docs/API.md) · [architecture](docs/architecture.md) · media assets |
+| `.github/workflows/` | CI + Windows/Android/iOS release pipelines |
+
+## Quick start (development)
 
 ```bash
 git clone https://github.com/PAYAPRESS-prog/payapresswebapp.git
 cd payapresswebapp
-cp .env.example .env.local
 npm install
-npm run dev          # → http://localhost:3000
-npm run build        # production build
-npm test             # unit tests
-npm run type-check   # TypeScript check
+npm run dev        # http://localhost:3000
+npm run build      # production build
+npm test           # unit tests
+npm run test:smoke # component smoke tests
 ```
 
----
+Optional environment variables (values live only in the hosting panel — never in the repo):
 
-## Deployment
+| Variable | Purpose |
+|---|---|
+| `DB_HOST` `DB_PORT` `DB_USER` `DB_PASSWORD` `DB_NAME` | MySQL for accounts/history |
+| `JWT_SECRET` | Session signing (≥16 chars) |
+| `SMTP_HOST` `SMTP_PORT` `SMTP_USER` `SMTP_PASS` `SMTP_FROM` | Transactional email |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Google Sign-In |
+| `APPLE_TEAM_ID` `APPLE_CLIENT_ID` `NEXT_PUBLIC_APPLE_CLIENT_ID` | Sign in with Apple / universal links |
+| `ADMIN_KEY` | Back-office access |
 
-The app runs on **Hostinger shared hosting** with Node.js and PM2. The compiled `.next/` directory is committed to the repository and served directly — no CI build step needed on the server.
+The calculator itself runs with **zero** configuration — accounts, email and admin simply stay dormant.
 
-```bash
-npm run build
-git add .next
-git commit -m "chore: rebuild for deploy"
-git push
-# Hostinger pulls from the branch and PM2 restarts the process
-```
+Releases are cut per platform with tags `desktop-v*`, `android-v*`, `ios-v*` — see each platform README for the exact steps.
 
-The custom `server.js` handles:
-- Security headers (`X-Frame-Options`, `X-Content-Type-Options`, CSP, etc.)
-- `Cache-Control: no-store` on all HTML responses (prevents stale page caching)
-- `X-Robots-Tag: noindex, nofollow` until public launch
-- CORS headers on `/api/*` routes
+## Documentation
 
----
-
-## API
-
-Full reference: **[docs/API.md](docs/API.md)**
-
-**Base URL:** `https://calculator.payapress.com/api/v1`
-
-| Endpoint | Description | Cache |
-|----------|-------------|-------|
-| `GET /calculate` | Busbar cost given dimensions, grade, metal, currency | Per request |
-| `GET /copper-price` | Live COMEX HG=F price (USD/lb · kg · MT) | 5 min |
-| `GET /fx-rates` | USD-based FX rates for all 22 currencies | 6 hr |
-
-**Quick example:**
-```http
-GET https://calculator.payapress.com/api/v1/calculate?width=60&thickness=8&length=6000&grade=cu-etp&currency=AED
-```
-
----
-
-## Calculation Formula
-
-```
-A  (mm²)  = width × thickness
-W  (kg/m) = A × density / 1000
-C  ($/m)  = W × metal_price_usd_per_kg
-P  ($/m²) = C / (width / 1000)
-T  ($)    = C × (length_mm / 1000)
-```
-
-**Densities (IEC/EN):**
-
-| Grade | Density (g/cm³) | Standard |
-|-------|-----------------|----------|
-| Cu-ETP | 8.89 | EN 13601 / IEC 60317-3 |
-| Cu-OF | 8.92 | EN 13601 |
-| Cu-OFE | 8.94 | ASTM C10100 |
-| Al-1350 | 2.703 | IEC 60317-40 |
-| Al-6101 | 2.700 | IEC 60317-40 |
-| Al-6063 | 2.690 | IEC 60317-40 |
-
----
-
-## Roadmap
-
-- [x] Copper busbar calculator (Cu-ETP, Cu-OF, Cu-OFE)
-- [x] Aluminum busbar calculator (Al-1350, Al-6101, Al-6063)
-- [x] Live COMEX & LME pricing
-- [x] 22 currencies with live FX rates
-- [x] Installable PWA with offline support
-- [x] Public REST API v1
-- [x] Drag-to-resize busbar viewer
-- [ ] Historical 30-day price chart
-- [ ] PDF / CSV export
-- [ ] Multi-busbar bill of materials
-- [ ] WooCommerce product price sync
-
-See the full roadmap at [/roadmap](https://calculator.payapress.com/roadmap).
-
----
-
-## Contributing
-
-Pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening one.
-
----
+[API Reference](docs/API.md) · [Architecture](docs/architecture.md) · [Whitepaper](https://calculator.payapress.com/whitepaper) · [Roadmap](https://calculator.payapress.com/roadmap) · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md)
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+[MIT](LICENSE) © 2026 [payapress.com](https://www.payapress.com)
 
----
-
-*Built by the PAYAP MACHINERY engineering team · [payapress.com](https://www.payapress.com)*
+<div align="center">
+<sub>Built with ❤️ by the Busbar team — say hi to Mr&nbsp;Busbar in the app.</sub>
+</div>

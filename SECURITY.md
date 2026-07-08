@@ -1,36 +1,43 @@
 # Security Policy
 
-## Supported Versions
+## Supported versions
 
-| Version | Supported |
-|---------|-----------|
-| 1.x     | ✅ Active  |
-| < 1.0   | ❌         |
+| Surface | Version | Supported |
+|---|---|---|
+| Web app (calculator.payapress.com) | rolling | ✅ always latest |
+| Windows app | ≥ 1.0.2 | ✅ (shell auto-tracks the live web app) |
+| Android app | ≥ 1.0.1 | ✅ (TWA — content always latest) |
+| iOS app | pre-release | ✅ once on TestFlight |
+| Anything older | — | ❌ please update |
 
-## Reporting a Vulnerability
+Because the native apps are thin shells around the live product, almost all
+fixes ship server-side and reach every platform immediately; only
+shell-level issues need a new installer.
 
-**Please do not open a public GitHub issue for security vulnerabilities.**
+## Reporting a vulnerability
 
-Email us at **security@payapress.com** with:
+**Please do not open a public GitHub issue for security problems.**
 
-- A description of the vulnerability
-- Steps to reproduce
-- Potential impact
-- (Optional) a suggested fix
+Email **web3.payapress@gmail.com** with:
 
-We will acknowledge your report within **48 hours** and aim to release a fix within **14 days** for critical issues.
+- a description of the vulnerability and the affected surface
+  (web / API / Windows / Android / iOS shell),
+- steps to reproduce or a proof of concept,
+- the potential impact as you see it.
+
+**Response target:** acknowledgement within 72 hours; fix or mitigation
+timeline communicated within 7 days for confirmed issues.
 
 ## Scope
 
-| In scope | Out of scope |
-|----------|-------------|
-| Injection vulnerabilities in API routes | Issues in third-party dependencies (report upstream) |
-| Authentication / authorization bypasses | Theoretical issues without PoC |
-| Data exposure via API | Issues only reproducible on unsupported versions |
-| CORS misconfiguration | Rate limiting / availability issues |
+In scope: the web app and public API, the auth flows (OTP / Google /
+Apple), the admin back-office, the Windows/Android/iOS shells (navigation
+policy, deep links, asset-link verification), and the release pipelines.
 
-## Responsible Disclosure
+Out of scope: third-party services (Yahoo Finance, Google/Apple identity),
+volumetric denial-of-service, and social engineering.
 
-We follow a **90-day disclosure policy**. After 90 days from acknowledgement (or earlier if a fix is released), you are free to publish your findings.
+## Rewards
 
-We appreciate responsible disclosure and will credit reporters in the relevant release notes unless you prefer to remain anonymous.
+This is a small self-funded project — there is **no paid bug bounty**.
+We do gladly credit reporters in the changelog and release notes.

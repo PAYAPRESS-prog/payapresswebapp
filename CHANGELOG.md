@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.0] — 2026-07-08 · Multi-platform launch
+
+### Added
+- **Official Windows app** (Tauri 2): NSIS x64/ARM64 + MSI installers, offline bootstrap, deep links — v1.0.2
+- **Official Android app** (Trusted Web Activity): signed APK/AAB, Digital Asset Links, Google Play submission kit — v1.0.1
+- **iOS app** (Capacitor 7): Sign in with Apple, universal links (AASA), App Store kit — TestFlight-ready
+- **Sign in with Apple** end-to-end (web JS flow + native sheet + JWKS-verified backend)
+- **EPLAN panel cost tool**: client-side import (XLSX/CSV/UTF-16, DE/EN headers), column mapping with import audit, FFD offcut packing, live/custom rates
+- **Aluminum** alongside copper with live LME pricing; currency UX overhaul (pick before Calculate, persistent custom chip)
+- **Busbar Admin** back-office (7 sections) and **Busbar Pulse** in-app micro-surveys
+- Daily price digest email; per-platform `/download` page with live release detection
+- Roadmap & Whitepaper relaunch (animated showpiece pages); site-wide SEO pass; mobile footer
+
+### Fixed
+- Windows shell: black-window launch (`tauri.localhost` whitelist) and false “offline” screen (CORS/CORP on the connectivity probe)
+- Android 11+ TWA degradation (missing package-visibility `<queries>`)
+- Offline cold start now shows the branded page (SW pre-caches `/offline`)
+- Welcome/admin emails on Passenger (all sends awaited)
+
+---
+
 ## [1.1.0] — 2025-05-25
 
 ### Added
