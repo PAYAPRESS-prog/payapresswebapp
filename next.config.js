@@ -145,6 +145,9 @@ const nextConfig = {
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=86400' },
           { key: 'Access-Control-Allow-Origin', value: '*' },
+          // Override the global CORP same-origin: it would block the
+          // no-cors connectivity probe from the Windows shell (v1.0.2+).
+          { key: 'Cross-Origin-Resource-Policy', value: 'cross-origin' },
         ],
       },
     ];
