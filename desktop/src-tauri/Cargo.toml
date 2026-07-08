@@ -1,6 +1,6 @@
 [package]
 name = "busbar-calculator"
-version = "1.0.1"
+version = "1.0.2"
 description = "Busbar Calculator — official Windows app (remote shell)"
 authors = ["Busbar Calculator — Payapress"]
 edition = "2021"

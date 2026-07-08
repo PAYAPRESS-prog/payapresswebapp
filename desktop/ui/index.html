@@ -40,10 +40,14 @@
   var APP = 'https://calculator.payapress.com/busbar-calculator?src=windows-app';
   function go() {
     document.getElementById('root').classList.remove('offline');
-    // HEAD ping with a tight timeout, then hand over to the live app
+    // Connectivity ping with a tight timeout, then hand over to the live
+    // app. mode:'no-cors' — this page runs on tauri.localhost, so a normal
+    // cross-origin fetch would be CORS-blocked and read as "offline" even
+    // with a perfect connection; an opaque response is enough as a probe
+    // (only real network failures reject).
     var ctl = new AbortController();
     var t = setTimeout(function(){ ctl.abort(); }, 6000);
-    fetch('https://calculator.payapress.com/manifest.json', {signal: ctl.signal, cache: 'no-store'})
+    fetch('https://calculator.payapress.com/manifest.json', {signal: ctl.signal, cache: 'no-store', mode: 'no-cors'})
       .then(function(){ clearTimeout(t); location.replace(APP); })
       .catch(function(){ clearTimeout(t); document.getElementById('root').classList.add('offline'); });
   }

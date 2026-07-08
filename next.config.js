@@ -137,9 +137,14 @@ const nextConfig = {
       },
       {
         // ── Manifest: short-lived cache ────────────────────────────
+        // CORS open: the Windows shell's bundled bootstrap page (origin
+        // http://tauri.localhost) pings this file as its connectivity
+        // probe — without ACAO the fetch is blocked and the app shows
+        // "You're offline" even when online. The manifest is public data.
         source: '/manifest.json',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=86400' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
         ],
       },
     ];
